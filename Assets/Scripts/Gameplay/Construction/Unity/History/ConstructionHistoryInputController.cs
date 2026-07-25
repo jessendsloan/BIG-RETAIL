@@ -56,6 +56,10 @@ namespace BigRetail.Construction.Unity.History
         private FloorConstructionToolController
             floorConstructionTool;
 
+        [SerializeField]
+        private FloorDemolitionToolController
+            floorDemolitionTool;
+
 
         [Header("Diagnostics")]
 
@@ -193,7 +197,8 @@ namespace BigRetail.Construction.Unity.History
             return
                 wallConstructionTool.IsPlanningRun
                 || wallDemolitionTool.IsPlanningRun
-                || floorConstructionTool.IsPlanningArea;
+                || floorConstructionTool.IsPlanningArea
+                || floorDemolitionTool.IsPlanningArea;
         }
 
 
@@ -377,6 +382,16 @@ namespace BigRetail.Construction.Unity.History
                 Debug.LogError(
                     "ConstructionHistoryInputController has no " +
                     "FloorConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (floorDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "FloorDemolitionToolController assigned.",
                     this);
 
                 isValid = false;

@@ -31,6 +31,10 @@ namespace BigRetail.Construction.Unity.Tools
         private FloorConstructionToolController
             floorConstructionTool;
 
+        [SerializeField]
+        private FloorDemolitionToolController
+            floorDemolitionTool;
+
 
         [Header("Starting State")]
 
@@ -78,6 +82,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 floorConstructionTool.ToolActiveChanged +=
                     HandleFloorConstructionActivityChanged;
+            }
+
+            if (floorDemolitionTool != null)
+            {
+                floorDemolitionTool.ToolActiveChanged +=
+                    HandleFloorDemolitionActivityChanged;
             }
         }
 
@@ -138,6 +148,17 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        [ContextMenu("Activate Floor Demolition")]
+        public void ActivateFloorDemolition()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.DemolishFloors);
+            }
+        }
+
+
         [ContextMenu("Deactivate Construction Tools")]
         public void DeactivateConstructionTools()
         {
@@ -182,6 +203,10 @@ namespace BigRetail.Construction.Unity.Tools
                 SetFloorConstructionActive(
                     mode
                     == ConstructionToolMode.BuildFloors);
+
+                SetFloorDemolitionActive(
+                    mode
+                    == ConstructionToolMode.DemolishFloors);
 
                 CurrentMode = mode;
             }
@@ -242,6 +267,20 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 floorConstructionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetFloorDemolitionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                floorDemolitionTool.ActivateTool();
+            }
+            else
+            {
+                floorDemolitionTool.DeactivateTool();
             }
         }
 
@@ -330,6 +369,34 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleFloorDemolitionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.DemolishFloors,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.DemolishFloors)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private bool ValidateReferences()
         {
             bool isValid = true;
@@ -359,6 +426,16 @@ namespace BigRetail.Construction.Unity.Tools
                 Debug.LogError(
                     "ConstructionToolCoordinator has no " +
                     "FloorConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (floorDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "FloorDemolitionToolController assigned.",
                     this);
 
                 isValid = false;
@@ -402,6 +479,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 floorConstructionTool.ToolActiveChanged -=
                     HandleFloorConstructionActivityChanged;
+            }
+
+            if (floorDemolitionTool != null)
+            {
+                floorDemolitionTool.ToolActiveChanged -=
+                    HandleFloorDemolitionActivityChanged;
             }
         }
     }

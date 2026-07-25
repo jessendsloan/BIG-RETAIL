@@ -662,6 +662,39 @@ namespace BigRetail.Map.Floors.Tests
 
 
         [Test]
+        public void TryClearFloors_ExistingOutsideCurrentMap_RemovesIt()
+        {
+            GridPosition outsideCurrentMap =
+                CreateCell(
+                    20,
+                    20);
+
+            Assert.That(
+                service.TryApplyEdit(
+                    FloorEdit.AddFloors(
+                        new[] { outsideCurrentMap }))
+                    .Succeeded,
+                Is.True);
+
+            FloorClearResult result =
+                service.TryClearFloors(
+                    new[] { outsideCurrentMap });
+
+            Assert.That(
+                result.Succeeded,
+                Is.True);
+
+            Assert.That(
+                result.RemovedCount,
+                Is.EqualTo(1));
+
+            Assert.That(
+                floorState.HasFloor(outsideCurrentMap),
+                Is.False);
+        }
+
+
+        [Test]
         public void EmptyRequests_AreRejected()
         {
             GridPosition[] empty =

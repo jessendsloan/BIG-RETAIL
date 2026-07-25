@@ -9,6 +9,7 @@ namespace BigRetail.Construction.Unity.Tools
         None,
         BuildWalls,
         DemolishWalls,
-        BuildFloors
+        BuildFloors,
+        DemolishFloors
     }
 }
