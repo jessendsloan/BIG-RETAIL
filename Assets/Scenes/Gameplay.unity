@@ -296709,7 +296709,7 @@ GameObject:
   - component: {fileID: 466961598}
   - component: {fileID: 466961597}
   m_Layer: 0
-  m_Name: WallHistoryInputTool
+  m_Name: ConstructionHistoryInputTool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -296726,13 +296726,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7dcfef362567ced4fb45f4080fefbde9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.History.WallHistoryInputController
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.History.ConstructionHistoryInputController
   playerInput: {fileID: 933909789}
   constructionActionMapName: Construction
   undoActionName: Undo
   redoActionName: Redo
   historyHost: {fileID: 746913718}
-  toolCoordinator: {fileID: 1508060588}
   wallConstructionTool: {fileID: 1588797417}
   wallDemolitionTool: {fileID: 542041195}
   floorConstructionTool: {fileID: 1747614301}
@@ -297110,7 +297109,7 @@ GameObject:
   - component: {fileID: 746913717}
   - component: {fileID: 746913718}
   m_Layer: 0
-  m_Name: WallEditHistoryHost
+  m_Name: ConstructionHistoryHost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -297142,8 +297141,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de73e40a9e048d941abbf9733fa60120, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.History.WallEditHistoryHost
-  mapHost: {fileID: 1863031834}
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.History.ConstructionHistoryHost
+  historyMode: 0
 --- !u!1 &749772345
 GameObject:
   m_ObjectHideFlags: 0
@@ -297696,38 +297695,6 @@ Transform:
   - {fileID: 466961598}
   - {fileID: 1234881116}
   - {fileID: 1747614300}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1099120697
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1099120698}
-  m_Layer: 0
-  m_Name: MapSystems
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1099120698
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1099120697}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -27.7662, y: 15.64272, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2015064391}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1122069734
@@ -298319,6 +298286,7 @@ MonoBehaviour:
   cellTargetResolver: {fileID: 1234881117}
   previewView: {fileID: 1159354257}
   floorRuntimeHost: {fileID: 336439091}
+  historyHost: {fileID: 746913718}
   startActive: 0
   logConstructionResults: 1
 --- !u!1 &1831485133
@@ -390870,57 +390838,6 @@ Transform:
   - {fileID: 519420032}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2015064390
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2015064391}
-  - component: {fileID: 2015064392}
-  m_Layer: 0
-  m_Name: FloorRectangleDiagnostic
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2015064391
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015064390}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1099120698}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2015064392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2015064390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84843f8411b01db44ab5041d494164be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Floors.FloorRectangleDiagnostic
-  floorRuntimeHost: {fileID: 336439091}
-  coordinateTilemap: {fileID: 463974780}
-  logicalLevel: 0
-  width: 6
-  height: 4
-  startupAction: 0
-  logResults: 1
 --- !u!1 &2082405062
 GameObject:
   m_ObjectHideFlags: 0
@@ -390987,4 +390904,3 @@ SceneRoots:
   - {fileID: 178694496}
   - {fileID: 1045213719}
   - {fileID: 336439092}
-  - {fileID: 1099120698}

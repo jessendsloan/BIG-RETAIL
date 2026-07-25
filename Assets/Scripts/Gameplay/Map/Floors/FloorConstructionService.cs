@@ -253,5 +253,102 @@ namespace BigRetail.Map.Floors
                 existingCells,
                 alreadyEmptyCount);
         }
+
+
+        /// <summary>
+        /// Replays an exact previously committed floor edit.
+        ///
+        /// History replay deliberately bypasses the current
+        /// construction-area mask so scenario-authored or legacy
+        /// floors can be restored exactly.
+        ///
+        /// The operation is strict and atomic: every requested state
+        /// change must match the current floor state or nothing changes.
+        /// </summary>
+        public FloorBatchChangeResult TryApplyEdit(
+            FloorEdit edit)
+        {
+            if (edit.IsEmpty)
+            {
+                return FloorBatchChangeResult.Success(0);
+            }
+
+            switch (edit.Kind)
+            {
+                case FloorEditKind.AddFloors:
+                    return TryApplyAddedEdit(edit);
+
+                case FloorEditKind.RemoveFloors:
+                    return TryApplyRemovedEdit(edit);
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported floor edit kind: {edit.Kind}.");
+            }
+        }
+
+
+        private FloorBatchChangeResult TryApplyAddedEdit(
+            FloorEdit edit)
+        {
+            for (int index = 0;
+                 index < edit.Count;
+                 index++)
+            {
+                GridPosition cell =
+                    edit.Cells[index];
+
+                if (floorState.HasFloor(cell))
+                {
+                    return FloorBatchChangeResult.Rejected(
+                        edit.Count,
+                        cell,
+                        FloorChangeFailure.AlreadyExists);
+                }
+            }
+
+            if (!floorState.TryAddFloors(edit.Cells))
+            {
+                return FloorBatchChangeResult.Rejected(
+                    edit.Count,
+                    edit.Cells[0],
+                    FloorChangeFailure.AlreadyExists);
+            }
+
+            return FloorBatchChangeResult.Success(
+                edit.Count);
+        }
+
+
+        private FloorBatchChangeResult TryApplyRemovedEdit(
+            FloorEdit edit)
+        {
+            for (int index = 0;
+                 index < edit.Count;
+                 index++)
+            {
+                GridPosition cell =
+                    edit.Cells[index];
+
+                if (!floorState.HasFloor(cell))
+                {
+                    return FloorBatchChangeResult.Rejected(
+                        edit.Count,
+                        cell,
+                        FloorChangeFailure.NotFound);
+                }
+            }
+
+            if (!floorState.TryRemoveFloors(edit.Cells))
+            {
+                return FloorBatchChangeResult.Rejected(
+                    edit.Count,
+                    edit.Cells[0],
+                    FloorChangeFailure.NotFound);
+            }
+
+            return FloorBatchChangeResult.Success(
+                edit.Count);
+        }
     }
 }

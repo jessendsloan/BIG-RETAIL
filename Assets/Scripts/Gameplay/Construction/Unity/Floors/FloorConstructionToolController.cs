@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Construction.Unity.Cells;
+using BigRetail.Construction.Unity.History;
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Floors;
@@ -23,6 +24,8 @@ namespace BigRetail.Construction.Unity.Floors
     /// - Press Confirm again to construct.
     ///
     /// Existing and invalid cells do not reject valid cells.
+    /// Successful state changes are recorded as neutral construction
+    /// history actions.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
@@ -64,6 +67,9 @@ namespace BigRetail.Construction.Unity.Floors
         [SerializeField]
         private FloorRuntimeHost
             floorRuntimeHost;
+
+        [SerializeField]
+        private ConstructionHistoryHost historyHost;
 
 
         [Header("Starting State")]
@@ -242,6 +248,16 @@ namespace BigRetail.Construction.Unity.Floors
                 return;
             }
 
+            if (!historyHost.TryInitialize())
+            {
+                Debug.LogError(
+                    "FloorConstructionToolController could not access " +
+                    "an initialized ConstructionHistory.",
+                    this);
+
+                return;
+            }
+
             StartCell =
                 cellTargetResolver.CurrentCell;
 
@@ -347,6 +363,16 @@ namespace BigRetail.Construction.Unity.Floors
                 return false;
             }
 
+            if (!historyHost.TryInitialize())
+            {
+                Debug.LogError(
+                    "The current floor area could not be recorded " +
+                    "because construction history is unavailable.",
+                    this);
+
+                return false;
+            }
+
             FloorEnsureResult result =
                 floorRuntimeHost.FloorConstruction
                     .TryEnsureFloors(
@@ -362,6 +388,14 @@ namespace BigRetail.Construction.Unity.Floors
                 }
 
                 return false;
+            }
+
+            if (!result.Edit.IsEmpty)
+            {
+                historyHost.History.Record(
+                    new ReversibleFloorEditAction(
+                        floorRuntimeHost.FloorConstruction,
+                        result.Edit));
             }
 
             if (logConstructionResults)
@@ -641,6 +675,16 @@ namespace BigRetail.Construction.Unity.Floors
                 Debug.LogError(
                     "FloorConstructionToolController has no " +
                     "FloorRuntimeHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (historyHost == null)
+            {
+                Debug.LogError(
+                    "FloorConstructionToolController has no " +
+                    "ConstructionHistoryHost assigned.",
                     this);
 
                 isValid = false;
