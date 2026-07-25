@@ -1,0 +1,31 @@
+{
+    "asset": "0be70a8575b69994397678aebb51022f",
+    "fileName": "019f82ba-351a-7c1b-ab70-70b2683d0f09.png",
+    "prompt": "hand-painted stylized deep navy blue plush carpet floor texture, seamless tileable, cozy boutique fashion zone look, soft fiber grain, clean, vibrant, high-quality game texture",
+    "negativePrompt": "",
+    "model": "flux-2-dev",
+    "modelName": "Flux 2 (Dev)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}

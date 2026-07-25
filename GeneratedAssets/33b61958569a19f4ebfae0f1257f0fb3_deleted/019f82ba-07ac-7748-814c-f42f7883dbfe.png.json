@@ -1,0 +1,31 @@
+{
+    "asset": "33b61958569a19f4ebfae0f1257f0fb3",
+    "fileName": "019f82ba-07ac-7748-814c-f42f7883dbfe.png",
+    "prompt": "hand-painted stylized warm golden-brown honey oak hardwood planks floor texture, seamless tileable, satin woodgrain, organic bakery retail look, clean, vibrant, high-quality game texture",
+    "negativePrompt": "",
+    "model": "flux-2-dev",
+    "modelName": "Flux 2 (Dev)",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}
