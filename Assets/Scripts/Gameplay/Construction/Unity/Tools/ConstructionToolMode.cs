@@ -8,6 +8,7 @@ namespace BigRetail.Construction.Unity.Tools
     {
         None,
         BuildWalls,
-        DemolishWalls
+        DemolishWalls,
+        BuildFloors
     }
 }

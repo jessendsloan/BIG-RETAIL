@@ -1,22 +1,20 @@
 using System;
+using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Walls;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.Tools
 {
     /// <summary>
-    /// Ensures that only one construction tool owns the shared
-    /// construction input at a time.
-    ///
-    /// Individual tools still own their interaction behavior.
-    /// This coordinator owns tool selection only.
+    /// Ensures that exactly one construction tool owns the shared
+    /// construction pointer and input actions at a time.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(300)]
     public sealed class ConstructionToolCoordinator :
         MonoBehaviour
     {
-        [Header("Tools")]
+        [Header("Wall Tools")]
 
         [SerializeField]
         private WallConstructionToolController
@@ -25,6 +23,13 @@ namespace BigRetail.Construction.Unity.Tools
         [SerializeField]
         private WallDemolitionToolController
             wallDemolitionTool;
+
+
+        [Header("Floor Tools")]
+
+        [SerializeField]
+        private FloorConstructionToolController
+            floorConstructionTool;
 
 
         [Header("Starting State")]
@@ -45,7 +50,6 @@ namespace BigRetail.Construction.Unity.Tools
 
 
         private bool isInitialized;
-
         private bool isApplyingMode;
 
 
@@ -68,6 +72,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 wallDemolitionTool.ToolActiveChanged +=
                     HandleWallDemolitionActivityChanged;
+            }
+
+            if (floorConstructionTool != null)
+            {
+                floorConstructionTool.ToolActiveChanged +=
+                    HandleFloorConstructionActivityChanged;
             }
         }
 
@@ -98,39 +108,44 @@ namespace BigRetail.Construction.Unity.Tools
         [ContextMenu("Activate Wall Construction")]
         public void ActivateWallConstruction()
         {
-            if (!RequirePlayMode())
+            if (RequirePlayMode())
             {
-                return;
+                SetMode(
+                    ConstructionToolMode.BuildWalls);
             }
-
-            SetMode(
-                ConstructionToolMode.BuildWalls);
         }
 
 
         [ContextMenu("Activate Wall Demolition")]
         public void ActivateWallDemolition()
         {
-            if (!RequirePlayMode())
+            if (RequirePlayMode())
             {
-                return;
+                SetMode(
+                    ConstructionToolMode.DemolishWalls);
             }
+        }
 
-            SetMode(
-                ConstructionToolMode.DemolishWalls);
+
+        [ContextMenu("Activate Floor Construction")]
+        public void ActivateFloorConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildFloors);
+            }
         }
 
 
         [ContextMenu("Deactivate Construction Tools")]
         public void DeactivateConstructionTools()
         {
-            if (!RequirePlayMode())
+            if (RequirePlayMode())
             {
-                return;
+                SetMode(
+                    ConstructionToolMode.None);
             }
-
-            SetMode(
-                ConstructionToolMode.None);
         }
 
 
@@ -164,8 +179,11 @@ namespace BigRetail.Construction.Unity.Tools
                     mode
                     == ConstructionToolMode.DemolishWalls);
 
-                CurrentMode =
-                    mode;
+                SetFloorConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildFloors);
+
+                CurrentMode = mode;
             }
             finally
             {
@@ -210,6 +228,20 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 wallDemolitionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetFloorConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                floorConstructionTool.ActivateTool();
+            }
+            else
+            {
+                floorConstructionTool.DeactivateTool();
             }
         }
 
@@ -270,6 +302,34 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleFloorConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildFloors,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildFloors)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private bool ValidateReferences()
         {
             bool isValid = true;
@@ -289,6 +349,16 @@ namespace BigRetail.Construction.Unity.Tools
                 Debug.LogError(
                     "ConstructionToolCoordinator has no " +
                     "WallDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (floorConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "FloorConstructionToolController assigned.",
                     this);
 
                 isValid = false;
@@ -326,6 +396,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 wallDemolitionTool.ToolActiveChanged -=
                     HandleWallDemolitionActivityChanged;
+            }
+
+            if (floorConstructionTool != null)
+            {
+                floorConstructionTool.ToolActiveChanged -=
+                    HandleFloorConstructionActivityChanged;
             }
         }
     }

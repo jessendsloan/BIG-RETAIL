@@ -1,3 +1,4 @@
+using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Construction.Unity.Walls;
 using BigRetail.Map.Walls;
@@ -9,8 +10,9 @@ namespace BigRetail.Construction.Unity.History
     /// <summary>
     /// Converts player Undo and Redo input into wall-history requests.
     ///
-    /// History input is ignored while a wall run is being planned.
-    /// Undo and Redo preserve the currently selected construction tool.
+    /// Wall history is active only while a wall tool is selected.
+    /// Floor edits will join a unified construction history in the
+    /// next architecture checkpoint.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(250)]
@@ -44,7 +46,8 @@ namespace BigRetail.Construction.Unity.History
         [Header("Construction Tools")]
 
         [SerializeField]
-        private ConstructionToolCoordinator toolCoordinator;
+        private ConstructionToolCoordinator
+            toolCoordinator;
 
         [SerializeField]
         private WallConstructionToolController
@@ -53,6 +56,10 @@ namespace BigRetail.Construction.Unity.History
         [SerializeField]
         private WallDemolitionToolController
             wallDemolitionTool;
+
+        [SerializeField]
+        private FloorConstructionToolController
+            floorConstructionTool;
 
 
         [Header("Diagnostics")]
@@ -72,8 +79,7 @@ namespace BigRetail.Construction.Unity.History
         private ConstructionToolMode modeBeforeFrameDeactivation =
             ConstructionToolMode.None;
 
-        private int deactivationFrame =
-            -1;
+        private int deactivationFrame = -1;
 
 
         private void Awake()
@@ -118,7 +124,15 @@ namespace BigRetail.Construction.Unity.History
                 return;
             }
 
-            if (IsAnyRunBeingPlanned())
+            ConstructionToolMode effectiveMode =
+                ResolveEffectiveMode();
+
+            if (!IsWallHistoryMode(effectiveMode))
+            {
+                return;
+            }
+
+            if (IsAnyConstructionGestureActive())
             {
                 return;
             }
@@ -139,34 +153,42 @@ namespace BigRetail.Construction.Unity.History
         [ContextMenu("Undo Wall Edit")]
         public void UndoFromContextMenu()
         {
-            if (!RequirePlayMode())
+            if (RequirePlayMode())
             {
-                return;
+                TryUndo();
             }
-
-            TryUndo();
         }
 
 
         [ContextMenu("Redo Wall Edit")]
         public void RedoFromContextMenu()
         {
-            if (!RequirePlayMode())
+            if (RequirePlayMode())
             {
-                return;
+                TryRedo();
             }
-
-            TryRedo();
         }
 
 
         public bool TryUndo()
         {
-            if (IsAnyRunBeingPlanned())
+            ConstructionToolMode modeToPreserve =
+                ResolveEffectiveMode();
+
+            if (!IsWallHistoryMode(modeToPreserve))
             {
                 LogWarning(
-                    "Undo was ignored because a wall run " +
-                    "is currently being planned.");
+                    "Wall Undo was ignored because a wall tool " +
+                    "is not currently selected.");
+
+                return false;
+            }
+
+            if (IsAnyConstructionGestureActive())
+            {
+                LogWarning(
+                    "Undo was ignored because a construction " +
+                    "gesture is currently being planned.");
 
                 return false;
             }
@@ -176,9 +198,6 @@ namespace BigRetail.Construction.Unity.History
             {
                 return false;
             }
-
-            ConstructionToolMode modeToPreserve =
-                ResolveModeToPreserve();
 
             bool succeeded =
                 history.TryUndo(
@@ -198,11 +217,23 @@ namespace BigRetail.Construction.Unity.History
 
         public bool TryRedo()
         {
-            if (IsAnyRunBeingPlanned())
+            ConstructionToolMode modeToPreserve =
+                ResolveEffectiveMode();
+
+            if (!IsWallHistoryMode(modeToPreserve))
             {
                 LogWarning(
-                    "Redo was ignored because a wall run " +
-                    "is currently being planned.");
+                    "Wall Redo was ignored because a wall tool " +
+                    "is not currently selected.");
+
+                return false;
+            }
+
+            if (IsAnyConstructionGestureActive())
+            {
+                LogWarning(
+                    "Redo was ignored because a construction " +
+                    "gesture is currently being planned.");
 
                 return false;
             }
@@ -212,9 +243,6 @@ namespace BigRetail.Construction.Unity.History
             {
                 return false;
             }
-
-            ConstructionToolMode modeToPreserve =
-                ResolveModeToPreserve();
 
             bool succeeded =
                 history.TryRedo(
@@ -232,14 +260,7 @@ namespace BigRetail.Construction.Unity.History
         }
 
 
-        /// <summary>
-        /// Returns the tool that was active when the history input
-        /// began.
-        ///
-        /// If another input reaction deactivated the tool earlier in
-        /// this same frame, the previous active mode is preserved.
-        /// </summary>
-        private ConstructionToolMode ResolveModeToPreserve()
+        private ConstructionToolMode ResolveEffectiveMode()
         {
             if (toolCoordinator.CurrentMode
                 != ConstructionToolMode.None)
@@ -256,15 +277,21 @@ namespace BigRetail.Construction.Unity.History
         }
 
 
+        private static bool IsWallHistoryMode(
+            ConstructionToolMode mode)
+        {
+            return
+                mode == ConstructionToolMode.BuildWalls
+                || mode
+                    == ConstructionToolMode.DemolishWalls;
+        }
+
+
         private void RestoreToolMode(
             ConstructionToolMode mode)
         {
-            if (mode == ConstructionToolMode.None)
-            {
-                return;
-            }
-
-            if (toolCoordinator.CurrentMode == mode)
+            if (mode == ConstructionToolMode.None
+                || toolCoordinator.CurrentMode == mode)
             {
                 return;
             }
@@ -300,11 +327,12 @@ namespace BigRetail.Construction.Unity.History
         }
 
 
-        private bool IsAnyRunBeingPlanned()
+        private bool IsAnyConstructionGestureActive()
         {
             return
                 wallConstructionTool.IsPlanningRun
-                || wallDemolitionTool.IsPlanningRun;
+                || wallDemolitionTool.IsPlanningRun
+                || floorConstructionTool.IsPlanningArea;
         }
 
 
@@ -411,7 +439,7 @@ namespace BigRetail.Construction.Unity.History
             if (result.Failure
                 == WallHistoryFailure.NothingToUndo
                 || result.Failure
-                == WallHistoryFailure.NothingToRedo)
+                    == WallHistoryFailure.NothingToRedo)
             {
                 Debug.Log(
                     $"{operationName}: {result.Failure}.",
@@ -490,6 +518,16 @@ namespace BigRetail.Construction.Unity.History
                 Debug.LogError(
                     "WallHistoryInputController has no " +
                     "WallDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (floorConstructionTool == null)
+            {
+                Debug.LogError(
+                    "WallHistoryInputController has no " +
+                    "FloorConstructionToolController assigned.",
                     this);
 
                 isValid = false;
