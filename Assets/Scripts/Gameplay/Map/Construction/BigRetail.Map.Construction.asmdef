@@ -1,6 +1,6 @@
 {
     "name": "BigRetail.Map.Construction",
-    "rootNamespace": "BigRetail.Map.Construction ",
+    "rootNamespace": "BigRetail.Map.Construction",
     "references": [
         "GUID:3e0085d755156984c9206a564893fbf3"
     ],

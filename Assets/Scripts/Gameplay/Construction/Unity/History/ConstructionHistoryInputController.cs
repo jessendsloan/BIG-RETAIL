@@ -1,22 +1,21 @@
 using BigRetail.Construction.Unity.Floors;
-using BigRetail.Construction.Unity.Tools;
 using BigRetail.Construction.Unity.Walls;
-using BigRetail.Map.Walls;
+using BigRetail.Map.Construction;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace BigRetail.Construction.Unity.History
 {
     /// <summary>
-    /// Converts player Undo and Redo input into wall-history requests.
+    /// Converts global construction Undo and Redo input into neutral
+    /// history requests.
     ///
-    /// Wall history is active only while a wall tool is selected.
-    /// Floor edits will join a unified construction history in the
-    /// next architecture checkpoint.
+    /// The selected construction tool is preserved. History requests
+    /// are blocked only while any tool is planning a live gesture.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(250)]
-    public sealed class WallHistoryInputController :
+    public sealed class ConstructionHistoryInputController :
         MonoBehaviour
     {
         [Header("Input")]
@@ -40,14 +39,10 @@ namespace BigRetail.Construction.Unity.History
         [Header("History")]
 
         [SerializeField]
-        private WallEditHistoryHost historyHost;
+        private ConstructionHistoryHost historyHost;
 
 
         [Header("Construction Tools")]
-
-        [SerializeField]
-        private ConstructionToolCoordinator
-            toolCoordinator;
 
         [SerializeField]
         private WallConstructionToolController
@@ -73,14 +68,6 @@ namespace BigRetail.Construction.Unity.History
 
         private bool isInitialized;
 
-        private ConstructionToolMode lastNonNoneMode =
-            ConstructionToolMode.None;
-
-        private ConstructionToolMode modeBeforeFrameDeactivation =
-            ConstructionToolMode.None;
-
-        private int deactivationFrame = -1;
-
 
         private void Awake()
         {
@@ -96,43 +83,14 @@ namespace BigRetail.Construction.Unity.History
                 return;
             }
 
-            if (toolCoordinator.CurrentMode
-                != ConstructionToolMode.None)
-            {
-                lastNonNoneMode =
-                    toolCoordinator.CurrentMode;
-            }
-
             isInitialized = true;
-        }
-
-
-        private void OnEnable()
-        {
-            if (toolCoordinator != null)
-            {
-                toolCoordinator.ModeChanged +=
-                    HandleToolModeChanged;
-            }
         }
 
 
         private void LateUpdate()
         {
-            if (!isInitialized)
-            {
-                return;
-            }
-
-            ConstructionToolMode effectiveMode =
-                ResolveEffectiveMode();
-
-            if (!IsWallHistoryMode(effectiveMode))
-            {
-                return;
-            }
-
-            if (IsAnyConstructionGestureActive())
+            if (!isInitialized
+                || IsAnyConstructionGestureActive())
             {
                 return;
             }
@@ -150,7 +108,7 @@ namespace BigRetail.Construction.Unity.History
         }
 
 
-        [ContextMenu("Undo Wall Edit")]
+        [ContextMenu("Undo Construction Action")]
         public void UndoFromContextMenu()
         {
             if (RequirePlayMode())
@@ -160,7 +118,7 @@ namespace BigRetail.Construction.Unity.History
         }
 
 
-        [ContextMenu("Redo Wall Edit")]
+        [ContextMenu("Redo Construction Action")]
         public void RedoFromContextMenu()
         {
             if (RequirePlayMode())
@@ -172,18 +130,6 @@ namespace BigRetail.Construction.Unity.History
 
         public bool TryUndo()
         {
-            ConstructionToolMode modeToPreserve =
-                ResolveEffectiveMode();
-
-            if (!IsWallHistoryMode(modeToPreserve))
-            {
-                LogWarning(
-                    "Wall Undo was ignored because a wall tool " +
-                    "is not currently selected.");
-
-                return false;
-            }
-
             if (IsAnyConstructionGestureActive())
             {
                 LogWarning(
@@ -194,17 +140,14 @@ namespace BigRetail.Construction.Unity.History
             }
 
             if (!TryGetHistory(
-                    out WallEditHistory history))
+                    out ConstructionHistory history))
             {
                 return false;
             }
 
             bool succeeded =
                 history.TryUndo(
-                    out WallHistoryResult result);
-
-            RestoreToolMode(
-                modeToPreserve);
+                    out ConstructionHistoryResult result);
 
             LogResult(
                 "Undo",
@@ -217,18 +160,6 @@ namespace BigRetail.Construction.Unity.History
 
         public bool TryRedo()
         {
-            ConstructionToolMode modeToPreserve =
-                ResolveEffectiveMode();
-
-            if (!IsWallHistoryMode(modeToPreserve))
-            {
-                LogWarning(
-                    "Wall Redo was ignored because a wall tool " +
-                    "is not currently selected.");
-
-                return false;
-            }
-
             if (IsAnyConstructionGestureActive())
             {
                 LogWarning(
@@ -239,17 +170,14 @@ namespace BigRetail.Construction.Unity.History
             }
 
             if (!TryGetHistory(
-                    out WallEditHistory history))
+                    out ConstructionHistory history))
             {
                 return false;
             }
 
             bool succeeded =
                 history.TryRedo(
-                    out WallHistoryResult result);
-
-            RestoreToolMode(
-                modeToPreserve);
+                    out ConstructionHistoryResult result);
 
             LogResult(
                 "Redo",
@@ -257,73 +185,6 @@ namespace BigRetail.Construction.Unity.History
                 history);
 
             return succeeded;
-        }
-
-
-        private ConstructionToolMode ResolveEffectiveMode()
-        {
-            if (toolCoordinator.CurrentMode
-                != ConstructionToolMode.None)
-            {
-                return toolCoordinator.CurrentMode;
-            }
-
-            if (deactivationFrame == Time.frameCount)
-            {
-                return modeBeforeFrameDeactivation;
-            }
-
-            return ConstructionToolMode.None;
-        }
-
-
-        private static bool IsWallHistoryMode(
-            ConstructionToolMode mode)
-        {
-            return
-                mode == ConstructionToolMode.BuildWalls
-                || mode
-                    == ConstructionToolMode.DemolishWalls;
-        }
-
-
-        private void RestoreToolMode(
-            ConstructionToolMode mode)
-        {
-            if (mode == ConstructionToolMode.None
-                || toolCoordinator.CurrentMode == mode)
-            {
-                return;
-            }
-
-            toolCoordinator.SetMode(mode);
-
-            if (logHistoryResults)
-            {
-                Debug.Log(
-                    $"Restored construction tool mode to {mode} " +
-                    $"after history operation.",
-                    this);
-            }
-        }
-
-
-        private void HandleToolModeChanged(
-            ConstructionToolMode newMode)
-        {
-            if (newMode == ConstructionToolMode.None)
-            {
-                modeBeforeFrameDeactivation =
-                    lastNonNoneMode;
-
-                deactivationFrame =
-                    Time.frameCount;
-
-                return;
-            }
-
-            lastNonNoneMode =
-                newMode;
         }
 
 
@@ -337,7 +198,7 @@ namespace BigRetail.Construction.Unity.History
 
 
         private bool TryGetHistory(
-            out WallEditHistory history)
+            out ConstructionHistory history)
         {
             history = null;
 
@@ -345,8 +206,8 @@ namespace BigRetail.Construction.Unity.History
                 || historyHost.History == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController could not access " +
-                    "an initialized WallEditHistory.",
+                    "ConstructionHistoryInputController could not " +
+                    "access an initialized ConstructionHistory.",
                     this);
 
                 return false;
@@ -364,8 +225,8 @@ namespace BigRetail.Construction.Unity.History
             if (playerInput.actions == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController could not find an " +
-                    "Input Actions asset on PlayerInput.",
+                    "ConstructionHistoryInputController could not " +
+                    "find an Input Actions asset on PlayerInput.",
                     this);
 
                 return false;
@@ -400,8 +261,8 @@ namespace BigRetail.Construction.Unity.History
                 || redoAction == null)
             {
                 Debug.LogError(
-                    $"WallHistoryInputController requires actions " +
-                    $"named '{undoActionName}' and " +
+                    $"ConstructionHistoryInputController requires " +
+                    $"actions named '{undoActionName}' and " +
                     $"'{redoActionName}' inside the " +
                     $"'{constructionActionMapName}' Action Map.",
                     this);
@@ -415,8 +276,8 @@ namespace BigRetail.Construction.Unity.History
 
         private void LogResult(
             string operationName,
-            WallHistoryResult result,
-            WallEditHistory history)
+            ConstructionHistoryResult result,
+            ConstructionHistory history)
         {
             if (!logHistoryResults)
             {
@@ -426,20 +287,19 @@ namespace BigRetail.Construction.Unity.History
             if (result.Succeeded)
             {
                 Debug.Log(
-                    $"{operationName} succeeded. " +
-                    $"Applied {result.AppliedEdit.Count} wall " +
-                    $"change(s). Undo entries: " +
-                    $"{history.UndoCount}. Redo entries: " +
-                    $"{history.RedoCount}.",
+                    $"{operationName} succeeded: " +
+                    $"{result.Action.Description}. " +
+                    $"Undo entries: {history.UndoCount}. " +
+                    $"Redo entries: {history.RedoCount}.",
                     this);
 
                 return;
             }
 
             if (result.Failure
-                == WallHistoryFailure.NothingToUndo
+                == ConstructionHistoryFailure.NothingToUndo
                 || result.Failure
-                    == WallHistoryFailure.NothingToRedo)
+                    == ConstructionHistoryFailure.NothingToRedo)
             {
                 Debug.Log(
                     $"{operationName}: {result.Failure}.",
@@ -451,8 +311,7 @@ namespace BigRetail.Construction.Unity.History
             Debug.LogWarning(
                 $"{operationName} failed. " +
                 $"History failure: {result.Failure}. " +
-                $"Apply failure: {result.ApplyFailure}. " +
-                $"Failed edge: {result.FailedEdge}.",
+                $"{result.ActionFailureReason}",
                 this);
         }
 
@@ -476,7 +335,7 @@ namespace BigRetail.Construction.Unity.History
             if (playerInput == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController has no " +
+                    "ConstructionHistoryInputController has no " +
                     "PlayerInput assigned.",
                     this);
 
@@ -486,18 +345,8 @@ namespace BigRetail.Construction.Unity.History
             if (historyHost == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController has no " +
-                    "WallEditHistoryHost assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (toolCoordinator == null)
-            {
-                Debug.LogError(
-                    "WallHistoryInputController has no " +
-                    "ConstructionToolCoordinator assigned.",
+                    "ConstructionHistoryInputController has no " +
+                    "ConstructionHistoryHost assigned.",
                     this);
 
                 isValid = false;
@@ -506,7 +355,7 @@ namespace BigRetail.Construction.Unity.History
             if (wallConstructionTool == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController has no " +
+                    "ConstructionHistoryInputController has no " +
                     "WallConstructionToolController assigned.",
                     this);
 
@@ -516,7 +365,7 @@ namespace BigRetail.Construction.Unity.History
             if (wallDemolitionTool == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController has no " +
+                    "ConstructionHistoryInputController has no " +
                     "WallDemolitionToolController assigned.",
                     this);
 
@@ -526,7 +375,7 @@ namespace BigRetail.Construction.Unity.History
             if (floorConstructionTool == null)
             {
                 Debug.LogError(
-                    "WallHistoryInputController has no " +
+                    "ConstructionHistoryInputController has no " +
                     "FloorConstructionToolController assigned.",
                     this);
 
@@ -545,20 +394,11 @@ namespace BigRetail.Construction.Unity.History
             }
 
             Debug.LogWarning(
-                "Wall history actions can only run during Play Mode.",
+                "Construction history actions can only run during " +
+                "Play Mode.",
                 this);
 
             return false;
-        }
-
-
-        private void OnDisable()
-        {
-            if (toolCoordinator != null)
-            {
-                toolCoordinator.ModeChanged -=
-                    HandleToolModeChanged;
-            }
         }
     }
 }

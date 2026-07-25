@@ -13,7 +13,7 @@ namespace BigRetail.Construction.Unity.Walls
     /// Coordinates straight wall-run demolition.
     ///
     /// Empty edges are skipped, while exact removed walls are recorded
-    /// in WallEditHistory for undo and redo.
+    /// as neutral construction-history actions.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
@@ -56,7 +56,7 @@ namespace BigRetail.Construction.Unity.Walls
         private GridMapHost mapHost;
 
         [SerializeField]
-        private WallEditHistoryHost historyHost;
+        private ConstructionHistoryHost historyHost;
 
 
         [Header("Starting State")]
@@ -237,7 +237,7 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.LogError(
                     "WallDemolitionToolController could not access " +
-                    "an initialized WallEditHistory.",
+                    "an initialized ConstructionHistory.",
                     this);
 
                 return;
@@ -353,7 +353,9 @@ namespace BigRetail.Construction.Unity.Walls
             if (!result.Edit.IsEmpty)
             {
                 historyHost.History.Record(
-                    result.Edit);
+                    new ReversibleWallEditAction(
+                        mapHost.WallConstruction,
+                        result.Edit));
             }
 
             if (logDemolitionResults)
@@ -630,7 +632,7 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.LogError(
                     "WallDemolitionToolController has no " +
-                    "WallEditHistoryHost assigned.",
+                    "ConstructionHistoryHost assigned.",
                     this);
 
                 isValid = false;

@@ -697,6 +697,157 @@ namespace BigRetail.Map.Floors.Tests
         }
 
 
+        [Test]
+        public void TryApplyEdit_AddAndInverseRemove_ReplayExactly()
+        {
+            GridPosition[] cells =
+            {
+                CreateCell(1, 1),
+                CreateCell(2, 1),
+                CreateCell(3, 1)
+            };
+
+            FloorEdit addEdit =
+                FloorEdit.AddFloors(
+                    cells);
+
+            FloorBatchChangeResult addResult =
+                service.TryApplyEdit(
+                    addEdit);
+
+            Assert.That(
+                addResult.Succeeded,
+                Is.True);
+
+            Assert.That(
+                floorState.FloorCount,
+                Is.EqualTo(3));
+
+            FloorBatchChangeResult removeResult =
+                service.TryApplyEdit(
+                    addEdit.Inverse());
+
+            Assert.That(
+                removeResult.Succeeded,
+                Is.True);
+
+            Assert.That(
+                floorState.FloorCount,
+                Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void TryApplyEdit_AddConflict_ChangesNothing()
+        {
+            GridPosition existing =
+                CreateCell(
+                    1,
+                    1);
+
+            GridPosition missing =
+                CreateCell(
+                    2,
+                    1);
+
+            Assert.That(
+                service.TryEnsureFloors(
+                    new[] { existing }).Succeeded,
+                Is.True);
+
+            FloorBatchChangeResult result =
+                service.TryApplyEdit(
+                    FloorEdit.AddFloors(
+                        new[]
+                        {
+                            existing,
+                            missing
+                        }));
+
+            Assert.That(
+                result.Succeeded,
+                Is.False);
+
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FloorChangeFailure.AlreadyExists));
+
+            Assert.That(
+                floorState.HasFloor(existing),
+                Is.True);
+
+            Assert.That(
+                floorState.HasFloor(missing),
+                Is.False);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_RemoveConflict_ChangesNothing()
+        {
+            GridPosition existing =
+                CreateCell(
+                    1,
+                    1);
+
+            GridPosition missing =
+                CreateCell(
+                    2,
+                    1);
+
+            Assert.That(
+                service.TryEnsureFloors(
+                    new[] { existing }).Succeeded,
+                Is.True);
+
+            FloorBatchChangeResult result =
+                service.TryApplyEdit(
+                    FloorEdit.RemoveFloors(
+                        new[]
+                        {
+                            existing,
+                            missing
+                        }));
+
+            Assert.That(
+                result.Succeeded,
+                Is.False);
+
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FloorChangeFailure.NotFound));
+
+            Assert.That(
+                floorState.HasFloor(existing),
+                Is.True);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_HistoryReplayBypassesCurrentAreaMask()
+        {
+            GridPosition outsideCurrentMap =
+                CreateCell(
+                    20,
+                    20);
+
+            FloorBatchChangeResult result =
+                service.TryApplyEdit(
+                    FloorEdit.AddFloors(
+                        new[] { outsideCurrentMap }));
+
+            Assert.That(
+                result.Succeeded,
+                Is.True);
+
+            Assert.That(
+                floorState.HasFloor(outsideCurrentMap),
+                Is.True);
+        }
+
+
         private static GridPosition CreateCell(
             int x,
             int y)

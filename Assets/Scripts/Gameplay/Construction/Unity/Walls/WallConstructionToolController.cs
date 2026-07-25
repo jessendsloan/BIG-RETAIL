@@ -22,7 +22,8 @@ namespace BigRetail.Construction.Unity.Walls
     /// - Move the virtual cursor.
     /// - Press Confirm again to commit.
     ///
-    /// Successful state changes are recorded in WallEditHistory.
+    /// Successful state changes are recorded as neutral construction
+    /// history actions.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
@@ -65,7 +66,7 @@ namespace BigRetail.Construction.Unity.Walls
         private GridMapHost mapHost;
 
         [SerializeField]
-        private WallEditHistoryHost historyHost;
+        private ConstructionHistoryHost historyHost;
 
 
         [Header("Starting State")]
@@ -245,7 +246,7 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.LogError(
                     "WallConstructionToolController could not access " +
-                    "an initialized WallEditHistory.",
+                    "an initialized ConstructionHistory.",
                     this);
 
                 return;
@@ -360,7 +361,9 @@ namespace BigRetail.Construction.Unity.Walls
             if (!result.Edit.IsEmpty)
             {
                 historyHost.History.Record(
-                    result.Edit);
+                    new ReversibleWallEditAction(
+                        mapHost.WallConstruction,
+                        result.Edit));
             }
 
             if (logPlacementResults)
@@ -645,7 +648,7 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.LogError(
                     "WallConstructionToolController has no " +
-                    "WallEditHistoryHost assigned.",
+                    "ConstructionHistoryHost assigned.",
                     this);
 
                 isValid = false;
