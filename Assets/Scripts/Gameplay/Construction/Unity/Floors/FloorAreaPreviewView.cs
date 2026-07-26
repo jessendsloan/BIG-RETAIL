@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Floors;
 using BigRetail.Map.Unity.Floors;
+using BigRetail.Map.Unity.View;
+using BigRetail.Map.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -37,6 +39,9 @@ namespace BigRetail.Construction.Unity.Floors
             "permanent Floor Views Tilemap.")]
         [SerializeField]
         private TileBase previewTile;
+
+        [SerializeField]
+        private IsometricViewHost viewHost;
 
 
         [Header("Coordinate Mapping")]
@@ -114,6 +119,16 @@ namespace BigRetail.Construction.Unity.Floors
             }
 
             Hide();
+        }
+
+
+        private void OnEnable()
+        {
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanging +=
+                    HandleOrientationChanging;
+            }
         }
 
 
@@ -251,9 +266,13 @@ namespace BigRetail.Construction.Unity.Floors
         private Vector3Int ToUnityCell(
             GridPosition cell)
         {
+            GridPosition displayCell =
+                viewHost.Projection.ToDisplayCell(
+                    cell);
+
             return new Vector3Int(
-                cell.X,
-                cell.Y,
+                displayCell.X,
+                displayCell.Y,
                 unityCellZ);
         }
 
@@ -291,6 +310,16 @@ namespace BigRetail.Construction.Unity.Floors
                 isValid = false;
             }
 
+            if (viewHost == null)
+            {
+                Debug.LogError(
+                    "FloorAreaPreviewView has no " +
+                    "IsometricViewHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             return isValid;
         }
 
@@ -313,6 +342,20 @@ namespace BigRetail.Construction.Unity.Floors
 
 
         private void OnDisable()
+        {
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanging -=
+                    HandleOrientationChanging;
+            }
+
+            Hide();
+        }
+
+
+        private void HandleOrientationChanging(
+            IsometricViewOrientation previousOrientation,
+            IsometricViewOrientation nextOrientation)
         {
             Hide();
         }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.View;
+using BigRetail.Map.View;
 using BigRetail.Map.Walls;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -30,6 +32,9 @@ namespace BigRetail.Map.Unity.Walls
             "Map Visuals is appropriate.")]
         [SerializeField]
         private Tilemap coordinateTilemap;
+
+        [SerializeField]
+        private IsometricViewHost viewHost;
 
         [Tooltip(
             "The logical building level displayed by this view system.")]
@@ -88,6 +93,12 @@ namespace BigRetail.Map.Unity.Walls
                 mapHost.Initialized +=
                     HandleMapInitialized;
             }
+
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanged +=
+                    HandleOrientationChanged;
+            }
         }
 
 
@@ -108,6 +119,12 @@ namespace BigRetail.Map.Unity.Walls
             {
                 mapHost.Initialized -=
                     HandleMapInitialized;
+            }
+
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanged -=
+                    HandleOrientationChanged;
             }
 
             DetachFromWallState();
@@ -227,7 +244,8 @@ namespace BigRetail.Map.Unity.Walls
                     edge,
                     coordinateTilemap,
                     logicalLevel,
-                    unityCellZ);
+                    unityCellZ,
+                    viewHost.Projection);
 
                 wallViews.Add(
                     edge,
@@ -265,6 +283,23 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void HandleOrientationChanged(
+            IsometricViewOrientation previousOrientation,
+            IsometricViewOrientation currentOrientation)
+        {
+            foreach (
+                WallSegmentView view
+                in wallViews.Values)
+            {
+                if (view != null)
+                {
+                    view.ApplyProjection(
+                        viewHost.Projection);
+                }
+            }
+        }
+
+
         private void ClearAllViews()
         {
             foreach (
@@ -298,6 +333,15 @@ namespace BigRetail.Map.Unity.Walls
             {
                 Debug.LogError(
                     "WallViewSystem has no Coordinate Tilemap assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewHost == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem has no IsometricViewHost assigned.",
                     this);
 
                 isValid = false;

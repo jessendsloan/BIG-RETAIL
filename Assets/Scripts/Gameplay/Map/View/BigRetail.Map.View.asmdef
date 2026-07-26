@@ -1,0 +1,16 @@
+{
+    "name": "BigRetail.Map.View",
+    "rootNamespace": "BigRetail.Map.View",
+    "references": [
+        "BigRetail.Map.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
