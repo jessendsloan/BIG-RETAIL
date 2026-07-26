@@ -297388,6 +297388,7 @@ MonoBehaviour:
   floorRuntimeHost: {fileID: 336439091}
   floorTilemap: {fileID: 749772348}
   floorTile: {fileID: 11400000, guid: a57e79b88fd081d47a89c2c8d05ad2c7, type: 2}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
 --- !u!1 &775552526
@@ -298456,6 +298457,7 @@ MonoBehaviour:
   floorRuntimeHost: {fileID: 336439091}
   previewTilemap: {fileID: 1159354256}
   previewTile: {fileID: 11400000, guid: a57e79b88fd081d47a89c2c8d05ad2c7, type: 2}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
   buildableColor: {r: 0.35, g: 1, b: 0.35, a: 0.85}
@@ -298576,6 +298578,7 @@ MonoBehaviour:
   pointerController: {fileID: 933909791}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
 --- !u!1 &1309671813
@@ -298609,6 +298612,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Map.Unity.Walls.WallViewSystem
   mapHost: {fileID: 1863031834}
   coordinateTilemap: {fileID: 463974780}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
   wallSegmentPrefab: {fileID: -7345488321890811669, guid: 3661555d1529cae4b94b51f50743659d, type: 3}
@@ -391575,6 +391579,7 @@ GameObject:
   - component: {fileID: 1863031836}
   - component: {fileID: 1863031835}
   - component: {fileID: 1863031834}
+  - component: {fileID: 2111000001}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -391629,6 +391634,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1868158957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2111000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2866115801b65676ae8c5f1c56cfd1ed, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.View.IsometricViewHost
+  mapHost: {fileID: 1863031834}
+  logicalLevel: 0
+  unityCellZ: 0
+  startingOrientation: 0
+  authoredTilemaps:
+  - {fileID: 463974780}
 --- !u!1 &1868158956
 GameObject:
   m_ObjectHideFlags: 0
@@ -391673,6 +391696,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1941090844}
   - component: {fileID: 1941090843}
+  - component: {fileID: 2111000002}
   m_Layer: 0
   m_Name: CameraRig
   m_TagString: Untagged
@@ -391721,6 +391745,25 @@ Transform:
   - {fileID: 1122069735}
   m_Father: {fileID: 1765250182}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2111000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941090842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2ac549b36c37daf4b5296c435255b5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.CameraControl.IsometricViewRotationController
+  cameraInput: {fileID: 933909788}
+  viewHost: {fileID: 2111000001}
+  constructionToolCoordinator: {fileID: 1508060588}
+  cameraController: {fileID: 1941090843}
+  coordinateTilemap: {fileID: 463974780}
+  boundsPadding: {x: 4, y: 4}
+  logRotations: 1
 --- !u!1 &2048649448
 GameObject:
   m_ObjectHideFlags: 0
@@ -391788,6 +391831,7 @@ MonoBehaviour:
   pointerController: {fileID: 933909791}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
 --- !u!4 &2082405064
@@ -392003,6 +392047,7 @@ MonoBehaviour:
   floorRuntimeHost: {fileID: 336439091}
   previewTilemap: {fileID: 2110000203}
   previewTile: {fileID: 11400000, guid: a57e79b88fd081d47a89c2c8d05ad2c7, type: 2}
+  viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
   removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}

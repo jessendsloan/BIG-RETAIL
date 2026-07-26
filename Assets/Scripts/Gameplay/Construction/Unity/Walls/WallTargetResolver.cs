@@ -1,6 +1,8 @@
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
+using BigRetail.Map.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -51,6 +53,9 @@ namespace BigRetail.Construction.Unity.Walls
         private Tilemap coordinateTilemap;
 
         [SerializeField]
+        private IsometricViewHost viewHost;
+
+        [SerializeField]
         private int logicalLevel = 0;
 
         [Tooltip(
@@ -76,6 +81,11 @@ namespace BigRetail.Construction.Unity.Walls
 
         public int UnityCellZ =>
             unityCellZ;
+
+        public IsometricViewProjection ViewProjection =>
+            viewHost != null
+                ? viewHost.Projection
+                : null;
 
 
         private void Awake()
@@ -117,10 +127,11 @@ namespace BigRetail.Construction.Unity.Walls
                     PointerWorldPosition);
 
             GridPosition requestedCell =
-                new GridPosition(
-                    UnityCell.x,
-                    UnityCell.y,
-                    logicalLevel);
+                viewHost.Projection.ToLogicalCell(
+                    new GridPosition(
+                        UnityCell.x,
+                        UnityCell.y,
+                        logicalLevel));
 
             CellEdgeDirection nearestDirection =
                 FindNearestEdgeDirection(
@@ -197,7 +208,8 @@ namespace BigRetail.Construction.Unity.Walls
                         candidateEdge,
                         coordinateTilemap,
                         logicalLevel,
-                        unityCellZ);
+                        unityCellZ,
+                        viewHost.Projection);
 
                 CalculateSegmentEndpoints(
                     candidatePose,
@@ -331,6 +343,15 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.LogError(
                     "WallTargetResolver has no Coordinate Tilemap assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewHost == null)
+            {
+                Debug.LogError(
+                    "WallTargetResolver has no IsometricViewHost assigned.",
                     this);
 
                 isValid = false;
