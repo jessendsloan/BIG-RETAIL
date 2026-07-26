@@ -1,7 +1,7 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.Walls;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace BigRetail.Construction.Unity.Walls
 {
@@ -24,20 +24,11 @@ namespace BigRetail.Construction.Unity.Walls
                     nameof(targetResolver));
             }
 
-            Tilemap tilemap =
-                targetResolver.CoordinateTilemap;
-
-            if (tilemap == null)
+            if (targetResolver.CoordinateTilemap == null)
             {
                 throw new InvalidOperationException(
                     "The WallTargetResolver has no coordinate Tilemap.");
             }
-
-            Vector3 pointerWorldPosition =
-                targetResolver.PointerWorldPosition;
-
-            int unityCellZ =
-                targetResolver.UnityCellZ;
 
             GridPosition startAnchor =
                 startEdge.AnchorCell;
@@ -47,16 +38,12 @@ namespace BigRetail.Construction.Unity.Walls
                 case CellEdgeDirection.NorthEast:
                     return ResolveNorthEastRun(
                         startAnchor,
-                        tilemap,
-                        pointerWorldPosition,
-                        unityCellZ);
+                        targetResolver);
 
                 case CellEdgeDirection.NorthWest:
                     return ResolveNorthWestRun(
                         startAnchor,
-                        tilemap,
-                        pointerWorldPosition,
-                        unityCellZ);
+                        targetResolver);
 
                 default:
                     throw new InvalidOperationException(
@@ -68,47 +55,30 @@ namespace BigRetail.Construction.Unity.Walls
 
         private static CellEdge ResolveNorthEastRun(
             GridPosition startAnchor,
-            Tilemap tilemap,
-            Vector3 pointerWorldPosition,
-            int unityCellZ)
+            WallTargetResolver targetResolver)
         {
-            Vector3Int originUnityCell =
-                new Vector3Int(
-                    startAnchor.X,
-                    0,
-                    unityCellZ);
+            CellEdge originEdge =
+                new CellEdge(
+                    startAnchor,
+                    CellEdgeDirection.NorthEast);
 
-            Vector3 anchorCenter =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell);
+            CellEdge nextEdge =
+                new CellEdge(
+                    startAnchor.Offset(
+                        0,
+                        1),
+                    CellEdgeDirection.NorthEast);
 
-            Vector3 oppositeCenter =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell
-                    + Vector3Int.right);
-
-            Vector3 lineOrigin =
-                Vector3.Lerp(
-                    anchorCenter,
-                    oppositeCenter,
-                    0.5f);
-
-            Vector3 runBasis =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell
-                    + Vector3Int.up)
-                - anchorCenter;
-
-            int yIndex =
-                CalculateNearestRunIndex(
-                    pointerWorldPosition,
-                    lineOrigin,
-                    runBasis);
+            int runOffset =
+                CalculateNearestRunOffset(
+                    originEdge,
+                    nextEdge,
+                    targetResolver);
 
             GridPosition endAnchor =
                 new GridPosition(
                     startAnchor.X,
-                    yIndex,
+                    startAnchor.Y + runOffset,
                     startAnchor.Level);
 
             return new CellEdge(
@@ -119,46 +89,29 @@ namespace BigRetail.Construction.Unity.Walls
 
         private static CellEdge ResolveNorthWestRun(
             GridPosition startAnchor,
-            Tilemap tilemap,
-            Vector3 pointerWorldPosition,
-            int unityCellZ)
+            WallTargetResolver targetResolver)
         {
-            Vector3Int originUnityCell =
-                new Vector3Int(
-                    0,
-                    startAnchor.Y,
-                    unityCellZ);
+            CellEdge originEdge =
+                new CellEdge(
+                    startAnchor,
+                    CellEdgeDirection.NorthWest);
 
-            Vector3 anchorCenter =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell);
+            CellEdge nextEdge =
+                new CellEdge(
+                    startAnchor.Offset(
+                        1,
+                        0),
+                    CellEdgeDirection.NorthWest);
 
-            Vector3 oppositeCenter =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell
-                    + Vector3Int.up);
-
-            Vector3 lineOrigin =
-                Vector3.Lerp(
-                    anchorCenter,
-                    oppositeCenter,
-                    0.5f);
-
-            Vector3 runBasis =
-                tilemap.GetCellCenterWorld(
-                    originUnityCell
-                    + Vector3Int.right)
-                - anchorCenter;
-
-            int xIndex =
-                CalculateNearestRunIndex(
-                    pointerWorldPosition,
-                    lineOrigin,
-                    runBasis);
+            int runOffset =
+                CalculateNearestRunOffset(
+                    originEdge,
+                    nextEdge,
+                    targetResolver);
 
             GridPosition endAnchor =
                 new GridPosition(
-                    xIndex,
+                    startAnchor.X + runOffset,
                     startAnchor.Y,
                     startAnchor.Level);
 
@@ -168,11 +121,31 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
-        private static int CalculateNearestRunIndex(
-            Vector3 pointerWorldPosition,
-            Vector3 lineOrigin,
-            Vector3 runBasis)
+        private static int CalculateNearestRunOffset(
+            CellEdge originEdge,
+            CellEdge nextEdge,
+            WallTargetResolver targetResolver)
         {
+            CellEdgeWorldPose originPose =
+                CellEdgeWorldPose.Calculate(
+                    originEdge,
+                    targetResolver.CoordinateTilemap,
+                    targetResolver.LogicalLevel,
+                    targetResolver.UnityCellZ,
+                    targetResolver.ViewProjection);
+
+            CellEdgeWorldPose nextPose =
+                CellEdgeWorldPose.Calculate(
+                    nextEdge,
+                    targetResolver.CoordinateTilemap,
+                    targetResolver.LogicalLevel,
+                    targetResolver.UnityCellZ,
+                    targetResolver.ViewProjection);
+
+            Vector3 runBasis =
+                nextPose.Position
+                - originPose.Position;
+
             float basisLengthSquared =
                 runBasis.sqrMagnitude;
 
@@ -186,7 +159,8 @@ namespace BigRetail.Construction.Unity.Walls
 
             float continuousIndex =
                 Vector3.Dot(
-                    pointerWorldPosition - lineOrigin,
+                    targetResolver.PointerWorldPosition
+                        - originPose.Position,
                     runBasis)
                 / basisLengthSquared;
 

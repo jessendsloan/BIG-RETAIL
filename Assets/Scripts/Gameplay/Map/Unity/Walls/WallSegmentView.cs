@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -38,6 +39,10 @@ namespace BigRetail.Map.Unity.Walls
 
         public bool IsInitialized { get; private set; }
 
+        private Tilemap coordinateTilemap;
+        private int logicalLevel;
+        private int unityCellZ;
+
 
         /// <summary>
         /// Configures this view to represent one logical CellEdge.
@@ -46,21 +51,21 @@ namespace BigRetail.Map.Unity.Walls
             CellEdge edge,
             Tilemap coordinateTilemap,
             int logicalLevel,
-            int unityCellZ)
+            int unityCellZ,
+            IsometricViewProjection projection)
         {
             ValidatePresentation();
 
-            CellEdgeWorldPose worldPose =
-                CellEdgeWorldPose.Calculate(
-                    edge,
-                    coordinateTilemap,
-                    logicalLevel,
-                    unityCellZ);
-
             Edge = edge;
+            this.coordinateTilemap =
+                coordinateTilemap;
+            this.logicalLevel =
+                logicalLevel;
+            this.unityCellZ =
+                unityCellZ;
 
-            ApplyWorldPose(
-                worldPose);
+            ApplyProjection(
+                projection);
 
             gameObject.name =
                 $"Wall {Edge.AnchorCell.X}, " +
@@ -69,6 +74,28 @@ namespace BigRetail.Map.Unity.Walls
                 $"{Edge.CanonicalDirection}";
 
             IsInitialized = true;
+        }
+
+
+        public void ApplyProjection(
+            IsometricViewProjection projection)
+        {
+            if (projection == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(projection));
+            }
+
+            CellEdgeWorldPose worldPose =
+                CellEdgeWorldPose.Calculate(
+                    Edge,
+                    coordinateTilemap,
+                    logicalLevel,
+                    unityCellZ,
+                    projection);
+
+            ApplyWorldPose(
+                worldPose);
         }
 
 
@@ -82,6 +109,11 @@ namespace BigRetail.Map.Unity.Walls
 
             ApplySpriteScale(
                 worldPose.Length);
+
+            spriteRenderer.sortingOrder =
+                200
+                - worldPose.DisplayEdge.AnchorCell.X
+                - worldPose.DisplayEdge.AnchorCell.Y;
         }
 
 

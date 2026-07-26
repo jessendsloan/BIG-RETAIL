@@ -13,9 +13,15 @@ namespace BigRetail.Input
     {
         private const string PanActionPath = "Camera/Pan";
         private const string ZoomActionPath = "Camera/Zoom";
+        private const string RotateClockwiseActionPath =
+            "Camera/RotateClockwise";
+        private const string RotateCounterClockwiseActionPath =
+            "Camera/RotateCounterClockwise";
 
         private InputAction panAction;
         private InputAction zoomAction;
+        private InputAction rotateClockwiseAction;
+        private InputAction rotateCounterClockwiseAction;
 
         public Vector2 Pan =>
             panAction != null
@@ -26,6 +32,14 @@ namespace BigRetail.Input
             zoomAction != null
                 ? zoomAction.ReadValue<float>()
                 : 0f;
+
+        public bool RotateClockwisePressedThisFrame =>
+            rotateClockwiseAction != null
+            && rotateClockwiseAction.WasPressedThisFrame();
+
+        public bool RotateCounterClockwisePressedThisFrame =>
+            rotateCounterClockwiseAction != null
+            && rotateCounterClockwiseAction.WasPressedThisFrame();
 
         private void Awake()
         {
@@ -43,12 +57,24 @@ namespace BigRetail.Input
 
             panAction = playerInput.actions.FindAction(PanActionPath);
             zoomAction = playerInput.actions.FindAction(ZoomActionPath);
+            rotateClockwiseAction =
+                playerInput.actions.FindAction(
+                    RotateClockwiseActionPath);
 
-            if (panAction == null || zoomAction == null)
+            rotateCounterClockwiseAction =
+                playerInput.actions.FindAction(
+                    RotateCounterClockwiseActionPath);
+
+            if (panAction == null
+                || zoomAction == null
+                || rotateClockwiseAction == null
+                || rotateCounterClockwiseAction == null)
             {
                 Debug.LogError(
                     $"CameraInput requires actions named " +
-                    $"'{PanActionPath}' and '{ZoomActionPath}'.",
+                    $"'{PanActionPath}', '{ZoomActionPath}', " +
+                    $"'{RotateClockwiseActionPath}', and " +
+                    $"'{RotateCounterClockwiseActionPath}'.",
                     this);
 
                 enabled = false;
