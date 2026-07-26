@@ -299163,7 +299163,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 09ca1417350b0be4397deebdb04582db, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -391847,7 +391847,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be127eeda82221f9dc17cf991b36a0ed, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Floors.FloorDemolitionToolController
   playerInput: {fileID: 933909789}
   pointerController: {fileID: 933909791}
@@ -391998,7 +391998,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca248ed6419b42babc2f7ca6f2fe16cd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Floors.FloorDemolitionAreaPreviewView
   floorRuntimeHost: {fileID: 336439091}
   previewTilemap: {fileID: 2110000203}
