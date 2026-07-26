@@ -1,0 +1,16 @@
+{
+    "name": "BigRetail.Inventory.Domain",
+    "rootNamespace": "BigRetail.Inventory.Domain",
+    "references": [
+        "BigRetail.Merchandise.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
