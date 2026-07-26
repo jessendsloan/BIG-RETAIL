@@ -167,7 +167,8 @@ namespace BigRetail.Construction.Unity.Walls
                         edge,
                         targetResolver.CoordinateTilemap,
                         targetResolver.LogicalLevel,
-                        targetResolver.UnityCellZ);
+                        targetResolver.UnityCellZ,
+                        targetResolver.ViewProjection);
 
                 segmentPool[index].Show(
                     edge,

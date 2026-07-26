@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Floors;
+using BigRetail.Map.Unity.View;
+using BigRetail.Map.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -33,6 +35,9 @@ namespace BigRetail.Map.Unity.Floors
 
         [SerializeField]
         private TileBase floorTile;
+
+        [SerializeField]
+        private IsometricViewHost viewHost;
 
 
         [Header("Coordinate Mapping")]
@@ -71,6 +76,15 @@ namespace BigRetail.Map.Unity.Floors
                 floorRuntimeHost.Initialized +=
                     HandleFloorRuntimeInitialized;
             }
+
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanging +=
+                    HandleOrientationChanging;
+
+                viewHost.OrientationChanged +=
+                    HandleOrientationChanged;
+            }
         }
 
 
@@ -93,6 +107,15 @@ namespace BigRetail.Map.Unity.Floors
                     HandleFloorRuntimeInitialized;
             }
 
+            if (viewHost != null)
+            {
+                viewHost.OrientationChanging -=
+                    HandleOrientationChanging;
+
+                viewHost.OrientationChanged -=
+                    HandleOrientationChanged;
+            }
+
             DetachFromFloorState();
             ClearAllViews();
         }
@@ -103,6 +126,22 @@ namespace BigRetail.Map.Unity.Floors
         {
             AttachToFloorState(
                 initializedHost.FloorState);
+        }
+
+
+        private void HandleOrientationChanging(
+            IsometricViewOrientation previousOrientation,
+            IsometricViewOrientation nextOrientation)
+        {
+            ClearAllViews();
+        }
+
+
+        private void HandleOrientationChanged(
+            IsometricViewOrientation previousOrientation,
+            IsometricViewOrientation currentOrientation)
+        {
+            RebuildAllViews();
         }
 
 
@@ -247,9 +286,13 @@ namespace BigRetail.Map.Unity.Floors
         private Vector3Int ToUnityCell(
             GridPosition cell)
         {
+            GridPosition displayCell =
+                viewHost.Projection.ToDisplayCell(
+                    cell);
+
             return new Vector3Int(
-                cell.X,
-                cell.Y,
+                displayCell.X,
+                displayCell.Y,
                 unityCellZ);
         }
 
@@ -281,6 +324,16 @@ namespace BigRetail.Map.Unity.Floors
             {
                 Debug.LogError(
                     "FloorTilemapViewSystem has no floor Tile assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewHost == null)
+            {
+                Debug.LogError(
+                    "FloorTilemapViewSystem has no " +
+                    "IsometricViewHost assigned.",
                     this);
 
                 isValid = false;

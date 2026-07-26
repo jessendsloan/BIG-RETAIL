@@ -44,6 +44,11 @@ namespace BigRetail.Construction.Unity.Walls
                 worldPose.Length,
                 thickness);
 
+            spriteRenderer.sortingOrder =
+                200
+                - worldPose.DisplayEdge.AnchorCell.X
+                - worldPose.DisplayEdge.AnchorCell.Y;
+
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 

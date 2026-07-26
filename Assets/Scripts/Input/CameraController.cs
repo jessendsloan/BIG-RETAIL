@@ -81,6 +81,12 @@ namespace BigRetail.CameraControl
         private float maximumZoom = 35f;
 
 
+        public Vector3 WorldCenter =>
+            targetCamera != null
+                ? targetCamera.transform.position
+                : transform.position;
+
+
         private void Awake()
         {
             if (!ValidateCriticalReferences())
@@ -115,6 +121,82 @@ namespace BigRetail.CameraControl
             ApplyZoom();
             ApplyPan();
 
+            ClampPositionToBounds();
+        }
+
+
+        /// <summary>
+        /// Moves the camera rig so the target Camera's world-space
+        /// center lands on the supplied point.
+        /// </summary>
+        public void SetWorldCenter(
+            Vector3 worldCenter)
+        {
+            Vector3 currentWorldCenter =
+                WorldCenter;
+
+            Vector3 movement =
+                worldCenter
+                - currentWorldCenter;
+
+            movement.z = 0f;
+
+            transform.position +=
+                movement;
+        }
+
+
+        /// <summary>
+        /// Replaces the active camera-clamping rectangle with a
+        /// world-space map envelope.
+        /// </summary>
+        public void SetWorldBounds(
+            Bounds worldBounds)
+        {
+            if (cameraBounds == null)
+            {
+                return;
+            }
+
+            Transform boundsTransform =
+                cameraBounds.transform;
+
+            Vector3 localCenter =
+                boundsTransform.InverseTransformPoint(
+                    worldBounds.center);
+
+            Vector3 lossyScale =
+                boundsTransform.lossyScale;
+
+            float safeScaleX =
+                Mathf.Max(
+                    Mathf.Abs(lossyScale.x),
+                    0.0001f);
+
+            float safeScaleY =
+                Mathf.Max(
+                    Mathf.Abs(lossyScale.y),
+                    0.0001f);
+
+            cameraBounds.offset =
+                new Vector2(
+                    localCenter.x,
+                    localCenter.y);
+
+            cameraBounds.size =
+                new Vector2(
+                    worldBounds.size.x / safeScaleX,
+                    worldBounds.size.y / safeScaleY);
+        }
+
+
+        /// <summary>
+        /// Re-applies zoom and position legality after another system
+        /// changes camera focus or bounds.
+        /// </summary>
+        public void ClampCurrentView()
+        {
+            ClampZoomToBounds();
             ClampPositionToBounds();
         }
 

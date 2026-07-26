@@ -211,6 +211,15 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
+        public void CancelCurrentGesture()
+        {
+            if (IsPlanningRun)
+            {
+                CancelCurrentRun();
+            }
+        }
+
+
         private void BeginRun()
         {
             if (!targetResolver.HasTarget)
