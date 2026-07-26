@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1eb161efe3951be4e9605329a279535a
+guid: 18292fd0f5032a94b8c73e1bf96e4d29
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1280969639824133481
-    second: Brick1_0
+      213: -689049508230653309
+    second: Default_RisingLeft_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Brick1_0
+      name: Default_RisingLeft_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 51
+        width: 50
         height: 386
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 792f83246e4193ee0800000000000000
-      internalID: -1280969639824133481
+      spriteID: 38a114d7f110076f0800000000000000
+      internalID: -689049508230653309
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Brick1_0: -1280969639824133481
+      Default_RisingLeft_0: -689049508230653309
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
