@@ -297069,7 +297069,7 @@ MonoBehaviour:
   constructionActionMapName: Construction
   confirmActionName: Confirm
   cancelActionName: Cancel
-  targetResolver: {fileID: 2082405063}
+  targetResolver: {fileID: 2082405065}
   previewView: {fileID: 1858901736}
   runPreviewView: {fileID: 1431275727}
   mapHost: {fileID: 1863031834}
@@ -298742,12 +298742,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallDemolitionRunPreviewView
   mapHost: {fileID: 1863031834}
-  targetResolver: {fileID: 2082405063}
-  segmentPrefab: {fileID: 780474292405220875, guid: 3cbbd7263bfc42c47a7f6470b78debbe, type: 3}
-  segmentParent: {fileID: 1858901738}
-  previewThickness: 0.12
+  targetResolver: {fileID: 2082405065}
+  vertexPrefab: {fileID: 2852154828798584248, guid: 36b97ac5065c3464686a41442f48f133, type: 3}
+  vertexParent: {fileID: 0}
   removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
   alreadyEmptyColor: {r: 0.55, g: 0.55, b: 0.55, a: 0.65}
+  worldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &1431275728
 Transform:
   m_ObjectHideFlags: 0
@@ -391534,12 +391534,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29b8bdfffdc2d4945b1a52468c208ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallDemolitionPreviewView
-  targetResolver: {fileID: 2082405063}
-  mapHost: {fileID: 1863031834}
+  targetResolver: {fileID: 2082405065}
   spriteRenderer: {fileID: 1858901737}
-  previewThickness: 0.12
-  removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
-  alreadyEmptyColor: {r: 0.55, g: 0.55, b: 0.55, a: 0.65}
+  targetColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
   worldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!212 &1858901737
 SpriteRenderer:
@@ -391590,7 +391587,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 201
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 3fb010af1148aed459d1652273eef657, type: 3}
+  m_Sprite: {fileID: -5652342212589283447, guid: 7a91907d85a8b854d9267a5d0f4d606e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
