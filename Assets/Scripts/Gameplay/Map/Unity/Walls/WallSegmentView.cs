@@ -1,6 +1,7 @@
 using System;
 using BigRetail.Map.Domain;
 using BigRetail.Map.View;
+using BigRetail.Map.Walls;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,7 +11,7 @@ namespace BigRetail.Map.Unity.Walls
     /// Displays one model-owned wall edge in the Unity scene.
     ///
     /// This component controls presentation only.
-    /// It does not create, remove, or validate walls.
+    /// It does not create, remove, validate, or own wall finishes.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
@@ -20,27 +21,6 @@ namespace BigRetail.Map.Unity.Walls
 
         [SerializeField]
         private SpriteRenderer spriteRenderer;
-
-        [Tooltip(
-            "Finish shown when the logical edge's FirstCell faces the viewer. "
-            + "When both face finishes are empty, the legacy temporary bar "
-            + "presentation remains active.")]
-        [SerializeField]
-        private WallFinishAsset firstCellFinish;
-
-        [Tooltip(
-            "Finish shown when the logical edge's SecondCell faces the viewer. "
-            + "When both face finishes are empty, the legacy temporary bar "
-            + "presentation remains active.")]
-        [SerializeField]
-        private WallFinishAsset secondCellFinish;
-
-        [Tooltip(
-            "The visible thickness of the temporary fallback wall bar "
-            + "in Unity world units. Directional finish sprites keep their "
-            + "authored size instead.")]
-        [SerializeField, Min(0.001f)]
-        private float wallThickness = 0.08f;
 
         [Tooltip(
             "Optional world-space adjustment applied after the wall "
@@ -57,16 +37,15 @@ namespace BigRetail.Map.Unity.Walls
 
         public WallFinishAsset CurrentFinish { get; private set; }
 
+        public WallFinishId CurrentFinishId { get; private set; }
+
         public WallDisplaySlope CurrentDisplaySlope { get; private set; }
 
 
         private Tilemap coordinateTilemap;
         private int logicalLevel;
         private int unityCellZ;
-
-        private bool UsesDirectionalFinishes =>
-            firstCellFinish != null
-            && secondCellFinish != null;
+        private WallFinishPresentationResolver finishResolver;
 
 
         /// <summary>
@@ -77,17 +56,24 @@ namespace BigRetail.Map.Unity.Walls
             Tilemap coordinateTilemap,
             int logicalLevel,
             int unityCellZ,
-            IsometricViewProjection projection)
+            IsometricViewProjection projection,
+            WallFinishPresentationResolver finishResolver)
         {
             ValidatePresentation();
 
-            Edge = edge;
             this.coordinateTilemap =
-                coordinateTilemap;
-            this.logicalLevel =
-                logicalLevel;
-            this.unityCellZ =
-                unityCellZ;
+                coordinateTilemap
+                ?? throw new ArgumentNullException(
+                    nameof(coordinateTilemap));
+
+            this.finishResolver =
+                finishResolver
+                ?? throw new ArgumentNullException(
+                    nameof(finishResolver));
+
+            Edge = edge;
+            this.logicalLevel = logicalLevel;
+            this.unityCellZ = unityCellZ;
 
             ApplyProjection(
                 projection);
@@ -127,16 +113,8 @@ namespace BigRetail.Map.Unity.Walls
         private void ApplyWorldPose(
             CellEdgeWorldPose worldPose)
         {
-            if (UsesDirectionalFinishes)
-            {
-                ApplyDirectionalFinish(
-                    worldPose);
-            }
-            else
-            {
-                ApplyLegacyTemporaryBar(
-                    worldPose);
-            }
+            ApplyDirectionalFinish(
+                worldPose);
 
             spriteRenderer.sortingOrder =
                 200
@@ -148,29 +126,16 @@ namespace BigRetail.Map.Unity.Walls
         private void ApplyDirectionalFinish(
             CellEdgeWorldPose worldPose)
         {
-            WallFinishAsset visibleFinish;
-
-            if (worldPose.ViewerFacingCell
-                == Edge.FirstCell)
-            {
-                visibleFinish =
-                    firstCellFinish;
-            }
-            else if (worldPose.ViewerFacingCell
-                == Edge.SecondCell)
-            {
-                visibleFinish =
-                    secondCellFinish;
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"Viewer-facing cell {worldPose.ViewerFacingCell} "
-                    + $"does not touch wall edge {Edge}.");
-            }
+            WallFinishAsset visibleFinish =
+                finishResolver.ResolveAsset(
+                    Edge,
+                    worldPose.ViewerFacingCell);
 
             CurrentFinish =
                 visibleFinish;
+
+            CurrentFinishId =
+                visibleFinish.Id;
 
             CurrentDisplaySlope =
                 worldPose.DisplaySlope;
@@ -189,49 +154,6 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
-        private void ApplyLegacyTemporaryBar(
-            CellEdgeWorldPose worldPose)
-        {
-            CurrentFinish =
-                null;
-
-            CurrentDisplaySlope =
-                worldPose.DisplaySlope;
-
-            transform.SetPositionAndRotation(
-                worldPose.Position
-                    + worldPositionOffset,
-                worldPose.Rotation);
-
-            ApplySpriteScale(
-                worldPose.Length);
-        }
-
-
-        private void ApplySpriteScale(
-            float edgeLength)
-        {
-            Vector3 spriteSize =
-                spriteRenderer.sprite.bounds.size;
-
-            float safeSpriteWidth =
-                Mathf.Max(
-                    spriteSize.x,
-                    0.0001f);
-
-            float safeSpriteHeight =
-                Mathf.Max(
-                    spriteSize.y,
-                    0.0001f);
-
-            transform.localScale =
-                new Vector3(
-                    edgeLength / safeSpriteWidth,
-                    wallThickness / safeSpriteHeight,
-                    1f);
-        }
-
-
         private void ValidatePresentation()
         {
             if (spriteRenderer == null)
@@ -239,34 +161,6 @@ namespace BigRetail.Map.Unity.Walls
                 throw new InvalidOperationException(
                     $"{nameof(WallSegmentView)} on '{name}' "
                     + "requires a SpriteRenderer reference.");
-            }
-
-            bool hasFirstFinish =
-                firstCellFinish != null;
-
-            bool hasSecondFinish =
-                secondCellFinish != null;
-
-            if (hasFirstFinish != hasSecondFinish)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' must assign "
-                    + "both cell-face finishes or neither of them.");
-            }
-
-            if (hasFirstFinish)
-            {
-                firstCellFinish.ValidateConfiguration();
-                secondCellFinish.ValidateConfiguration();
-                return;
-            }
-
-            if (spriteRenderer.sprite == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' requires "
-                    + "a fallback Sprite when directional finishes "
-                    + "are not assigned.");
             }
         }
 
@@ -280,11 +174,6 @@ namespace BigRetail.Map.Unity.Walls
 
         private void OnValidate()
         {
-            wallThickness =
-                Mathf.Max(
-                    wallThickness,
-                    0.001f);
-
             if (spriteRenderer == null)
             {
                 spriteRenderer =
