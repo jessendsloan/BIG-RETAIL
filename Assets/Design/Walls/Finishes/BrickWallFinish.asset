@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c2f7ab51a04f2f9bf6c70f4d4b95b9, type: 3}
+  m_Name: BrickWallFinish
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Walls.WallFinishAsset
+  finishId: brick
+  risingLeft: {fileID: -3856370222643456949, guid: 101ef2f39c5ee344ab9dd96f1653cbe7, type: 3}
+  risingRight: {fileID: -5865261890154083968, guid: 4c089536240e55d4db9e9cba1835d810, type: 3}
