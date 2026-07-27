@@ -318,13 +318,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallRunPreviewView
   mapHost: {fileID: 1863031834}
-  targetResolver: {fileID: 2082405063}
-  segmentPrefab: {fileID: 780474292405220875, guid: 3cbbd7263bfc42c47a7f6470b78debbe, type: 3}
-  segmentParent: {fileID: 386112643}
-  previewThickness: 0.1
-  validColor: {r: 0.2, g: 1, b: 0.3, a: 0.85}
-  existingColor: {r: 0.15, g: 0.65, b: 1, a: 0.9}
-  invalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.85}
+  targetResolver: {fileID: 2082405065}
+  vertexPrefab: {fileID: 2852154828798584248, guid: 36b97ac5065c3464686a41442f48f133, type: 3}
+  vertexParent: {fileID: 0}
+  validColor: {r: 1, g: 1, b: 1, a: 1}
+  existingColor: {r: 0.15, g: 0.65, b: 1, a: 1}
+  invalidColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  worldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &199414980
 Transform:
   m_ObjectHideFlags: 0
@@ -147495,13 +147495,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c248da4aaedcde4692ede1329d47c9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallPreviewView
-  targetResolver: {fileID: 2082405063}
-  mapHost: {fileID: 1863031834}
+  targetResolver: {fileID: 2082405065}
   spriteRenderer: {fileID: 386112645}
-  previewThickness: 0.1
-  validColor: {r: 0.2, g: 1, b: 0.3, a: 0.85}
-  existingColor: {r: 0.15, g: 0.65, b: 1, a: 0.9}
-  invalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.85}
+  targetColor: {r: 1, g: 1, b: 1, a: 0.9}
   worldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!212 &386112645
 SpriteRenderer:
@@ -147552,7 +147548,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 3fb010af1148aed459d1652273eef657, type: 3}
+  m_Sprite: {fileID: -5652342212589283447, guid: 7a91907d85a8b854d9267a5d0f4d606e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -298850,7 +298846,7 @@ MonoBehaviour:
   constructionActionMapName: Construction
   confirmActionName: Confirm
   cancelActionName: Cancel
-  targetResolver: {fileID: 2082405063}
+  targetResolver: {fileID: 2082405065}
   previewView: {fileID: 386112644}
   runPreviewView: {fileID: 199414979}
   mapHost: {fileID: 1863031834}
@@ -391825,8 +391821,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2082405064}
   - component: {fileID: 2082405063}
+  - component: {fileID: 2082405065}
   m_Layer: 0
-  m_Name: WallTargetResolver
+  m_Name: Wall/WallVertexTargetResolver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -391865,6 +391862,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1844804989}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2082405065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082405062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b5a6fde2c8f4628befbb559b52b08ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallVertexTargetResolver
+  pointerController: {fileID: 933909791}
+  targetCamera: {fileID: 519420031}
+  coordinateTilemap: {fileID: 463974780}
+  viewHost: {fileID: 2111000001}
+  logicalLevel: 0
+  unityCellZ: 0
 --- !u!1 &2110000100
 GameObject:
   m_ObjectHideFlags: 0
