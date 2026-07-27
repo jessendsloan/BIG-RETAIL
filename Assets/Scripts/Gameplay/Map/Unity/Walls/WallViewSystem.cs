@@ -10,10 +10,11 @@ using UnityEngine.Tilemaps;
 namespace BigRetail.Map.Unity.Walls
 {
     /// <summary>
-    /// Keeps Unity wall views synchronized with the model-owned WallState.
+    /// Keeps Unity wall views synchronized with model-owned structural and
+    /// finish state.
     ///
-    /// WallState remains the source of truth.
-    /// This system only creates and removes presentation objects.
+    /// The runtime model remains the source of truth. This system only creates,
+    /// removes, and refreshes presentation objects.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(-50)]
@@ -28,8 +29,8 @@ namespace BigRetail.Map.Unity.Walls
         [Header("Coordinate Mapping")]
 
         [Tooltip(
-            "A Tilemap belonging to the same Grid as the authored map. " +
-            "Map Visuals is appropriate.")]
+            "A Tilemap belonging to the same Grid as the authored map. "
+            + "Map Visuals is appropriate.")]
         [SerializeField]
         private Tilemap coordinateTilemap;
 
@@ -53,8 +54,8 @@ namespace BigRetail.Map.Unity.Walls
         private WallSegmentView wallSegmentPrefab;
 
         [Tooltip(
-            "Parent Transform for instantiated wall views. " +
-            "When empty, this component's Transform is used.")]
+            "Parent Transform for instantiated wall views. "
+            + "When empty, this component's Transform is used.")]
         [SerializeField]
         private Transform wallViewParent;
 
@@ -64,6 +65,8 @@ namespace BigRetail.Map.Unity.Walls
                 new Dictionary<CellEdge, WallSegmentView>();
 
         private WallState subscribedWallState;
+        private WallFinishService subscribedFinishService;
+        private WallFinishPresentationResolver finishResolver;
 
 
         public int VisibleWallCount =>
@@ -99,16 +102,14 @@ namespace BigRetail.Map.Unity.Walls
                 viewHost.OrientationChanged +=
                     HandleOrientationChanged;
             }
-        }
 
-
-        private void Start()
-        {
             if (mapHost != null
                 && mapHost.IsInitialized)
             {
-                AttachToWallState(
-                    mapHost.WallState);
+                AttachToRuntimeModel(
+                    mapHost.WallState,
+                    mapHost.WallFinishes,
+                    mapHost.WallFinishAssets);
             }
         }
 
@@ -127,7 +128,7 @@ namespace BigRetail.Map.Unity.Walls
                     HandleOrientationChanged;
             }
 
-            DetachFromWallState();
+            DetachFromRuntimeModel();
             ClearAllViews();
         }
 
@@ -135,33 +136,61 @@ namespace BigRetail.Map.Unity.Walls
         private void HandleMapInitialized(
             GridMapHost initializedHost)
         {
-            AttachToWallState(
-                initializedHost.WallState);
+            AttachToRuntimeModel(
+                initializedHost.WallState,
+                initializedHost.WallFinishes,
+                initializedHost.WallFinishAssets);
         }
 
 
-        private void AttachToWallState(
-            WallState wallState)
+        private void AttachToRuntimeModel(
+            WallState wallState,
+            WallFinishService finishService,
+            WallFinishAssetCatalog finishAssets)
         {
             if (wallState == null)
             {
                 Debug.LogError(
                     "WallViewSystem received a null WallState.",
                     this);
-
                 return;
             }
 
-            if (subscribedWallState == wallState)
+            if (finishService == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem received a null WallFinishService.",
+                    this);
+                return;
+            }
+
+            if (finishAssets == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem received a null WallFinishAssetCatalog.",
+                    this);
+                return;
+            }
+
+            if (subscribedWallState == wallState
+                && subscribedFinishService == finishService)
             {
                 RebuildAllViews();
                 return;
             }
 
-            DetachFromWallState();
+            DetachFromRuntimeModel();
 
             subscribedWallState =
                 wallState;
+
+            subscribedFinishService =
+                finishService;
+
+            finishResolver =
+                new WallFinishPresentationResolver(
+                    subscribedFinishService,
+                    finishAssets);
 
             subscribedWallState.WallAdded +=
                 HandleWallAdded;
@@ -169,37 +198,69 @@ namespace BigRetail.Map.Unity.Walls
             subscribedWallState.WallRemoved +=
                 HandleWallRemoved;
 
+            subscribedFinishService.EffectiveFinishChanged +=
+                HandleEffectiveFinishChanged;
+
             RebuildAllViews();
         }
 
 
-        private void DetachFromWallState()
+        private void DetachFromRuntimeModel()
         {
-            if (subscribedWallState == null)
+            if (subscribedWallState != null)
             {
-                return;
+                subscribedWallState.WallAdded -=
+                    HandleWallAdded;
+
+                subscribedWallState.WallRemoved -=
+                    HandleWallRemoved;
             }
 
-            subscribedWallState.WallAdded -=
-                HandleWallAdded;
-
-            subscribedWallState.WallRemoved -=
-                HandleWallRemoved;
+            if (subscribedFinishService != null)
+            {
+                subscribedFinishService.EffectiveFinishChanged -=
+                    HandleEffectiveFinishChanged;
+            }
 
             subscribedWallState =
+                null;
+
+            subscribedFinishService =
+                null;
+
+            finishResolver =
                 null;
         }
 
 
-        private void HandleWallAdded(CellEdge edge)
+        private void HandleWallAdded(
+            CellEdge edge)
         {
             CreateWallView(edge);
         }
 
 
-        private void HandleWallRemoved(CellEdge edge)
+        private void HandleWallRemoved(
+            CellEdge edge)
         {
             RemoveWallView(edge);
+        }
+
+
+        private void HandleEffectiveFinishChanged(
+            WallFaceKey face,
+            WallFinishId finishId)
+        {
+            if (!wallViews.TryGetValue(
+                    face.Edge,
+                    out WallSegmentView view)
+                || view == null)
+            {
+                return;
+            }
+
+            view.ApplyProjection(
+                viewHost.Projection);
         }
 
 
@@ -207,7 +268,8 @@ namespace BigRetail.Map.Unity.Walls
         {
             ClearAllViews();
 
-            if (subscribedWallState == null)
+            if (subscribedWallState == null
+                || finishResolver == null)
             {
                 return;
             }
@@ -221,9 +283,11 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
-        private void CreateWallView(CellEdge edge)
+        private void CreateWallView(
+            CellEdge edge)
         {
-            if (edge.FirstCell.Level != logicalLevel)
+            if (edge.FirstCell.Level != logicalLevel
+                || finishResolver == null)
             {
                 return;
             }
@@ -245,7 +309,8 @@ namespace BigRetail.Map.Unity.Walls
                     coordinateTilemap,
                     logicalLevel,
                     unityCellZ,
-                    viewHost.Projection);
+                    viewHost.Projection,
+                    finishResolver);
 
                 wallViews.Add(
                     edge,
@@ -265,11 +330,12 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
-        private void RemoveWallView(CellEdge edge)
+        private void RemoveWallView(
+            CellEdge edge)
         {
             if (!wallViews.TryGetValue(
-                edge,
-                out WallSegmentView view))
+                    edge,
+                    out WallSegmentView view))
             {
                 return;
             }
