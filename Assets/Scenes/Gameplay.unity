@@ -297478,6 +297478,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1613436457}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &835028032
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 835028033}
+  - component: {fileID: 835028034}
+  m_Layer: 0
+  m_Name: WallFinishDeveloperController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &835028033
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835028032}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 47.264133, y: -11.301559, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1161128890}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &835028034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835028032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9e54bba1aa64c229d35e8750e45a534, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallFinishDeveloperController
+  targetResolver: {fileID: 2082405063}
+  mapHost: {fileID: 1863031834}
+  testFinishId: brick
+  enableKeyboardShortcuts: 1
+  applyFinishKey: 100
+  resetFinishKey: 101
+  logResults: 1
 --- !u!1 &844772405
 GameObject:
   m_ObjectHideFlags: 0
@@ -298497,6 +298548,7 @@ Transform:
   - {fileID: 1844804989}
   - {fileID: 1111047126}
   - {fileID: 456371215}
+  - {fileID: 835028033}
   m_Father: {fileID: 775552527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1187853763
@@ -299167,7 +299219,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 09ca1417350b0be4397deebdb04582db, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -391600,6 +391652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.GridMapHost
   mapAuthoring: {fileID: 1863031835}
+  wallFinishAssets: {fileID: 11400000, guid: 4c45a1780b6138c4fa94569590cebe5c, type: 2}
   logInitializationSummary: 1
 --- !u!114 &1863031835
 MonoBehaviour:
@@ -391634,24 +391687,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1868158957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2111000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1863031833}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2866115801b65676ae8c5f1c56cfd1ed, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.View.IsometricViewHost
-  mapHost: {fileID: 1863031834}
-  logicalLevel: 0
-  unityCellZ: 0
-  startingOrientation: 0
-  authoredTilemaps:
-  - {fileID: 463974780}
 --- !u!1 &1868158956
 GameObject:
   m_ObjectHideFlags: 0
@@ -391745,25 +391780,6 @@ Transform:
   - {fileID: 1122069735}
   m_Father: {fileID: 1765250182}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2111000002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1941090842}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2ac549b36c37daf4b5296c435255b5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.CameraControl.IsometricViewRotationController
-  cameraInput: {fileID: 933909788}
-  viewHost: {fileID: 2111000001}
-  constructionToolCoordinator: {fileID: 1508060588}
-  cameraController: {fileID: 1941090843}
-  coordinateTilemap: {fileID: 463974780}
-  boundsPadding: {x: 4, y: 4}
-  logRotations: 1
 --- !u!1 &2048649448
 GameObject:
   m_ObjectHideFlags: 0
@@ -392052,6 +392068,43 @@ MonoBehaviour:
   unityCellZ: 0
   removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
   alreadyEmptyColor: {r: 0.55, g: 0.55, b: 0.55, a: 0.65}
+--- !u!114 &2111000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2866115801b65676ae8c5f1c56cfd1ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.View.IsometricViewHost
+  mapHost: {fileID: 1863031834}
+  logicalLevel: 0
+  unityCellZ: 0
+  startingOrientation: 0
+  authoredTilemaps:
+  - {fileID: 463974780}
+--- !u!114 &2111000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941090842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2ac549b36c37daf4b5296c435255b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.CameraControl.IsometricViewRotationController
+  cameraInput: {fileID: 933909788}
+  viewHost: {fileID: 2111000001}
+  constructionToolCoordinator: {fileID: 1508060588}
+  cameraController: {fileID: 1941090843}
+  coordinateTilemap: {fileID: 463974780}
+  boundsPadding: {x: 4, y: 4}
+  logRotations: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

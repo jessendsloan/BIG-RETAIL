@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.View;
+using BigRetail.Map.Walls;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Walls
@@ -29,6 +30,15 @@ namespace BigRetail.Map.Unity.Walls
         public string FinishId =>
             finishId;
 
+        public WallFinishId Id
+        {
+            get
+            {
+                ValidateIdentifier();
+                return new WallFinishId(finishId);
+            }
+        }
+
 
         public Sprite GetSprite(
             WallDisplaySlope displaySlope)
@@ -54,12 +64,7 @@ namespace BigRetail.Map.Unity.Walls
 
         public void ValidateConfiguration()
         {
-            if (string.IsNullOrWhiteSpace(finishId))
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallFinishAsset)} '{name}' requires "
-                    + "a non-empty finish identifier.");
-            }
+            ValidateIdentifier();
 
             if (risingLeft == null)
             {
@@ -73,6 +78,17 @@ namespace BigRetail.Map.Unity.Walls
                 throw new InvalidOperationException(
                     $"{nameof(WallFinishAsset)} '{name}' requires "
                     + "a RisingRight sprite.");
+            }
+        }
+
+
+        private void ValidateIdentifier()
+        {
+            if (string.IsNullOrWhiteSpace(finishId))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallFinishAsset)} '{name}' requires "
+                    + "a non-empty finish identifier.");
             }
         }
 
