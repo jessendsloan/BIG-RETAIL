@@ -8,8 +8,8 @@ namespace BigRetail.Construction.Unity.Walls
     /// <summary>
     /// Displays one temporary segment belonging to a planned wall run.
     ///
-    /// This component is presentation only.
-    /// It does not evaluate or place walls.
+    /// This component is presentation only. It can display the legacy thin
+    /// edge marker or a full directional wall-finish sprite.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
@@ -32,7 +32,14 @@ namespace BigRetail.Construction.Unity.Walls
             float thickness,
             Color color)
         {
-            ValidatePresentation();
+            ValidateRenderer();
+
+            if (spriteRenderer.sprite == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallRunPreviewSegmentView)} on "
+                    + $"'{name}' requires a Sprite for thin-segment preview.");
+            }
 
             Edge = edge;
 
@@ -54,6 +61,52 @@ namespace BigRetail.Construction.Unity.Walls
 
             gameObject.name =
                 $"Wall Run Preview — {edge}";
+        }
+
+
+        /// <summary>
+        /// Displays the selected directional finish at the exact pose used by
+        /// the runtime wall view. This produces a ghost wall on empty edges and
+        /// a finish overlay on existing walls without mutating model state.
+        /// </summary>
+        public void ShowAppearance(
+            CellEdge edge,
+            CellEdgeWorldPose worldPose,
+            Sprite finishSprite,
+            Vector3 worldPositionOffset,
+            Color color)
+        {
+            ValidateRenderer();
+
+            if (finishSprite == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(finishSprite));
+            }
+
+            Edge = edge;
+            spriteRenderer.sprite = finishSprite;
+
+            transform.SetPositionAndRotation(
+                worldPose.Position
+                    + worldPositionOffset,
+                Quaternion.identity);
+
+            transform.localScale =
+                Vector3.one;
+
+            // Runtime walls begin at 200. Appearance previews sit above them,
+            // while pylon markers remain above the previews at 300.
+            spriteRenderer.sortingOrder =
+                250
+                - worldPose.DisplayEdge.AnchorCell.X
+                - worldPose.DisplayEdge.AnchorCell.Y;
+
+            spriteRenderer.color = color;
+            spriteRenderer.enabled = true;
+
+            gameObject.name =
+                $"Wall Appearance Preview — {edge}";
         }
 
 
@@ -91,20 +144,13 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
-        private void ValidatePresentation()
+        private void ValidateRenderer()
         {
             if (spriteRenderer == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(WallRunPreviewSegmentView)} on " +
-                    $"'{name}' requires a SpriteRenderer reference.");
-            }
-
-            if (spriteRenderer.sprite == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallRunPreviewSegmentView)} on " +
-                    $"'{name}' requires a Sprite.");
+                    $"{nameof(WallRunPreviewSegmentView)} on "
+                    + $"'{name}' requires a SpriteRenderer reference.");
             }
         }
 
