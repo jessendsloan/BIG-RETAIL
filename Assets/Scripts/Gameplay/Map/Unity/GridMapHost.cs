@@ -76,6 +76,12 @@ namespace BigRetail.Map.Unity
             private set;
         }
 
+        public WallAppearanceStrokeService WallAppearanceStrokes
+        {
+            get;
+            private set;
+        }
+
         public WallFinishAssetCatalog WallFinishAssets =>
             wallFinishAssets;
 
@@ -100,6 +106,7 @@ namespace BigRetail.Map.Unity
 
         private void OnDestroy()
         {
+            WallAppearanceStrokes = null;
             WallFinishes?.Dispose();
             WallFinishes = null;
         }
@@ -171,6 +178,12 @@ namespace BigRetail.Map.Unity
                         WallFinishCatalog,
                         WallFinishState);
 
+                WallAppearanceStrokes =
+                    new WallAppearanceStrokeService(
+                        WallConstruction,
+                        WallFinishes,
+                        WallFinishCatalog);
+
                 IsInitialized = true;
 
                 mapAuthoring.ApplyRuntimeVisibility();
@@ -184,6 +197,7 @@ namespace BigRetail.Map.Unity
             }
             catch (Exception exception)
             {
+                WallAppearanceStrokes = null;
                 WallFinishes?.Dispose();
                 WallFinishes = null;
 
