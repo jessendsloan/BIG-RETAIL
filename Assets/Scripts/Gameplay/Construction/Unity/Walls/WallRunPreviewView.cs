@@ -33,6 +33,9 @@ namespace BigRetail.Construction.Unity.Walls
         [SerializeField]
         private WallVertexTargetResolver targetResolver;
 
+        [SerializeField]
+        private WallFinishSelectionHost finishSelection;
+
 
         [Header("Pylon Pool")]
 
@@ -202,6 +205,22 @@ namespace BigRetail.Construction.Unity.Walls
             UnchangedAppearanceCount = 0;
             IsPlanValid = false;
             IsVisible = true;
+        }
+
+
+        public void ShowPlan(
+            WallVertexRunPlanResult plan)
+        {
+            if (finishSelection == null
+                || !finishSelection.IsInitialized)
+            {
+                Hide();
+                return;
+            }
+
+            ShowPlan(
+                plan,
+                finishSelection.SelectedFinishAsset);
         }
 
 
@@ -531,6 +550,16 @@ namespace BigRetail.Construction.Unity.Walls
                 Debug.LogError(
                     "WallRunPreviewView has no "
                     + "WallVertexTargetResolver assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (finishSelection == null)
+            {
+                Debug.LogError(
+                    "WallRunPreviewView has no "
+                    + "WallFinishSelectionHost assigned.",
                     this);
 
                 isValid = false;
