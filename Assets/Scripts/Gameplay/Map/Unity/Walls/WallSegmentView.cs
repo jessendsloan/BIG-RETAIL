@@ -22,14 +22,30 @@ namespace BigRetail.Map.Unity.Walls
         private SpriteRenderer spriteRenderer;
 
         [Tooltip(
-            "The visible thickness of the temporary wall bar " +
-            "in Unity world units.")]
+            "Finish shown when the logical edge's FirstCell faces the viewer. "
+            + "When both face finishes are empty, the legacy temporary bar "
+            + "presentation remains active.")]
+        [SerializeField]
+        private WallFinishAsset firstCellFinish;
+
+        [Tooltip(
+            "Finish shown when the logical edge's SecondCell faces the viewer. "
+            + "When both face finishes are empty, the legacy temporary bar "
+            + "presentation remains active.")]
+        [SerializeField]
+        private WallFinishAsset secondCellFinish;
+
+        [Tooltip(
+            "The visible thickness of the temporary fallback wall bar "
+            + "in Unity world units. Directional finish sprites keep their "
+            + "authored size instead.")]
         [SerializeField, Min(0.001f)]
         private float wallThickness = 0.08f;
 
         [Tooltip(
-            "Optional world-space adjustment applied after the wall " +
-            "position has been calculated.")]
+            "Optional world-space adjustment applied after the wall "
+            + "position has been calculated. This can be used while "
+            + "validating authored sprite pivots and wall height.")]
         [SerializeField]
         private Vector3 worldPositionOffset =
             Vector3.zero;
@@ -39,9 +55,18 @@ namespace BigRetail.Map.Unity.Walls
 
         public bool IsInitialized { get; private set; }
 
+        public WallFinishAsset CurrentFinish { get; private set; }
+
+        public WallDisplaySlope CurrentDisplaySlope { get; private set; }
+
+
         private Tilemap coordinateTilemap;
         private int logicalLevel;
         private int unityCellZ;
+
+        private bool UsesDirectionalFinishes =>
+            firstCellFinish != null
+            && secondCellFinish != null;
 
 
         /// <summary>
@@ -68,10 +93,10 @@ namespace BigRetail.Map.Unity.Walls
                 projection);
 
             gameObject.name =
-                $"Wall {Edge.AnchorCell.X}, " +
-                $"{Edge.AnchorCell.Y}, " +
-                $"Level {Edge.AnchorCell.Level} — " +
-                $"{Edge.CanonicalDirection}";
+                $"Wall {Edge.AnchorCell.X}, "
+                + $"{Edge.AnchorCell.Y}, "
+                + $"Level {Edge.AnchorCell.Level} — "
+                + $"{Edge.CanonicalDirection}";
 
             IsInitialized = true;
         }
@@ -102,6 +127,77 @@ namespace BigRetail.Map.Unity.Walls
         private void ApplyWorldPose(
             CellEdgeWorldPose worldPose)
         {
+            if (UsesDirectionalFinishes)
+            {
+                ApplyDirectionalFinish(
+                    worldPose);
+            }
+            else
+            {
+                ApplyLegacyTemporaryBar(
+                    worldPose);
+            }
+
+            spriteRenderer.sortingOrder =
+                200
+                - worldPose.DisplayEdge.AnchorCell.X
+                - worldPose.DisplayEdge.AnchorCell.Y;
+        }
+
+
+        private void ApplyDirectionalFinish(
+            CellEdgeWorldPose worldPose)
+        {
+            WallFinishAsset visibleFinish;
+
+            if (worldPose.ViewerFacingCell
+                == Edge.FirstCell)
+            {
+                visibleFinish =
+                    firstCellFinish;
+            }
+            else if (worldPose.ViewerFacingCell
+                == Edge.SecondCell)
+            {
+                visibleFinish =
+                    secondCellFinish;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Viewer-facing cell {worldPose.ViewerFacingCell} "
+                    + $"does not touch wall edge {Edge}.");
+            }
+
+            CurrentFinish =
+                visibleFinish;
+
+            CurrentDisplaySlope =
+                worldPose.DisplaySlope;
+
+            spriteRenderer.sprite =
+                visibleFinish.GetSprite(
+                    worldPose.DisplaySlope);
+
+            transform.SetPositionAndRotation(
+                worldPose.Position
+                    + worldPositionOffset,
+                Quaternion.identity);
+
+            transform.localScale =
+                Vector3.one;
+        }
+
+
+        private void ApplyLegacyTemporaryBar(
+            CellEdgeWorldPose worldPose)
+        {
+            CurrentFinish =
+                null;
+
+            CurrentDisplaySlope =
+                worldPose.DisplaySlope;
+
             transform.SetPositionAndRotation(
                 worldPose.Position
                     + worldPositionOffset,
@@ -109,11 +205,6 @@ namespace BigRetail.Map.Unity.Walls
 
             ApplySpriteScale(
                 worldPose.Length);
-
-            spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
         }
 
 
@@ -146,15 +237,36 @@ namespace BigRetail.Map.Unity.Walls
             if (spriteRenderer == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' " +
-                    "requires a SpriteRenderer reference.");
+                    $"{nameof(WallSegmentView)} on '{name}' "
+                    + "requires a SpriteRenderer reference.");
+            }
+
+            bool hasFirstFinish =
+                firstCellFinish != null;
+
+            bool hasSecondFinish =
+                secondCellFinish != null;
+
+            if (hasFirstFinish != hasSecondFinish)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallSegmentView)} on '{name}' must assign "
+                    + "both cell-face finishes or neither of them.");
+            }
+
+            if (hasFirstFinish)
+            {
+                firstCellFinish.ValidateConfiguration();
+                secondCellFinish.ValidateConfiguration();
+                return;
             }
 
             if (spriteRenderer.sprite == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' " +
-                    "requires a Sprite assigned to its SpriteRenderer.");
+                    $"{nameof(WallSegmentView)} on '{name}' requires "
+                    + "a fallback Sprite when directional finishes "
+                    + "are not assigned.");
             }
         }
 
