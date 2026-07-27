@@ -391823,7 +391823,7 @@ GameObject:
   - component: {fileID: 2082405063}
   - component: {fileID: 2082405065}
   m_Layer: 0
-  m_Name: Wall/WallVertexTargetResolver
+  m_Name: WallTargetResolvers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
