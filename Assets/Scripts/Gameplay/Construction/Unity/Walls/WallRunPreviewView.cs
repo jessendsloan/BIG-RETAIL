@@ -8,42 +8,44 @@ using UnityEngine;
 namespace BigRetail.Construction.Unity.Walls
 {
     /// <summary>
-    /// Displays every segment in a planned straight wall run.
+    /// Displays a pylon marker at every vertex in a planned straight wall run.
     ///
-    /// Green means a new wall will be created.
-    /// Blue means a wall already exists and will be preserved.
-    /// Red means the segment is invalid and will be skipped.
-    ///
-    /// Invalid or existing segments do not reject valid segments.
+    /// Segment construction state is summarized through the neighboring pylon
+    /// colors while CellEdges remain the geometry that will be committed.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class WallRunPreviewView : MonoBehaviour
     {
+        private enum SegmentPreviewStatus
+        {
+            Existing = 0,
+            Buildable = 1,
+            Invalid = 2
+        }
+
+
         [Header("Runtime Model")]
 
         [SerializeField]
         private GridMapHost mapHost;
 
         [SerializeField]
-        private WallTargetResolver targetResolver;
+        private WallVertexTargetResolver targetResolver;
 
 
         [Header("Preview Pool")]
 
         [SerializeField]
-        private WallRunPreviewSegmentView segmentPrefab;
+        private WallRunPreviewVertexView vertexPrefab;
 
         [Tooltip(
-            "Parent for instantiated preview segments. " +
-            "When empty, this object's Transform is used.")]
+            "Parent for instantiated vertex pylons. "
+            + "When empty, this object's Transform is used.")]
         [SerializeField]
-        private Transform segmentParent;
+        private Transform vertexParent;
 
 
         [Header("Visual")]
-
-        [SerializeField, Min(0.001f)]
-        private float previewThickness = 0.1f;
 
         [SerializeField]
         private Color validColor =
@@ -51,7 +53,7 @@ namespace BigRetail.Construction.Unity.Walls
                 0.2f,
                 1f,
                 0.3f,
-                0.85f);
+                0.9f);
 
         [SerializeField]
         private Color existingColor =
@@ -59,7 +61,7 @@ namespace BigRetail.Construction.Unity.Walls
                 0.15f,
                 0.65f,
                 1f,
-                0.9f);
+                0.95f);
 
         [SerializeField]
         private Color invalidColor =
@@ -67,17 +69,26 @@ namespace BigRetail.Construction.Unity.Walls
                 1f,
                 0.2f,
                 0.2f,
-                0.85f);
+                0.9f);
+
+        [Tooltip(
+            "Optional world-space adjustment applied to every pylon after "
+            + "its grid-vertex position has been calculated.")]
+        [SerializeField]
+        private Vector3 worldPositionOffset =
+            Vector3.zero;
 
 
-        private readonly List<WallRunPreviewSegmentView>
-            segmentPool =
-                new List<WallRunPreviewSegmentView>();
+        private readonly List<WallRunPreviewVertexView>
+            vertexPool =
+                new List<WallRunPreviewVertexView>();
 
 
         public bool IsVisible { get; private set; }
 
         public bool IsPlanValid { get; private set; }
+
+        public int VisibleVertexCount { get; private set; }
 
         public int VisibleSegmentCount { get; private set; }
 
@@ -96,18 +107,48 @@ namespace BigRetail.Construction.Unity.Walls
                 return;
             }
 
-            if (segmentParent == null)
+            if (vertexParent == null)
             {
-                segmentParent =
-                    transform;
+                vertexParent = transform;
             }
 
             Hide();
         }
 
 
+        public void ShowAnchor(
+            GridVertex vertex)
+        {
+            EnsurePoolCapacity(1);
+
+            GridVertexWorldPose worldPose =
+                GridVertexWorldPose.Calculate(
+                    vertex,
+                    targetResolver.CoordinateTilemap,
+                    targetResolver.LogicalLevel,
+                    targetResolver.UnityCellZ,
+                    targetResolver.ViewProjection);
+
+            vertexPool[0].Show(
+                vertex,
+                worldPose,
+                worldPositionOffset,
+                validColor);
+
+            HideUnusedVertices(1);
+
+            VisibleVertexCount = 1;
+            VisibleSegmentCount = 0;
+            BuildableSegmentCount = 0;
+            ExistingSegmentCount = 0;
+            SkippedSegmentCount = 0;
+            IsPlanValid = false;
+            IsVisible = true;
+        }
+
+
         public void ShowPlan(
-            WallRunPlanResult plan)
+            WallVertexRunPlanResult plan)
         {
             if (!plan.Succeeded
                 || !mapHost.IsInitialized
@@ -118,7 +159,10 @@ namespace BigRetail.Construction.Unity.Walls
             }
 
             EnsurePoolCapacity(
-                plan.SegmentCount);
+                plan.VertexCount);
+
+            SegmentPreviewStatus[] segmentStatuses =
+                new SegmentPreviewStatus[plan.SegmentCount];
 
             BuildableSegmentCount = 0;
             ExistingSegmentCount = 0;
@@ -128,78 +172,62 @@ namespace BigRetail.Construction.Unity.Walls
                  index < plan.SegmentCount;
                  index++)
             {
-                CellEdge edge =
-                    plan.Edges[index];
+                segmentStatuses[index] =
+                    EvaluateSegment(
+                        plan.Edges[index]);
+            }
 
-                Color segmentColor;
+            for (int index = 0;
+                 index < plan.VertexCount;
+                 index++)
+            {
+                GridVertex vertex =
+                    plan.Vertices[index];
 
-                if (mapHost.WallConstruction.HasWall(edge))
-                {
-                    ExistingSegmentCount++;
-
-                    segmentColor =
-                        existingColor;
-                }
-                else
-                {
-                    WallChangeResult evaluation =
-                        mapHost.WallConstruction
-                            .EvaluatePlacement(edge);
-
-                    if (evaluation.Succeeded)
-                    {
-                        BuildableSegmentCount++;
-
-                        segmentColor =
-                            validColor;
-                    }
-                    else
-                    {
-                        SkippedSegmentCount++;
-
-                        segmentColor =
-                            invalidColor;
-                    }
-                }
-
-                CellEdgeWorldPose worldPose =
-                    CellEdgeWorldPose.Calculate(
-                        edge,
+                GridVertexWorldPose worldPose =
+                    GridVertexWorldPose.Calculate(
+                        vertex,
                         targetResolver.CoordinateTilemap,
                         targetResolver.LogicalLevel,
                         targetResolver.UnityCellZ,
                         targetResolver.ViewProjection);
 
-                segmentPool[index].Show(
-                    edge,
+                SegmentPreviewStatus markerStatus =
+                    ResolveMarkerStatus(
+                        segmentStatuses,
+                        index);
+
+                vertexPool[index].Show(
+                    vertex,
                     worldPose,
-                    previewThickness,
-                    segmentColor);
+                    worldPositionOffset,
+                    ResolveColor(markerStatus));
             }
 
-            HideUnusedSegments(
-                plan.SegmentCount);
+            HideUnusedVertices(
+                plan.VertexCount);
+
+            VisibleVertexCount =
+                plan.VertexCount;
 
             VisibleSegmentCount =
                 plan.SegmentCount;
 
-            IsPlanValid =
-                plan.Succeeded;
-
-            IsVisible =
-                VisibleSegmentCount > 0;
+            IsPlanValid = true;
+            IsVisible = VisibleVertexCount > 0;
         }
 
 
         public void Hide()
         {
             for (int index = 0;
-                 index < segmentPool.Count;
+                 index < vertexPool.Count;
                  index++)
             {
-                segmentPool[index].Hide();
+                vertexPool[index].Hide();
             }
 
+            VisibleVertexCount = 0;
             VisibleSegmentCount = 0;
             BuildableSegmentCount = 0;
             ExistingSegmentCount = 0;
@@ -209,32 +237,102 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
-        private void EnsurePoolCapacity(
-            int requiredCount)
+        private SegmentPreviewStatus EvaluateSegment(
+            CellEdge edge)
         {
-            while (segmentPool.Count < requiredCount)
+            if (mapHost.WallConstruction.HasWall(edge))
             {
-                WallRunPreviewSegmentView segment =
-                    Instantiate(
-                        segmentPrefab,
-                        segmentParent);
+                ExistingSegmentCount++;
+                return SegmentPreviewStatus.Existing;
+            }
 
-                segment.Hide();
+            WallChangeResult evaluation =
+                mapHost.WallConstruction
+                    .EvaluatePlacement(edge);
 
-                segmentPool.Add(
-                    segment);
+            if (evaluation.Succeeded)
+            {
+                BuildableSegmentCount++;
+                return SegmentPreviewStatus.Buildable;
+            }
+
+            SkippedSegmentCount++;
+            return SegmentPreviewStatus.Invalid;
+        }
+
+
+        private static SegmentPreviewStatus ResolveMarkerStatus(
+            IReadOnlyList<SegmentPreviewStatus> segmentStatuses,
+            int vertexIndex)
+        {
+            if (vertexIndex == 0)
+            {
+                return segmentStatuses[0];
+            }
+
+            if (vertexIndex == segmentStatuses.Count)
+            {
+                return segmentStatuses[segmentStatuses.Count - 1];
+            }
+
+            SegmentPreviewStatus previous =
+                segmentStatuses[vertexIndex - 1];
+
+            SegmentPreviewStatus next =
+                segmentStatuses[vertexIndex];
+
+            return previous >= next
+                ? previous
+                : next;
+        }
+
+
+        private Color ResolveColor(
+            SegmentPreviewStatus status)
+        {
+            switch (status)
+            {
+                case SegmentPreviewStatus.Existing:
+                    return existingColor;
+
+                case SegmentPreviewStatus.Buildable:
+                    return validColor;
+
+                case SegmentPreviewStatus.Invalid:
+                    return invalidColor;
+
+                default:
+                    return invalidColor;
             }
         }
 
 
-        private void HideUnusedSegments(
+        private void EnsurePoolCapacity(
+            int requiredCount)
+        {
+            while (vertexPool.Count < requiredCount)
+            {
+                WallRunPreviewVertexView vertexView =
+                    Instantiate(
+                        vertexPrefab,
+                        vertexParent);
+
+                vertexView.Hide();
+
+                vertexPool.Add(
+                    vertexView);
+            }
+        }
+
+
+        private void HideUnusedVertices(
             int firstUnusedIndex)
         {
             for (int index = firstUnusedIndex;
-                 index < segmentPool.Count;
+                 index < vertexPool.Count;
                  index++)
             {
-                segmentPool[index].Hide();
+                vertexPool[index].Hide();
             }
         }
 
@@ -255,17 +353,18 @@ namespace BigRetail.Construction.Unity.Walls
             if (targetResolver == null)
             {
                 Debug.LogError(
-                    "WallRunPreviewView has no WallTargetResolver assigned.",
+                    "WallRunPreviewView has no "
+                    + "WallVertexTargetResolver assigned.",
                     this);
 
                 isValid = false;
             }
 
-            if (segmentPrefab == null)
+            if (vertexPrefab == null)
             {
                 Debug.LogError(
-                    "WallRunPreviewView has no preview-segment " +
-                    "prefab assigned.",
+                    "WallRunPreviewView has no preview-vertex "
+                    + "prefab assigned.",
                     this);
 
                 isValid = false;
@@ -278,15 +377,6 @@ namespace BigRetail.Construction.Unity.Walls
         private void OnDisable()
         {
             Hide();
-        }
-
-
-        private void OnValidate()
-        {
-            previewThickness =
-                Mathf.Max(
-                    previewThickness,
-                    0.001f);
         }
     }
 }
