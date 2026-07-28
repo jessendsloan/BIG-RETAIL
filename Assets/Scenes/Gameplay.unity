@@ -319,12 +319,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallRunPreviewView
   mapHost: {fileID: 1863031834}
   targetResolver: {fileID: 2082405065}
+  finishSelection: {fileID: 1588797419}
   vertexPrefab: {fileID: 2852154828798584248, guid: 36b97ac5065c3464686a41442f48f133, type: 3}
   vertexParent: {fileID: 0}
+  appearancePreviewPrefab: {fileID: 780474292405220875, guid: 3cbbd7263bfc42c47a7f6470b78debbe, type: 3}
+  appearancePreviewParent: {fileID: 0}
   validColor: {r: 1, g: 1, b: 1, a: 1}
   existingColor: {r: 0.15, g: 0.65, b: 1, a: 1}
   invalidColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   worldPositionOffset: {x: 0, y: 0, z: 0}
+  appearancePreviewColor: {r: 1, g: 1, b: 1, a: 0.65}
+  unchangedAppearancePreviewColor: {r: 1, g: 1, b: 1, a: 0.3}
+  appearanceWorldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &199414980
 Transform:
   m_ObjectHideFlags: 0
@@ -298822,6 +298828,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1588797418}
   - component: {fileID: 1588797417}
+  - component: {fileID: 1588797419}
   m_Layer: 0
   m_Name: WallConstructionTool
   m_TagString: Untagged
@@ -298851,6 +298858,7 @@ MonoBehaviour:
   runPreviewView: {fileID: 199414979}
   mapHost: {fileID: 1863031834}
   historyHost: {fileID: 746913718}
+  finishSelection: {fileID: 1588797419}
   startActive: 0
   logPlacementResults: 1
 --- !u!4 &1588797418
@@ -298868,6 +298876,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1111047126}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1588797419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1588797416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d2af9de8cae4bb5855c8302abccf3a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallFinishSelectionHost
+  mapHost: {fileID: 1863031834}
+  startingFinish: {fileID: 11400000, guid: cfcdb5ee173796344ab7e2d30348ebd3, type: 2}
+  logSelectionChanges: 1
 --- !u!1 &1613436456
 GameObject:
   m_ObjectHideFlags: 0
