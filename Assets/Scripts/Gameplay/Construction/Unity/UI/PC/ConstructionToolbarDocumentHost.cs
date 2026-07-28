@@ -11,6 +11,7 @@ namespace BigRetail.Construction.Unity.UI.PC
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(UIDocument))]
+    [DefaultExecutionOrder(100)]
     public sealed class ConstructionToolbarDocumentHost : MonoBehaviour
     {
         [SerializeField]
