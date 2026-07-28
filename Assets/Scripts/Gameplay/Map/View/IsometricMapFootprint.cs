@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Map.Domain;
 
 namespace BigRetail.Map.View
@@ -66,6 +67,35 @@ namespace BigRetail.Map.View
                     nameof(mapDefinition));
             }
 
+            return FromCellsCore(
+                mapDefinition.EnumerateValidCells(),
+                logicalLevel,
+                $"Map '{mapDefinition.MapId}' contains no cells " +
+                $"on logical level {logicalLevel}.");
+        }
+
+        public static IsometricMapFootprint FromCells(
+            IEnumerable<GridPosition> cells,
+            int logicalLevel)
+        {
+            if (cells == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(cells));
+            }
+
+            return FromCellsCore(
+                cells,
+                logicalLevel,
+                "The footprint source contains no occupied cells " +
+                $"on logical level {logicalLevel}.");
+        }
+
+        private static IsometricMapFootprint FromCellsCore(
+            IEnumerable<GridPosition> cells,
+            int logicalLevel,
+            string emptyMessage)
+        {
             bool foundCell = false;
 
             int minimumX = int.MaxValue;
@@ -73,9 +103,7 @@ namespace BigRetail.Map.View
             int maximumX = int.MinValue;
             int maximumY = int.MinValue;
 
-            foreach (
-                GridPosition cell
-                in mapDefinition.EnumerateValidCells())
+            foreach (GridPosition cell in cells)
             {
                 if (cell.Level != logicalLevel)
                 {
@@ -108,8 +136,7 @@ namespace BigRetail.Map.View
             if (!foundCell)
             {
                 throw new InvalidOperationException(
-                    $"Map '{mapDefinition.MapId}' contains no cells " +
-                    $"on logical level {logicalLevel}.");
+                    emptyMessage);
             }
 
             return new IsometricMapFootprint(

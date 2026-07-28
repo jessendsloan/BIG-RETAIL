@@ -30,6 +30,17 @@ namespace BigRetail.Map.Unity.View
         private int unityCellZ = 0;
 
 
+        [Header("World Footprint")]
+
+        [Tooltip(
+            "Optional authored Tilemap whose occupied canonical cells " +
+            "define the complete rotating world envelope. Assign " +
+            "MapAreaMask. When unassigned or empty, the construction " +
+            "map footprint remains the fallback.")]
+        [SerializeField]
+        private Tilemap worldFootprintTilemap;
+
+
         [Header("Starting View")]
 
         [SerializeField]
@@ -41,8 +52,9 @@ namespace BigRetail.Map.Unity.View
 
         [Tooltip(
             "Authored Tilemaps whose initial cells are canonical logical " +
-            "coordinates. MapVisuals belongs here. Runtime floor and " +
-            "preview Tilemaps rebuild through their own view systems.")]
+            "coordinates. MapVisuals and authored masks belong here. " +
+            "Runtime floor and preview Tilemaps rebuild through their " +
+            "own view systems.")]
         [SerializeField]
         private Tilemap[] authoredTilemaps =
             Array.Empty<Tilemap>();
@@ -129,9 +141,8 @@ namespace BigRetail.Map.Unity.View
             }
 
             IsometricMapFootprint footprint =
-                IsometricMapFootprint.FromMapDefinition(
-                    mapHost.MapDefinition,
-                    logicalLevel);
+                ResolveFootprint(
+                    out string footprintSource);
 
             Projection =
                 new IsometricViewProjection(
@@ -153,7 +164,8 @@ namespace BigRetail.Map.Unity.View
                 $"'{mapHost.MapDefinition.MapId}'. " +
                 $"Orientation: {Orientation}. " +
                 $"Footprint: {footprint.Width} x " +
-                $"{footprint.Height}.",
+                $"{footprint.Height} from " +
+                $"'{footprintSource}'.",
                 this);
 
             return true;
@@ -349,6 +361,81 @@ namespace BigRetail.Map.Unity.View
         }
 
 
+        private IsometricMapFootprint ResolveFootprint(
+            out string footprintSource)
+        {
+            if (TryCreateWorldFootprint(
+                    out IsometricMapFootprint footprint))
+            {
+                footprintSource =
+                    worldFootprintTilemap.name;
+
+                return footprint;
+            }
+
+            footprintSource =
+                mapHost.MapDefinition.MapId;
+
+            return IsometricMapFootprint.FromMapDefinition(
+                mapHost.MapDefinition,
+                logicalLevel);
+        }
+
+
+        private bool TryCreateWorldFootprint(
+            out IsometricMapFootprint footprint)
+        {
+            footprint = default;
+
+            if (worldFootprintTilemap == null)
+            {
+                return false;
+            }
+
+            List<GridPosition> occupiedCells =
+                new List<GridPosition>();
+
+            foreach (
+                Vector3Int unityCell
+                in worldFootprintTilemap.cellBounds
+                    .allPositionsWithin)
+            {
+                if (unityCell.z != unityCellZ
+                    || !worldFootprintTilemap.HasTile(
+                        unityCell))
+                {
+                    continue;
+                }
+
+                occupiedCells.Add(
+                    new GridPosition(
+                        unityCell.x,
+                        unityCell.y,
+                        logicalLevel));
+            }
+
+            if (occupiedCells.Count == 0)
+            {
+                Debug.LogWarning(
+                    $"World footprint Tilemap " +
+                    $"'{worldFootprintTilemap.name}' contains no " +
+                    $"occupied cells at Unity Z {unityCellZ}. " +
+                    $"Falling back to the construction-map " +
+                    $"footprint.",
+                    this);
+
+                return false;
+            }
+
+            footprint =
+                IsometricMapFootprint.FromCells(
+                    occupiedCells,
+                    logicalLevel);
+
+            return true;
+        }
+
+
         private static void EncapsulateCellCenter(
             ref Bounds bounds,
             Tilemap coordinateTilemap,
@@ -369,24 +456,40 @@ namespace BigRetail.Map.Unity.View
         {
             authoredSnapshots.Clear();
 
+            HashSet<Tilemap> capturedTilemaps =
+                new HashSet<Tilemap>();
+
+            CaptureAuthoredTilemap(
+                worldFootprintTilemap,
+                capturedTilemaps);
+
             for (int index = 0;
                  index < authoredTilemaps.Length;
                  index++)
             {
-                Tilemap tilemap =
-                    authoredTilemaps[index];
-
-                if (tilemap == null)
-                {
-                    continue;
-                }
-
-                authoredSnapshots.Add(
-                    new AuthoredTilemapSnapshot(
-                        tilemap,
-                        logicalLevel,
-                        unityCellZ));
+                CaptureAuthoredTilemap(
+                    authoredTilemaps[index],
+                    capturedTilemaps);
             }
+        }
+
+
+        private void CaptureAuthoredTilemap(
+            Tilemap tilemap,
+            HashSet<Tilemap> capturedTilemaps)
+        {
+            if (tilemap == null
+                || !capturedTilemaps.Add(
+                    tilemap))
+            {
+                return;
+            }
+
+            authoredSnapshots.Add(
+                new AuthoredTilemapSnapshot(
+                    tilemap,
+                    logicalLevel,
+                    unityCellZ));
         }
 
 

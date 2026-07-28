@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.View;
@@ -42,6 +43,87 @@ namespace BigRetail.Map.View.Tests
             Assert.That(footprint.MaximumY, Is.EqualTo(9));
             Assert.That(footprint.Width, Is.EqualTo(5));
             Assert.That(footprint.Height, Is.EqualTo(3));
+        }
+
+
+        [Test]
+        public void FootprintFromCellsUsesOccupiedRequestedLevelEnvelope()
+        {
+            IsometricMapFootprint footprint =
+                IsometricMapFootprint.FromCells(
+                    new[]
+                    {
+                        new GridPosition(-400, -400, 1),
+                        new GridPosition(-263, -112, 0),
+                        new GridPosition(-256, -108, 0),
+                        new GridPosition(500, 500, 2)
+                    },
+                    logicalLevel: 0);
+
+            Assert.That(footprint.MinimumX, Is.EqualTo(-263));
+            Assert.That(footprint.MinimumY, Is.EqualTo(-112));
+            Assert.That(footprint.MaximumX, Is.EqualTo(-256));
+            Assert.That(footprint.MaximumY, Is.EqualTo(-108));
+            Assert.That(footprint.Width, Is.EqualTo(8));
+            Assert.That(footprint.Height, Is.EqualTo(5));
+        }
+
+
+        [Test]
+        public void FootprintFromCellsRejectsMissingRequestedLevel()
+        {
+            Assert.Throws<InvalidOperationException>(
+                () => IsometricMapFootprint.FromCells(
+                    new[]
+                    {
+                        new GridPosition(-263, -112, 1)
+                    },
+                    logicalLevel: 0));
+        }
+
+
+        [TestCase(IsometricViewOrientation.North, 8, 5)]
+        [TestCase(IsometricViewOrientation.East, 5, 8)]
+        [TestCase(IsometricViewOrientation.South, 8, 5)]
+        [TestCase(IsometricViewOrientation.West, 5, 8)]
+        public void OccupiedWorldFootprintProjectsAcrossOrientation(
+            IsometricViewOrientation orientation,
+            int expectedWidth,
+            int expectedHeight)
+        {
+            IsometricMapFootprint footprint =
+                IsometricMapFootprint.FromCells(
+                    new[]
+                    {
+                        new GridPosition(-263, -112, 0),
+                        new GridPosition(-256, -108, 0)
+                    },
+                    logicalLevel: 0);
+
+            IsometricViewProjection projection =
+                new IsometricViewProjection(
+                    footprint,
+                    orientation);
+
+            GridPosition logicalCell =
+                new GridPosition(
+                    -260,
+                    -110,
+                    0);
+
+            Assert.That(
+                projection.DisplayWidth,
+                Is.EqualTo(expectedWidth));
+
+            Assert.That(
+                projection.DisplayHeight,
+                Is.EqualTo(expectedHeight));
+
+            Assert.That(
+                projection.ToLogicalCell(
+                    projection.ToDisplayCell(
+                        logicalCell)),
+                Is.EqualTo(logicalCell));
         }
 
 
