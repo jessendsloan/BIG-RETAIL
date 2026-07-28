@@ -297951,26 +297951,7 @@ Tilemap:
   m_AnimatedTiles: {}
   m_TileAssetArray: []
   m_TileSpriteArray: []
-  m_TileMatrixArray:
-  - serializedVersion: 2
-    m_RefCount: 49
-    m_Data:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
+  m_TileMatrixArray: []
   m_TileColorArray: []
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -391149,6 +391130,7 @@ GameObject:
   - component: {fileID: 1863031835}
   - component: {fileID: 1863031834}
   - component: {fileID: 2111000001}
+  - component: {fileID: 2111000003}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -391619,9 +391601,12 @@ MonoBehaviour:
   mapHost: {fileID: 1863031834}
   logicalLevel: 0
   unityCellZ: 0
+  worldFootprintTilemap: {fileID: 202607028}
   startingOrientation: 0
   authoredTilemaps:
   - {fileID: 463974780}
+  - {fileID: 202607028}
+  - {fileID: 1831485136}
 --- !u!114 &2111000002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391641,6 +391626,22 @@ MonoBehaviour:
   coordinateTilemap: {fileID: 463974780}
   boundsPadding: {x: 4, y: 4}
   logRotations: 1
+--- !u!114 &2111000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae707c8608a84e76abec55a2c6b3a8f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.View.AuthoredTileOrientationViewSystem
+  viewHost: {fileID: 2111000001}
+  directionalTilemaps:
+  - {fileID: 463974780}
+  unityCellZ: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
