@@ -1,0 +1,84 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="ConstructionToolbar.uss" />
+
+    <ui:VisualElement
+        name="construction-toolbar-screen"
+        class="construction-toolbar-screen"
+        picking-mode="Ignore">
+
+        <ui:VisualElement
+            name="construction-toolbar"
+            class="construction-toolbar"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                name="construction-tool-group"
+                class="construction-toolbar__group">
+
+                <ui:Button
+                    name="walls-button"
+                    class="construction-toolbar__button"
+                    tooltip="Walls">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--walls"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="wallpaper-button"
+                    class="construction-toolbar__button"
+                    tooltip="Wallpaper">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--wallpaper"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="floors-button"
+                    class="construction-toolbar__button"
+                    tooltip="Floors">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--floors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolition-button"
+                    class="construction-toolbar__button"
+                    tooltip="Demolition">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--demolition"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                name="construction-history-separator"
+                class="construction-toolbar__separator"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="construction-history-group"
+                class="construction-toolbar__group">
+
+                <ui:Button
+                    name="undo-button"
+                    class="construction-toolbar__button construction-toolbar__button--history"
+                    tooltip="Undo">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--undo"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="redo-button"
+                    class="construction-toolbar__button construction-toolbar__button--history"
+                    tooltip="Redo">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--redo"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
