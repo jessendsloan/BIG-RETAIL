@@ -56,6 +56,7 @@ namespace BigRetail.Construction.Unity.Walls
                 - worldPose.DisplayEdge.AnchorCell.X
                 - worldPose.DisplayEdge.AnchorCell.Y;
 
+            spriteRenderer.rendererPriority = 0;
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 
@@ -95,13 +96,15 @@ namespace BigRetail.Construction.Unity.Walls
             transform.localScale =
                 Vector3.one;
 
-            // Runtime walls begin at 200. Appearance previews sit above them,
-            // while pylon markers remain above the previews at 300.
+            // Stay in the same logical depth slot as the runtime wall. A small
+            // renderer priority draws the translucent preview after that exact
+            // wall without letting it jump in front of physically nearer walls.
             spriteRenderer.sortingOrder =
-                250
+                200
                 - worldPose.DisplayEdge.AnchorCell.X
                 - worldPose.DisplayEdge.AnchorCell.Y;
 
+            spriteRenderer.rendererPriority = 1;
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 
