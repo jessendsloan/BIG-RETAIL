@@ -41,6 +41,21 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        public IEnumerable<WallFinishAsset> EnumerateAssets()
+        {
+            EnsureLookup();
+
+            yield return defaultFinish;
+
+            for (int index = 0;
+                 index < additionalFinishes.Length;
+                 index++)
+            {
+                yield return additionalFinishes[index];
+            }
+        }
+
+
         public WallFinishCatalog CreateDomainCatalog()
         {
             EnsureLookup();
