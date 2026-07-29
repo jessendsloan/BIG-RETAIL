@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 101ef2f39c5ee344ab9dd96f1653cbe7
+guid: eeaa0e65f04090d4fb8d4c2b93c26189
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3856370222643456949
-    second: Brick_RisingLeft_0
+      213: -9043915807778085586
+    second: WoodWallRisingRight_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,8 +49,8 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 0
-  spritePivot: {x: 0.5, y: 0.5}
+  alignment: 9
+  spritePivot: {x: 0.5542989, y: 0.03479652}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 0
@@ -72,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Brick_RisingLeft_0
+      name: WoodWallRisingRight_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 50
-        height: 335
-      alignment: 9
-      pivot: {x: 0.46462405, y: 0.035363495}
+        height: 334
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b4451f4e6bb6b7ac0800000000000000
-      internalID: -3856370222643456949
+      spriteID: e25e8d25d7e8d7280800000000000000
+      internalID: -9043915807778085586
       vertices: []
       indices: 
       edges: []
@@ -125,8 +125,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 1625aad392ca2714793b65ca675e4bc8
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Brick_RisingLeft_0: -3856370222643456949
+      WoodWallRisingRight_0: -9043915807778085586
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

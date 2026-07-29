@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 101ef2f39c5ee344ab9dd96f1653cbe7
+guid: 231bae8c0371d354a8733f37c6467ab4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3856370222643456949
-    second: Brick_RisingLeft_0
+      213: 1921971347039861033
+    second: WhiteWallIcon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Brick_RisingLeft_0
+      name: WhiteWallIcon_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 50
-        height: 335
-      alignment: 9
-      pivot: {x: 0.46462405, y: 0.035363495}
+        width: 51
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b4451f4e6bb6b7ac0800000000000000
-      internalID: -3856370222643456949
+      spriteID: 9293ac0d1c63caa10800000000000000
+      internalID: 1921971347039861033
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 1625aad392ca2714793b65ca675e4bc8
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Brick_RisingLeft_0: -3856370222643456949
+      WhiteWallIcon_0: 1921971347039861033
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
