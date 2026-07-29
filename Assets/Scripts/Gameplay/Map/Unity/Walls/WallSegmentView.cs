@@ -117,9 +117,8 @@ namespace BigRetail.Map.Unity.Walls
                 worldPose);
 
             spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
         }
 
 
