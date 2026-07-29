@@ -8,7 +8,6 @@ namespace BigRetail.Construction.Unity.UI.PC
     {
         None,
         Walls,
-        Wallpaper,
         Floors,
         Demolition
     }
