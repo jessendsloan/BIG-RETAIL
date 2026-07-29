@@ -6,7 +6,7 @@ namespace BigRetail.Map.Unity.Walls.Tests
     public sealed class WallRenderOrderResolverTests
     {
         [Test]
-        public void ResolveWallDepth_UsesWallBand()
+        public void ResolveWallDepth_UsesWallBandAndDecreasingDepth()
         {
             int order =
                 WallRenderOrderResolver.ResolveWallDepth(12);
@@ -14,47 +14,47 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.WallBaseOrder + 12));
+                    WallRenderOrderResolver.WallBaseOrder - 12));
         }
 
 
         [Test]
-        public void ResolveWall_HigherNorthEastDepthRendersAfterLowerDepth()
+        public void ResolveWall_SmallerNorthEastDepthRendersAfterLargerDepth()
         {
-            CellEdge lowerDepth =
+            CellEdge closer =
                 new CellEdge(
                     new GridPosition(4, 7),
                     CellEdgeDirection.NorthEast);
 
-            CellEdge higherDepth =
+            CellEdge farther =
                 new CellEdge(
                     new GridPosition(4, 8),
                     CellEdgeDirection.NorthEast);
 
             Assert.That(
-                WallRenderOrderResolver.ResolveWall(higherDepth),
+                WallRenderOrderResolver.ResolveWall(closer),
                 Is.GreaterThan(
-                    WallRenderOrderResolver.ResolveWall(lowerDepth)));
+                    WallRenderOrderResolver.ResolveWall(farther)));
         }
 
 
         [Test]
-        public void ResolveWall_HigherNorthWestDepthRendersAfterLowerDepth()
+        public void ResolveWall_SmallerNorthWestDepthRendersAfterLargerDepth()
         {
-            CellEdge lowerDepth =
+            CellEdge closer =
                 new CellEdge(
                     new GridPosition(4, 7),
                     CellEdgeDirection.NorthWest);
 
-            CellEdge higherDepth =
+            CellEdge farther =
                 new CellEdge(
                     new GridPosition(5, 7),
                     CellEdgeDirection.NorthWest);
 
             Assert.That(
-                WallRenderOrderResolver.ResolveWall(higherDepth),
+                WallRenderOrderResolver.ResolveWall(closer),
                 Is.GreaterThan(
-                    WallRenderOrderResolver.ResolveWall(lowerDepth)));
+                    WallRenderOrderResolver.ResolveWall(farther)));
         }
 
 
@@ -67,12 +67,53 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.WallBaseOrder - 9));
+                    WallRenderOrderResolver.WallBaseOrder + 9));
         }
 
 
         [Test]
-        public void ResolvePylon_UsesPylonBandAndRoundedDepth()
+        public void ResolveWallPriority_RisingLeftWinsEqualDepthSeam()
+        {
+            CellEdge risingLeft =
+                new CellEdge(
+                    new GridPosition(4, 7),
+                    CellEdgeDirection.NorthEast);
+
+            CellEdge risingRight =
+                new CellEdge(
+                    new GridPosition(4, 7),
+                    CellEdgeDirection.NorthWest);
+
+            Assert.That(
+                WallRenderOrderResolver.ResolveWallPriority(risingLeft),
+                Is.GreaterThan(
+                    WallRenderOrderResolver.ResolveWallPriority(risingRight)));
+        }
+
+
+        [Test]
+        public void ResolveAppearancePreviewPriority_RendersAfterMatchingWall()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(4, 7),
+                    CellEdgeDirection.NorthEast);
+
+            int wallPriority =
+                WallRenderOrderResolver.ResolveWallPriority(edge);
+
+            int previewPriority =
+                WallRenderOrderResolver.ResolveAppearancePreviewPriority(edge);
+
+            Assert.That(
+                previewPriority - wallPriority,
+                Is.EqualTo(
+                    WallRenderOrderResolver.AppearancePreviewPriorityOffset));
+        }
+
+
+        [Test]
+        public void ResolvePylon_UsesPylonBandAndRoundedDecreasingDepth()
         {
             int order =
                 WallRenderOrderResolver.ResolvePylon(12.6f);
@@ -80,7 +121,7 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.PylonBaseOrder + 13));
+                    WallRenderOrderResolver.PylonBaseOrder - 13));
         }
 
 
