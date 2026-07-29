@@ -119,6 +119,10 @@ namespace BigRetail.Map.Unity.Walls
             spriteRenderer.sortingOrder =
                 WallRenderOrderResolver.ResolveWall(
                     worldPose.DisplayEdge);
+
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveWallPriority(
+                    worldPose.DisplayEdge);
         }
 
 
