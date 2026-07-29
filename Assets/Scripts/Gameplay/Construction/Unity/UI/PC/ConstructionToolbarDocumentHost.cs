@@ -6,7 +6,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
     /// Owns the runtime lifecycle of the PC construction toolbar document.
-    /// Gameplay presenters can observe the created view without coupling the
+    /// Gameplay presenters can observe the created views without coupling the
     /// PanelRenderer to construction rules or services.
     /// </summary>
     [DisallowMultipleComponent]
@@ -22,24 +22,41 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
-        public bool HasView => View != null;
+        public WallFinishPickerView FinishPickerView
+        {
+            get;
+            private set;
+        }
+
+        public bool HasView =>
+            View != null;
+
+        public bool HasFinishPickerView =>
+            FinishPickerView != null;
 
         public event Action<ConstructionToolbarView> ViewReady;
 
+        public event Action<WallFinishPickerView> FinishPickerViewReady;
+
         private int loadedVersion = -1;
+
 
         private void Reset()
         {
-            panelRenderer = GetComponent<PanelRenderer>();
+            panelRenderer =
+                GetComponent<PanelRenderer>();
         }
+
 
         private void Awake()
         {
             if (panelRenderer == null)
             {
-                panelRenderer = GetComponent<PanelRenderer>();
+                panelRenderer =
+                    GetComponent<PanelRenderer>();
             }
         }
+
 
         private void OnEnable()
         {
@@ -51,19 +68,23 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            panelRenderer.RegisterUIReloadCallback(HandleUIReload);
+            panelRenderer.RegisterUIReloadCallback(
+                HandleUIReload);
         }
+
 
         private void OnDisable()
         {
             if (panelRenderer != null)
             {
-                panelRenderer.UnregisterUIReloadCallback(HandleUIReload);
+                panelRenderer.UnregisterUIReloadCallback(
+                    HandleUIReload);
             }
 
-            DisposeView();
+            DisposeViews();
             loadedVersion = -1;
         }
+
 
         private void HandleUIReload(
             PanelRenderer source,
@@ -79,37 +100,58 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             if (View != null
+                && FinishPickerView != null
                 && loadedVersion == version)
             {
                 return;
             }
 
-            DisposeView();
+            DisposeViews();
 
             try
             {
-                View = new ConstructionToolbarView(root);
-                loadedVersion = version;
-                ViewReady?.Invoke(View);
+                View =
+                    new ConstructionToolbarView(
+                        root);
+
+                FinishPickerView =
+                    new WallFinishPickerView(
+                        root);
+
+                loadedVersion =
+                    version;
+
+                ViewReady?.Invoke(
+                    View);
+
+                FinishPickerViewReady?.Invoke(
+                    FinishPickerView);
             }
             catch (Exception exception)
             {
+                DisposeViews();
                 loadedVersion = -1;
+
                 Debug.LogError(
-                    $"ConstructionToolbarDocumentHost could not create its view: {exception.Message}",
+                    $"ConstructionToolbarDocumentHost could not create its views: {exception.Message}",
                     this);
             }
         }
 
-        private void DisposeView()
+
+        private void DisposeViews()
         {
-            if (View == null)
+            if (View != null)
             {
-                return;
+                View.Dispose();
+                View = null;
             }
 
-            View.Dispose();
-            View = null;
+            if (FinishPickerView != null)
+            {
+                FinishPickerView.Dispose();
+                FinishPickerView = null;
+            }
         }
     }
 }
