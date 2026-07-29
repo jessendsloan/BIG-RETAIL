@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.Walls;
@@ -78,6 +79,19 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 InitializeSelection();
             }
+        }
+
+
+        public IEnumerable<WallFinishAsset> EnumerateAvailableFinishes()
+        {
+            if (!IsInitialized
+                || mapHost == null
+                || mapHost.WallFinishAssets == null)
+            {
+                return Array.Empty<WallFinishAsset>();
+            }
+
+            return mapHost.WallFinishAssets.EnumerateAssets();
         }
 
 

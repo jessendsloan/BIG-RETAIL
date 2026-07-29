@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: BrickWallFinish
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Walls.WallFinishAsset
   finishId: brick
-  risingLeft: {fileID: -3856370222643456949, guid: 101ef2f39c5ee344ab9dd96f1653cbe7, type: 3}
-  risingRight: {fileID: -5865261890154083968, guid: 4c089536240e55d4db9e9cba1835d810, type: 3}
+  risingLeft: {fileID: 21300000, guid: 101ef2f39c5ee344ab9dd96f1653cbe7, type: 3}
+  risingRight: {fileID: 21300000, guid: 4c089536240e55d4db9e9cba1835d810, type: 3}
+  catalogIcon: {fileID: 21300000, guid: d4835600dec7a8c48a12410d4ce9cc69, type: 3}

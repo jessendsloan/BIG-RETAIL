@@ -52,11 +52,13 @@ namespace BigRetail.Construction.Unity.Walls
                 thickness);
 
             spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
 
-            spriteRenderer.rendererPriority = 0;
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveWallPriority(
+                    worldPose.DisplayEdge);
+
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 
@@ -96,15 +98,17 @@ namespace BigRetail.Construction.Unity.Walls
             transform.localScale =
                 Vector3.one;
 
-            // Stay in the same logical depth slot as the runtime wall. A small
-            // renderer priority draws the translucent preview after that exact
-            // wall without letting it jump in front of physically nearer walls.
+            // Stay in the runtime wall's depth slot. Renderer priority draws
+            // the translucent overlay after that exact directional panel while
+            // preserving equal-depth seam order against the opposite slope.
             spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
 
-            spriteRenderer.rendererPriority = 1;
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveAppearancePreviewPriority(
+                    worldPose.DisplayEdge);
+
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 

@@ -15,3 +15,5 @@ MonoBehaviour:
   defaultFinish: {fileID: 11400000, guid: 7ee9d714f3aaa4f48b5c4a6cb21e1ae0, type: 2}
   additionalFinishes:
   - {fileID: 11400000, guid: cfcdb5ee173796344ab7e2d30348ebd3, type: 2}
+  - {fileID: 11400000, guid: 45544933a3bb0674586a88bed3c9c54f, type: 2}
+  - {fileID: 11400000, guid: 6032ae6e1233f454ba35940ad11f7832, type: 2}
