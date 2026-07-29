@@ -7,6 +7,22 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="wall-finish-picker"
+            class="wall-finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Wall finishes"
+                class="wall-finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="wall-finish-picker-items"
+                class="wall-finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="construction-toolbar"
             class="construction-toolbar"
             picking-mode="Position">
