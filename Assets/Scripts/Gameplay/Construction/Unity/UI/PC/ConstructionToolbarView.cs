@@ -10,7 +10,6 @@ namespace BigRetail.Construction.Unity.UI.PC
     public sealed class ConstructionToolbarView : IDisposable
     {
         public const string WallsButtonName = "walls-button";
-        public const string WallpaperButtonName = "wallpaper-button";
         public const string FloorsButtonName = "floors-button";
         public const string DemolitionButtonName = "demolition-button";
         public const string UndoButtonName = "undo-button";
@@ -18,7 +17,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string SelectedClassName = "is-selected";
 
         private readonly Button wallsButton;
-        private readonly Button wallpaperButton;
         private readonly Button floorsButton;
         private readonly Button demolitionButton;
         private readonly Button undoButton;
@@ -34,14 +32,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton = RequireButton(root, WallsButtonName);
-            wallpaperButton = RequireButton(root, WallpaperButtonName);
             floorsButton = RequireButton(root, FloorsButtonName);
             demolitionButton = RequireButton(root, DemolitionButtonName);
             undoButton = RequireButton(root, UndoButtonName);
             redoButton = RequireButton(root, RedoButtonName);
 
             wallsButton.clicked += HandleWallsRequested;
-            wallpaperButton.clicked += HandleWallpaperRequested;
             floorsButton.clicked += HandleFloorsRequested;
             demolitionButton.clicked += HandleDemolitionRequested;
             undoButton.clicked += HandleUndoRequested;
@@ -55,7 +51,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetSelectedSection(ConstructionToolbarSection section)
         {
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
-            SetSelected(wallpaperButton, section == ConstructionToolbarSection.Wallpaper);
             SetSelected(floorsButton, section == ConstructionToolbarSection.Floors);
             SetSelected(demolitionButton, section == ConstructionToolbarSection.Demolition);
         }
@@ -78,7 +73,6 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton.clicked -= HandleWallsRequested;
-            wallpaperButton.clicked -= HandleWallpaperRequested;
             floorsButton.clicked -= HandleFloorsRequested;
             demolitionButton.clicked -= HandleDemolitionRequested;
             undoButton.clicked -= HandleUndoRequested;
@@ -90,11 +84,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleWallsRequested()
         {
             SectionRequested?.Invoke(ConstructionToolbarSection.Walls);
-        }
-
-        private void HandleWallpaperRequested()
-        {
-            SectionRequested?.Invoke(ConstructionToolbarSection.Wallpaper);
         }
 
         private void HandleFloorsRequested()
