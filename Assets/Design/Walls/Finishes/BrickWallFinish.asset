@@ -15,3 +15,4 @@ MonoBehaviour:
   finishId: brick
   risingLeft: {fileID: 21300000, guid: 101ef2f39c5ee344ab9dd96f1653cbe7, type: 3}
   risingRight: {fileID: 21300000, guid: 4c089536240e55d4db9e9cba1835d810, type: 3}
+  catalogIcon: {fileID: 21300000, guid: d4835600dec7a8c48a12410d4ce9cc69, type: 3}

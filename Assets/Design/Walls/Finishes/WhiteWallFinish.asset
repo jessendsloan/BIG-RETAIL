@@ -15,3 +15,4 @@ MonoBehaviour:
   finishId: white
   risingLeft: {fileID: 21300000, guid: 036e4a873aba9f74dbc821e516a696a7, type: 3}
   risingRight: {fileID: 21300000, guid: 17c401a0c61a19443ada8df6f2ffddf1, type: 3}
+  catalogIcon: {fileID: 21300000, guid: 231bae8c0371d354a8733f37c6467ab4, type: 3}
