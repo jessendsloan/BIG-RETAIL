@@ -41,15 +41,6 @@
                 </ui:Button>
 
                 <ui:Button
-                    name="wallpaper-button"
-                    class="construction-toolbar__button"
-                    tooltip="Wallpaper">
-                    <ui:VisualElement
-                        class="construction-toolbar__icon construction-toolbar__icon--wallpaper"
-                        picking-mode="Ignore" />
-                </ui:Button>
-
-                <ui:Button
                     name="floors-button"
                     class="construction-toolbar__button"
                     tooltip="Floors">
