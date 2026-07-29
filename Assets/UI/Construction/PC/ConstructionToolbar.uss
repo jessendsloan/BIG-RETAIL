@@ -188,10 +188,6 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }
 
-.construction-toolbar__icon--wallpaper {
-    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Wallpaper.png");
-}
-
 .construction-toolbar__icon--floors {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Floors.png");
 }
