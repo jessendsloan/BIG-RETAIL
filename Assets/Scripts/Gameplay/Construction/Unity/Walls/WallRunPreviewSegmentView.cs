@@ -52,9 +52,8 @@ namespace BigRetail.Construction.Unity.Walls
                 thickness);
 
             spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
 
             spriteRenderer.rendererPriority = 0;
             spriteRenderer.color = color;
@@ -98,11 +97,10 @@ namespace BigRetail.Construction.Unity.Walls
 
             // Stay in the same logical depth slot as the runtime wall. A small
             // renderer priority draws the translucent preview after that exact
-            // wall without letting it jump in front of physically nearer walls.
+            // wall without letting it jump in front of other depth slots.
             spriteRenderer.sortingOrder =
-                200
-                - worldPose.DisplayEdge.AnchorCell.X
-                - worldPose.DisplayEdge.AnchorCell.Y;
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
 
             spriteRenderer.rendererPriority = 1;
             spriteRenderer.color = color;
