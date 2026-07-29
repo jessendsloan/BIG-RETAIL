@@ -7,15 +7,14 @@ namespace BigRetail.Construction.Unity.UI.PC
     /// <summary>
     /// Owns the runtime lifecycle of the PC construction toolbar document.
     /// Gameplay presenters can observe the created view without coupling the
-    /// UIDocument to construction rules or services.
+    /// PanelRenderer to construction rules or services.
     /// </summary>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(UIDocument))]
-    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(PanelRenderer))]
     public sealed class ConstructionToolbarDocumentHost : MonoBehaviour
     {
         [SerializeField]
-        private UIDocument document;
+        private PanelRenderer panelRenderer;
 
         public ConstructionToolbarView View
         {
@@ -27,63 +26,78 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public event Action<ConstructionToolbarView> ViewReady;
 
+        private int loadedVersion = -1;
+
         private void Reset()
         {
-            document = GetComponent<UIDocument>();
+            panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void Awake()
         {
-            if (document == null)
+            if (panelRenderer == null)
             {
-                document = GetComponent<UIDocument>();
+                panelRenderer = GetComponent<PanelRenderer>();
             }
         }
 
         private void OnEnable()
         {
-            CreateView();
+            if (panelRenderer == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarDocumentHost has no PanelRenderer assigned.",
+                    this);
+                return;
+            }
+
+            panelRenderer.RegisterUIReloadCallback(HandleUIReload);
         }
 
         private void OnDisable()
         {
-            DisposeView();
-        }
-
-        public bool CreateView()
-        {
-            DisposeView();
-
-            if (document == null)
+            if (panelRenderer != null)
             {
-                Debug.LogError(
-                    "ConstructionToolbarDocumentHost has no UIDocument assigned.",
-                    this);
-                return false;
+                panelRenderer.UnregisterUIReloadCallback(HandleUIReload);
             }
 
-            VisualElement root = document.rootVisualElement;
+            DisposeView();
+            loadedVersion = -1;
+        }
 
+        private void HandleUIReload(
+            PanelRenderer source,
+            VisualElement root,
+            int version)
+        {
             if (root == null)
             {
                 Debug.LogError(
-                    "ConstructionToolbarDocumentHost could not access the UIDocument root.",
+                    "ConstructionToolbarDocumentHost received no root VisualElement.",
                     this);
-                return false;
+                return;
             }
+
+            if (View != null
+                && loadedVersion == version)
+            {
+                return;
+            }
+
+            DisposeView();
 
             try
             {
                 View = new ConstructionToolbarView(root);
+                loadedVersion = version;
                 ViewReady?.Invoke(View);
-                return true;
             }
             catch (Exception exception)
             {
+                loadedVersion = -1;
                 Debug.LogError(
                     $"ConstructionToolbarDocumentHost could not create its view: {exception.Message}",
                     this);
-                return false;
             }
         }
 
