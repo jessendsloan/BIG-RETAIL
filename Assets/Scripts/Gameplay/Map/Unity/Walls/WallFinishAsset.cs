@@ -10,7 +10,7 @@ namespace BigRetail.Map.Unity.Walls
     ///
     /// The finish is independent of whether a wall face currently borders
     /// an interior room or the outside world. Each finish supplies one sprite
-    /// for each screen-space wall slope.
+    /// for each screen-space wall slope plus optional player-facing catalog art.
     /// </summary>
     [CreateAssetMenu(
         menuName = "Big Retail/Walls/Wall Finish",
@@ -26,9 +26,18 @@ namespace BigRetail.Map.Unity.Walls
         [SerializeField]
         private Sprite risingRight;
 
+        [Tooltip(
+            "Optional icon displayed by player-facing wall-finish catalogs. "
+            + "Wall rendering does not depend on this sprite.")]
+        [SerializeField]
+        private Sprite catalogIcon;
+
 
         public string FinishId =>
             finishId;
+
+        public Sprite CatalogIcon =>
+            catalogIcon;
 
         public WallFinishId Id
         {
