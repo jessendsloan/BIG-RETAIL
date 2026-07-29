@@ -4,6 +4,99 @@
     align-items: stretch;
 }
 
+.wall-finish-picker {
+    display: none;
+    align-self: center;
+    min-width: 304px;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: rgb(244, 240, 230);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 0;
+    border-left-width: 1px;
+    border-top-color: rgba(35, 43, 50, 0.24);
+    border-right-color: rgba(35, 43, 50, 0.24);
+    border-left-color: rgba(35, 43, 50, 0.24);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.wall-finish-picker__title {
+    height: 20px;
+    margin-bottom: 5px;
+    color: rgb(35, 43, 50);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.wall-finish-picker__items {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.wall-finish-picker__button {
+    width: 64px;
+    height: 72px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.46);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-color: rgba(35, 43, 50, 0.16);
+    border-right-color: rgba(35, 43, 50, 0.16);
+    border-bottom-color: rgba(35, 43, 50, 0.16);
+    border-left-color: rgba(35, 43, 50, 0.16);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.wall-finish-picker__button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.wall-finish-picker__button:active {
+    background-color: rgba(54, 63, 69, 0.20);
+}
+
+.wall-finish-picker__button:focus {
+    border-top-color: rgba(35, 43, 50, 0.64);
+    border-right-color: rgba(35, 43, 50, 0.64);
+    border-bottom-color: rgba(35, 43, 50, 0.64);
+    border-left-color: rgba(35, 43, 50, 0.64);
+}
+
+.wall-finish-picker__button.is-selected {
+    background-color: rgba(54, 63, 69, 0.18);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-color: rgb(35, 43, 50);
+    border-right-color: rgb(35, 43, 50);
+    border-bottom-color: rgb(35, 43, 50);
+    border-left-color: rgb(35, 43, 50);
+}
+
+.wall-finish-picker__icon {
+    width: 50px;
+    height: 62px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .construction-toolbar {
     height: 68px;
     flex-direction: row;
