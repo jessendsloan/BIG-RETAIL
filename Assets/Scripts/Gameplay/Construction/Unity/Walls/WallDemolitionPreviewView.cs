@@ -114,8 +114,7 @@ namespace BigRetail.Construction.Unity.Walls
                 Vector3.one;
 
             spriteRenderer.sortingOrder =
-                300
-                - Mathf.RoundToInt(
+                WallRenderOrderResolver.ResolvePylon(
                     worldPose.DisplayDepth);
 
             spriteRenderer.color = targetColor;
