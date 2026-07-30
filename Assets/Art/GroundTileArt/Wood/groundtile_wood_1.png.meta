@@ -4,7 +4,7 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 5037183636124906052
-    second: groundtile_Wood_1_0
+    second: groundtile_wood_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: groundtile_Wood_1_0
+      name: groundtile_wood_1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      groundtile_Wood_1_0: 5037183636124906052
+      groundtile_wood_1_0: 5037183636124906052
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
