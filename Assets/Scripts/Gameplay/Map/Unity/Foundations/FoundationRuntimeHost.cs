@@ -1,4 +1,5 @@
 using System;
+using BigRetail.Map.Domain;
 using BigRetail.Map.Foundations;
 using UnityEngine;
 
@@ -30,6 +31,11 @@ namespace BigRetail.Map.Unity.Foundations
             get;
             private set;
         }
+
+        public GridMapDefinition MapDefinition =>
+            mapHost != null
+                ? mapHost.MapDefinition
+                : null;
 
         public event Action<FoundationRuntimeHost> Initialized;
 

@@ -49,6 +49,11 @@ namespace BigRetail.Map.Unity.Tests
                 Assert.That(host.IsInitialized, Is.True);
                 Assert.That(host.FoundationState, Is.Not.Null);
                 Assert.That(host.FoundationConstruction, Is.Not.Null);
+                Assert.That(host.MapDefinition, Is.Not.Null);
+                Assert.That(
+                    host.MapDefinition.MapId,
+                    Is.EqualTo(
+                        "foundation.runtime.test"));
                 Assert.That(
                     host.FoundationState.FoundationCount,
                     Is.EqualTo(0));
