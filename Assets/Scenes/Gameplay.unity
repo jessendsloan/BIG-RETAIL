@@ -298,6 +298,7 @@ GameObject:
   - component: {fileID: 88762026}
   - component: {fileID: 88762028}
   - component: {fileID: 88762027}
+  - component: {fileID: 88762029}
   m_Layer: 0
   m_Name: FoundationViews
   m_TagString: Untagged
@@ -414,6 +415,24 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &88762029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88762025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d11ebebea6751b3459ffb3d653301909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Foundations.FoundationTilemapViewSystem
+  foundationRuntimeHost: {fileID: 447959067}
+  foundationTilemap: {fileID: 88762028}
+  foundationTile: {fileID: 11400000, guid: 9c797845fe5a9c645b6ede8033521600, type: 2}
+  viewHost: {fileID: 2111000001}
+  logicalLevel: 0
+  unityCellZ: 0
 --- !u!1 &88762125
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,6 +444,7 @@ GameObject:
   - component: {fileID: 88762126}
   - component: {fileID: 88762128}
   - component: {fileID: 88762127}
+  - component: {fileID: 88762129}
   m_Layer: 0
   m_Name: FoundationApronViews
   m_TagString: Untagged
@@ -541,6 +561,24 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &88762129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88762125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38b56e14275ac8343beea560119d3e52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Foundations.FoundationApronTilemapViewSystem
+  foundationRuntimeHost: {fileID: 447959067}
+  apronTilemap: {fileID: 88762128}
+  apronTile: {fileID: 11400000, guid: 10179745bcf233f4d968c78b2fb50ebb, type: 2}
+  viewHost: {fileID: 2111000001}
+  logicalLevel: 0
+  unityCellZ: 0
 --- !u!1 &120672953
 GameObject:
   m_ObjectHideFlags: 0
