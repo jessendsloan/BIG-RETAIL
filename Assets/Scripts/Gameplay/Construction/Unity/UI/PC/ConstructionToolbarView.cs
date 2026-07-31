@@ -13,6 +13,13 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string FoundationsButtonName = "foundations-button";
         public const string FloorsButtonName = "floors-button";
         public const string DemolitionButtonName = "demolition-button";
+        public const string DemolishFoundationsButtonName =
+            "demolish-foundations-button";
+        public const string DemolishFloorsButtonName =
+            "demolish-floors-button";
+        public const string DemolishWallsButtonName =
+            "demolish-walls-button";
+        public const string DemolitionPickerName = "demolition-picker";
         public const string UndoButtonName = "undo-button";
         public const string RedoButtonName = "redo-button";
         public const string SelectedClassName = "is-selected";
@@ -21,6 +28,10 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button foundationsButton;
         private readonly Button floorsButton;
         private readonly Button demolitionButton;
+        private readonly Button demolishFoundationsButton;
+        private readonly Button demolishFloorsButton;
+        private readonly Button demolishWallsButton;
+        private readonly VisualElement demolitionPicker;
         private readonly Button undoButton;
         private readonly Button redoButton;
 
@@ -38,6 +49,13 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, FoundationsButtonName);
             floorsButton = RequireButton(root, FloorsButtonName);
             demolitionButton = RequireButton(root, DemolitionButtonName);
+            demolishFoundationsButton =
+                RequireButton(root, DemolishFoundationsButtonName);
+            demolishFloorsButton =
+                RequireButton(root, DemolishFloorsButtonName);
+            demolishWallsButton =
+                RequireButton(root, DemolishWallsButtonName);
+            demolitionPicker = RequireElement(root, DemolitionPickerName);
             undoButton = RequireButton(root, UndoButtonName);
             redoButton = RequireButton(root, RedoButtonName);
 
@@ -45,12 +63,19 @@ namespace BigRetail.Construction.Unity.UI.PC
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
             floorsButton.clicked += HandleFloorsRequested;
-            demolitionButton.clicked += HandleDemolitionRequested;
+            demolitionButton.clicked += HandleDemolitionPickerRequested;
+            demolishFoundationsButton.clicked +=
+                HandleDemolishFoundationsRequested;
+            demolishFloorsButton.clicked += HandleDemolishFloorsRequested;
+            demolishWallsButton.clicked += HandleDemolishWallsRequested;
             undoButton.clicked += HandleUndoRequested;
             redoButton.clicked += HandleRedoRequested;
         }
 
         public event Action<ConstructionToolbarSection> SectionRequested;
+        public event Action DemolitionPickerRequested;
+        public event Action<ConstructionToolbarDemolitionTarget>
+            DemolitionTargetRequested;
         public event Action UndoRequested;
         public event Action RedoRequested;
 
@@ -69,6 +94,27 @@ namespace BigRetail.Construction.Unity.UI.PC
             undoButton.SetEnabled(isEnabled);
         }
 
+        public void SetDemolitionPickerVisible(bool isVisible)
+        {
+            demolitionPicker.style.display = isVisible
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+        }
+
+        public void SetSelectedDemolitionTarget(
+            ConstructionToolbarDemolitionTarget? target)
+        {
+            SetSelected(
+                demolishFoundationsButton,
+                target == ConstructionToolbarDemolitionTarget.Foundations);
+            SetSelected(
+                demolishFloorsButton,
+                target == ConstructionToolbarDemolitionTarget.Floors);
+            SetSelected(
+                demolishWallsButton,
+                target == ConstructionToolbarDemolitionTarget.Walls);
+        }
+
         public void SetRedoEnabled(bool isEnabled)
         {
             redoButton.SetEnabled(isEnabled);
@@ -85,7 +131,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
             floorsButton.clicked -= HandleFloorsRequested;
-            demolitionButton.clicked -= HandleDemolitionRequested;
+            demolitionButton.clicked -= HandleDemolitionPickerRequested;
+            demolishFoundationsButton.clicked -=
+                HandleDemolishFoundationsRequested;
+            demolishFloorsButton.clicked -= HandleDemolishFloorsRequested;
+            demolishWallsButton.clicked -= HandleDemolishWallsRequested;
             undoButton.clicked -= HandleUndoRequested;
             redoButton.clicked -= HandleRedoRequested;
 
@@ -108,9 +158,27 @@ namespace BigRetail.Construction.Unity.UI.PC
             SectionRequested?.Invoke(ConstructionToolbarSection.Floors);
         }
 
-        private void HandleDemolitionRequested()
+        private void HandleDemolitionPickerRequested()
         {
-            SectionRequested?.Invoke(ConstructionToolbarSection.Demolition);
+            DemolitionPickerRequested?.Invoke();
+        }
+
+        private void HandleDemolishFoundationsRequested()
+        {
+            DemolitionTargetRequested?.Invoke(
+                ConstructionToolbarDemolitionTarget.Foundations);
+        }
+
+        private void HandleDemolishFloorsRequested()
+        {
+            DemolitionTargetRequested?.Invoke(
+                ConstructionToolbarDemolitionTarget.Floors);
+        }
+
+        private void HandleDemolishWallsRequested()
+        {
+            DemolitionTargetRequested?.Invoke(
+                ConstructionToolbarDemolitionTarget.Walls);
         }
 
         private void HandleUndoRequested()
@@ -134,6 +202,21 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             throw new InvalidOperationException(
                 $"Construction toolbar is missing required button '{buttonName}'.");
+        }
+
+        private static VisualElement RequireElement(
+            VisualElement root,
+            string elementName)
+        {
+            VisualElement element = root.Q(elementName);
+
+            if (element != null)
+            {
+                return element;
+            }
+
+            throw new InvalidOperationException(
+                $"Construction toolbar is missing required element '{elementName}'.");
         }
 
         private static void SetSelected(Button button, bool isSelected)

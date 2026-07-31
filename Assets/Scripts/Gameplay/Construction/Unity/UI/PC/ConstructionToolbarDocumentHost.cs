@@ -28,17 +28,60 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public FloorFinishPickerView FloorFinishPickerView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
         public bool HasFinishPickerView =>
             FinishPickerView != null;
 
+        public bool HasFloorFinishPickerView =>
+            FloorFinishPickerView != null;
+
+        /// <summary>
+        /// Returns true when a screen position is currently over a pickable
+        /// element in this construction UI document. The document root itself
+        /// is intentionally ignored, so empty game space remains available to
+        /// construction tools.
+        /// </summary>
+        public bool IsPointerOverInteractiveElement(
+            Vector2 screenPosition)
+        {
+            if (rootElement == null
+                || rootElement.panel == null)
+            {
+                return false;
+            }
+
+            Vector2 panelPosition =
+                RuntimePanelUtils.ScreenToPanel(
+                    rootElement.panel,
+                    screenPosition);
+
+            VisualElement pickedElement =
+                rootElement.panel.Pick(panelPosition);
+
+            // The panel root spans the full screen, but it is not a visible
+            // construction control. Only an actual descendant should block
+            // construction targeting.
+            return pickedElement != null
+                && pickedElement != rootElement;
+        }
+
         public event Action<ConstructionToolbarView> ViewReady;
 
         public event Action<WallFinishPickerView> FinishPickerViewReady;
 
+        public event Action<FloorFinishPickerView> FloorFinishPickerViewReady;
+
         private int loadedVersion = -1;
+
+        private VisualElement rootElement;
 
 
         private void Reset()
@@ -101,12 +144,15 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             if (View != null
                 && FinishPickerView != null
+                && FloorFinishPickerView != null
                 && loadedVersion == version)
             {
                 return;
             }
 
             DisposeViews();
+
+            rootElement = root;
 
             try
             {
@@ -118,6 +164,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new WallFinishPickerView(
                         root);
 
+                FloorFinishPickerView =
+                    new FloorFinishPickerView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -126,6 +176,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 FinishPickerViewReady?.Invoke(
                     FinishPickerView);
+
+                FloorFinishPickerViewReady?.Invoke(
+                    FloorFinishPickerView);
             }
             catch (Exception exception)
             {
@@ -141,6 +194,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void DisposeViews()
         {
+            rootElement = null;
+
             if (View != null)
             {
                 View.Dispose();
@@ -151,6 +206,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 FinishPickerView.Dispose();
                 FinishPickerView = null;
+            }
+
+            if (FloorFinishPickerView != null)
+            {
+                FloorFinishPickerView.Dispose();
+                FloorFinishPickerView = null;
             }
         }
     }

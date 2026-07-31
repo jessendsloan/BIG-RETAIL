@@ -165,6 +165,9 @@ GameObject:
   - component: {fileID: 87599325}
   - component: {fileID: 87599327}
   - component: {fileID: 87599328}
+  - component: {fileID: 87599329}
+  - component: {fileID: 87599330}
+  - component: {fileID: 87599331}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -287,6 +290,51 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   finishSelectionHost: {fileID: 1588797419}
+--- !u!114 &87599329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 540873ddf30b51f41a59403944f9d3bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.FloorFinishPickerPresenter
+  documentHost: {fileID: 87599325}
+  toolCoordinator: {fileID: 1508060588}
+  finishSelectionHost: {fileID: 456371216}
+--- !u!114 &87599330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c9f6d482bf24b4baaf740e3f06f5c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionHistoryToolbarPresenter
+  documentHost: {fileID: 87599325}
+  historyHost: {fileID: 746913718}
+  historyInputController: {fileID: 466961597}
+--- !u!114 &87599331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8757440568646084ba44b972766787f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionUiInputGate
+  documentHost: {fileID: 87599325}
+  pointerController: {fileID: 933909791}
+  toolCoordinator: {fileID: 1508060588}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -147869,6 +147917,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Floors.FloorRuntimeHost
   mapHost: {fileID: 1863031834}
   foundationRuntimeHost: {fileID: 447959067}
+  floorFinishAssets: {fileID: 11400000, guid: 123c6fbd55e207b449edaf02e058a2a5, type: 2}
 --- !u!4 &336439092
 Transform:
   m_ObjectHideFlags: 0
@@ -148048,6 +148097,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 456371215}
+  - component: {fileID: 456371216}
   m_Layer: 0
   m_Name: Floors
   m_TagString: Untagged
@@ -148072,6 +148122,21 @@ Transform:
   - {fileID: 2110000101}
   m_Father: {fileID: 1161128890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &456371216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456371214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43e0b2807b07bd54bb6fdd40dc2b381e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Floors.FloorFinishSelectionHost
+  floorRuntimeHost: {fileID: 336439091}
+  startingFinish: {fileID: 11400000, guid: b680baf11a6b3a44cbfcb49d0ba5d905, type: 2}
+  logSelectionChanges: 1
 --- !u!1 &463974777
 GameObject:
   m_ObjectHideFlags: 0
@@ -298652,6 +298717,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Floors.FloorAreaPreviewView
   floorRuntimeHost: {fileID: 336439091}
+  finishSelectionHost: {fileID: 456371216}
   previewTilemap: {fileID: 1159354256}
   previewTile: {fileID: 11400000, guid: a57e79b88fd081d47a89c2c8d05ad2c7, type: 2}
   viewHost: {fileID: 2111000001}
@@ -298886,6 +298952,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Cells.GridCellTargetResolver
   pointerController: {fileID: 933909791}
+  uiInputGate: {fileID: 87599331}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
   viewHost: {fileID: 2111000001}
@@ -299337,6 +299404,7 @@ MonoBehaviour:
   cellTargetResolver: {fileID: 1234881117}
   previewView: {fileID: 1159354257}
   floorRuntimeHost: {fileID: 336439091}
+  finishSelectionHost: {fileID: 456371216}
   historyHost: {fileID: 746913718}
   startActive: 0
   logConstructionResults: 1
@@ -392305,6 +392373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallVertexTargetResolver
   pointerController: {fileID: 933909791}
+  uiInputGate: {fileID: 87599331}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
   viewHost: {fileID: 2111000001}

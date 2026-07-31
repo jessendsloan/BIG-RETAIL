@@ -8,18 +8,77 @@
 
         <ui:VisualElement
             name="wall-finish-picker"
-            class="wall-finish-picker"
+            class="finish-picker"
             picking-mode="Position">
 
             <ui:Label
                 text="Wall finishes"
-                class="wall-finish-picker__title"
+                class="finish-picker__title"
                 picking-mode="Ignore" />
 
             <ui:VisualElement
                 name="wall-finish-picker-items"
-                class="wall-finish-picker__items"
+                class="finish-picker__items"
                 picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="floor-finish-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Floor finishes"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="floor-finish-picker-items"
+                class="finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="demolition-picker"
+            class="demolition-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Demolish"
+                class="demolition-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="demolition-picker__items"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="demolish-foundations-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish foundations">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--foundations"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-floors-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish floors">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--floors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-walls-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish walls">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--walls"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement
@@ -30,15 +89,6 @@
             <ui:VisualElement
                 name="construction-tool-group"
                 class="construction-toolbar__group">
-
-                <ui:Button
-                    name="walls-button"
-                    class="construction-toolbar__button"
-                    tooltip="Walls">
-                    <ui:VisualElement
-                        class="construction-toolbar__icon construction-toolbar__icon--walls"
-                        picking-mode="Ignore" />
-                </ui:Button>
 
                 <ui:Button
                     name="foundations-button"
@@ -55,6 +105,15 @@
                     tooltip="Floors">
                     <ui:VisualElement
                         class="construction-toolbar__icon construction-toolbar__icon--floors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="walls-button"
+                    class="construction-toolbar__button"
+                    tooltip="Walls">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--walls"
                         picking-mode="Ignore" />
                 </ui:Button>
 

@@ -1,4 +1,5 @@
 using BigRetail.Construction.Unity.Input;
+using BigRetail.Construction.Unity.UI.PC;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Unity.View;
 using UnityEngine;
@@ -22,6 +23,9 @@ namespace BigRetail.Construction.Unity.Cells
         [SerializeField]
         private ConstructionPointerController
             pointerController;
+
+        [SerializeField]
+        private ConstructionUiInputGate uiInputGate;
 
         [SerializeField]
         private Camera targetCamera;
@@ -86,6 +90,13 @@ namespace BigRetail.Construction.Unity.Cells
 
         private void ResolveCurrentCell()
         {
+            if (uiInputGate != null
+                && uiInputGate.IsPointerOverConstructionUi)
+            {
+                HasTarget = false;
+                return;
+            }
+
             Ray pointerRay =
                 targetCamera.ScreenPointToRay(
                     pointerController.ScreenPosition);

@@ -28,6 +28,9 @@ namespace BigRetail.Construction.Unity.Floors
         [SerializeField]
         private FloorRuntimeHost floorRuntimeHost;
 
+        [SerializeField]
+        private FloorFinishSelectionHost finishSelectionHost;
+
 
         [Header("Preview Tilemap")]
 
@@ -84,6 +87,10 @@ namespace BigRetail.Construction.Unity.Floors
             visibleCells =
                 new HashSet<GridPosition>();
 
+        private readonly Dictionary<GridPosition, Color>
+            visibleColors =
+                new Dictionary<GridPosition, Color>();
+
 
         public bool IsVisible =>
             visibleCells.Count > 0;
@@ -128,6 +135,12 @@ namespace BigRetail.Construction.Unity.Floors
             {
                 viewHost.OrientationChanging +=
                     HandleOrientationChanging;
+            }
+
+            if (finishSelectionHost != null)
+            {
+                finishSelectionHost.SelectedFinishChanged +=
+                    HandleSelectedFinishChanged;
             }
         }
 
@@ -231,7 +244,7 @@ namespace BigRetail.Construction.Unity.Floors
 
             previewTilemap.SetTile(
                 unityCell,
-                previewTile);
+                GetSelectedPreviewTile());
 
             // Tile assets frequently lock their authored color.
             // Removing the per-cell flag allows this dedicated
@@ -245,6 +258,8 @@ namespace BigRetail.Construction.Unity.Floors
                 color);
 
             visibleCells.Add(cell);
+            visibleColors[cell] =
+                color;
         }
 
 
@@ -260,6 +275,50 @@ namespace BigRetail.Construction.Unity.Floors
             }
 
             visibleCells.Clear();
+            visibleColors.Clear();
+        }
+
+
+        private TileBase GetSelectedPreviewTile()
+        {
+            if (finishSelectionHost != null
+                && finishSelectionHost.IsInitialized
+                && finishSelectionHost.SelectedFinishAsset != null)
+            {
+                return finishSelectionHost
+                    .SelectedFinishAsset
+                    .FloorTile;
+            }
+
+            return previewTile;
+        }
+
+
+        private void HandleSelectedFinishChanged(
+            FloorFinishId finishId)
+        {
+            TileBase selectedTile =
+                GetSelectedPreviewTile();
+
+            foreach (
+                GridPosition cell
+                in visibleCells)
+            {
+                Vector3Int unityCell =
+                    ToUnityCell(cell);
+
+                previewTilemap.SetTile(
+                    unityCell,
+                    selectedTile);
+
+                previewTilemap.SetTileFlags(
+                    unityCell,
+                    TileFlags.None);
+
+                previewTilemap.SetColor(
+                    unityCell,
+                    visibleColors[cell]);
+            }
         }
 
 
@@ -296,6 +355,16 @@ namespace BigRetail.Construction.Unity.Floors
                 Debug.LogError(
                     "FloorAreaPreviewView has no preview " +
                     "Tilemap assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (finishSelectionHost == null)
+            {
+                Debug.LogError(
+                    "FloorAreaPreviewView has no "
+                    + "FloorFinishSelectionHost assigned.",
                     this);
 
                 isValid = false;
@@ -347,6 +416,12 @@ namespace BigRetail.Construction.Unity.Floors
             {
                 viewHost.OrientationChanging -=
                     HandleOrientationChanging;
+            }
+
+            if (finishSelectionHost != null)
+            {
+                finishSelectionHost.SelectedFinishChanged -=
+                    HandleSelectedFinishChanged;
             }
 
             Hide();

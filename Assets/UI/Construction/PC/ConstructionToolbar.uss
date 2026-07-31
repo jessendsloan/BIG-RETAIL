@@ -1,12 +1,12 @@
 .construction-toolbar-screen {
     flex-grow: 1;
-    justify-content: flex-end;
-    align-items: stretch;
+    position: relative;
 }
 
-.wall-finish-picker {
+.finish-picker {
     display: none;
-    align-self: center;
+    position: absolute;
+    left: 104px;
     min-width: 304px;
     flex-direction: column;
     align-items: center;
@@ -26,7 +26,32 @@
     border-top-right-radius: 10px;
 }
 
-.wall-finish-picker__title {
+#floor-finish-picker {
+    top: 100px;
+}
+
+#wall-finish-picker {
+    top: 172px;
+}
+
+.demolition-picker {
+    display: none;
+    position: absolute;
+    top: 244px;
+    left: 104px;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: rgb(244, 240, 230);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.demolition-picker__title {
     height: 20px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
@@ -35,12 +60,62 @@
     -unity-text-align: middle-center;
 }
 
-.wall-finish-picker__items {
+.demolition-picker__items {
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
+.demolition-picker__button {
+    width: 56px;
+    height: 56px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.46);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0.16);
+    border-radius: 8px;
+}
+
+.demolition-picker__button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.demolition-picker__button:active,
+.demolition-picker__button.is-selected {
+    background-color: rgba(54, 63, 69, 0.20);
+}
+
+.demolition-picker__button.is-selected {
+    border-width: 3px;
+    border-color: rgb(35, 43, 50);
+}
+
+.demolition-picker__icon {
+    width: 40px;
+    height: 40px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.finish-picker__title {
+    height: 20px;
+    margin-bottom: 5px;
+    color: rgb(35, 43, 50);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.finish-picker__items {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-picker__button,
 .wall-finish-picker__button {
     width: 64px;
     height: 72px;
@@ -64,14 +139,17 @@
     border-bottom-left-radius: 8px;
 }
 
+.finish-picker__button:hover,
 .wall-finish-picker__button:hover {
     background-color: rgba(54, 63, 69, 0.12);
 }
 
+.finish-picker__button:active,
 .wall-finish-picker__button:active {
     background-color: rgba(54, 63, 69, 0.20);
 }
 
+.finish-picker__button:focus,
 .wall-finish-picker__button:focus {
     border-top-color: rgba(35, 43, 50, 0.64);
     border-right-color: rgba(35, 43, 50, 0.64);
@@ -79,6 +157,7 @@
     border-left-color: rgba(35, 43, 50, 0.64);
 }
 
+.finish-picker__button.is-selected,
 .wall-finish-picker__button.is-selected {
     background-color: rgba(54, 63, 69, 0.18);
     border-top-width: 3px;
@@ -91,6 +170,7 @@
     border-left-color: rgb(35, 43, 50);
 }
 
+.finish-picker__icon,
 .wall-finish-picker__icon {
     width: 50px;
     height: 62px;
@@ -98,29 +178,25 @@
 }
 
 .construction-toolbar {
-    height: 68px;
-    flex-direction: row;
-    justify-content: center;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 72px;
+    flex-direction: column;
     align-items: center;
-    padding-top: 2px;
-    padding-right: 24px;
-    padding-bottom: 2px;
-    padding-left: 24px;
-    background-color: rgb(244, 240, 230);
-    border-top-width: 1px;
-    border-top-color: rgba(35, 43, 50, 0.22);
+    padding: 0;
 }
 
 .construction-toolbar__group {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
 }
 
 .construction-toolbar__button {
-    width: 72px;
+    width: 64px;
     height: 64px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
     padding: 0;
     justify-content: center;
     align-items: center;
@@ -171,10 +247,10 @@
 }
 
 .construction-toolbar__separator {
-    width: 1px;
-    height: 46px;
-    margin-left: 12px;
-    margin-right: 12px;
+    width: 46px;
+    height: 1px;
+    margin-top: 12px;
+    margin-bottom: 12px;
     background-color: rgba(35, 43, 50, 0.20);
 }
 
@@ -206,4 +282,16 @@
 
 .construction-toolbar__icon--redo {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Redo.png");
+}
+
+.demolition-picker__icon--foundations {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
+}
+
+.demolition-picker__icon--floors {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Floors.png");
+}
+
+.demolition-picker__icon--walls {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }

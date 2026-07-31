@@ -249,11 +249,11 @@ namespace BigRetail.Construction.Unity.Floors
             }
 
             if (!floorRuntimeHost.TryInitialize()
-                || floorRuntimeHost.FloorConstruction == null)
+                || floorRuntimeHost.FloorDemolitionStrokes == null)
             {
                 Debug.LogError(
                     "FloorDemolitionToolController could not " +
-                    "access an initialized FloorConstructionService.",
+                    "access initialized Floor demolition services.",
                     this);
 
                 return;
@@ -386,9 +386,9 @@ namespace BigRetail.Construction.Unity.Floors
                 return false;
             }
 
-            FloorClearResult result =
-                floorRuntimeHost.FloorConstruction
-                    .TryClearFloors(
+            FloorDemolitionStrokeResult result =
+                floorRuntimeHost.FloorDemolitionStrokes
+                    .TryApply(
                         CurrentAreaPlan.Cells);
 
             if (!result.Succeeded)
@@ -406,8 +406,9 @@ namespace BigRetail.Construction.Unity.Floors
             if (!result.Edit.IsEmpty)
             {
                 historyHost.History.Record(
-                    new ReversibleFloorEditAction(
+                    new ReversibleFloorDemolitionStrokeAction(
                         floorRuntimeHost.FloorConstruction,
+                        floorRuntimeHost.FloorFinishes,
                         result.Edit));
             }
 
@@ -605,7 +606,7 @@ namespace BigRetail.Construction.Unity.Floors
 
 
         private void LogRejectedArea(
-            FloorClearResult result)
+            FloorDemolitionStrokeResult result)
         {
             if (!logDemolitionResults)
             {
