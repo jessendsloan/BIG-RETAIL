@@ -11,8 +11,9 @@ namespace BigRetail.Construction.Unity.History
     /// Converts global construction Undo and Redo input into neutral
     /// history requests.
     ///
-    /// The selected construction tool is preserved. History requests
-    /// are blocked only while any tool is planning a live gesture.
+    /// The selected construction tool is preserved. A history request first
+    /// cancels any unfinished gesture, then operates on the last committed
+    /// construction action.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(250)]
@@ -102,8 +103,7 @@ namespace BigRetail.Construction.Unity.History
 
         private void LateUpdate()
         {
-            if (!isInitialized
-                || IsAnyConstructionGestureActive())
+            if (!isInitialized)
             {
                 return;
             }
@@ -143,14 +143,7 @@ namespace BigRetail.Construction.Unity.History
 
         public bool TryUndo()
         {
-            if (IsAnyConstructionGestureActive())
-            {
-                LogWarning(
-                    "Undo was ignored because a construction " +
-                    "gesture is currently being planned.");
-
-                return false;
-            }
+            CancelActiveConstructionGestures();
 
             if (!TryGetHistory(
                     out ConstructionHistory history))
@@ -173,14 +166,7 @@ namespace BigRetail.Construction.Unity.History
 
         public bool TryRedo()
         {
-            if (IsAnyConstructionGestureActive())
-            {
-                LogWarning(
-                    "Redo was ignored because a construction " +
-                    "gesture is currently being planned.");
-
-                return false;
-            }
+            CancelActiveConstructionGestures();
 
             if (!TryGetHistory(
                     out ConstructionHistory history))
@@ -210,6 +196,26 @@ namespace BigRetail.Construction.Unity.History
                 || wallDemolitionTool.IsPlanningRun
                 || floorConstructionTool.IsPlanningArea
                 || floorDemolitionTool.IsPlanningArea;
+        }
+
+
+        private void CancelActiveConstructionGestures()
+        {
+            if (!IsAnyConstructionGestureActive())
+            {
+                return;
+            }
+
+            foundationConstructionTool.CancelCurrentGesture();
+            foundationDemolitionTool.CancelCurrentGesture();
+            wallConstructionTool.CancelCurrentGesture();
+            wallDemolitionTool.CancelCurrentGesture();
+            floorConstructionTool.CancelCurrentGesture();
+            floorDemolitionTool.CancelCurrentGesture();
+
+            LogWarning(
+                "Cancelled an unfinished construction gesture before " +
+                "processing history.");
         }
 
 
