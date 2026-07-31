@@ -475,20 +475,6 @@ namespace BigRetail.Characters.Rigging
         }
 
         /// <summary>
-        /// Resolves the presentation mirror for a specific appearance.
-        /// Most art follows the canonical authored-direction contract.
-        /// Procedural profiles such as Rowan can declare their unmirrored
-        /// bind pose as west-facing without changing that shared contract.
-        /// </summary>
-        public static bool IsPresentationMirrored(
-            NpcFacing facing,
-            bool unmirroredPresentationFacesWest)
-        {
-            return IsMirrored(facing)
-                != unmirroredPresentationFacesWest;
-        }
-
-        /// <summary>
         /// Returns the depth partner for a mirrored cutout limb. When the
         /// character flips horizontally, the visual near/far limb positions
         /// flip too, so their sorting order must exchange with this partner.

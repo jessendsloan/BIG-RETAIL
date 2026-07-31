@@ -157,22 +157,6 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
         [Test]
-        public void WestHandedPresentation_PreservesRowansCanonicalSouthWestPose()
-        {
-            Assert.That(
-                NpcFacingUtility.IsPresentationMirrored(
-                    NpcFacing.SouthWest,
-                    true),
-                Is.False);
-
-            Assert.That(
-                NpcFacingUtility.IsPresentationMirrored(
-                    NpcFacing.SouthEast,
-                    true),
-                Is.True);
-        }
-
-        [Test]
         public void MirroredDepthPartners_SwapOnlyPairedLimbs()
         {
             Assert.That(

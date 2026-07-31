@@ -143,14 +143,6 @@ namespace BigRetail.Characters.Rigging
         [SerializeField]
         private NpcRigArtKit artKit;
 
-        [Tooltip(
-            "Use when this appearance's unmirrored bind pose faces " +
-            "SouthWest/NorthWest. Standard 36-sprite art remains " +
-            "SouthEast/NorthEast-authored.")]
-        [SerializeField]
-        private bool unmirroredPresentationFacesWest;
-
-
         [Header("Generated Bindings")]
 
         [SerializeField]
@@ -165,9 +157,6 @@ namespace BigRetail.Characters.Rigging
         public NpcFacing Facing => facing;
 
         public NpcRigArtKit ArtKit => artKit;
-
-        public bool UnmirroredPresentationFacesWest =>
-            unmirroredPresentationFacesWest;
 
         public int BoneCount => bones.Count;
 
@@ -339,12 +328,9 @@ namespace BigRetail.Characters.Rigging
         public void ConfigureGeneratedRig(
             Transform generatedMirrorRoot,
             List<NpcRigBoneBinding> generatedBones,
-            List<NpcRigPartBinding> generatedParts,
-            bool generatedUnmirroredPresentationFacesWest = false)
+            List<NpcRigPartBinding> generatedParts)
         {
             mirrorRoot = generatedMirrorRoot;
-            unmirroredPresentationFacesWest =
-                generatedUnmirroredPresentationFacesWest;
             bones = generatedBones
                 ?? throw new ArgumentNullException(
                     nameof(generatedBones));
@@ -388,9 +374,7 @@ namespace BigRetail.Characters.Rigging
             }
 
             bool mirrored =
-                NpcFacingUtility.IsPresentationMirrored(
-                    facing,
-                    unmirroredPresentationFacesWest);
+                NpcFacingUtility.IsMirrored(facing);
 
             scale.x =
                 mirrored
