@@ -69,6 +69,10 @@ namespace BigRetail.Construction.Unity.Floors
             floorRuntimeHost;
 
         [SerializeField]
+        private FloorFinishSelectionHost
+            finishSelectionHost;
+
+        [SerializeField]
         private ConstructionHistoryHost historyHost;
 
 
@@ -250,11 +254,13 @@ namespace BigRetail.Construction.Unity.Floors
             }
 
             if (!floorRuntimeHost.TryInitialize()
-                || floorRuntimeHost.FloorConstruction == null)
+                || floorRuntimeHost.FloorAppearanceStrokes == null
+                || finishSelectionHost == null
+                || !finishSelectionHost.IsInitialized)
             {
                 Debug.LogError(
                     "FloorConstructionToolController could not " +
-                    "access an initialized FloorConstructionService.",
+                    "access initialized Floor appearance services.",
                     this);
 
                 return;
@@ -385,10 +391,11 @@ namespace BigRetail.Construction.Unity.Floors
                 return false;
             }
 
-            FloorEnsureResult result =
-                floorRuntimeHost.FloorConstruction
-                    .TryEnsureFloors(
-                        CurrentAreaPlan.Cells);
+            FloorAppearanceStrokeResult result =
+                floorRuntimeHost.FloorAppearanceStrokes
+                    .TryApply(
+                        CurrentAreaPlan.Cells,
+                        finishSelectionHost.SelectedFinishId);
 
             if (!result.Succeeded)
             {
@@ -405,8 +412,9 @@ namespace BigRetail.Construction.Unity.Floors
             if (!result.Edit.IsEmpty)
             {
                 historyHost.History.Record(
-                    new ReversibleFloorEditAction(
+                    new ReversibleFloorAppearanceStrokeAction(
                         floorRuntimeHost.FloorConstruction,
+                        floorRuntimeHost.FloorFinishes,
                         result.Edit));
             }
 
@@ -415,20 +423,19 @@ namespace BigRetail.Construction.Unity.Floors
                 Debug.Log(
                     $"Floor area processed. " +
                     $"Requested: {result.RequestedCount}. " +
-                    $"Created: {result.ChangedCount}. " +
+                    $"Created: {result.CreatedFloorCount}. " +
                     $"Already existing: " +
-                    $"{result.AlreadyExistingCount}. " +
-                    $"Skipped outside map: " +
-                    $"{result.SkippedOutsideMapCount}. " +
-                    $"Skipped outside construction area: " +
-                    $"{result.SkippedOutsideConstructionAreaCount}. " +
-                    $"Skipped without Foundation: " +
-                    $"{result.SkippedMissingFoundationCount}.",
+                    $"{result.ExistingFloorCount}. " +
+                    $"Skipped: {result.SkippedCellCount}. " +
+                    $"Finish changes: {result.FinishChangeCount}. " +
+                    $"Unchanged finishes: " +
+                    $"{result.UnchangedFinishCount}.",
                     this);
             }
 
             bool anyCellSatisfied =
-                result.SatisfiedCount > 0;
+                result.CreatedFloorCount > 0
+                || result.ExistingFloorCount > 0;
 
             if (!anyCellSatisfied
                 && areaStartedWithGamepad)
@@ -441,7 +448,7 @@ namespace BigRetail.Construction.Unity.Floors
 
             FinishArea();
 
-            return result.ChangedCount > 0;
+            return !result.Edit.IsEmpty;
         }
 
 
@@ -613,7 +620,7 @@ namespace BigRetail.Construction.Unity.Floors
 
 
         private void LogRejectedArea(
-            FloorEnsureResult result)
+            FloorAppearanceStrokeResult result)
         {
             if (!logConstructionResults)
             {
@@ -689,6 +696,16 @@ namespace BigRetail.Construction.Unity.Floors
                 Debug.LogError(
                     "FloorConstructionToolController has no " +
                     "FloorRuntimeHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (finishSelectionHost == null)
+            {
+                Debug.LogError(
+                    "FloorConstructionToolController has no "
+                    + "FloorFinishSelectionHost assigned.",
                     this);
 
                 isValid = false;
