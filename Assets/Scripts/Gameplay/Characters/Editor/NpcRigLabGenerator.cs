@@ -288,6 +288,11 @@ namespace BigRetail.Characters.Editor
             Sprite placeholderSprite,
             RoundedEmployeeProfile profile)
         {
+            // Rowan intentionally has no facial feature sprites. The head,
+            // hair, and body silhouette are the complete visual language for
+            // this procedural character. Keep the badge as the only optional
+            // profile detail.
+
             Transform chest =
                 boneLookup[NpcRigBoneId.Chest];
 
@@ -301,6 +306,7 @@ namespace BigRetail.Characters.Editor
                 18,
                 -3f);
         }
+
 
         private static void CreateDetailSprite(
             Transform parent,
