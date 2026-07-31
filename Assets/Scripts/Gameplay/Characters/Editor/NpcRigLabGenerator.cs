@@ -593,7 +593,7 @@ namespace BigRetail.Characters.Editor
                         // Bring the head down into the neck in the bind pose.
                         // Keeping this on the generated profile makes the fix
                         // reproducible whenever Rowan is regenerated.
-                        new Vector3(0.018f, -0.015f, 0f)
+                        new Vector3(0.018f, -0.0383f, 0f)
                     },
                     {
                         NpcRigPartId.HairFront,
