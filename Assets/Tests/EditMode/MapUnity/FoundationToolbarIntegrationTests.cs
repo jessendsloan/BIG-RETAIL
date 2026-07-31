@@ -90,6 +90,39 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void BuildFloors_MapsToFloorsToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            Assert.That(toSection, Is.Not.Null);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildFloors")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Floors"));
+        }
+
+
+        [Test]
         public void FoundationSection_SelectsOnlyFoundationButton()
         {
             Type viewType =
@@ -163,6 +196,14 @@ namespace BigRetail.Map.Unity.Tests
             root.Add(CreateButton("foundations-button"));
             root.Add(CreateButton("floors-button"));
             root.Add(CreateButton("demolition-button"));
+            root.Add(CreateButton("demolish-foundations-button"));
+            root.Add(CreateButton("demolish-floors-button"));
+            root.Add(CreateButton("demolish-walls-button"));
+            root.Add(
+                new VisualElement
+                {
+                    name = "demolition-picker"
+                });
             root.Add(CreateButton("undo-button"));
             root.Add(CreateButton("redo-button"));
 

@@ -4,10 +4,8 @@ using UnityEngine;
 namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
-    /// Connects PC toolbar intent to authoritative construction services.
-    /// Walls and Foundations issue requests through the shared tool
-    /// coordinator and mirror authoritative mode changes back into the
-    /// toolbar selection state.
+    /// Connects PC construction-rail intent to authoritative construction
+    /// services and mirrors tool-mode changes back into UI selection state.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
@@ -28,6 +26,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private ConstructionToolbarView boundView;
         private bool referencesAreValid;
+        private bool isDemolitionPickerRequested;
 
 
         private void Reset()
@@ -119,25 +118,65 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildFloors;
                     break;
 
-                case ConstructionToolbarSection.Demolition:
-                    requestedMode =
-                        ConstructionToolMode.DemolishFoundations;
-                    break;
-
                 default:
                     return;
             }
+
+            isDemolitionPickerRequested = false;
 
             toolCoordinator.SetMode(
                 requestedMode);
         }
 
 
+        private void HandleDemolitionPickerRequested()
+        {
+            isDemolitionPickerRequested = true;
+
+            RefreshDemolitionPicker(
+                toolCoordinator.CurrentMode);
+        }
+
+
+        private void HandleDemolitionTargetRequested(
+            ConstructionToolbarDemolitionTarget target)
+        {
+            ConstructionToolMode requestedMode = target switch
+            {
+                ConstructionToolbarDemolitionTarget.Foundations =>
+                    ConstructionToolMode.DemolishFoundations,
+
+                ConstructionToolbarDemolitionTarget.Floors =>
+                    ConstructionToolMode.DemolishFloors,
+
+                ConstructionToolbarDemolitionTarget.Walls =>
+                    ConstructionToolMode.DemolishWalls,
+
+                _ => ConstructionToolMode.None
+            };
+
+            if (requestedMode == ConstructionToolMode.None)
+            {
+                return;
+            }
+
+            isDemolitionPickerRequested = true;
+            toolCoordinator.SetMode(requestedMode);
+        }
+
+
         private void HandleModeChanged(
             ConstructionToolMode mode)
         {
+            if (!IsDemolitionMode(mode))
+            {
+                isDemolitionPickerRequested = false;
+            }
+
             RefreshSelection(
                 mode);
+
+            RefreshDemolitionPicker(mode);
         }
 
 
@@ -156,7 +195,16 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SectionRequested +=
                 HandleSectionRequested;
 
+            boundView.DemolitionPickerRequested +=
+                HandleDemolitionPickerRequested;
+
+            boundView.DemolitionTargetRequested +=
+                HandleDemolitionTargetRequested;
+
             RefreshSelection(
+                toolCoordinator.CurrentMode);
+
+            RefreshDemolitionPicker(
                 toolCoordinator.CurrentMode);
         }
 
@@ -170,6 +218,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.SectionRequested -=
                 HandleSectionRequested;
+
+            boundView.DemolitionPickerRequested -=
+                HandleDemolitionPickerRequested;
+
+            boundView.DemolitionTargetRequested -=
+                HandleDemolitionTargetRequested;
 
             boundView = null;
         }
@@ -186,6 +240,50 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SetSelectedSection(
                 ConstructionToolbarModeMapper.ToSection(
                     mode));
+        }
+
+
+        private void RefreshDemolitionPicker(
+            ConstructionToolMode mode)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            bool isDemolitionMode = IsDemolitionMode(mode);
+            boundView.SetDemolitionPickerVisible(
+                isDemolitionMode || isDemolitionPickerRequested);
+            boundView.SetSelectedDemolitionTarget(
+                ToDemolitionTarget(mode));
+        }
+
+
+        private static bool IsDemolitionMode(
+            ConstructionToolMode mode)
+        {
+            return mode == ConstructionToolMode.DemolishFoundations
+                || mode == ConstructionToolMode.DemolishFloors
+                || mode == ConstructionToolMode.DemolishWalls;
+        }
+
+
+        private static ConstructionToolbarDemolitionTarget?
+            ToDemolitionTarget(ConstructionToolMode mode)
+        {
+            return mode switch
+            {
+                ConstructionToolMode.DemolishFoundations =>
+                    ConstructionToolbarDemolitionTarget.Foundations,
+
+                ConstructionToolMode.DemolishFloors =>
+                    ConstructionToolbarDemolitionTarget.Floors,
+
+                ConstructionToolMode.DemolishWalls =>
+                    ConstructionToolbarDemolitionTarget.Walls,
+
+                _ => null
+            };
         }
 
 
