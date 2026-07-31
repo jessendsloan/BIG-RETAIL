@@ -9,6 +9,7 @@ using BigRetail.Map.Unity.Floors;
 using BigRetail.Map.Walls;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace BigRetail.Map.Unity.Tests
 {
@@ -140,6 +141,17 @@ namespace BigRetail.Map.Unity.Tests
             GameObject floorObject =
                 new GameObject("Floor Runtime Host");
 
+            Tile floorTile =
+                ScriptableObject.CreateInstance<Tile>();
+
+            FloorFinishAsset floorFinish =
+                CreateFloorFinishAsset(
+                    floorTile);
+
+            FloorFinishAssetCatalog floorFinishCatalog =
+                CreateFloorFinishCatalog(
+                    floorFinish);
+
             mapObject.SetActive(false);
             foundationObject.SetActive(false);
             floorObject.SetActive(false);
@@ -178,6 +190,11 @@ namespace BigRetail.Map.Unity.Tests
                     "foundationRuntimeHost",
                     foundationHost);
 
+                SetPrivateField(
+                    floorHost,
+                    "floorFinishAssets",
+                    floorFinishCatalog);
+
                 Assert.That(
                     foundationHost.TryInitialize(),
                     Is.True);
@@ -215,6 +232,9 @@ namespace BigRetail.Map.Unity.Tests
                 Object.DestroyImmediate(floorObject);
                 Object.DestroyImmediate(foundationObject);
                 Object.DestroyImmediate(mapObject);
+                Object.DestroyImmediate(floorFinishCatalog);
+                Object.DestroyImmediate(floorFinish);
+                Object.DestroyImmediate(floorTile);
             }
         }
 
@@ -230,6 +250,17 @@ namespace BigRetail.Map.Unity.Tests
 
             GameObject floorObject =
                 new GameObject("Floor Runtime Host");
+
+            Tile floorTile =
+                ScriptableObject.CreateInstance<Tile>();
+
+            FloorFinishAsset floorFinish =
+                CreateFloorFinishAsset(
+                    floorTile);
+
+            FloorFinishAssetCatalog floorFinishCatalog =
+                CreateFloorFinishCatalog(
+                    floorFinish);
 
             mapObject.SetActive(false);
             foundationObject.SetActive(false);
@@ -279,6 +310,11 @@ namespace BigRetail.Map.Unity.Tests
                     floorHost,
                     "foundationRuntimeHost",
                     foundationHost);
+
+                SetPrivateField(
+                    floorHost,
+                    "floorFinishAssets",
+                    floorFinishCatalog);
 
                 Assert.That(
                     foundationHost.TryInitialize(),
@@ -335,8 +371,53 @@ namespace BigRetail.Map.Unity.Tests
                 Object.DestroyImmediate(floorObject);
                 Object.DestroyImmediate(foundationObject);
                 Object.DestroyImmediate(mapObject);
+                Object.DestroyImmediate(floorFinishCatalog);
+                Object.DestroyImmediate(floorFinish);
+                Object.DestroyImmediate(floorTile);
             }
         }
+
+
+        private static FloorFinishAsset CreateFloorFinishAsset(
+            TileBase floorTile)
+        {
+            FloorFinishAsset asset =
+                ScriptableObject.CreateInstance<FloorFinishAsset>();
+
+            SetPrivateField(
+                asset,
+                "finishId",
+                "default");
+
+            SetPrivateField(
+                asset,
+                "floorTile",
+                floorTile);
+
+            return asset;
+        }
+
+
+        private static FloorFinishAssetCatalog CreateFloorFinishCatalog(
+            FloorFinishAsset defaultFinish)
+        {
+            FloorFinishAssetCatalog catalog =
+                ScriptableObject
+                    .CreateInstance<FloorFinishAssetCatalog>();
+
+            SetPrivateField(
+                catalog,
+                "defaultFinish",
+                defaultFinish);
+
+            SetPrivateField(
+                catalog,
+                "additionalFinishes",
+                System.Array.Empty<FloorFinishAsset>());
+
+            return catalog;
+        }
+
 
         private static void ConfigureInitializedMapHost(
             GridMapHost mapHost)

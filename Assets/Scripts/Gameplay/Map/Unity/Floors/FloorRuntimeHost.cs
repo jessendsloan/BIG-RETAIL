@@ -21,6 +21,9 @@ namespace BigRetail.Map.Unity.Floors
         [SerializeField]
         private FoundationRuntimeHost foundationRuntimeHost;
 
+        [SerializeField]
+        private FloorFinishAssetCatalog floorFinishAssets;
+
 
         public bool IsInitialized { get; private set; }
 
@@ -35,6 +38,39 @@ namespace BigRetail.Map.Unity.Floors
             get;
             private set;
         }
+
+        public FloorFinishCatalog FloorFinishCatalog
+        {
+            get;
+            private set;
+        }
+
+        public FloorFinishState FloorFinishState
+        {
+            get;
+            private set;
+        }
+
+        public FloorFinishService FloorFinishes
+        {
+            get;
+            private set;
+        }
+
+        public FloorAppearanceStrokeService FloorAppearanceStrokes
+        {
+            get;
+            private set;
+        }
+
+        public FloorDemolitionStrokeService FloorDemolitionStrokes
+        {
+            get;
+            private set;
+        }
+
+        public FloorFinishAssetCatalog FloorFinishAssets =>
+            floorFinishAssets;
 
 
         public event Action<FloorRuntimeHost> Initialized;
@@ -84,7 +120,8 @@ namespace BigRetail.Map.Unity.Floors
                 || mapHost.MapDefinition == null
                 || mapHost.ConstructionArea == null
                 || foundationRuntimeHost == null
-                || !foundationRuntimeHost.TryInitialize())
+                || !foundationRuntimeHost.TryInitialize()
+                || floorFinishAssets == null)
             {
                 return false;
             }
@@ -99,6 +136,29 @@ namespace BigRetail.Map.Unity.Floors
                     FloorState,
                     foundationRuntimeHost);
 
+            FloorFinishCatalog =
+                floorFinishAssets.CreateDomainCatalog();
+
+            FloorFinishState =
+                new FloorFinishState();
+
+            FloorFinishes =
+                new FloorFinishService(
+                    FloorState,
+                    FloorFinishCatalog,
+                    FloorFinishState);
+
+            FloorAppearanceStrokes =
+                new FloorAppearanceStrokeService(
+                    FloorConstruction,
+                    FloorFinishes,
+                    FloorFinishCatalog);
+
+            FloorDemolitionStrokes =
+                new FloorDemolitionStrokeService(
+                    FloorConstruction,
+                    FloorFinishes);
+
             IsInitialized = true;
 
             Initialized?.Invoke(this);
@@ -106,7 +166,8 @@ namespace BigRetail.Map.Unity.Floors
             Debug.Log(
                 $"Activated floor subsystem for map " +
                 $"'{mapHost.MapDefinition.MapId}'. " +
-                $"Initial floors: {FloorState.FloorCount}.",
+                $"Initial floors: {FloorState.FloorCount}. " +
+                $"Floor finishes: {FloorFinishCatalog.Count}.",
                 this);
 
             return true;
@@ -143,6 +204,15 @@ namespace BigRetail.Map.Unity.Floors
         }
 
 
+        private void OnDestroy()
+        {
+            FloorDemolitionStrokes = null;
+            FloorAppearanceStrokes = null;
+            FloorFinishes?.Dispose();
+            FloorFinishes = null;
+        }
+
+
         private void OnValidate()
         {
             if (mapHost == null)
@@ -157,6 +227,14 @@ namespace BigRetail.Map.Unity.Floors
                 Debug.LogWarning(
                     "FloorRuntimeHost requires a FoundationRuntimeHost " +
                     "reference.",
+                    this);
+            }
+
+            if (floorFinishAssets == null)
+            {
+                Debug.LogWarning(
+                    "FloorRuntimeHost requires a FloorFinishAssetCatalog "
+                    + "reference.",
                     this);
             }
         }
