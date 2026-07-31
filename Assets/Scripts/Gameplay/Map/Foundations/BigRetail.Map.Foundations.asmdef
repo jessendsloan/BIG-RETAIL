@@ -1,0 +1,17 @@
+{
+    "name": "BigRetail.Map.Foundations",
+    "rootNamespace": "BigRetail.Map.Foundations",
+    "references": [
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

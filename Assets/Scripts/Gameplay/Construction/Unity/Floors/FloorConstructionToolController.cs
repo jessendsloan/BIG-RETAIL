@@ -421,7 +421,9 @@ namespace BigRetail.Construction.Unity.Floors
                     $"Skipped outside map: " +
                     $"{result.SkippedOutsideMapCount}. " +
                     $"Skipped outside construction area: " +
-                    $"{result.SkippedOutsideConstructionAreaCount}.",
+                    $"{result.SkippedOutsideConstructionAreaCount}. " +
+                    $"Skipped without Foundation: " +
+                    $"{result.SkippedMissingFoundationCount}.",
                     this);
             }
 

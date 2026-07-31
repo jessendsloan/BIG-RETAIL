@@ -1,4 +1,5 @@
 using BigRetail.Construction.Unity.Floors;
+using BigRetail.Construction.Unity.Foundations;
 using BigRetail.Construction.Unity.Walls;
 using BigRetail.Map.Construction;
 using UnityEngine;
@@ -43,6 +44,14 @@ namespace BigRetail.Construction.Unity.History
 
 
         [Header("Construction Tools")]
+
+        [SerializeField]
+        private FoundationConstructionToolController
+            foundationConstructionTool;
+
+        [SerializeField]
+        private FoundationDemolitionToolController
+            foundationDemolitionTool;
 
         [SerializeField]
         private WallConstructionToolController
@@ -195,7 +204,9 @@ namespace BigRetail.Construction.Unity.History
         private bool IsAnyConstructionGestureActive()
         {
             return
-                wallConstructionTool.IsPlanningRun
+                foundationConstructionTool.IsPlanningArea
+                || foundationDemolitionTool.IsPlanningArea
+                || wallConstructionTool.IsPlanningRun
                 || wallDemolitionTool.IsPlanningRun
                 || floorConstructionTool.IsPlanningArea
                 || floorDemolitionTool.IsPlanningArea;
@@ -336,6 +347,26 @@ namespace BigRetail.Construction.Unity.History
         private bool ValidateReferences()
         {
             bool isValid = true;
+
+            if (foundationConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "FoundationConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (foundationDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "FoundationDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
 
             if (playerInput == null)
             {

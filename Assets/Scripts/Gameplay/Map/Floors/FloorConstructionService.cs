@@ -21,12 +21,14 @@ namespace BigRetail.Map.Floors
         private readonly GridMapDefinition mapDefinition;
         private readonly ConstructionAreaDefinition constructionArea;
         private readonly FloorState floorState;
+        private readonly IFoundationSupportQuery foundationSupport;
 
 
         public FloorConstructionService(
             GridMapDefinition mapDefinition,
             ConstructionAreaDefinition constructionArea,
-            FloorState floorState)
+            FloorState floorState,
+            IFoundationSupportQuery foundationSupport)
         {
             this.mapDefinition =
                 mapDefinition
@@ -42,6 +44,11 @@ namespace BigRetail.Map.Floors
                 floorState
                 ?? throw new ArgumentNullException(
                     nameof(floorState));
+
+            this.foundationSupport =
+                foundationSupport
+                ?? throw new ArgumentNullException(
+                    nameof(foundationSupport));
         }
 
 
@@ -80,6 +87,13 @@ namespace BigRetail.Map.Floors
                 return FloorChangeResult.Rejected(
                     cell,
                     FloorChangeFailure.AlreadyExists);
+            }
+
+            if (!foundationSupport.HasFoundation(cell))
+            {
+                return FloorChangeResult.Rejected(
+                    cell,
+                    FloorChangeFailure.MissingFoundation);
             }
 
             return FloorChangeResult.Success(cell);
@@ -121,6 +135,7 @@ namespace BigRetail.Map.Floors
             int alreadyExistingCount = 0;
             int skippedOutsideMapCount = 0;
             int skippedOutsideConstructionAreaCount = 0;
+            int skippedMissingFoundationCount = 0;
 
             for (int index = 0;
                  index < cells.Count;
@@ -154,6 +169,12 @@ namespace BigRetail.Map.Floors
                     continue;
                 }
 
+                if (!foundationSupport.HasFoundation(cell))
+                {
+                    skippedMissingFoundationCount++;
+                    continue;
+                }
+
                 missingLegalCells.Add(cell);
             }
 
@@ -174,7 +195,8 @@ namespace BigRetail.Map.Floors
                 missingLegalCells,
                 alreadyExistingCount,
                 skippedOutsideMapCount,
-                skippedOutsideConstructionAreaCount);
+                skippedOutsideConstructionAreaCount,
+                skippedMissingFoundationCount);
         }
 
 
@@ -261,6 +283,7 @@ namespace BigRetail.Map.Floors
         /// History replay deliberately bypasses the current
         /// construction-area mask so scenario-authored or legacy
         /// floors can be restored exactly.
+        /// Added floors must still have current Foundation support.
         ///
         /// The operation is strict and atomic: every requested state
         /// change must match the current floor state or nothing changes.
@@ -304,6 +327,14 @@ namespace BigRetail.Map.Floors
                         edit.Count,
                         cell,
                         FloorChangeFailure.AlreadyExists);
+                }
+
+                if (!foundationSupport.HasFoundation(cell))
+                {
+                    return FloorBatchChangeResult.Rejected(
+                        edit.Count,
+                        cell,
+                        FloorChangeFailure.MissingFoundation);
                 }
             }
 

@@ -5,8 +5,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
     /// Connects PC toolbar intent to authoritative construction services.
-    /// This first vertical slice activates wall construction and mirrors
-    /// tool-mode changes back into the toolbar selection state.
+    /// Walls and Foundations issue requests through the shared tool
+    /// coordinator and mirror authoritative mode changes back into the
+    /// toolbar selection state.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
@@ -99,14 +100,31 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleSectionRequested(
             ConstructionToolbarSection section)
         {
-            if (section
-                != ConstructionToolbarSection.Walls)
+            ConstructionToolMode requestedMode;
+
+            switch (section)
             {
-                return;
+                case ConstructionToolbarSection.Walls:
+                    requestedMode =
+                        ConstructionToolMode.BuildWalls;
+                    break;
+
+                case ConstructionToolbarSection.Foundations:
+                    requestedMode =
+                        ConstructionToolMode.BuildFoundations;
+                    break;
+
+                case ConstructionToolbarSection.Demolition:
+                    requestedMode =
+                        ConstructionToolMode.DemolishFoundations;
+                    break;
+
+                default:
+                    return;
             }
 
             toolCoordinator.SetMode(
-                ConstructionToolMode.BuildWalls);
+                requestedMode);
         }
 
 
