@@ -114,6 +114,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildFoundations;
                     break;
 
+                case ConstructionToolbarSection.Floors:
+                    requestedMode =
+                        ConstructionToolMode.BuildFloors;
+                    break;
+
                 case ConstructionToolbarSection.Demolition:
                     requestedMode =
                         ConstructionToolMode.DemolishFoundations;
