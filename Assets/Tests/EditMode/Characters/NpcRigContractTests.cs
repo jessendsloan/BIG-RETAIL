@@ -157,6 +157,25 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
         [Test]
+        public void MirroredDepthPartners_SwapOnlyPairedLimbs()
+        {
+            Assert.That(
+                NpcFacingUtility.GetMirroredDepthPart(
+                    NpcRigPartId.UpperArmFar),
+                Is.EqualTo(NpcRigPartId.UpperArmNear));
+
+            Assert.That(
+                NpcFacingUtility.GetMirroredDepthPart(
+                    NpcRigPartId.FootNear),
+                Is.EqualTo(NpcRigPartId.FootFar));
+
+            Assert.That(
+                NpcFacingUtility.GetMirroredDepthPart(
+                    NpcRigPartId.Torso),
+                Is.EqualTo(NpcRigPartId.Torso));
+        }
+
+        [Test]
         public void ArtworkContract_RequiresThirtySixAuthoredSprites()
         {
             Assert.That(
