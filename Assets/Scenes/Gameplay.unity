@@ -298032,9 +298032,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 320848398843883590, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: facing
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1360120957123044418, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1419414582225062077, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2348406132282046857, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2626231371287676204, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 2992081730706847208, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3332498414470445736, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3694751207540327866, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5173393528055420339, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6797542075249054435, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 7168765048202128305, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556301686623031967, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7689190045208547891, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7947943296734313180, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_Name
       value: RoundedEmployeeRowan
+      objectReference: {fileID: 0}
+    - target: {fileID: 8746946351184265142, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_LocalScale.x
+      value: -1.08
       objectReference: {fileID: 0}
     - target: {fileID: 8779380065367880101, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: loopPath
