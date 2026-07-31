@@ -1,0 +1,16 @@
+{
+    "name": "BigRetail.Merchandise.Unity",
+    "rootNamespace": "BigRetail.Merchandise.Unity",
+    "references": [
+        "BigRetail.Merchandise.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

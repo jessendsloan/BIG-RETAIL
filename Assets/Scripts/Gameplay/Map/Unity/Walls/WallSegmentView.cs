@@ -1,5 +1,7 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
+using BigRetail.Map.Walls;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -9,7 +11,7 @@ namespace BigRetail.Map.Unity.Walls
     /// Displays one model-owned wall edge in the Unity scene.
     ///
     /// This component controls presentation only.
-    /// It does not create, remove, or validate walls.
+    /// It does not create, remove, validate, or own wall finishes.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
@@ -21,14 +23,9 @@ namespace BigRetail.Map.Unity.Walls
         private SpriteRenderer spriteRenderer;
 
         [Tooltip(
-            "The visible thickness of the temporary wall bar " +
-            "in Unity world units.")]
-        [SerializeField, Min(0.001f)]
-        private float wallThickness = 0.08f;
-
-        [Tooltip(
-            "Optional world-space adjustment applied after the wall " +
-            "position has been calculated.")]
+            "Optional world-space adjustment applied after the wall "
+            + "position has been calculated. This can be used while "
+            + "validating authored sprite pivots and wall height.")]
         [SerializeField]
         private Vector3 worldPositionOffset =
             Vector3.zero;
@@ -38,6 +35,18 @@ namespace BigRetail.Map.Unity.Walls
 
         public bool IsInitialized { get; private set; }
 
+        public WallFinishAsset CurrentFinish { get; private set; }
+
+        public WallFinishId CurrentFinishId { get; private set; }
+
+        public WallDisplaySlope CurrentDisplaySlope { get; private set; }
+
+
+        private Tilemap coordinateTilemap;
+        private int logicalLevel;
+        private int unityCellZ;
+        private WallFinishPresentationResolver finishResolver;
+
 
         /// <summary>
         /// Configures this view to represent one logical CellEdge.
@@ -46,66 +55,105 @@ namespace BigRetail.Map.Unity.Walls
             CellEdge edge,
             Tilemap coordinateTilemap,
             int logicalLevel,
-            int unityCellZ)
+            int unityCellZ,
+            IsometricViewProjection projection,
+            WallFinishPresentationResolver finishResolver)
         {
             ValidatePresentation();
 
-            CellEdgeWorldPose worldPose =
-                CellEdgeWorldPose.Calculate(
-                    edge,
-                    coordinateTilemap,
-                    logicalLevel,
-                    unityCellZ);
+            this.coordinateTilemap =
+                coordinateTilemap
+                ?? throw new ArgumentNullException(
+                    nameof(coordinateTilemap));
+
+            this.finishResolver =
+                finishResolver
+                ?? throw new ArgumentNullException(
+                    nameof(finishResolver));
 
             Edge = edge;
+            this.logicalLevel = logicalLevel;
+            this.unityCellZ = unityCellZ;
+
+            ApplyProjection(
+                projection);
+
+            gameObject.name =
+                $"Wall {Edge.AnchorCell.X}, "
+                + $"{Edge.AnchorCell.Y}, "
+                + $"Level {Edge.AnchorCell.Level} — "
+                + $"{Edge.CanonicalDirection}";
+
+            IsInitialized = true;
+        }
+
+
+        public void ApplyProjection(
+            IsometricViewProjection projection)
+        {
+            if (projection == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(projection));
+            }
+
+            CellEdgeWorldPose worldPose =
+                CellEdgeWorldPose.Calculate(
+                    Edge,
+                    coordinateTilemap,
+                    logicalLevel,
+                    unityCellZ,
+                    projection);
 
             ApplyWorldPose(
                 worldPose);
-
-            gameObject.name =
-                $"Wall {Edge.AnchorCell.X}, " +
-                $"{Edge.AnchorCell.Y}, " +
-                $"Level {Edge.AnchorCell.Level} — " +
-                $"{Edge.CanonicalDirection}";
-
-            IsInitialized = true;
         }
 
 
         private void ApplyWorldPose(
             CellEdgeWorldPose worldPose)
         {
-            transform.SetPositionAndRotation(
-                worldPose.Position
-                    + worldPositionOffset,
-                worldPose.Rotation);
+            ApplyDirectionalFinish(
+                worldPose);
 
-            ApplySpriteScale(
-                worldPose.Length);
+            spriteRenderer.sortingOrder =
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
+
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveWallPriority(
+                    worldPose.DisplayEdge);
         }
 
 
-        private void ApplySpriteScale(
-            float edgeLength)
+        private void ApplyDirectionalFinish(
+            CellEdgeWorldPose worldPose)
         {
-            Vector3 spriteSize =
-                spriteRenderer.sprite.bounds.size;
+            WallFinishAsset visibleFinish =
+                finishResolver.ResolveAsset(
+                    Edge,
+                    worldPose.ViewerFacingCell);
 
-            float safeSpriteWidth =
-                Mathf.Max(
-                    spriteSize.x,
-                    0.0001f);
+            CurrentFinish =
+                visibleFinish;
 
-            float safeSpriteHeight =
-                Mathf.Max(
-                    spriteSize.y,
-                    0.0001f);
+            CurrentFinishId =
+                visibleFinish.Id;
+
+            CurrentDisplaySlope =
+                worldPose.DisplaySlope;
+
+            spriteRenderer.sprite =
+                visibleFinish.GetSprite(
+                    worldPose.DisplaySlope);
+
+            transform.SetPositionAndRotation(
+                worldPose.Position
+                    + worldPositionOffset,
+                Quaternion.identity);
 
             transform.localScale =
-                new Vector3(
-                    edgeLength / safeSpriteWidth,
-                    wallThickness / safeSpriteHeight,
-                    1f);
+                Vector3.one;
         }
 
 
@@ -114,15 +162,8 @@ namespace BigRetail.Map.Unity.Walls
             if (spriteRenderer == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' " +
-                    "requires a SpriteRenderer reference.");
-            }
-
-            if (spriteRenderer.sprite == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallSegmentView)} on '{name}' " +
-                    "requires a Sprite assigned to its SpriteRenderer.");
+                    $"{nameof(WallSegmentView)} on '{name}' "
+                    + "requires a SpriteRenderer reference.");
             }
         }
 
@@ -136,11 +177,6 @@ namespace BigRetail.Map.Unity.Walls
 
         private void OnValidate()
         {
-            wallThickness =
-                Mathf.Max(
-                    wallThickness,
-                    0.001f);
-
             if (spriteRenderer == null)
             {
                 spriteRenderer =

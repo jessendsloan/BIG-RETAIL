@@ -115,6 +115,38 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        /// <summary>
+        /// Cancels any in-progress construction gesture without changing
+        /// the selected tool. View rotation calls this before the map
+        /// presentation changes.
+        /// </summary>
+        public void CancelActiveGesture()
+        {
+            switch (CurrentMode)
+            {
+                case ConstructionToolMode.BuildWalls:
+                    wallConstructionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.DemolishWalls:
+                    wallDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.BuildFloors:
+                    floorConstructionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.DemolishFloors:
+                    floorDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+            }
+        }
+
+
         [ContextMenu("Activate Wall Construction")]
         public void ActivateWallConstruction()
         {

@@ -225,6 +225,18 @@ namespace BigRetail.Construction.Unity.Floors
         }
 
 
+        public void CancelCurrentGesture()
+        {
+            if (IsPlanningArea)
+            {
+                CancelCurrentArea();
+            }
+
+            hasCurrentIdleCell = false;
+            previewView.Hide();
+        }
+
+
         private void BeginArea()
         {
             if (!cellTargetResolver.HasTarget)

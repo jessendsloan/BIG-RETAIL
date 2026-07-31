@@ -10,107 +10,55 @@ using UnityEngine.InputSystem;
 namespace BigRetail.Construction.Unity.Walls
 {
     /// <summary>
-    /// Coordinates straight wall-run demolition.
+    /// Coordinates straight wall-run demolition from one selected grid vertex
+    /// to another.
     ///
-    /// Empty edges are skipped, while exact removed walls are recorded
-    /// as neutral construction-history actions.
+    /// Empty edges are skipped, while exact removed walls are recorded as one
+    /// neutral construction-history action.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
-    public sealed class WallDemolitionToolController :
-        MonoBehaviour
+    public sealed class WallDemolitionToolController : MonoBehaviour
     {
         [Header("Input")]
-
-        [SerializeField]
-        private PlayerInput playerInput;
-
-        [SerializeField]
-        private ConstructionPointerController pointerController;
-
-        [SerializeField]
-        private string constructionActionMapName =
-            "Construction";
-
-        [SerializeField]
-        private string confirmActionName =
-            "Confirm";
-
-        [SerializeField]
-        private string cancelActionName =
-            "Cancel";
-
+        [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private ConstructionPointerController pointerController;
+        [SerializeField] private string constructionActionMapName = "Construction";
+        [SerializeField] private string confirmActionName = "Confirm";
+        [SerializeField] private string cancelActionName = "Cancel";
 
         [Header("Demolition Tool")]
-
-        [SerializeField]
-        private WallTargetResolver targetResolver;
-
-        [SerializeField]
-        private WallDemolitionPreviewView previewView;
-
-        [SerializeField]
-        private WallDemolitionRunPreviewView runPreviewView;
-
-        [SerializeField]
-        private GridMapHost mapHost;
-
-        [SerializeField]
-        private ConstructionHistoryHost historyHost;
-
+        [SerializeField] private WallVertexTargetResolver targetResolver;
+        [SerializeField] private WallDemolitionPreviewView previewView;
+        [SerializeField] private WallDemolitionRunPreviewView runPreviewView;
+        [SerializeField] private GridMapHost mapHost;
+        [SerializeField] private ConstructionHistoryHost historyHost;
 
         [Header("Starting State")]
-
-        [SerializeField]
-        private bool startActive = false;
-
+        [SerializeField] private bool startActive = false;
 
         [Header("Diagnostics")]
-
-        [SerializeField]
-        private bool logDemolitionResults = true;
-
+        [SerializeField] private bool logDemolitionResults = true;
 
         public bool IsActive { get; private set; }
-
         public bool IsPlanningRun { get; private set; }
-
-        public CellEdge StartEdge { get; private set; }
-
-        public WallRunPlanResult CurrentRunPlan
-        {
-            get;
-            private set;
-        }
-
+        public GridVertex StartVertex { get; private set; }
+        public WallVertexRunPlanResult CurrentRunPlan { get; private set; }
 
         public event Action<bool> ToolActiveChanged;
-
         public event Action<bool> RunPlanningChanged;
 
-
         private InputAction confirmAction;
-
         private InputAction cancelAction;
-
-        private CellEdge currentEndEdge;
-
-        private bool hasCurrentEndEdge;
-
+        private GridVertex currentEndVertex;
+        private bool hasCurrentEndVertex;
         private bool runStartedWithGamepad;
-
         private bool isInitialized;
 
 
         private void Awake()
         {
-            if (!ValidateReferences())
-            {
-                enabled = false;
-                return;
-            }
-
-            if (!TryResolveActions())
+            if (!ValidateReferences() || !TryResolveActions())
             {
                 enabled = false;
                 return;
@@ -132,15 +80,13 @@ namespace BigRetail.Construction.Unity.Walls
 
         private void Start()
         {
-            SetToolActive(
-                startActive);
+            SetToolActive(startActive);
         }
 
 
         private void LateUpdate()
         {
-            if (!isInitialized
-                || !IsActive)
+            if (!isInitialized || !IsActive)
             {
                 return;
             }
@@ -183,8 +129,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (!Application.isPlaying)
             {
                 Debug.LogWarning(
-                    "The wall demolition tool can only be " +
-                    "activated during Play Mode.",
+                    "The wall demolition tool can only be activated during "
+                    + "Play Mode.",
                     this);
 
                 return;
@@ -200,8 +146,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (!Application.isPlaying)
             {
                 Debug.LogWarning(
-                    "The wall demolition tool can only be " +
-                    "deactivated during Play Mode.",
+                    "The wall demolition tool can only be deactivated during "
+                    + "Play Mode.",
                     this);
 
                 return;
@@ -211,23 +157,31 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
+        public void CancelCurrentGesture()
+        {
+            if (IsPlanningRun)
+            {
+                CancelCurrentRun();
+            }
+        }
+
+
         private void BeginRun()
         {
             if (!targetResolver.HasTarget)
             {
                 LogWarning(
-                    "Wall demolition could not begin because " +
-                    "no target exists.");
+                    "Wall demolition could not begin because no vertex "
+                    + "target exists.");
 
                 return;
             }
 
-            if (!mapHost.IsInitialized
-                || mapHost.WallConstruction == null)
+            if (!mapHost.IsInitialized || mapHost.WallConstruction == null)
             {
                 Debug.LogError(
-                    "WallDemolitionToolController could not access " +
-                    "an initialized WallConstructionService.",
+                    "WallDemolitionToolController could not access an "
+                    + "initialized WallConstructionService.",
                     this);
 
                 return;
@@ -236,33 +190,31 @@ namespace BigRetail.Construction.Unity.Walls
             if (!historyHost.TryInitialize())
             {
                 Debug.LogError(
-                    "WallDemolitionToolController could not access " +
-                    "an initialized ConstructionHistory.",
+                    "WallDemolitionToolController could not access an "
+                    + "initialized ConstructionHistory.",
                     this);
 
                 return;
             }
 
-            StartEdge =
-                targetResolver.CurrentTarget.Edge;
+            StartVertex =
+                targetResolver.CurrentTarget.Vertex;
 
             runStartedWithGamepad =
                 pointerController.IsUsingGamepad;
 
             IsPlanningRun = true;
-            hasCurrentEndEdge = false;
+            hasCurrentEndVertex = false;
 
             previewView.SetToolActive(false);
-
-            RefreshRunPlan(
-                forceRefresh: true);
-
+            runPreviewView.ShowAnchor(StartVertex);
+            RefreshRunPlan(forceRefresh: true);
             RunPlanningChanged?.Invoke(true);
 
             if (logDemolitionResults)
             {
                 Debug.Log(
-                    $"Wall demolition run started at {StartEdge}.",
+                    $"Wall demolition run started at {StartVertex}.",
                     this);
             }
         }
@@ -271,43 +223,45 @@ namespace BigRetail.Construction.Unity.Walls
         private void RefreshRunPlan(
             bool forceRefresh = false)
         {
-            if (!IsPlanningRun
-                || !targetResolver.HasTarget)
+            if (!IsPlanningRun || !targetResolver.HasTarget)
             {
                 return;
             }
 
-            CellEdge alignedEndEdge =
-                StraightWallRunEndpointResolver.Resolve(
-                    StartEdge,
+            GridVertex alignedEndVertex =
+                StraightWallVertexRunEndpointResolver.Resolve(
+                    StartVertex,
                     targetResolver);
 
             if (!forceRefresh
-                && hasCurrentEndEdge
-                && alignedEndEdge == currentEndEdge)
+                && hasCurrentEndVertex
+                && alignedEndVertex == currentEndVertex)
             {
                 return;
             }
 
-            currentEndEdge =
-                alignedEndEdge;
-
-            hasCurrentEndEdge = true;
+            currentEndVertex = alignedEndVertex;
+            hasCurrentEndVertex = true;
 
             CurrentRunPlan =
-                StraightWallRunPlanner.Plan(
-                    StartEdge,
-                    currentEndEdge);
+                StraightWallVertexRunPlanner.Plan(
+                    StartVertex,
+                    currentEndVertex);
 
             if (CurrentRunPlan.Succeeded)
             {
-                runPreviewView.ShowPlan(
-                    CurrentRunPlan);
+                runPreviewView.ShowPlan(CurrentRunPlan);
+                return;
             }
-            else
+
+            if (CurrentRunPlan.Failure
+                == WallVertexRunPlanFailure.SameVertex)
             {
-                runPreviewView.Hide();
+                runPreviewView.ShowAnchor(StartVertex);
+                return;
             }
+
+            runPreviewView.Hide();
         }
 
 
@@ -316,8 +270,14 @@ namespace BigRetail.Construction.Unity.Walls
             if (!CurrentRunPlan.Succeeded)
             {
                 LogWarning(
-                    "The current demolition run has no " +
-                    "valid geometry.");
+                    "The current demolition run has no removable length.");
+
+                // A mouse click without meaningful drag is a harmless
+                // cancellation because the gesture ends on button release.
+                if (!runStartedWithGamepad)
+                {
+                    FinishRun();
+                }
 
                 return false;
             }
@@ -325,8 +285,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (!historyHost.TryInitialize())
             {
                 Debug.LogError(
-                    "The current demolition run could not be recorded " +
-                    "because wall history is unavailable.",
+                    "The current demolition run could not be recorded because "
+                    + "wall history is unavailable.",
                     this);
 
                 return false;
@@ -334,13 +294,11 @@ namespace BigRetail.Construction.Unity.Walls
 
             WallClearResult result =
                 mapHost.WallConstruction
-                    .TryClearWalls(
-                        CurrentRunPlan.Edges);
+                    .TryClearWalls(CurrentRunPlan.Edges);
 
             if (!result.Succeeded)
             {
-                LogRejectedRun(
-                    result);
+                LogRejectedRun(result);
 
                 if (!runStartedWithGamepad)
                 {
@@ -361,24 +319,20 @@ namespace BigRetail.Construction.Unity.Walls
             if (logDemolitionResults)
             {
                 Debug.Log(
-                    $"Wall demolition run processed. " +
-                    $"Requested: {result.RequestedCount}. " +
-                    $"Removed: {result.RemovedCount}. " +
-                    $"Already empty: {result.AlreadyEmptyCount}.",
+                    $"Vertex wall demolition run processed. "
+                    + $"Requested: {result.RequestedCount}. "
+                    + $"Removed: {result.RemovedCount}. "
+                    + $"Already empty: {result.AlreadyEmptyCount}.",
                     this);
             }
 
-            if (result.RemovedCount == 0
-                && runStartedWithGamepad)
+            if (result.RemovedCount == 0 && runStartedWithGamepad)
             {
-                RefreshRunPlan(
-                    forceRefresh: true);
-
+                RefreshRunPlan(forceRefresh: true);
                 return false;
             }
 
             FinishRun();
-
             return result.RemovedCount > 0;
         }
 
@@ -405,7 +359,7 @@ namespace BigRetail.Construction.Unity.Walls
             if (logDemolitionResults)
             {
                 Debug.Log(
-                    "Current wall demolition run cancelled.",
+                    "Current vertex wall demolition run cancelled.",
                     this);
             }
 
@@ -417,7 +371,9 @@ namespace BigRetail.Construction.Unity.Walls
         {
             IsPlanningRun = false;
             CurrentRunPlan = default;
-            hasCurrentEndEdge = false;
+            StartVertex = default;
+            currentEndVertex = default;
+            hasCurrentEndVertex = false;
 
             runPreviewView.Hide();
 
@@ -449,24 +405,21 @@ namespace BigRetail.Construction.Unity.Walls
             }
 
             IsActive = isActive;
-
-            previewView.SetToolActive(
-                IsActive);
+            previewView.SetToolActive(IsActive);
 
             if (!IsActive)
             {
                 runPreviewView.Hide();
             }
 
-            ToolActiveChanged?.Invoke(
-                IsActive);
+            ToolActiveChanged?.Invoke(IsActive);
 
             if (logDemolitionResults)
             {
                 Debug.Log(
                     IsActive
-                        ? "Wall demolition tool activated."
-                        : "Wall demolition tool deactivated.",
+                        ? "Vertex wall demolition tool activated."
+                        : "Vertex wall demolition tool deactivated.",
                     this);
             }
         }
@@ -487,8 +440,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (playerInput.actions == null)
             {
                 Debug.LogError(
-                    "WallDemolitionToolController could not find " +
-                    "an Input Actions asset on PlayerInput.",
+                    "WallDemolitionToolController could not find an Input "
+                    + "Actions asset on PlayerInput.",
                     this);
 
                 return false;
@@ -502,8 +455,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (actionMap == null)
             {
                 Debug.LogError(
-                    $"Could not find an Action Map named " +
-                    $"'{constructionActionMapName}'.",
+                    $"Could not find an Action Map named "
+                    + $"'{constructionActionMapName}'.",
                     this);
 
                 return false;
@@ -519,14 +472,12 @@ namespace BigRetail.Construction.Unity.Walls
                     cancelActionName,
                     throwIfNotFound: false);
 
-            if (confirmAction == null
-                || cancelAction == null)
+            if (confirmAction == null || cancelAction == null)
             {
                 Debug.LogError(
-                    $"WallDemolitionToolController requires actions " +
-                    $"named '{confirmActionName}' and " +
-                    $"'{cancelActionName}' inside the " +
-                    $"'{constructionActionMapName}' Action Map.",
+                    $"WallDemolitionToolController requires actions named "
+                    + $"'{confirmActionName}' and '{cancelActionName}' inside "
+                    + $"the '{constructionActionMapName}' Action Map.",
                     this);
 
                 return false;
@@ -545,9 +496,9 @@ namespace BigRetail.Construction.Unity.Walls
             }
 
             Debug.LogWarning(
-                $"Wall demolition run could not be processed. " +
-                $"Reason: {result.Failure}. " +
-                $"Failed edge: {result.FailedEdge}.",
+                $"Vertex wall demolition run could not be processed. "
+                + $"Reason: {result.Failure}. "
+                + $"Failed edge: {result.FailedEdge}.",
                 this);
         }
 
@@ -557,9 +508,7 @@ namespace BigRetail.Construction.Unity.Walls
         {
             if (logDemolitionResults)
             {
-                Debug.LogWarning(
-                    message,
-                    this);
+                Debug.LogWarning(message, this);
             }
         }
 
@@ -568,77 +517,42 @@ namespace BigRetail.Construction.Unity.Walls
         {
             bool isValid = true;
 
-            if (playerInput == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "PlayerInput assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (pointerController == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "ConstructionPointerController assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (targetResolver == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "WallTargetResolver assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (previewView == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "WallDemolitionPreviewView assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (runPreviewView == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "WallDemolitionRunPreviewView assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (mapHost == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "GridMapHost assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (historyHost == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionToolController has no " +
-                    "ConstructionHistoryHost assigned.",
-                    this);
-
-                isValid = false;
-            }
+            isValid &= RequireReference(playerInput, "PlayerInput");
+            isValid &= RequireReference(
+                pointerController,
+                "ConstructionPointerController");
+            isValid &= RequireReference(
+                targetResolver,
+                "WallVertexTargetResolver");
+            isValid &= RequireReference(
+                previewView,
+                "WallDemolitionPreviewView");
+            isValid &= RequireReference(
+                runPreviewView,
+                "WallDemolitionRunPreviewView");
+            isValid &= RequireReference(mapHost, "GridMapHost");
+            isValid &= RequireReference(
+                historyHost,
+                "ConstructionHistoryHost");
 
             return isValid;
+        }
+
+
+        private bool RequireReference(
+            UnityEngine.Object reference,
+            string label)
+        {
+            if (reference != null)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"WallDemolitionToolController has no {label} assigned.",
+                this);
+
+            return false;
         }
 
 
@@ -652,6 +566,8 @@ namespace BigRetail.Construction.Unity.Walls
 
             IsActive = false;
             IsPlanningRun = false;
+            StartVertex = default;
+            CurrentRunPlan = default;
 
             if (previewView != null)
             {

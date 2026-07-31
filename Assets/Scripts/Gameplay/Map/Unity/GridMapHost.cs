@@ -1,6 +1,7 @@
 using System;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.Walls;
 using UnityEngine;
 
@@ -22,6 +23,9 @@ namespace BigRetail.Map.Unity
 
         [SerializeField]
         private GridMapAuthoring mapAuthoring;
+
+        [SerializeField]
+        private WallFinishAssetCatalog wallFinishAssets;
 
 
         [Header("Diagnostics")]
@@ -54,6 +58,33 @@ namespace BigRetail.Map.Unity
             private set;
         }
 
+        public WallFinishCatalog WallFinishCatalog
+        {
+            get;
+            private set;
+        }
+
+        public WallFinishState WallFinishState
+        {
+            get;
+            private set;
+        }
+
+        public WallFinishService WallFinishes
+        {
+            get;
+            private set;
+        }
+
+        public WallAppearanceStrokeService WallAppearanceStrokes
+        {
+            get;
+            private set;
+        }
+
+        public WallFinishAssetCatalog WallFinishAssets =>
+            wallFinishAssets;
+
         public bool IsInitialized
         {
             get;
@@ -72,8 +103,17 @@ namespace BigRetail.Map.Unity
             Initialize();
         }
 
+
+        private void OnDestroy()
+        {
+            WallAppearanceStrokes = null;
+            WallFinishes?.Dispose();
+            WallFinishes = null;
+        }
+
+
         /// <summary>
-        /// Creates the runtime map and its initial wall system.
+        /// Creates the runtime map and its initial wall systems.
         ///
         /// Calling this more than once has no effect after successful
         /// initialization.
@@ -89,6 +129,16 @@ namespace BigRetail.Map.Unity
             {
                 Debug.LogError(
                     "GridMapHost has no GridMapAuthoring assigned.",
+                    this);
+
+                enabled = false;
+                return;
+            }
+
+            if (wallFinishAssets == null)
+            {
+                Debug.LogError(
+                    "GridMapHost has no WallFinishAssetCatalog assigned.",
                     this);
 
                 enabled = false;
@@ -116,6 +166,24 @@ namespace BigRetail.Map.Unity
                         ConstructionArea,
                         WallState);
 
+                WallFinishCatalog =
+                    wallFinishAssets.CreateDomainCatalog();
+
+                WallFinishState =
+                    new WallFinishState();
+
+                WallFinishes =
+                    new WallFinishService(
+                        WallState,
+                        WallFinishCatalog,
+                        WallFinishState);
+
+                WallAppearanceStrokes =
+                    new WallAppearanceStrokeService(
+                        WallConstruction,
+                        WallFinishes,
+                        WallFinishCatalog);
+
                 IsInitialized = true;
 
                 mapAuthoring.ApplyRuntimeVisibility();
@@ -129,6 +197,10 @@ namespace BigRetail.Map.Unity
             }
             catch (Exception exception)
             {
+                WallAppearanceStrokes = null;
+                WallFinishes?.Dispose();
+                WallFinishes = null;
+
                 Debug.LogException(
                     exception,
                     this);
@@ -137,15 +209,17 @@ namespace BigRetail.Map.Unity
             }
         }
 
+
         private void LogInitializationSummary()
         {
             Debug.Log(
-                $"Activated grid map '{MapDefinition.MapId}'. " +
-                $"Logical level: {mapAuthoring.LogicalLevel}. " +
-                $"Valid cells: {MapDefinition.ValidCellCount}. " +
-                $"Construction-eligible cells: " +
-                $"{ConstructionArea.EligibleCellCount}. " +
-                $"Initial walls: {WallState.WallCount}.",
+                $"Activated grid map '{MapDefinition.MapId}'. "
+                + $"Logical level: {mapAuthoring.LogicalLevel}. "
+                + $"Valid cells: {MapDefinition.ValidCellCount}. "
+                + $"Construction-eligible cells: "
+                + $"{ConstructionArea.EligibleCellCount}. "
+                + $"Initial walls: {WallState.WallCount}. "
+                + $"Wall finishes: {WallFinishCatalog.Count}.",
                 this);
         }
     }

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a2d9a1df8624ae8b1d6dd19ab41cd7e, type: 3}
+  m_Name: WallFinishCatalog
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Walls.WallFinishAssetCatalog
+  defaultFinish: {fileID: 11400000, guid: 7ee9d714f3aaa4f48b5c4a6cb21e1ae0, type: 2}
+  additionalFinishes:
+  - {fileID: 11400000, guid: cfcdb5ee173796344ab7e2d30348ebd3, type: 2}
+  - {fileID: 11400000, guid: 45544933a3bb0674586a88bed3c9c54f, type: 2}
+  - {fileID: 11400000, guid: 6032ae6e1233f454ba35940ad11f7832, type: 2}

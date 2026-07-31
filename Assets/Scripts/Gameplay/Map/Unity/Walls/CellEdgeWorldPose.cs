@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -17,15 +18,24 @@ namespace BigRetail.Map.Unity.Walls
         public Vector3 Position { get; }
         public Quaternion Rotation { get; }
         public float Length { get; }
+        public CellEdge DisplayEdge { get; }
+        public GridPosition ViewerFacingCell { get; }
+        public WallDisplaySlope DisplaySlope { get; }
 
         private CellEdgeWorldPose(
             Vector3 position,
             Quaternion rotation,
-            float length)
+            float length,
+            CellEdge displayEdge,
+            GridPosition viewerFacingCell,
+            WallDisplaySlope displaySlope)
         {
             Position = position;
             Rotation = rotation;
             Length = length;
+            DisplayEdge = displayEdge;
+            ViewerFacingCell = viewerFacingCell;
+            DisplaySlope = displaySlope;
         }
 
         /// <summary>
@@ -38,6 +48,26 @@ namespace BigRetail.Map.Unity.Walls
             int logicalLevel,
             int unityCellZ)
         {
+            return Calculate(
+                edge,
+                coordinateTilemap,
+                logicalLevel,
+                unityCellZ,
+                projection: null);
+        }
+
+        /// <summary>
+        /// Calculates one logical edge's pose in the supplied rotated
+        /// presentation. DisplayEdge is presentation-only; callers
+        /// continue to own and edit the original logical edge.
+        /// </summary>
+        public static CellEdgeWorldPose Calculate(
+            CellEdge edge,
+            Tilemap coordinateTilemap,
+            int logicalLevel,
+            int unityCellZ,
+            IsometricViewProjection projection)
+        {
             if (coordinateTilemap == null)
             {
                 throw new ArgumentNullException(
@@ -48,8 +78,41 @@ namespace BigRetail.Map.Unity.Walls
                 edge,
                 logicalLevel);
 
+            CellEdge displayEdge;
+            GridPosition viewerFacingCell;
+            WallDisplaySlope displaySlope;
+
+            if (projection != null)
+            {
+                WallPresentationSelection selection =
+                    WallPresentationSelector.Select(
+                        edge,
+                        projection);
+
+                displayEdge =
+                    selection.DisplayEdge;
+
+                viewerFacingCell =
+                    selection.ViewerFacingCell;
+
+                displaySlope =
+                    selection.DisplaySlope;
+            }
+            else
+            {
+                displayEdge =
+                    edge;
+
+                viewerFacingCell =
+                    edge.FirstCell;
+
+                displaySlope =
+                    WallPresentationSelector.GetDisplaySlope(
+                        displayEdge);
+            }
+
             GridPosition anchor =
-                edge.AnchorCell;
+                displayEdge.AnchorCell;
 
             Vector3Int anchorUnityCell =
                 new Vector3Int(
@@ -72,7 +135,7 @@ namespace BigRetail.Map.Unity.Walls
             Vector3 oppositeCellCenter;
             Vector3 edgeAxis;
 
-            switch (edge.CanonicalDirection)
+            switch (displayEdge.CanonicalDirection)
             {
                 case CellEdgeDirection.NorthEast:
                     // The neighboring cell lies at X + 1.
@@ -96,8 +159,8 @@ namespace BigRetail.Map.Unity.Walls
 
                 default:
                     throw new InvalidOperationException(
-                        "A normalized CellEdge must use " +
-                        "NorthEast or NorthWest.");
+                        "A normalized CellEdge must use "
+                        + "NorthEast or NorthWest.");
             }
 
             // Wall presentation is currently two-dimensional.
@@ -109,8 +172,8 @@ namespace BigRetail.Map.Unity.Walls
             if (edgeLength <= Mathf.Epsilon)
             {
                 throw new InvalidOperationException(
-                    $"The coordinate Tilemap produced a zero-length " +
-                    $"world edge for {edge}.");
+                    $"The coordinate Tilemap produced a zero-length "
+                    + $"world edge for {edge}.");
             }
 
             Vector3 edgeMidpoint =
@@ -134,7 +197,10 @@ namespace BigRetail.Map.Unity.Walls
             return new CellEdgeWorldPose(
                 edgeMidpoint,
                 rotation,
-                edgeLength);
+                edgeLength,
+                displayEdge,
+                viewerFacingCell,
+                displaySlope);
         }
 
         private static void ValidateLogicalLevel(
@@ -148,9 +214,9 @@ namespace BigRetail.Map.Unity.Walls
             }
 
             throw new InvalidOperationException(
-                $"CellEdge {edge} belongs to logical level " +
-                $"{edge.FirstCell.Level}, but the requested Unity view " +
-                $"represents logical level {logicalLevel}.");
+                $"CellEdge {edge} belongs to logical level "
+                + $"{edge.FirstCell.Level}, but the requested Unity view "
+                + $"represents logical level {logicalLevel}.");
         }
     }
 }

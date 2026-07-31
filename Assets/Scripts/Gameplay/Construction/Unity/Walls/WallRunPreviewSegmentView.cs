@@ -8,8 +8,8 @@ namespace BigRetail.Construction.Unity.Walls
     /// <summary>
     /// Displays one temporary segment belonging to a planned wall run.
     ///
-    /// This component is presentation only.
-    /// It does not evaluate or place walls.
+    /// This component is presentation only. It can display the legacy thin
+    /// edge marker or a full directional wall-finish sprite.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
@@ -32,7 +32,14 @@ namespace BigRetail.Construction.Unity.Walls
             float thickness,
             Color color)
         {
-            ValidatePresentation();
+            ValidateRenderer();
+
+            if (spriteRenderer.sprite == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(WallRunPreviewSegmentView)} on "
+                    + $"'{name}' requires a Sprite for thin-segment preview.");
+            }
 
             Edge = edge;
 
@@ -44,11 +51,69 @@ namespace BigRetail.Construction.Unity.Walls
                 worldPose.Length,
                 thickness);
 
+            spriteRenderer.sortingOrder =
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
+
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveWallPriority(
+                    worldPose.DisplayEdge);
+
             spriteRenderer.color = color;
             spriteRenderer.enabled = true;
 
             gameObject.name =
                 $"Wall Run Preview — {edge}";
+        }
+
+
+        /// <summary>
+        /// Displays the selected directional finish at the exact pose used by
+        /// the runtime wall view. This produces a ghost wall on empty edges and
+        /// a finish overlay on existing walls without mutating model state.
+        /// </summary>
+        public void ShowAppearance(
+            CellEdge edge,
+            CellEdgeWorldPose worldPose,
+            Sprite finishSprite,
+            Vector3 worldPositionOffset,
+            Color color)
+        {
+            ValidateRenderer();
+
+            if (finishSprite == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(finishSprite));
+            }
+
+            Edge = edge;
+            spriteRenderer.sprite = finishSprite;
+
+            transform.SetPositionAndRotation(
+                worldPose.Position
+                    + worldPositionOffset,
+                Quaternion.identity);
+
+            transform.localScale =
+                Vector3.one;
+
+            // Stay in the runtime wall's depth slot. Renderer priority draws
+            // the translucent overlay after that exact directional panel while
+            // preserving equal-depth seam order against the opposite slope.
+            spriteRenderer.sortingOrder =
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge);
+
+            spriteRenderer.rendererPriority =
+                WallRenderOrderResolver.ResolveAppearancePreviewPriority(
+                    worldPose.DisplayEdge);
+
+            spriteRenderer.color = color;
+            spriteRenderer.enabled = true;
+
+            gameObject.name =
+                $"Wall Appearance Preview — {edge}";
         }
 
 
@@ -86,20 +151,13 @@ namespace BigRetail.Construction.Unity.Walls
         }
 
 
-        private void ValidatePresentation()
+        private void ValidateRenderer()
         {
             if (spriteRenderer == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(WallRunPreviewSegmentView)} on " +
-                    $"'{name}' requires a SpriteRenderer reference.");
-            }
-
-            if (spriteRenderer.sprite == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(WallRunPreviewSegmentView)} on " +
-                    $"'{name}' requires a Sprite.");
+                    $"{nameof(WallRunPreviewSegmentView)} on "
+                    + $"'{name}' requires a SpriteRenderer reference.");
             }
         }
 

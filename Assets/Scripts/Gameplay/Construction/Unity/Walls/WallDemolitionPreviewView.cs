@@ -1,30 +1,25 @@
 using BigRetail.Map.Domain;
-using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Walls;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.Walls
 {
     /// <summary>
-    /// Displays the single wall edge currently targeted by
-    /// the demolition tool.
+    /// Displays a demolition pylon at the grid vertex currently selected by
+    /// the construction pointer.
     ///
-    /// Orange means a wall will be removed.
-    /// Gray means the edge is already empty.
+    /// The hover marker identifies a possible demolition-run endpoint. Actual
+    /// removable and empty wall status is evaluated once a run is planned.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(SpriteRenderer))]
     [DefaultExecutionOrder(200)]
-    public sealed class WallDemolitionPreviewView :
-        MonoBehaviour
+    public sealed class WallDemolitionPreviewView : MonoBehaviour
     {
         [Header("Target")]
 
         [SerializeField]
-        private WallTargetResolver targetResolver;
-
-        [SerializeField]
-        private GridMapHost mapHost;
+        private WallVertexTargetResolver targetResolver;
 
 
         [Header("Visual")]
@@ -32,25 +27,17 @@ namespace BigRetail.Construction.Unity.Walls
         [SerializeField]
         private SpriteRenderer spriteRenderer;
 
-        [SerializeField, Min(0.001f)]
-        private float previewThickness = 0.12f;
-
         [SerializeField]
-        private Color removableColor =
+        private Color targetColor =
             new Color(
                 1f,
                 0.5f,
                 0.08f,
                 0.95f);
 
-        [SerializeField]
-        private Color alreadyEmptyColor =
-            new Color(
-                0.55f,
-                0.55f,
-                0.55f,
-                0.65f);
-
+        [Tooltip(
+            "Optional world-space adjustment applied after the vertex "
+            + "position has been calculated.")]
         [SerializeField]
         private Vector3 worldPositionOffset =
             Vector3.zero;
@@ -58,11 +45,11 @@ namespace BigRetail.Construction.Unity.Walls
 
         public bool IsToolActive { get; private set; }
 
-        public bool HasRemovableWall { get; private set; }
-
         public bool IsVisible =>
             spriteRenderer != null
             && spriteRenderer.enabled;
+
+        public GridVertex CurrentVertex { get; private set; }
 
 
         private void Awake()
@@ -74,7 +61,6 @@ namespace BigRetail.Construction.Unity.Walls
             }
 
             IsToolActive = false;
-
             SetVisible(false);
         }
 
@@ -88,8 +74,7 @@ namespace BigRetail.Construction.Unity.Walls
         public void SetToolActive(
             bool isActive)
         {
-            IsToolActive =
-                isActive;
+            IsToolActive = isActive;
 
             if (!IsToolActive)
             {
@@ -101,78 +86,50 @@ namespace BigRetail.Construction.Unity.Walls
         private void RefreshPreview()
         {
             if (!IsToolActive
-                || !targetResolver.HasTarget
-                || !mapHost.IsInitialized
-                || mapHost.WallConstruction == null)
+                || !targetResolver.HasTarget)
             {
                 SetVisible(false);
                 return;
             }
 
-            CellEdge edge =
-                targetResolver.CurrentTarget.Edge;
+            WallVertexTarget target =
+                targetResolver.CurrentTarget;
 
-            HasRemovableWall =
-                mapHost.WallConstruction
-                    .HasWall(edge);
-
-            CellEdgeWorldPose worldPose =
-                CellEdgeWorldPose.Calculate(
-                    edge,
+            GridVertexWorldPose worldPose =
+                GridVertexWorldPose.Calculate(
+                    target.Vertex,
                     targetResolver.CoordinateTilemap,
                     targetResolver.LogicalLevel,
-                    targetResolver.UnityCellZ);
+                    targetResolver.UnityCellZ,
+                    targetResolver.ViewProjection);
+
+            CurrentVertex = target.Vertex;
 
             transform.SetPositionAndRotation(
                 worldPose.Position
                     + worldPositionOffset,
-                worldPose.Rotation);
-
-            ApplySpriteScale(
-                worldPose.Length);
-
-            spriteRenderer.color =
-                HasRemovableWall
-                    ? removableColor
-                    : alreadyEmptyColor;
-
-            SetVisible(true);
-        }
-
-
-        private void ApplySpriteScale(
-            float edgeLength)
-        {
-            Vector3 spriteSize =
-                spriteRenderer.sprite.bounds.size;
-
-            float safeSpriteWidth =
-                Mathf.Max(
-                    spriteSize.x,
-                    0.0001f);
-
-            float safeSpriteHeight =
-                Mathf.Max(
-                    spriteSize.y,
-                    0.0001f);
+                Quaternion.identity);
 
             transform.localScale =
-                new Vector3(
-                    edgeLength / safeSpriteWidth,
-                    previewThickness / safeSpriteHeight,
-                    1f);
+                Vector3.one;
+
+            spriteRenderer.sortingOrder =
+                WallRenderOrderResolver.ResolvePylon(
+                    worldPose.DisplayDepth);
+
+            spriteRenderer.color = targetColor;
+            SetVisible(true);
         }
 
 
         private void SetVisible(
             bool isVisible)
         {
-            spriteRenderer.enabled =
-                isVisible;
+            spriteRenderer.enabled = isVisible;
 
             if (!isVisible)
             {
-                HasRemovableWall = false;
+                CurrentVertex = default;
             }
         }
 
@@ -184,18 +141,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (targetResolver == null)
             {
                 Debug.LogError(
-                    "WallDemolitionPreviewView has no " +
-                    "WallTargetResolver assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (mapHost == null)
-            {
-                Debug.LogError(
-                    "WallDemolitionPreviewView has no " +
-                    "GridMapHost assigned.",
+                    "WallDemolitionPreviewView has no "
+                    + "WallVertexTargetResolver assigned.",
                     this);
 
                 isValid = false;
@@ -204,8 +151,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (spriteRenderer == null)
             {
                 Debug.LogError(
-                    "WallDemolitionPreviewView has no " +
-                    "SpriteRenderer assigned.",
+                    "WallDemolitionPreviewView has no "
+                    + "SpriteRenderer assigned.",
                     this);
 
                 isValid = false;
@@ -213,7 +160,8 @@ namespace BigRetail.Construction.Unity.Walls
             else if (spriteRenderer.sprite == null)
             {
                 Debug.LogError(
-                    "WallDemolitionPreviewView requires a Sprite.",
+                    "WallDemolitionPreviewView requires a pylon Sprite on "
+                    + "its SpriteRenderer.",
                     this);
 
                 isValid = false;
@@ -232,11 +180,6 @@ namespace BigRetail.Construction.Unity.Walls
 
         private void OnValidate()
         {
-            previewThickness =
-                Mathf.Max(
-                    previewThickness,
-                    0.001f);
-
             if (spriteRenderer == null)
             {
                 spriteRenderer =

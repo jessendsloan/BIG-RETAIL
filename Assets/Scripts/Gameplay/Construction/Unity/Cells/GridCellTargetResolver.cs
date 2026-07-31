@@ -1,5 +1,6 @@
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -30,6 +31,9 @@ namespace BigRetail.Construction.Unity.Cells
 
         [SerializeField]
         private Tilemap coordinateTilemap;
+
+        [SerializeField]
+        private IsometricViewHost viewHost;
 
         [SerializeField]
         private int logicalLevel = 0;
@@ -113,10 +117,11 @@ namespace BigRetail.Construction.Unity.Cells
                     unityCellZ);
 
             CurrentCell =
-                new GridPosition(
-                    resolvedUnityCell.x,
-                    resolvedUnityCell.y,
-                    logicalLevel);
+                viewHost.Projection.ToLogicalCell(
+                    new GridPosition(
+                        CurrentUnityCell.x,
+                        CurrentUnityCell.y,
+                        logicalLevel));
 
             HasTarget = true;
         }
@@ -150,6 +155,16 @@ namespace BigRetail.Construction.Unity.Cells
                 Debug.LogError(
                     "GridCellTargetResolver has no coordinate " +
                     "Tilemap assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewHost == null)
+            {
+                Debug.LogError(
+                    "GridCellTargetResolver has no " +
+                    "IsometricViewHost assigned.",
                     this);
 
                 isValid = false;

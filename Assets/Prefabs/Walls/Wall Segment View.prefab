@@ -106,5 +106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Map.Unity.Walls.WallSegmentView
   spriteRenderer: {fileID: 7477398060812598017}
+  firstCellFinish: {fileID: 11400000, guid: 7ee9d714f3aaa4f48b5c4a6cb21e1ae0, type: 2}
+  secondCellFinish: {fileID: 11400000, guid: cfcdb5ee173796344ab7e2d30348ebd3, type: 2}
   wallThickness: 0.08
   worldPositionOffset: {x: 0, y: 0, z: 0}

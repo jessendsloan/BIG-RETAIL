@@ -3,6 +3,7 @@ using BigRetail.Construction.Unity.History;
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Unity;
+using BigRetail.Map.View;
 using BigRetail.Map.Walls;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,117 +11,58 @@ using UnityEngine.InputSystem;
 namespace BigRetail.Construction.Unity.Walls
 {
     /// <summary>
-    /// Coordinates straight wall-run construction.
+    /// Coordinates straight wall-tool strokes from one selected grid vertex to
+    /// another.
     ///
-    /// Mouse:
-    /// - Press Confirm to begin.
-    /// - Drag to choose the run.
-    /// - Release Confirm to commit.
-    ///
-    /// Gamepad:
-    /// - Press Confirm to begin.
-    /// - Move the virtual cursor.
-    /// - Press Confirm again to commit.
-    ///
-    /// Successful state changes are recorded as neutral construction
-    /// history actions.
+    /// Missing legal edges receive structural walls. Existing walls keep their
+    /// structure. In both cases, the selected finish is applied only to the
+    /// physical wall face currently toward the viewer.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
-    public sealed class WallConstructionToolController :
-        MonoBehaviour
+    public sealed class WallConstructionToolController : MonoBehaviour
     {
         [Header("Input")]
-
-        [SerializeField]
-        private PlayerInput playerInput;
-
-        [SerializeField]
-        private ConstructionPointerController pointerController;
-
-        [SerializeField]
-        private string constructionActionMapName =
-            "Construction";
-
-        [SerializeField]
-        private string confirmActionName =
-            "Confirm";
-
-        [SerializeField]
-        private string cancelActionName =
-            "Cancel";
-
+        [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private ConstructionPointerController pointerController;
+        [SerializeField] private string constructionActionMapName = "Construction";
+        [SerializeField] private string confirmActionName = "Confirm";
+        [SerializeField] private string cancelActionName = "Cancel";
 
         [Header("Wall Tool")]
-
-        [SerializeField]
-        private WallTargetResolver targetResolver;
-
-        [SerializeField]
-        private WallPreviewView previewView;
-
-        [SerializeField]
-        private WallRunPreviewView runPreviewView;
-
-        [SerializeField]
-        private GridMapHost mapHost;
-
-        [SerializeField]
-        private ConstructionHistoryHost historyHost;
-
+        [SerializeField] private WallVertexTargetResolver targetResolver;
+        [SerializeField] private WallPreviewView previewView;
+        [SerializeField] private WallRunPreviewView runPreviewView;
+        [SerializeField] private GridMapHost mapHost;
+        [SerializeField] private ConstructionHistoryHost historyHost;
+        [SerializeField] private WallFinishSelectionHost finishSelection;
 
         [Header("Starting State")]
-
-        [SerializeField]
-        private bool startActive = false;
-
+        [SerializeField] private bool startActive = false;
 
         [Header("Diagnostics")]
-
-        [SerializeField]
-        private bool logPlacementResults = true;
-
+        [SerializeField] private bool logPlacementResults = true;
 
         public bool IsActive { get; private set; }
-
         public bool IsPlanningRun { get; private set; }
-
-        public CellEdge StartEdge { get; private set; }
-
-        public WallRunPlanResult CurrentRunPlan
-        {
-            get;
-            private set;
-        }
-
+        public GridVertex StartVertex { get; private set; }
+        public WallVertexRunPlanResult CurrentRunPlan { get; private set; }
 
         public event Action<bool> ToolActiveChanged;
-
         public event Action<bool> RunPlanningChanged;
 
-
         private InputAction confirmAction;
-
         private InputAction cancelAction;
-
-        private CellEdge currentEndEdge;
-
-        private bool hasCurrentEndEdge;
-
+        private GridVertex currentEndVertex;
+        private bool hasCurrentEndVertex;
         private bool runStartedWithGamepad;
-
         private bool isInitialized;
 
 
         private void Awake()
         {
-            if (!ValidateReferences())
-            {
-                enabled = false;
-                return;
-            }
-
-            if (!TryResolveActions())
+            if (!ValidateReferences()
+                || !TryResolveActions())
             {
                 enabled = false;
                 return;
@@ -193,10 +135,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (!Application.isPlaying)
             {
                 Debug.LogWarning(
-                    "The wall construction tool can only be activated " +
-                    "during Play Mode.",
+                    "The wall construction tool can only be activated during Play Mode.",
                     this);
-
                 return;
             }
 
@@ -210,14 +150,21 @@ namespace BigRetail.Construction.Unity.Walls
             if (!Application.isPlaying)
             {
                 Debug.LogWarning(
-                    "The wall construction tool can only be deactivated " +
-                    "during Play Mode.",
+                    "The wall construction tool can only be deactivated during Play Mode.",
                     this);
-
                 return;
             }
 
             SetToolActive(false);
+        }
+
+
+        public void CancelCurrentGesture()
+        {
+            if (IsPlanningRun)
+            {
+                CancelCurrentRun();
+            }
         }
 
 
@@ -226,42 +173,49 @@ namespace BigRetail.Construction.Unity.Walls
             if (!targetResolver.HasTarget)
             {
                 LogWarning(
-                    "Wall run could not begin because no target exists.");
-
+                    "Wall run could not begin because no vertex target exists.");
                 return;
             }
 
             if (!mapHost.IsInitialized
-                || mapHost.WallConstruction == null)
+                || mapHost.WallAppearanceStrokes == null
+                || mapHost.WallConstruction == null
+                || mapHost.WallFinishes == null)
             {
                 Debug.LogError(
-                    "WallConstructionToolController could not access " +
-                    "an initialized WallConstructionService.",
+                    "WallConstructionToolController could not access initialized wall appearance services.",
                     this);
+                return;
+            }
 
+            if (!finishSelection.IsInitialized)
+            {
+                Debug.LogError(
+                    "WallConstructionToolController has no initialized wall-finish selection.",
+                    this);
                 return;
             }
 
             if (!historyHost.TryInitialize())
             {
                 Debug.LogError(
-                    "WallConstructionToolController could not access " +
-                    "an initialized ConstructionHistory.",
+                    "WallConstructionToolController could not access an initialized ConstructionHistory.",
                     this);
-
                 return;
             }
 
-            StartEdge =
-                targetResolver.CurrentTarget.Edge;
+            StartVertex =
+                targetResolver.CurrentTarget.Vertex;
 
             runStartedWithGamepad =
                 pointerController.IsUsingGamepad;
 
             IsPlanningRun = true;
-            hasCurrentEndEdge = false;
+            hasCurrentEndVertex = false;
 
             previewView.SetToolActive(false);
+            runPreviewView.ShowAnchor(
+                StartVertex);
 
             RefreshRunPlan(
                 forceRefresh: true);
@@ -271,7 +225,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (logPlacementResults)
             {
                 Debug.Log(
-                    $"Wall run started at {StartEdge}.",
+                    $"Wall appearance run started at {StartVertex} "
+                    + $"with finish '{finishSelection.SelectedFinishId}'.",
                     this);
             }
         }
@@ -286,37 +241,44 @@ namespace BigRetail.Construction.Unity.Walls
                 return;
             }
 
-            CellEdge alignedEndEdge =
-                StraightWallRunEndpointResolver.Resolve(
-                    StartEdge,
+            GridVertex alignedEndVertex =
+                StraightWallVertexRunEndpointResolver.Resolve(
+                    StartVertex,
                     targetResolver);
 
             if (!forceRefresh
-                && hasCurrentEndEdge
-                && alignedEndEdge == currentEndEdge)
+                && hasCurrentEndVertex
+                && alignedEndVertex == currentEndVertex)
             {
                 return;
             }
 
-            currentEndEdge =
-                alignedEndEdge;
+            currentEndVertex =
+                alignedEndVertex;
 
-            hasCurrentEndEdge = true;
+            hasCurrentEndVertex = true;
 
             CurrentRunPlan =
-                StraightWallRunPlanner.Plan(
-                    StartEdge,
-                    currentEndEdge);
+                StraightWallVertexRunPlanner.Plan(
+                    StartVertex,
+                    currentEndVertex);
 
             if (CurrentRunPlan.Succeeded)
             {
                 runPreviewView.ShowPlan(
                     CurrentRunPlan);
+                return;
             }
-            else
+
+            if (CurrentRunPlan.Failure
+                == WallVertexRunPlanFailure.SameVertex)
             {
-                runPreviewView.Hide();
+                runPreviewView.ShowAnchor(
+                    StartVertex);
+                return;
             }
+
+            runPreviewView.Hide();
         }
 
 
@@ -325,7 +287,14 @@ namespace BigRetail.Construction.Unity.Walls
             if (!CurrentRunPlan.Succeeded)
             {
                 LogWarning(
-                    "The current wall run has no valid geometry.");
+                    "The current wall appearance run has no usable length.");
+
+                // Mouse release ends the gesture. A click without meaningful
+                // drag remains a harmless cancellation, matching wall building.
+                if (!runStartedWithGamepad)
+                {
+                    FinishRun();
+                }
 
                 return false;
             }
@@ -333,17 +302,37 @@ namespace BigRetail.Construction.Unity.Walls
             if (!historyHost.TryInitialize())
             {
                 Debug.LogError(
-                    "The current wall run could not be recorded " +
-                    "because wall history is unavailable.",
+                    "The current wall appearance run could not be recorded because construction history is unavailable.",
                     this);
+                return false;
+            }
+
+            IsometricViewProjection projection =
+                targetResolver.ViewProjection;
+
+            if (projection == null)
+            {
+                Debug.LogError(
+                    "The current wall appearance run has no active isometric projection.",
+                    this);
+
+                if (!runStartedWithGamepad)
+                {
+                    FinishRun();
+                }
 
                 return false;
             }
 
-            WallEnsureResult result =
-                mapHost.WallConstruction
-                    .TryEnsureWalls(
-                        CurrentRunPlan.Edges);
+            WallFaceKey[] faces =
+                WallFaceRunResolver.ResolveViewerFacingFaces(
+                    CurrentRunPlan.Edges,
+                    projection);
+
+            WallAppearanceStrokeResult result =
+                mapHost.WallAppearanceStrokes.TryApply(
+                    faces,
+                    finishSelection.SelectedFinishId);
 
             if (!result.Succeeded)
             {
@@ -358,44 +347,43 @@ namespace BigRetail.Construction.Unity.Walls
                 return false;
             }
 
-            if (!result.Edit.IsEmpty)
+            if (result.HasChanges)
             {
                 historyHost.History.Record(
-                    new ReversibleWallEditAction(
+                    new ReversibleWallAppearanceStrokeAction(
                         mapHost.WallConstruction,
+                        mapHost.WallFinishes,
                         result.Edit));
             }
 
             if (logPlacementResults)
             {
                 Debug.Log(
-                    $"Wall run processed. " +
-                    $"Requested: {result.RequestedCount}. " +
-                    $"Created: {result.ChangedCount}. " +
-                    $"Already existing: " +
-                    $"{result.AlreadyExistingCount}. " +
-                    $"Skipped outside map: " +
-                    $"{result.SkippedOutsideMapCount}. " +
-                    $"Skipped outside construction area: " +
-                    $"{result.SkippedOutsideConstructionAreaCount}.",
+                    $"Vertex wall appearance run processed with "
+                    + $"'{finishSelection.SelectedFinishId}'. "
+                    + $"Requested: {result.RequestedCount}. "
+                    + $"Created walls: {result.CreatedWallCount}. "
+                    + $"Existing walls: {result.ExistingWallCount}. "
+                    + $"Skipped walls: {result.SkippedWallCount}. "
+                    + $"Changed finishes: {result.ChangedFinishCount}. "
+                    + $"Unchanged finishes: {result.UnchangedFinishCount}.",
                     this);
             }
 
-            bool anySegmentSatisfied =
-                result.SatisfiedCount > 0;
+            int processedWallCount =
+                result.CreatedWallCount
+                + result.ExistingWallCount;
 
-            if (!anySegmentSatisfied
+            if (processedWallCount == 0
                 && runStartedWithGamepad)
             {
                 RefreshRunPlan(
                     forceRefresh: true);
-
                 return false;
             }
 
             FinishRun();
-
-            return result.ChangedCount > 0;
+            return result.HasChanges;
         }
 
 
@@ -421,7 +409,7 @@ namespace BigRetail.Construction.Unity.Walls
             if (logPlacementResults)
             {
                 Debug.Log(
-                    "Current wall run cancelled.",
+                    "Current vertex wall appearance run cancelled.",
                     this);
             }
 
@@ -433,7 +421,9 @@ namespace BigRetail.Construction.Unity.Walls
         {
             IsPlanningRun = false;
             CurrentRunPlan = default;
-            hasCurrentEndEdge = false;
+            StartVertex = default;
+            currentEndVertex = default;
+            hasCurrentEndVertex = false;
 
             runPreviewView.Hide();
 
@@ -451,7 +441,8 @@ namespace BigRetail.Construction.Unity.Walls
         {
             if (IsActive == isActive)
             {
-                if (IsActive && !IsPlanningRun)
+                if (IsActive
+                    && !IsPlanningRun)
                 {
                     previewView.SetToolActive(true);
                 }
@@ -459,7 +450,8 @@ namespace BigRetail.Construction.Unity.Walls
                 return;
             }
 
-            if (!isActive && IsPlanningRun)
+            if (!isActive
+                && IsPlanningRun)
             {
                 FinishRun();
             }
@@ -481,8 +473,8 @@ namespace BigRetail.Construction.Unity.Walls
             {
                 Debug.Log(
                     IsActive
-                        ? "Wall construction tool activated."
-                        : "Wall construction tool deactivated.",
+                        ? "Vertex wall appearance tool activated."
+                        : "Vertex wall appearance tool deactivated.",
                     this);
             }
         }
@@ -503,10 +495,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (playerInput.actions == null)
             {
                 Debug.LogError(
-                    "WallConstructionToolController could not find an " +
-                    "Input Actions asset on PlayerInput.",
+                    "WallConstructionToolController could not find an Input Actions asset on PlayerInput.",
                     this);
-
                 return false;
             }
 
@@ -518,10 +508,8 @@ namespace BigRetail.Construction.Unity.Walls
             if (actionMap == null)
             {
                 Debug.LogError(
-                    $"Could not find an Action Map named " +
-                    $"'{constructionActionMapName}'.",
+                    $"Could not find an Action Map named '{constructionActionMapName}'.",
                     this);
-
                 return false;
             }
 
@@ -539,12 +527,10 @@ namespace BigRetail.Construction.Unity.Walls
                 || cancelAction == null)
             {
                 Debug.LogError(
-                    $"WallConstructionToolController requires actions " +
-                    $"named '{confirmActionName}' and " +
-                    $"'{cancelActionName}' inside the " +
-                    $"'{constructionActionMapName}' Action Map.",
+                    $"WallConstructionToolController requires actions named "
+                    + $"'{confirmActionName}' and '{cancelActionName}' inside "
+                    + $"the '{constructionActionMapName}' Action Map.",
                     this);
-
                 return false;
             }
 
@@ -553,7 +539,7 @@ namespace BigRetail.Construction.Unity.Walls
 
 
         private void LogRejectedRun(
-            WallEnsureResult result)
+            WallAppearanceStrokeResult result)
         {
             if (!logPlacementResults)
             {
@@ -561,9 +547,10 @@ namespace BigRetail.Construction.Unity.Walls
             }
 
             Debug.LogWarning(
-                $"Wall run could not be processed. " +
-                $"Reason: {result.Failure}. " +
-                $"Failed edge: {result.FailedEdge}.",
+                $"Vertex wall appearance run could not be processed. "
+                + $"Reason: {result.Failure}. "
+                + $"Failed edge: {result.FailedEdge}. "
+                + $"Finish failure: {result.FinishFailure}.",
                 this);
         }
 
@@ -584,77 +571,55 @@ namespace BigRetail.Construction.Unity.Walls
         {
             bool isValid = true;
 
-            if (playerInput == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "PlayerInput assigned.",
-                    this);
+            isValid &= RequireReference(
+                playerInput,
+                "PlayerInput");
 
-                isValid = false;
-            }
+            isValid &= RequireReference(
+                pointerController,
+                "ConstructionPointerController");
 
-            if (pointerController == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "ConstructionPointerController assigned.",
-                    this);
+            isValid &= RequireReference(
+                targetResolver,
+                "WallVertexTargetResolver");
 
-                isValid = false;
-            }
+            isValid &= RequireReference(
+                previewView,
+                "WallPreviewView");
 
-            if (targetResolver == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "WallTargetResolver assigned.",
-                    this);
+            isValid &= RequireReference(
+                runPreviewView,
+                "WallRunPreviewView");
 
-                isValid = false;
-            }
+            isValid &= RequireReference(
+                mapHost,
+                "GridMapHost");
 
-            if (previewView == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "WallPreviewView assigned.",
-                    this);
+            isValid &= RequireReference(
+                historyHost,
+                "ConstructionHistoryHost");
 
-                isValid = false;
-            }
-
-            if (runPreviewView == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "WallRunPreviewView assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (mapHost == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "GridMapHost assigned.",
-                    this);
-
-                isValid = false;
-            }
-
-            if (historyHost == null)
-            {
-                Debug.LogError(
-                    "WallConstructionToolController has no " +
-                    "ConstructionHistoryHost assigned.",
-                    this);
-
-                isValid = false;
-            }
+            isValid &= RequireReference(
+                finishSelection,
+                "WallFinishSelectionHost");
 
             return isValid;
+        }
+
+
+        private bool RequireReference(
+            UnityEngine.Object reference,
+            string label)
+        {
+            if (reference != null)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"WallConstructionToolController has no {label} assigned.",
+                this);
+            return false;
         }
 
 
@@ -668,6 +633,8 @@ namespace BigRetail.Construction.Unity.Walls
 
             IsActive = false;
             IsPlanningRun = false;
+            StartVertex = default;
+            CurrentRunPlan = default;
 
             if (previewView != null)
             {
