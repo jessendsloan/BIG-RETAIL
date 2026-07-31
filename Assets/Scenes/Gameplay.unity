@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 87599327}
   - component: {fileID: 87599328}
   - component: {fileID: 87599329}
+  - component: {fileID: 87599330}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -303,6 +304,21 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   finishSelectionHost: {fileID: 456371216}
+--- !u!114 &87599330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c9f6d482bf24b4baaf740e3f06f5c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionHistoryToolbarPresenter
+  documentHost: {fileID: 87599325}
+  historyHost: {fileID: 746913718}
+  historyInputController: {fileID: 466961597}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0

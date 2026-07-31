@@ -187,6 +187,47 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        [Test]
+        public void HistoryButtons_ReflectTheirAvailability()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                viewType.GetMethod(
+                    "SetUndoEnabled",
+                    BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(view, new object[] { true });
+
+                viewType.GetMethod(
+                    "SetRedoEnabled",
+                    BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(view, new object[] { false });
+
+                Assert.That(
+                    root.Q<Button>("undo-button").enabledSelf,
+                    Is.True);
+
+                Assert.That(
+                    root.Q<Button>("redo-button").enabledSelf,
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
         private static VisualElement CreateToolbarRoot()
         {
             VisualElement root =
