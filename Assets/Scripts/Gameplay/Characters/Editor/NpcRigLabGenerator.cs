@@ -138,7 +138,8 @@ namespace BigRetail.Characters.Editor
             List<NpcRigBoneBinding> boneBindings =
                 BuildBones(
                     mirrorRoot,
-                    boneLookup);
+                    boneLookup,
+                    profile);
 
             Sprite placeholderSprite =
                 AssetDatabase.GetBuiltinExtraResource<Sprite>(
@@ -179,7 +180,8 @@ namespace BigRetail.Characters.Editor
 
         private static List<NpcRigBoneBinding> BuildBones(
             Transform mirrorRoot,
-            IDictionary<NpcRigBoneId, Transform> boneLookup)
+            IDictionary<NpcRigBoneId, Transform> boneLookup,
+            RoundedEmployeeProfile profile)
         {
             List<NpcRigBoneBinding> bindings =
                 new List<NpcRigBoneBinding>(
@@ -199,7 +201,9 @@ namespace BigRetail.Characters.Editor
                         definition.Id.ToString());
 
                 bone.localPosition =
-                    definition.LocalPosition;
+                    profile != null
+                        ? profile.GetBonePosition(definition)
+                        : definition.LocalPosition;
 
                 boneLookup.Add(
                     definition.Id,
@@ -504,6 +508,25 @@ namespace BigRetail.Characters.Editor
 
         private static RoundedEmployeeProfile CreateRowanProfile()
         {
+            Dictionary<NpcRigBoneId, Vector3> bonePositions =
+                new Dictionary<NpcRigBoneId, Vector3>
+                {
+                    // Rowan's authored SouthEast bind pose. Root remains
+                    // the floor anchor; these offsets shape the body above it.
+                    {
+                        NpcRigBoneId.Pelvis,
+                        new Vector3(-0.065f, 0.808f, 0f)
+                    },
+                    {
+                        NpcRigBoneId.ThighFar,
+                        new Vector3(-0.075f, -0.04f, 0f)
+                    },
+                    {
+                        NpcRigBoneId.ThighNear,
+                        new Vector3(0.075f, -0.04f, 0f)
+                    }
+                };
+
             Dictionary<NpcRigPartId, Vector2> partSizes =
                 new Dictionary<NpcRigPartId, Vector2>
                 {
@@ -652,6 +675,7 @@ namespace BigRetail.Characters.Editor
                 new Color(0.10f, 0.07f, 0.05f, 1f),
                 new Color(0.09f, 0.055f, 0.04f, 1f),
                 new Color(0.92f, 0.84f, 0.59f, 1f),
+                bonePositions,
                 partSizes,
                 partPositions,
                 partAngles);
@@ -694,6 +718,9 @@ namespace BigRetail.Characters.Editor
             private readonly Color shoeColor;
 
             private readonly IReadOnlyDictionary
+                <NpcRigBoneId, Vector3> bonePositions;
+
+            private readonly IReadOnlyDictionary
                 <NpcRigPartId, Vector2> partSizes;
 
             private readonly IReadOnlyDictionary
@@ -722,6 +749,8 @@ namespace BigRetail.Characters.Editor
                 Color shoeColor,
                 Color featureColor,
                 Color badgeColor,
+                IReadOnlyDictionary<NpcRigBoneId, Vector3>
+                    bonePositions,
                 IReadOnlyDictionary<NpcRigPartId, Vector2>
                     partSizes,
                 IReadOnlyDictionary<NpcRigPartId, Vector3>
@@ -738,11 +767,22 @@ namespace BigRetail.Characters.Editor
                 this.shoeColor = shoeColor;
                 FeatureColor = featureColor;
                 BadgeColor = badgeColor;
+                this.bonePositions = bonePositions;
                 this.partSizes = partSizes;
                 this.partPositions = partPositions;
                 this.partAngles = partAngles;
             }
 
+
+            public Vector3 GetBonePosition(
+                NpcRigBoneDefinition definition)
+            {
+                return bonePositions.TryGetValue(
+                    definition.Id,
+                    out Vector3 position)
+                        ? position
+                        : definition.LocalPosition;
+            }
 
             public Vector2 GetPartSize(
                 NpcRigPartDefinition definition)
