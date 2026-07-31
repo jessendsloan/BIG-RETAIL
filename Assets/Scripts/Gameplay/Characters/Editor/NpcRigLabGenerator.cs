@@ -12,28 +12,54 @@ namespace BigRetail.Characters.Editor
     /// </summary>
     public static class NpcRigLabGenerator
     {
-        private const string MenuPath =
+        private const string CanonicalMenuPath =
             "Big Retail/Characters/Create Canonical NPC Rig Prototype";
+
+        private const string CoworkerMenuPath =
+            "Big Retail/Characters/Create Rounded Employee - Rowan";
 
         private const string PrefabFolder =
             "Assets/Prefabs/Characters/Prototype";
 
-        private const string PrefabPath =
+        private const string CanonicalPrefabPath =
             PrefabFolder + "/CanonicalNpcRig.prefab";
 
+        private const string CoworkerPrefabPath =
+            PrefabFolder + "/RoundedEmployeeRowan.prefab";
 
-        [MenuItem(MenuPath)]
+
+        [MenuItem(CanonicalMenuPath)]
         public static void CreateCanonicalRigPrefab()
+        {
+            CreateRigPrefab(
+                CanonicalPrefabPath,
+                null);
+        }
+
+
+        [MenuItem(CoworkerMenuPath)]
+        public static void CreateRoundedEmployeeRowan()
+        {
+            CreateRigPrefab(
+                CoworkerPrefabPath,
+                CreateRowanProfile());
+        }
+
+
+        private static void CreateRigPrefab(
+            string preferredPrefabPath,
+            RoundedEmployeeProfile profile)
         {
             EnsureAssetFolder(
                 PrefabFolder);
 
             string uniquePrefabPath =
                 AssetDatabase.GenerateUniqueAssetPath(
-                    PrefabPath);
+                    preferredPrefabPath);
 
             GameObject rigRoot =
-                BuildRigHierarchy();
+                BuildRigHierarchy(
+                    profile);
 
             GameObject prefab =
                 PrefabUtility.SaveAsPrefabAsset(
@@ -50,17 +76,25 @@ namespace BigRetail.Characters.Editor
             EditorGUIUtility.PingObject(
                 prefab);
 
+            string rigLabel =
+                profile != null
+                    ? profile.RootName
+                    : "canonical NPC rig prototype";
+
             Debug.Log(
-                $"Created canonical NPC rig prototype at " +
+                $"Created {rigLabel} at " +
                 $"'{uniquePrefabPath}'.");
         }
 
 
-        private static GameObject BuildRigHierarchy()
+        private static GameObject BuildRigHierarchy(
+            RoundedEmployeeProfile profile)
         {
             GameObject characterRoot =
                 new GameObject(
-                    "Canonical NPC Rig");
+                    profile != null
+                        ? profile.RootName
+                        : "Canonical NPC Rig");
 
             characterRoot.AddComponent<Animator>();
             characterRoot.AddComponent<SortingGroup>();
@@ -72,6 +106,12 @@ namespace BigRetail.Characters.Editor
                 CreateChild(
                     characterRoot.transform,
                     "Directional Visual");
+
+            if (profile != null)
+            {
+                mirrorRoot.localScale =
+                    profile.VisualScale;
+            }
 
             Dictionary<NpcRigBoneId, Transform> boneLookup =
                 new Dictionary<NpcRigBoneId, Transform>();
@@ -88,7 +128,16 @@ namespace BigRetail.Characters.Editor
             List<NpcRigPartBinding> partBindings =
                 BuildParts(
                     boneLookup,
-                    placeholderSprite);
+                    placeholderSprite,
+                    profile);
+
+            if (profile != null)
+            {
+                AddProfileDetails(
+                    boneLookup,
+                    placeholderSprite,
+                    profile);
+            }
 
             cutoutRig.ConfigureGeneratedRig(
                 mirrorRoot,
@@ -148,7 +197,8 @@ namespace BigRetail.Characters.Editor
 
         private static List<NpcRigPartBinding> BuildParts(
             IReadOnlyDictionary<NpcRigBoneId, Transform> boneLookup,
-            Sprite placeholderSprite)
+            Sprite placeholderSprite,
+            RoundedEmployeeProfile profile)
         {
             List<NpcRigPartBinding> bindings =
                 new List<NpcRigPartBinding>(
@@ -163,7 +213,20 @@ namespace BigRetail.Characters.Editor
                         $"Slot - {definition.Id}");
 
                 slot.localPosition =
-                    definition.LocalPosition;
+                    profile != null
+                        ? profile.GetPartPosition(
+                            definition)
+                        : definition.LocalPosition;
+
+                if (profile != null)
+                {
+                    slot.localRotation =
+                        Quaternion.Euler(
+                            0f,
+                            0f,
+                            profile.GetPartAngle(
+                                definition.Id));
+                }
 
                 SpriteRenderer spriteRenderer =
                     slot.gameObject
@@ -172,15 +235,24 @@ namespace BigRetail.Characters.Editor
                 spriteRenderer.sprite =
                     placeholderSprite;
                 spriteRenderer.sortingOrder =
-                    definition.SortingOrder;
+                    profile != null
+                        ? profile.GetSortingOrder(
+                            definition)
+                        : definition.SortingOrder;
                 spriteRenderer.color =
-                    GetPlaceholderColor(
-                        definition.Id);
+                    profile != null
+                        ? profile.GetPartColor(
+                            definition.Id)
+                        : GetPlaceholderColor(
+                            definition.Id);
 
                 ApplyPlaceholderSize(
                     slot,
                     placeholderSprite,
-                    definition.PlaceholderSize);
+                    profile != null
+                        ? profile.GetPartSize(
+                            definition)
+                        : definition.PlaceholderSize);
 
                 bindings.Add(
                     new NpcRigPartBinding(
@@ -190,6 +262,97 @@ namespace BigRetail.Characters.Editor
             }
 
             return bindings;
+        }
+
+        private static void AddProfileDetails(
+            IReadOnlyDictionary<NpcRigBoneId, Transform> boneLookup,
+            Sprite placeholderSprite,
+            RoundedEmployeeProfile profile)
+        {
+            Transform head =
+                boneLookup[NpcRigBoneId.Head];
+
+            CreateDetailSprite(
+                head,
+                "Face - Far Eye",
+                placeholderSprite,
+                new Vector2(-0.035f, 0.095f),
+                new Vector2(0.026f, 0.038f),
+                profile.FeatureColor,
+                12);
+
+            CreateDetailSprite(
+                head,
+                "Face - Near Eye",
+                placeholderSprite,
+                new Vector2(0.075f, 0.085f),
+                new Vector2(0.032f, 0.043f),
+                profile.FeatureColor,
+                12);
+
+            CreateDetailSprite(
+                head,
+                "Face - Smile",
+                placeholderSprite,
+                new Vector2(0.065f, 0.005f),
+                new Vector2(0.070f, 0.014f),
+                profile.FeatureColor,
+                12,
+                -7f);
+
+            Transform chest =
+                boneLookup[NpcRigBoneId.Chest];
+
+            CreateDetailSprite(
+                chest,
+                "Uniform - Name Badge",
+                placeholderSprite,
+                new Vector2(0.13f, -0.08f),
+                new Vector2(0.095f, 0.045f),
+                profile.BadgeColor,
+                18,
+                -3f);
+        }
+
+        private static void CreateDetailSprite(
+            Transform parent,
+            string detailName,
+            Sprite sprite,
+            Vector2 localPosition,
+            Vector2 size,
+            Color color,
+            int sortingOrder,
+            float angle = 0f)
+        {
+            Transform detail =
+                CreateChild(
+                    parent,
+                    detailName);
+
+            detail.localPosition =
+                new Vector3(
+                    localPosition.x,
+                    localPosition.y,
+                    0f);
+
+            detail.localRotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    angle);
+
+            SpriteRenderer renderer =
+                detail.gameObject
+                    .AddComponent<SpriteRenderer>();
+
+            renderer.sprite = sprite;
+            renderer.color = color;
+            renderer.sortingOrder = sortingOrder;
+
+            ApplyPlaceholderSize(
+                detail,
+                sprite,
+                size);
         }
 
         private static Transform CreateChild(
@@ -345,6 +508,130 @@ namespace BigRetail.Characters.Editor
             }
         }
 
+        private static RoundedEmployeeProfile CreateRowanProfile()
+        {
+            Dictionary<NpcRigPartId, Vector2> partSizes =
+                new Dictionary<NpcRigPartId, Vector2>
+                {
+                    {
+                        NpcRigPartId.HairRear,
+                        new Vector2(0.39f, 0.34f)
+                    },
+                    {
+                        NpcRigPartId.UpperArmFar,
+                        new Vector2(0.16f, 0.28f)
+                    },
+                    {
+                        NpcRigPartId.ForearmFar,
+                        new Vector2(0.14f, 0.25f)
+                    },
+                    {
+                        NpcRigPartId.HandFar,
+                        new Vector2(0.13f, 0.15f)
+                    },
+                    {
+                        NpcRigPartId.ThighFar,
+                        new Vector2(0.20f, 0.37f)
+                    },
+                    {
+                        NpcRigPartId.ShinFar,
+                        new Vector2(0.17f, 0.36f)
+                    },
+                    {
+                        NpcRigPartId.FootFar,
+                        new Vector2(0.24f, 0.13f)
+                    },
+                    {
+                        NpcRigPartId.Pelvis,
+                        new Vector2(0.43f, 0.29f)
+                    },
+                    {
+                        NpcRigPartId.Torso,
+                        new Vector2(0.54f, 0.50f)
+                    },
+                    {
+                        NpcRigPartId.Neck,
+                        new Vector2(0.14f, 0.16f)
+                    },
+                    {
+                        NpcRigPartId.Head,
+                        new Vector2(0.37f, 0.36f)
+                    },
+                    {
+                        NpcRigPartId.HairFront,
+                        new Vector2(0.37f, 0.17f)
+                    },
+                    {
+                        NpcRigPartId.ThighNear,
+                        new Vector2(0.20f, 0.37f)
+                    },
+                    {
+                        NpcRigPartId.ShinNear,
+                        new Vector2(0.17f, 0.36f)
+                    },
+                    {
+                        NpcRigPartId.FootNear,
+                        new Vector2(0.24f, 0.13f)
+                    },
+                    {
+                        NpcRigPartId.UpperArmNear,
+                        new Vector2(0.16f, 0.28f)
+                    },
+                    {
+                        NpcRigPartId.ForearmNear,
+                        new Vector2(0.14f, 0.25f)
+                    },
+                    {
+                        NpcRigPartId.HandNear,
+                        new Vector2(0.13f, 0.15f)
+                    }
+                };
+
+            Dictionary<NpcRigPartId, Vector3> partPositions =
+                new Dictionary<NpcRigPartId, Vector3>
+                {
+                    {
+                        NpcRigPartId.HairRear,
+                        new Vector3(0f, 0.10f, 0f)
+                    },
+                    {
+                        NpcRigPartId.Head,
+                        new Vector3(0.018f, 0.055f, 0f)
+                    },
+                    {
+                        NpcRigPartId.HairFront,
+                        new Vector3(0.020f, 0.205f, 0f)
+                    },
+                    {
+                        NpcRigPartId.Torso,
+                        new Vector3(0f, -0.135f, 0f)
+                    }
+                };
+
+            Dictionary<NpcRigPartId, float> partAngles =
+                new Dictionary<NpcRigPartId, float>
+                {
+                    {
+                        NpcRigPartId.HairFront,
+                        -7f
+                    }
+                };
+
+            return new RoundedEmployeeProfile(
+                "Rounded Employee - Rowan",
+                new Vector3(1.08f, 0.94f, 1f),
+                new Color(0.055f, 0.065f, 0.075f, 1f),
+                new Color(0.54f, 0.31f, 0.20f, 1f),
+                new Color(0.77f, 0.28f, 0.13f, 1f),
+                new Color(0.26f, 0.20f, 0.16f, 1f),
+                new Color(0.10f, 0.07f, 0.05f, 1f),
+                new Color(0.09f, 0.055f, 0.04f, 1f),
+                new Color(0.92f, 0.84f, 0.59f, 1f),
+                partSizes,
+                partPositions,
+                partAngles);
+        }
+
         private static void EnsureAssetFolder(
             string folderPath)
         {
@@ -370,6 +657,154 @@ namespace BigRetail.Characters.Editor
                 }
 
                 currentPath = nextPath;
+            }
+        }
+
+        private sealed class RoundedEmployeeProfile
+        {
+            private readonly Color hairColor;
+            private readonly Color skinColor;
+            private readonly Color shirtColor;
+            private readonly Color pantsColor;
+            private readonly Color shoeColor;
+
+            private readonly IReadOnlyDictionary
+                <NpcRigPartId, Vector2> partSizes;
+
+            private readonly IReadOnlyDictionary
+                <NpcRigPartId, Vector3> partPositions;
+
+            private readonly IReadOnlyDictionary
+                <NpcRigPartId, float> partAngles;
+
+
+            public string RootName { get; }
+
+            public Vector3 VisualScale { get; }
+
+            public Color FeatureColor { get; }
+
+            public Color BadgeColor { get; }
+
+
+            public RoundedEmployeeProfile(
+                string rootName,
+                Vector3 visualScale,
+                Color hairColor,
+                Color skinColor,
+                Color shirtColor,
+                Color pantsColor,
+                Color shoeColor,
+                Color featureColor,
+                Color badgeColor,
+                IReadOnlyDictionary<NpcRigPartId, Vector2>
+                    partSizes,
+                IReadOnlyDictionary<NpcRigPartId, Vector3>
+                    partPositions,
+                IReadOnlyDictionary<NpcRigPartId, float>
+                    partAngles)
+            {
+                RootName = rootName;
+                VisualScale = visualScale;
+                this.hairColor = hairColor;
+                this.skinColor = skinColor;
+                this.shirtColor = shirtColor;
+                this.pantsColor = pantsColor;
+                this.shoeColor = shoeColor;
+                FeatureColor = featureColor;
+                BadgeColor = badgeColor;
+                this.partSizes = partSizes;
+                this.partPositions = partPositions;
+                this.partAngles = partAngles;
+            }
+
+
+            public Vector2 GetPartSize(
+                NpcRigPartDefinition definition)
+            {
+                return partSizes.TryGetValue(
+                    definition.Id,
+                    out Vector2 size)
+                        ? size
+                        : definition.PlaceholderSize;
+            }
+
+            public Vector3 GetPartPosition(
+                NpcRigPartDefinition definition)
+            {
+                return partPositions.TryGetValue(
+                    definition.Id,
+                    out Vector3 position)
+                        ? position
+                        : definition.LocalPosition;
+            }
+
+            public float GetPartAngle(
+                NpcRigPartId partId)
+            {
+                return partAngles.TryGetValue(
+                    partId,
+                    out float angle)
+                        ? angle
+                        : 0f;
+            }
+
+            public int GetSortingOrder(
+                NpcRigPartDefinition definition)
+            {
+                return definition.Id
+                    == NpcRigPartId.HairFront
+                        ? 13
+                        : definition.SortingOrder;
+            }
+
+            public Color GetPartColor(
+                NpcRigPartId partId)
+            {
+                Color color;
+
+                switch (partId)
+                {
+                    case NpcRigPartId.HairRear:
+                    case NpcRigPartId.HairFront:
+                        color = hairColor;
+                        break;
+
+                    case NpcRigPartId.Head:
+                    case NpcRigPartId.Neck:
+                    case NpcRigPartId.HandFar:
+                    case NpcRigPartId.HandNear:
+                        color = skinColor;
+                        break;
+
+                    case NpcRigPartId.Torso:
+                    case NpcRigPartId.UpperArmFar:
+                    case NpcRigPartId.UpperArmNear:
+                    case NpcRigPartId.ForearmFar:
+                    case NpcRigPartId.ForearmNear:
+                        color = shirtColor;
+                        break;
+
+                    case NpcRigPartId.Pelvis:
+                    case NpcRigPartId.ThighFar:
+                    case NpcRigPartId.ThighNear:
+                    case NpcRigPartId.ShinFar:
+                    case NpcRigPartId.ShinNear:
+                        color = pantsColor;
+                        break;
+
+                    case NpcRigPartId.FootFar:
+                    case NpcRigPartId.FootNear:
+                        color = shoeColor;
+                        break;
+
+                    default:
+                        return Color.magenta;
+                }
+
+                return ShadeForDepth(
+                    color,
+                    IsFarPart(partId));
             }
         }
     }
