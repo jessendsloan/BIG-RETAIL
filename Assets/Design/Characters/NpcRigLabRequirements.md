@@ -226,3 +226,10 @@ BigRetail.Characters.Editor.NpcRigLabBatch.GenerateAndRenderRowan
 
 It regenerates Rowan and writes four sampled walk poses to
 `Logs/RowanWalkPreview.png` without changing a gameplay scene.
+
+The movement proof adds a small world-space waypoint follower to Rowan. It
+owns only presentation movement: it advances toward supplied destinations,
+updates the `Speed` Animator parameter from actual displacement, scales walk
+playback to travel speed, and updates the four-way facing. Destination choice
+and pathfinding remain outside the rig. The headless movement preview can
+exercise this behavior without opening a Unity window.

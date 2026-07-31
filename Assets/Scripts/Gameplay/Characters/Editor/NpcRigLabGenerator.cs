@@ -72,6 +72,12 @@ namespace BigRetail.Characters.Editor
                     .runtimeAnimatorController =
                     NpcRigLabAnimationGenerator
                         .CreateOrUpdateRowanController();
+
+                rigRoot.AddComponent<NpcPathFollower>()
+                    .ConfigurePrototype(
+                        1.2f,
+                        0.02f,
+                        1.2f);
             }
 
             GameObject prefab =
