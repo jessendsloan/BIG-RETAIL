@@ -162,7 +162,8 @@ namespace BigRetail.Characters.Editor
             cutoutRig.ConfigureGeneratedRig(
                 mirrorRoot,
                 boneBindings,
-                partBindings);
+                partBindings,
+                profile != null);
 
             if (!cutoutRig.TryValidate(
                     out string failureReason))

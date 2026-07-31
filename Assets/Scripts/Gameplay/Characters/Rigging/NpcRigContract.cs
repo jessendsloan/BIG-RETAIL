@@ -7,9 +7,8 @@ namespace BigRetail.Characters.Rigging
     /// <summary>
     /// The four directions an NPC can display in the isometric world.
     ///
-    /// The current canonical cutout artwork is horizontally handed
-    /// opposite the world-facing labels, so East facings mirror and West
-    /// facings use the unmirrored authored presentation.
+    /// SouthEast and NorthEast are the canonical authored directions.
+    /// SouthWest and NorthWest use their corresponding mirrored artwork.
     /// </summary>
     public enum NpcFacing
     {
@@ -459,12 +458,12 @@ namespace BigRetail.Characters.Rigging
         {
             switch (facing)
             {
-                case NpcFacing.SouthEast:
-                case NpcFacing.NorthEast:
-                    return true;
-
                 case NpcFacing.SouthWest:
                 case NpcFacing.NorthWest:
+                    return true;
+
+                case NpcFacing.SouthEast:
+                case NpcFacing.NorthEast:
                     return false;
 
                 default:
@@ -473,6 +472,20 @@ namespace BigRetail.Characters.Rigging
                         facing,
                         "Unknown NPC facing.");
             }
+        }
+
+        /// <summary>
+        /// Resolves the presentation mirror for a specific appearance.
+        /// Most art follows the canonical authored-direction contract.
+        /// Procedural profiles such as Rowan can declare their unmirrored
+        /// bind pose as west-facing without changing that shared contract.
+        /// </summary>
+        public static bool IsPresentationMirrored(
+            NpcFacing facing,
+            bool unmirroredPresentationFacesWest)
+        {
+            return IsMirrored(facing)
+                != unmirroredPresentationFacesWest;
         }
 
         /// <summary>

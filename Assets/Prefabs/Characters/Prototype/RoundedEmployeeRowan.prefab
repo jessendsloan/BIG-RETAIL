@@ -1959,6 +1959,7 @@ MonoBehaviour:
   facing: 0
   mirrorRoot: {fileID: 8746946351184265142}
   artKit: {fileID: 0}
+  unmirroredPresentationFacesWest: 1
   bones:
   - id: 0
     bone: {fileID: 5589837670995214517}

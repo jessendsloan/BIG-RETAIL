@@ -138,22 +138,38 @@ namespace BigRetail.Characters.Rigging.Tests
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.SouthEast),
-                Is.True);
+                Is.False);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.NorthEast),
-                Is.True);
+                Is.False);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.SouthWest),
-                Is.False);
+                Is.True);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.NorthWest),
+                Is.True);
+        }
+
+        [Test]
+        public void WestHandedPresentation_PreservesRowansCanonicalSouthWestPose()
+        {
+            Assert.That(
+                NpcFacingUtility.IsPresentationMirrored(
+                    NpcFacing.SouthWest,
+                    true),
                 Is.False);
+
+            Assert.That(
+                NpcFacingUtility.IsPresentationMirrored(
+                    NpcFacing.SouthEast,
+                    true),
+                Is.True);
         }
 
         [Test]
