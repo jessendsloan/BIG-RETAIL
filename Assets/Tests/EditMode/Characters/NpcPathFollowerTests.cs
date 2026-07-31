@@ -65,8 +65,14 @@ namespace BigRetail.Characters.Rigging.Tests
             }
         }
 
-        [Test]
-        public void Tick_UpdatesFacingWhenRigIsPresent()
+        [TestCase(1f, -1f, NpcFacing.SouthEast)]
+        [TestCase(-1f, -1f, NpcFacing.SouthWest)]
+        [TestCase(1f, 1f, NpcFacing.NorthEast)]
+        [TestCase(-1f, 1f, NpcFacing.NorthWest)]
+        public void Tick_UpdatesFacingFromIsometricMapPlane(
+            float x,
+            float y,
+            NpcFacing expectedFacing)
         {
             GameObject character = new GameObject("NPC Facing Test");
 
@@ -75,11 +81,11 @@ namespace BigRetail.Characters.Rigging.Tests
                 NpcCutoutRig rig = character.AddComponent<NpcCutoutRig>();
                 NpcPathFollower follower = character.AddComponent<NpcPathFollower>();
                 follower.ConfigurePrototype(1f, 0.01f, 1f);
-                follower.SetPath(new[] { new Vector3(-1f, 0f, 1f) });
+                follower.SetPath(new[] { new Vector3(x, y, 0f) });
 
                 follower.Tick(0.25f);
 
-                Assert.That(rig.Facing, Is.EqualTo(NpcFacing.SouthWest));
+                Assert.That(rig.Facing, Is.EqualTo(expectedFacing));
             }
             finally
             {
