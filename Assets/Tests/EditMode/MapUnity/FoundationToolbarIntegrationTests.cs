@@ -1,0 +1,165 @@
+using System;
+using System.Reflection;
+using NUnit.Framework;
+using UnityEngine.UIElements;
+
+namespace BigRetail.Map.Unity.Tests
+{
+    public sealed class FoundationToolbarIntegrationTests
+    {
+        private const string MapperTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "ConstructionToolbarModeMapper, Assembly-CSharp";
+
+        private const string ModeTypeName =
+            "BigRetail.Construction.Unity.Tools." +
+            "ConstructionToolMode, Assembly-CSharp";
+
+        private const string SectionTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "ConstructionToolbarSection, Assembly-CSharp";
+
+        private const string ViewTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "ConstructionToolbarView, Assembly-CSharp";
+
+
+        [Test]
+        public void BuildFoundations_MapsToFoundationToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            Assert.That(toSection, Is.Not.Null);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildFoundations")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Foundations"));
+        }
+
+
+        [Test]
+        public void FoundationSection_SelectsOnlyFoundationButton()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            Type sectionType =
+                RequireType(SectionTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                object foundationsSection =
+                    Enum.Parse(
+                        sectionType,
+                        "Foundations");
+
+                MethodInfo setSelectedSection =
+                    viewType.GetMethod(
+                        "SetSelectedSection",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(
+                    setSelectedSection,
+                    Is.Not.Null);
+
+                setSelectedSection.Invoke(
+                    view,
+                    new[] { foundationsSection });
+
+                Assert.That(
+                    root.Q<Button>("foundations-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<Button>("walls-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                Assert.That(
+                    root.Q<Button>("floors-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                Assert.That(
+                    root.Q<Button>("demolition-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        private static VisualElement CreateToolbarRoot()
+        {
+            VisualElement root =
+                new VisualElement();
+
+            root.Add(CreateButton("walls-button"));
+            root.Add(CreateButton("foundations-button"));
+            root.Add(CreateButton("floors-button"));
+            root.Add(CreateButton("demolition-button"));
+            root.Add(CreateButton("undo-button"));
+            root.Add(CreateButton("redo-button"));
+
+            return root;
+        }
+
+
+        private static Button CreateButton(
+            string name)
+        {
+            return new Button
+            {
+                name = name
+            };
+        }
+
+
+        private static Type RequireType(
+            string typeName)
+        {
+            Type type =
+                Type.GetType(typeName);
+
+            Assert.That(
+                type,
+                Is.Not.Null,
+                $"Could not resolve {typeName}.");
+
+            return type;
+        }
+    }
+}
