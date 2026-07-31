@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 87599328}
   - component: {fileID: 87599329}
   - component: {fileID: 87599330}
+  - component: {fileID: 87599331}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -319,6 +320,21 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   historyHost: {fileID: 746913718}
   historyInputController: {fileID: 466961597}
+--- !u!114 &87599331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8757440568646084ba44b972766787f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionUiInputGate
+  documentHost: {fileID: 87599325}
+  pointerController: {fileID: 933909791}
+  toolCoordinator: {fileID: 1508060588}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -298936,6 +298952,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Cells.GridCellTargetResolver
   pointerController: {fileID: 933909791}
+  uiInputGate: {fileID: 87599331}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
   viewHost: {fileID: 2111000001}
@@ -392356,6 +392373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Walls.WallVertexTargetResolver
   pointerController: {fileID: 933909791}
+  uiInputGate: {fileID: 87599331}
   targetCamera: {fileID: 519420031}
   coordinateTilemap: {fileID: 463974780}
   viewHost: {fileID: 2111000001}

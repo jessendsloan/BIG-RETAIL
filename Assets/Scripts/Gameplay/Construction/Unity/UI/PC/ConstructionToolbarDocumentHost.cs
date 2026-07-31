@@ -43,6 +43,36 @@ namespace BigRetail.Construction.Unity.UI.PC
         public bool HasFloorFinishPickerView =>
             FloorFinishPickerView != null;
 
+        /// <summary>
+        /// Returns true when a screen position is currently over a pickable
+        /// element in this construction UI document. The document root itself
+        /// is intentionally ignored, so empty game space remains available to
+        /// construction tools.
+        /// </summary>
+        public bool IsPointerOverInteractiveElement(
+            Vector2 screenPosition)
+        {
+            if (rootElement == null
+                || rootElement.panel == null)
+            {
+                return false;
+            }
+
+            Vector2 panelPosition =
+                RuntimePanelUtils.ScreenToPanel(
+                    rootElement.panel,
+                    screenPosition);
+
+            VisualElement pickedElement =
+                rootElement.panel.Pick(panelPosition);
+
+            // The panel root spans the full screen, but it is not a visible
+            // construction control. Only an actual descendant should block
+            // construction targeting.
+            return pickedElement != null
+                && pickedElement != rootElement;
+        }
+
         public event Action<ConstructionToolbarView> ViewReady;
 
         public event Action<WallFinishPickerView> FinishPickerViewReady;
@@ -50,6 +80,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action<FloorFinishPickerView> FloorFinishPickerViewReady;
 
         private int loadedVersion = -1;
+
+        private VisualElement rootElement;
 
 
         private void Reset()
@@ -120,6 +152,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             DisposeViews();
 
+            rootElement = root;
+
             try
             {
                 View =
@@ -160,6 +194,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void DisposeViews()
         {
+            rootElement = null;
+
             if (View != null)
             {
                 View.Dispose();
