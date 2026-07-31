@@ -7,8 +7,9 @@ namespace BigRetail.Characters.Rigging
     /// <summary>
     /// The four directions an NPC can display in the isometric world.
     ///
-    /// SouthWest mirrors SouthEast artwork. NorthWest mirrors
-    /// NorthEast artwork.
+    /// The current canonical cutout artwork is horizontally handed
+    /// opposite the world-facing labels, so East facings mirror and West
+    /// facings use the unmirrored authored presentation.
     /// </summary>
     public enum NpcFacing
     {
@@ -460,11 +461,11 @@ namespace BigRetail.Characters.Rigging
             {
                 case NpcFacing.SouthEast:
                 case NpcFacing.NorthEast:
-                    return false;
+                    return true;
 
                 case NpcFacing.SouthWest:
                 case NpcFacing.NorthWest:
-                    return true;
+                    return false;
 
                 default:
                     throw new ArgumentOutOfRangeException(
