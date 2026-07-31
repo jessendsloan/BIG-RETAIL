@@ -82,17 +82,31 @@ namespace BigRetail.Characters.Rigging
 
 
         public void Apply(
-            NpcAuthoredDirection direction)
+            NpcAuthoredDirection direction,
+            NpcRigArtKit artKit)
         {
             if (spriteRenderer == null)
             {
                 return;
             }
 
-            Sprite authoredSprite =
-                direction == NpcAuthoredDirection.SouthEast
-                    ? southEastSprite
-                    : northEastSprite;
+            Sprite authoredSprite = null;
+
+            if (artKit != null)
+            {
+                artKit.TryGetSprite(
+                    id,
+                    direction,
+                    out authoredSprite);
+            }
+
+            if (authoredSprite == null)
+            {
+                authoredSprite =
+                    direction == NpcAuthoredDirection.SouthEast
+                        ? southEastSprite
+                        : northEastSprite;
+            }
 
             spriteRenderer.sprite =
                 authoredSprite != null
@@ -123,6 +137,12 @@ namespace BigRetail.Characters.Rigging
         [SerializeField]
         private Transform mirrorRoot;
 
+        [Tooltip(
+            "The replaceable 36-sprite appearance kit shared by this " +
+            "canonical skeleton.")]
+        [SerializeField]
+        private NpcRigArtKit artKit;
+
 
         [Header("Generated Bindings")]
 
@@ -136,6 +156,8 @@ namespace BigRetail.Characters.Rigging
 
 
         public NpcFacing Facing => facing;
+
+        public NpcRigArtKit ArtKit => artKit;
 
         public int BoneCount => bones.Count;
 
@@ -156,6 +178,17 @@ namespace BigRetail.Characters.Rigging
             NpcFacing newFacing)
         {
             facing = newFacing;
+            ApplyFacing();
+        }
+
+        /// <summary>
+        /// Replaces the complete character appearance without
+        /// rebuilding the skeleton or animation hierarchy.
+        /// </summary>
+        public void SetArtKit(
+            NpcRigArtKit newArtKit)
+        {
+            artKit = newArtKit;
             ApplyFacing();
         }
 
@@ -268,6 +301,26 @@ namespace BigRetail.Characters.Rigging
             return true;
         }
 
+        /// <summary>
+        /// Checks whether the assigned art kit completely covers one
+        /// authored direction.
+        /// </summary>
+        public bool TryValidateArt(
+            NpcAuthoredDirection direction,
+            out string failureReason)
+        {
+            if (artKit == null)
+            {
+                failureReason =
+                    "The rig has no art kit assigned.";
+                return false;
+            }
+
+            return artKit.TryValidateDirection(
+                direction,
+                out failureReason);
+        }
+
 
         /// <summary>
         /// Used by the editor generator when it creates the canonical
@@ -300,7 +353,8 @@ namespace BigRetail.Characters.Rigging
             for (int index = 0; index < parts.Count; index++)
             {
                 parts[index]?.Apply(
-                    authoredDirection);
+                    authoredDirection,
+                    artKit);
             }
 
             if (mirrorRoot == null)

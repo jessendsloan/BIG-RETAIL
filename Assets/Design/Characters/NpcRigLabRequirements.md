@@ -96,6 +96,64 @@ The approved SouthEast and NorthEast assembled characters are the source
 of truth. Generated individual pieces must be checked against those
 masters before they enter the rig.
 
+## Art-kit intake
+
+The reusable skeleton and the replaceable character appearance are
+separate assets. `NpcRigArtKit` owns the complete 36-sprite appearance,
+while `NpcCutoutRig` owns bones, slots, facing, and animation.
+
+Create the canonical intake with:
+
+`Big Retail > Characters > Art Kit > Create Canonical Employee Art Kit`
+
+Unity creates:
+
+```text
+Assets/Art/Characters/CanonicalEmployee/
+├── CanonicalEmployeeArtKit.asset
+├── SouthEast/
+└── NorthEast/
+```
+
+Each direction folder accepts one Sprite asset named exactly after each
+visible-part identifier:
+
+```text
+HairRear
+UpperArmFar
+ForearmFar
+HandFar
+ThighFar
+ShinFar
+FootFar
+Pelvis
+Torso
+Neck
+Head
+HairFront
+ThighNear
+ShinNear
+FootNear
+UpperArmNear
+ForearmNear
+HandNear
+```
+
+The file extension is irrelevant; the imported Unity Sprite name must
+match. A single sliced source sheet is also valid when its individual
+Sprite names match this list.
+
+Select `CanonicalEmployeeArtKit.asset` to see the compact 18-by-2 intake
+inspector. Its buttons can:
+
+1. populate matching sprites from the two canonical folders;
+2. apply the kit to `CanonicalNpcRig.prefab`;
+3. validate missing or duplicate sprite assignments.
+
+Partial kits are safe. Missing pieces continue to show mannequin
+placeholders, which allows SouthEast to be proved before NorthEast
+artwork exists.
+
 ## Unity ownership
 
 The Unity-native prototype owns:
