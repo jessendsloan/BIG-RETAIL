@@ -6,7 +6,6 @@
 .finish-picker {
     display: none;
     position: absolute;
-    top: 24px;
     left: 104px;
     min-width: 304px;
     flex-direction: column;
@@ -27,10 +26,18 @@
     border-top-right-radius: 10px;
 }
 
+#floor-finish-picker {
+    top: 100px;
+}
+
+#wall-finish-picker {
+    top: 172px;
+}
+
 .demolition-picker {
     display: none;
     position: absolute;
-    top: 24px;
+    top: 244px;
     left: 104px;
     flex-direction: column;
     align-items: center;

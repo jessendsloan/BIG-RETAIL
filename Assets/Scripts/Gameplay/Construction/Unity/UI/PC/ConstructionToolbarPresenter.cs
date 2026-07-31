@@ -131,6 +131,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void HandleDemolitionPickerRequested()
         {
+            // Demolition is a category choice, not a default destructive tool.
+            // Clearing the active build mode closes its contextual picker before
+            // this drawer asks the player to choose a demolition layer.
+            toolCoordinator.SetMode(
+                ConstructionToolMode.None);
+
             isDemolitionPickerRequested = true;
 
             RefreshDemolitionPicker(
