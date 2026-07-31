@@ -474,5 +474,45 @@ namespace BigRetail.Characters.Rigging
                         "Unknown NPC facing.");
             }
         }
+
+        /// <summary>
+        /// Returns the depth partner for a mirrored cutout limb. When the
+        /// character flips horizontally, the visual near/far limb positions
+        /// flip too, so their sorting order must exchange with this partner.
+        /// Center body parts return themselves.
+        /// </summary>
+        public static NpcRigPartId GetMirroredDepthPart(
+            NpcRigPartId partId)
+        {
+            switch (partId)
+            {
+                case NpcRigPartId.UpperArmFar:
+                    return NpcRigPartId.UpperArmNear;
+                case NpcRigPartId.UpperArmNear:
+                    return NpcRigPartId.UpperArmFar;
+                case NpcRigPartId.ForearmFar:
+                    return NpcRigPartId.ForearmNear;
+                case NpcRigPartId.ForearmNear:
+                    return NpcRigPartId.ForearmFar;
+                case NpcRigPartId.HandFar:
+                    return NpcRigPartId.HandNear;
+                case NpcRigPartId.HandNear:
+                    return NpcRigPartId.HandFar;
+                case NpcRigPartId.ThighFar:
+                    return NpcRigPartId.ThighNear;
+                case NpcRigPartId.ThighNear:
+                    return NpcRigPartId.ThighFar;
+                case NpcRigPartId.ShinFar:
+                    return NpcRigPartId.ShinNear;
+                case NpcRigPartId.ShinNear:
+                    return NpcRigPartId.ShinFar;
+                case NpcRigPartId.FootFar:
+                    return NpcRigPartId.FootNear;
+                case NpcRigPartId.FootNear:
+                    return NpcRigPartId.FootFar;
+                default:
+                    return partId;
+            }
+        }
     }
 }
