@@ -288,37 +288,10 @@ namespace BigRetail.Characters.Editor
             Sprite placeholderSprite,
             RoundedEmployeeProfile profile)
         {
-            Transform head =
-                boneLookup[NpcRigBoneId.Head];
-
-            CreateDetailSprite(
-                head,
-                "Face - Far Eye",
-                placeholderSprite,
-                new Vector2(-0.035f, 0.095f),
-                new Vector2(0.026f, 0.038f),
-                profile.FeatureColor,
-                12);
-
-            CreateDetailSprite(
-                head,
-                "Face - Near Eye",
-                placeholderSprite,
-                new Vector2(0.075f, 0.085f),
-                new Vector2(0.032f, 0.043f),
-                profile.FeatureColor,
-                12);
-
-            CreateDetailSprite(
-                head,
-                "Face - Smile",
-                placeholderSprite,
-                new Vector2(0.065f, 0.005f),
-                new Vector2(0.070f, 0.014f),
-                profile.FeatureColor,
-                12,
-                -7f);
-
+            // Rowan intentionally has no facial feature sprites. The head,
+            // hair, and body silhouette are the complete visual language for
+            // this procedural character. Keep the badge as the only optional
+            // profile detail.
             Transform chest =
                 boneLookup[NpcRigBoneId.Chest];
 
@@ -332,6 +305,7 @@ namespace BigRetail.Characters.Editor
                 18,
                 -3f);
         }
+
 
         private static void CreateDetailSprite(
             Transform parent,
