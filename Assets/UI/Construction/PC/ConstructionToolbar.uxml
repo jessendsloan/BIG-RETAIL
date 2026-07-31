@@ -8,17 +8,33 @@
 
         <ui:VisualElement
             name="wall-finish-picker"
-            class="wall-finish-picker"
+            class="finish-picker"
             picking-mode="Position">
 
             <ui:Label
                 text="Wall finishes"
-                class="wall-finish-picker__title"
+                class="finish-picker__title"
                 picking-mode="Ignore" />
 
             <ui:VisualElement
                 name="wall-finish-picker-items"
-                class="wall-finish-picker__items"
+                class="finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="floor-finish-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Floor finishes"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="floor-finish-picker-items"
+                class="finish-picker__items"
                 picking-mode="Position" />
         </ui:VisualElement>
 

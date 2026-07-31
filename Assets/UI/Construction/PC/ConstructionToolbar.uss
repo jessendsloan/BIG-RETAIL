@@ -4,7 +4,7 @@
     align-items: stretch;
 }
 
-.wall-finish-picker {
+.finish-picker {
     display: none;
     align-self: center;
     min-width: 304px;
@@ -26,7 +26,7 @@
     border-top-right-radius: 10px;
 }
 
-.wall-finish-picker__title {
+.finish-picker__title {
     height: 20px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
@@ -35,12 +35,13 @@
     -unity-text-align: middle-center;
 }
 
-.wall-finish-picker__items {
+.finish-picker__items {
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
+.finish-picker__button,
 .wall-finish-picker__button {
     width: 64px;
     height: 72px;
@@ -64,14 +65,17 @@
     border-bottom-left-radius: 8px;
 }
 
+.finish-picker__button:hover,
 .wall-finish-picker__button:hover {
     background-color: rgba(54, 63, 69, 0.12);
 }
 
+.finish-picker__button:active,
 .wall-finish-picker__button:active {
     background-color: rgba(54, 63, 69, 0.20);
 }
 
+.finish-picker__button:focus,
 .wall-finish-picker__button:focus {
     border-top-color: rgba(35, 43, 50, 0.64);
     border-right-color: rgba(35, 43, 50, 0.64);
@@ -79,6 +83,7 @@
     border-left-color: rgba(35, 43, 50, 0.64);
 }
 
+.finish-picker__button.is-selected,
 .wall-finish-picker__button.is-selected {
     background-color: rgba(54, 63, 69, 0.18);
     border-top-width: 3px;
@@ -91,6 +96,7 @@
     border-left-color: rgb(35, 43, 50);
 }
 
+.finish-picker__icon,
 .wall-finish-picker__icon {
     width: 50px;
     height: 62px;

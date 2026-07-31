@@ -28,15 +28,26 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public FloorFinishPickerView FloorFinishPickerView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
         public bool HasFinishPickerView =>
             FinishPickerView != null;
 
+        public bool HasFloorFinishPickerView =>
+            FloorFinishPickerView != null;
+
         public event Action<ConstructionToolbarView> ViewReady;
 
         public event Action<WallFinishPickerView> FinishPickerViewReady;
+
+        public event Action<FloorFinishPickerView> FloorFinishPickerViewReady;
 
         private int loadedVersion = -1;
 
@@ -101,6 +112,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             if (View != null
                 && FinishPickerView != null
+                && FloorFinishPickerView != null
                 && loadedVersion == version)
             {
                 return;
@@ -118,6 +130,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new WallFinishPickerView(
                         root);
 
+                FloorFinishPickerView =
+                    new FloorFinishPickerView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -126,6 +142,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 FinishPickerViewReady?.Invoke(
                     FinishPickerView);
+
+                FloorFinishPickerViewReady?.Invoke(
+                    FloorFinishPickerView);
             }
             catch (Exception exception)
             {
@@ -151,6 +170,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 FinishPickerView.Dispose();
                 FinishPickerView = null;
+            }
+
+            if (FloorFinishPickerView != null)
+            {
+                FloorFinishPickerView.Dispose();
+                FloorFinishPickerView = null;
             }
         }
     }
