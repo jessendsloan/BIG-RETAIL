@@ -206,8 +206,11 @@ namespace BigRetail.Characters.Rigging
                 return;
             }
 
+            // Big Retail's isometric map is laid out on Unity's XY plane:
+            // positive X is east and decreasing Y is south. The previous Z
+            // check classified every flat-map path as south because Z is 0.
             bool east = movementVelocity.x >= 0f;
-            bool south = movementVelocity.z >= 0f;
+            bool south = movementVelocity.y <= 0f;
             NpcFacing facing = east
                 ? (south ? NpcFacing.SouthEast : NpcFacing.NorthEast)
                 : (south ? NpcFacing.SouthWest : NpcFacing.NorthWest);
