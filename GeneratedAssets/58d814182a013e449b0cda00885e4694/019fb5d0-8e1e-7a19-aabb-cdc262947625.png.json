@@ -1,0 +1,31 @@
+{
+    "asset": "58d814182a013e449b0cda00885e4694",
+    "fileName": "019fb5d0-8e1e-7a19-aabb-cdc262947625.png",
+    "prompt": "A transparent 2D Sprite of an ordinary retail employee's ShinNear body piece. Clean, readable isometric management-sim style, precise 1-pixel dark outline (#15181F), soft outline, and restrained flat shading. View from NorthEast (rear angle). Dark-grey trouser leg lower section. ONLY the near shin. NO thigh, NO foot, NO background. Isolated on a transparent background.",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}

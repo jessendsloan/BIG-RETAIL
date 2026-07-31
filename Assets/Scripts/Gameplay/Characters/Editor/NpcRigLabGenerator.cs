@@ -288,37 +288,6 @@ namespace BigRetail.Characters.Editor
             Sprite placeholderSprite,
             RoundedEmployeeProfile profile)
         {
-            Transform head =
-                boneLookup[NpcRigBoneId.Head];
-
-            CreateDetailSprite(
-                head,
-                "Face - Far Eye",
-                placeholderSprite,
-                new Vector2(-0.035f, 0.095f),
-                new Vector2(0.026f, 0.038f),
-                profile.FeatureColor,
-                12);
-
-            CreateDetailSprite(
-                head,
-                "Face - Near Eye",
-                placeholderSprite,
-                new Vector2(0.075f, 0.085f),
-                new Vector2(0.032f, 0.043f),
-                profile.FeatureColor,
-                12);
-
-            CreateDetailSprite(
-                head,
-                "Face - Smile",
-                placeholderSprite,
-                new Vector2(0.065f, 0.005f),
-                new Vector2(0.070f, 0.014f),
-                profile.FeatureColor,
-                12,
-                -7f);
-
             Transform chest =
                 boneLookup[NpcRigBoneId.Chest];
 
@@ -615,7 +584,10 @@ namespace BigRetail.Characters.Editor
                     },
                     {
                         NpcRigPartId.Head,
-                        new Vector3(0.018f, 0.020f, 0f)
+                        // Bring the head down into the neck in the bind pose.
+                        // Keeping this on the generated profile makes the fix
+                        // reproducible whenever Rowan is regenerated.
+                        new Vector3(0.018f, -0.015f, 0f)
                     },
                     {
                         NpcRigPartId.HairFront,
