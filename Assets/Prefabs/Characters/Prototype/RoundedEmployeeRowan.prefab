@@ -217,8 +217,8 @@ Transform:
   m_GameObject: {fileID: 1607706114231316279}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.061048545, w: 0.99813485}
-  m_LocalPosition: {x: 0.0189, y: 0.1595, z: 0}
-  m_LocalScale: {x: 2.3125, y: 1.1897875, z: 1}
+  m_LocalPosition: {x: 0.02, y: 0.17, z: 0}
+  m_LocalScale: {x: 2.3125, y: 1.0625, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 101581514756317608}
@@ -618,7 +618,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.018, y: -0.0383, z: 0}
-  m_LocalScale: {x: 2.3125, y: 2.5737226, z: 1}
+  m_LocalScale: {x: 2.3125, y: 2.2500002, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 101581514756317608}
@@ -1212,7 +1212,7 @@ Transform:
   m_GameObject: {fileID: 5391707413553669558}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.02617695, w: 0.99965733}
-  m_LocalPosition: {x: 0.029, y: -0.041, z: 0}
+  m_LocalPosition: {x: 0.13, y: -0.08, z: 0}
   m_LocalScale: {x: 0.59375, y: 0.28125003, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1304,8 +1304,8 @@ Transform:
   m_GameObject: {fileID: 5464317205002405466}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.0417, z: 0}
-  m_LocalScale: {x: 2.4375, y: 2.8536625, z: 1}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalScale: {x: 2.4375, y: 2.125, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 101581514756317608}
@@ -1885,6 +1885,7 @@ GameObject:
   - component: {fileID: 7575252791160008421}
   - component: {fileID: 4457995118760030755}
   - component: {fileID: 320848398843883590}
+  - component: {fileID: 8779380065367880101}
   m_Layer: 0
   m_Name: RoundedEmployeeRowan
   m_TagString: Untagged
@@ -2090,6 +2091,24 @@ MonoBehaviour:
     southEastSprite: {fileID: 0}
     northEastSprite: {fileID: 0}
     placeholderSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+--- !u!114 &8779380065367880101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7947943296734313180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7745051125bceb64299b289fb7bc0550, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcPathFollower
+  waypoints: []
+  movementSpeed: 1.2
+  arrivalDistance: 0.02
+  walkAnimationMetersPerSecond: 1.2
+  playOnEnable: 0
+  loopPath: 0
 --- !u!1 &8197821834959260941
 GameObject:
   m_ObjectHideFlags: 0
@@ -2428,7 +2447,7 @@ Transform:
   m_GameObject: {fileID: 8950604836115800821}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.9, z: 0}
+  m_LocalPosition: {x: -0.065, y: 0.808, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
