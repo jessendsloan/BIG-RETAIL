@@ -196,3 +196,33 @@ The lab proves:
 
 Population spawning, pathfinding, jobs, outfit variety, and production
 optimization remain outside this first experiment.
+
+## Rounded employee proof
+
+`Big Retail > Characters > Create Rounded Employee - Rowan` creates or
+updates the rounded procedural employee at:
+
+```text
+Assets/Prefabs/Characters/Prototype/RoundedEmployeeRowan.prefab
+```
+
+The same operation generates a looping idle clip, a looping in-place
+walk clip, and an Animator Controller under:
+
+```text
+Assets/Animations/Characters/Prototype/
+```
+
+The controller exposes one float parameter named `Speed`. Values above
+`0.05` transition to `Walk`; lower values return to `Idle`. The clips do
+not move the character root. A future movement presenter owns world
+translation and supplies the speed value.
+
+Headless visual validation is available through:
+
+```text
+BigRetail.Characters.Editor.NpcRigLabBatch.GenerateAndRenderRowan
+```
+
+It regenerates Rowan and writes four sampled walk poses to
+`Logs/RowanWalkPreview.png` without changing a gameplay scene.

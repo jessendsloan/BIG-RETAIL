@@ -33,7 +33,8 @@ namespace BigRetail.Characters.Editor
         {
             CreateRigPrefab(
                 CanonicalPrefabPath,
-                null);
+                null,
+                false);
         }
 
 
@@ -42,24 +43,36 @@ namespace BigRetail.Characters.Editor
         {
             CreateRigPrefab(
                 CoworkerPrefabPath,
-                CreateRowanProfile());
+                CreateRowanProfile(),
+                true);
         }
 
 
         private static void CreateRigPrefab(
             string preferredPrefabPath,
-            RoundedEmployeeProfile profile)
+            RoundedEmployeeProfile profile,
+            bool replaceExisting)
         {
             EnsureAssetFolder(
                 PrefabFolder);
 
             string uniquePrefabPath =
-                AssetDatabase.GenerateUniqueAssetPath(
-                    preferredPrefabPath);
+                replaceExisting
+                    ? preferredPrefabPath
+                    : AssetDatabase.GenerateUniqueAssetPath(
+                        preferredPrefabPath);
 
             GameObject rigRoot =
                 BuildRigHierarchy(
                     profile);
+
+            if (profile != null)
+            {
+                rigRoot.GetComponent<Animator>()
+                    .runtimeAnimatorController =
+                    NpcRigLabAnimationGenerator
+                        .CreateOrUpdateRowanController();
+            }
 
             GameObject prefab =
                 PrefabUtility.SaveAsPrefabAsset(
@@ -519,27 +532,27 @@ namespace BigRetail.Characters.Editor
                     },
                     {
                         NpcRigPartId.UpperArmFar,
-                        new Vector2(0.16f, 0.28f)
+                        new Vector2(0.16f, 0.32f)
                     },
                     {
                         NpcRigPartId.ForearmFar,
-                        new Vector2(0.14f, 0.25f)
+                        new Vector2(0.14f, 0.30f)
                     },
                     {
                         NpcRigPartId.HandFar,
-                        new Vector2(0.13f, 0.15f)
+                        new Vector2(0.13f, 0.17f)
                     },
                     {
                         NpcRigPartId.ThighFar,
-                        new Vector2(0.20f, 0.37f)
+                        new Vector2(0.20f, 0.42f)
                     },
                     {
                         NpcRigPartId.ShinFar,
-                        new Vector2(0.17f, 0.36f)
+                        new Vector2(0.17f, 0.41f)
                     },
                     {
                         NpcRigPartId.FootFar,
-                        new Vector2(0.24f, 0.13f)
+                        new Vector2(0.24f, 0.15f)
                     },
                     {
                         NpcRigPartId.Pelvis,
@@ -547,11 +560,11 @@ namespace BigRetail.Characters.Editor
                     },
                     {
                         NpcRigPartId.Torso,
-                        new Vector2(0.54f, 0.50f)
+                        new Vector2(0.54f, 0.58f)
                     },
                     {
                         NpcRigPartId.Neck,
-                        new Vector2(0.14f, 0.16f)
+                        new Vector2(0.14f, 0.22f)
                     },
                     {
                         NpcRigPartId.Head,
@@ -563,27 +576,27 @@ namespace BigRetail.Characters.Editor
                     },
                     {
                         NpcRigPartId.ThighNear,
-                        new Vector2(0.20f, 0.37f)
+                        new Vector2(0.20f, 0.42f)
                     },
                     {
                         NpcRigPartId.ShinNear,
-                        new Vector2(0.17f, 0.36f)
+                        new Vector2(0.17f, 0.41f)
                     },
                     {
                         NpcRigPartId.FootNear,
-                        new Vector2(0.24f, 0.13f)
+                        new Vector2(0.24f, 0.15f)
                     },
                     {
                         NpcRigPartId.UpperArmNear,
-                        new Vector2(0.16f, 0.28f)
+                        new Vector2(0.16f, 0.32f)
                     },
                     {
                         NpcRigPartId.ForearmNear,
-                        new Vector2(0.14f, 0.25f)
+                        new Vector2(0.14f, 0.30f)
                     },
                     {
                         NpcRigPartId.HandNear,
-                        new Vector2(0.13f, 0.15f)
+                        new Vector2(0.13f, 0.17f)
                     }
                 };
 
@@ -596,15 +609,43 @@ namespace BigRetail.Characters.Editor
                     },
                     {
                         NpcRigPartId.Head,
-                        new Vector3(0.018f, 0.055f, 0f)
+                        new Vector3(0.018f, 0.020f, 0f)
                     },
                     {
                         NpcRigPartId.HairFront,
-                        new Vector3(0.020f, 0.205f, 0f)
+                        new Vector3(0.020f, 0.170f, 0f)
                     },
                     {
                         NpcRigPartId.Torso,
-                        new Vector3(0f, -0.135f, 0f)
+                        new Vector3(0f, -0.120f, 0f)
+                    },
+                    {
+                        NpcRigPartId.Neck,
+                        new Vector3(0f, -0.070f, 0f)
+                    },
+                    {
+                        NpcRigPartId.ThighFar,
+                        new Vector3(0f, -0.170f, 0f)
+                    },
+                    {
+                        NpcRigPartId.ShinFar,
+                        new Vector3(0f, -0.170f, 0f)
+                    },
+                    {
+                        NpcRigPartId.FootFar,
+                        new Vector3(0.04f, -0.035f, 0f)
+                    },
+                    {
+                        NpcRigPartId.ThighNear,
+                        new Vector3(0f, -0.170f, 0f)
+                    },
+                    {
+                        NpcRigPartId.ShinNear,
+                        new Vector3(0f, -0.170f, 0f)
+                    },
+                    {
+                        NpcRigPartId.FootNear,
+                        new Vector3(0.04f, -0.035f, 0f)
                     }
                 };
 
