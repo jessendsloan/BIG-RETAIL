@@ -15,6 +15,7 @@ namespace BigRetail.Map.Walls.Tests
         private ConstructionAreaDefinition constructionArea;
         private WallState wallState;
         private WallConstructionService wallService;
+        private MutableFoundationSupport foundationSupport;
 
         [SetUp]
         public void SetUp()
@@ -52,11 +53,16 @@ namespace BigRetail.Map.Walls.Tests
             wallState =
                 new WallState();
 
+            foundationSupport =
+                new MutableFoundationSupport(
+                    constructionEligibleCells);
+
             wallService =
                 new WallConstructionService(
                     mapDefinition,
                     constructionArea,
-                    wallState);
+                    wallState,
+                    foundationSupport);
         }
 
         [Test]
@@ -91,6 +97,71 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(result.Succeeded, Is.True);
             Assert.That(wallState.HasWall(edge), Is.False);
             Assert.That(wallState.WallCount, Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void EvaluatePlacement_NoAdjacentFoundation_IsRejected()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(0, 0),
+                    CellEdgeDirection.NorthEast);
+
+            foundationSupport.Remove(edge.FirstCell);
+            foundationSupport.Remove(edge.SecondCell);
+
+            WallChangeResult result =
+                wallService.EvaluatePlacement(edge);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    WallChangeFailure.MissingFoundation));
+            Assert.That(wallState.HasWall(edge), Is.False);
+        }
+
+
+        [Test]
+        public void EvaluatePlacement_OneAdjacentFoundation_IsSupported()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(0, 0),
+                    CellEdgeDirection.NorthEast);
+
+            foundationSupport.Remove(edge.SecondCell);
+
+            WallChangeResult result =
+                wallService.EvaluatePlacement(edge);
+
+            Assert.That(result.Succeeded, Is.True);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_AddWithoutFoundation_IsRejected()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(0, 0),
+                    CellEdgeDirection.NorthEast);
+
+            foundationSupport.Remove(edge.FirstCell);
+            foundationSupport.Remove(edge.SecondCell);
+
+            WallBatchChangeResult result =
+                wallService.TryApplyEdit(
+                    WallEdit.AddWalls(
+                        new[] { edge }));
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    WallChangeFailure.MissingFoundation));
+            Assert.That(wallState.HasWall(edge), Is.False);
         }
 
         [Test]
@@ -317,6 +388,35 @@ namespace BigRetail.Map.Walls.Tests
 
             Assert.That(restoredState.HasWall(existingWall), Is.True);
             Assert.That(restoredState.WallCount, Is.EqualTo(1));
+        }
+
+
+        private sealed class MutableFoundationSupport :
+            IFoundationSupportQuery
+        {
+            private readonly HashSet<GridPosition> supportedCells;
+
+
+            public MutableFoundationSupport(
+                IEnumerable<GridPosition> cells)
+            {
+                supportedCells =
+                    new HashSet<GridPosition>(cells);
+            }
+
+
+            public bool HasFoundation(
+                GridPosition cell)
+            {
+                return supportedCells.Contains(cell);
+            }
+
+
+            public void Remove(
+                GridPosition cell)
+            {
+                supportedCells.Remove(cell);
+            }
         }
     }
 }

@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Construction;
 using BigRetail.Map.Foundations;
+using BigRetail.Map.Unity.Floors;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Foundations
@@ -12,11 +15,17 @@ namespace BigRetail.Map.Unity.Foundations
     /// This host owns mutable foundation state derived from that data.
     /// </summary>
     [DisallowMultipleComponent]
-    [DefaultExecutionOrder(-90)]
-    public sealed class FoundationRuntimeHost : MonoBehaviour
+    [DefaultExecutionOrder(-95)]
+    public sealed class FoundationRuntimeHost :
+        MonoBehaviour,
+        IFoundationSupportQuery,
+        IFoundationRemovalValidator
     {
         [SerializeField]
         private GridMapHost mapHost;
+
+        [SerializeField]
+        private FloorRuntimeHost floorRuntimeHost;
 
         public bool IsInitialized { get; private set; }
 
@@ -84,7 +93,8 @@ namespace BigRetail.Map.Unity.Foundations
                 new FoundationConstructionService(
                     mapHost.MapDefinition,
                     mapHost.ConstructionArea,
-                    FoundationState);
+                    FoundationState,
+                    this);
 
             IsInitialized = true;
             Initialized?.Invoke(this);
@@ -97,6 +107,90 @@ namespace BigRetail.Map.Unity.Foundations
                 this);
 
             return true;
+        }
+
+
+        public bool HasFoundation(
+            GridPosition cell)
+        {
+            return IsInitialized
+                && FoundationState != null
+                && FoundationState.HasFoundation(cell);
+        }
+
+
+        public FoundationRemovalValidation ValidateRemoval(
+            IReadOnlyList<GridPosition> cells)
+        {
+            if (cells == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(cells));
+            }
+
+            if (cells.Count == 0)
+            {
+                return FoundationRemovalValidation.Allowed();
+            }
+
+            if (!IsInitialized
+                || FoundationState == null
+                || mapHost == null
+                || mapHost.WallState == null
+                || floorRuntimeHost == null
+                || !floorRuntimeHost.TryInitialize()
+                || floorRuntimeHost.FloorState == null)
+            {
+                return FoundationRemovalValidation.Blocked(
+                    cells[0]);
+            }
+
+            HashSet<GridPosition> removedCells =
+                new HashSet<GridPosition>(
+                    cells);
+
+            foreach (GridPosition cell in removedCells)
+            {
+                if (floorRuntimeHost.FloorState.HasFloor(cell))
+                {
+                    return FoundationRemovalValidation.Blocked(
+                        cell);
+                }
+            }
+
+            foreach (CellEdge wall in mapHost.WallState.EnumerateWalls())
+            {
+                bool removesFirst =
+                    removedCells.Contains(wall.FirstCell);
+
+                bool removesSecond =
+                    removedCells.Contains(wall.SecondCell);
+
+                if (!removesFirst
+                    && !removesSecond)
+                {
+                    continue;
+                }
+
+                bool firstRemainsSupported =
+                    FoundationState.HasFoundation(wall.FirstCell)
+                    && !removesFirst;
+
+                bool secondRemainsSupported =
+                    FoundationState.HasFoundation(wall.SecondCell)
+                    && !removesSecond;
+
+                if (!firstRemainsSupported
+                    && !secondRemainsSupported)
+                {
+                    return FoundationRemovalValidation.Blocked(
+                        removesFirst
+                            ? wall.FirstCell
+                            : wall.SecondCell);
+                }
+            }
+
+            return FoundationRemovalValidation.Allowed();
         }
 
         private void HandleMapInitialized(
@@ -119,6 +213,14 @@ namespace BigRetail.Map.Unity.Foundations
             {
                 Debug.LogWarning(
                     "FoundationRuntimeHost requires a GridMapHost reference.",
+                    this);
+            }
+
+            if (floorRuntimeHost == null)
+            {
+                Debug.LogWarning(
+                    "FoundationRuntimeHost requires a FloorRuntimeHost " +
+                    "reference to protect supported construction.",
                     this);
             }
         }

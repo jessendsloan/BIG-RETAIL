@@ -3,7 +3,10 @@ using System.Reflection;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Foundations;
+using BigRetail.Map.Floors;
 using BigRetail.Map.Unity.Foundations;
+using BigRetail.Map.Unity.Floors;
+using BigRetail.Map.Walls;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -124,6 +127,217 @@ namespace BigRetail.Map.Unity.Tests
             }
         }
 
+
+        [Test]
+        public void ValidateRemoval_FloorOccupiesCell_IsBlocked()
+        {
+            GameObject mapObject =
+                new GameObject("Supported Floor Map");
+
+            GameObject foundationObject =
+                new GameObject("Foundation Runtime Host");
+
+            GameObject floorObject =
+                new GameObject("Floor Runtime Host");
+
+            mapObject.SetActive(false);
+            foundationObject.SetActive(false);
+            floorObject.SetActive(false);
+
+            try
+            {
+                GridMapHost mapHost =
+                    mapObject.AddComponent<GridMapHost>();
+
+                ConfigureInitializedMapHost(mapHost);
+
+                FoundationRuntimeHost foundationHost =
+                    foundationObject
+                        .AddComponent<FoundationRuntimeHost>();
+
+                FloorRuntimeHost floorHost =
+                    floorObject.AddComponent<FloorRuntimeHost>();
+
+                SetPrivateField(
+                    foundationHost,
+                    "mapHost",
+                    mapHost);
+
+                SetPrivateField(
+                    foundationHost,
+                    "floorRuntimeHost",
+                    floorHost);
+
+                SetPrivateField(
+                    floorHost,
+                    "mapHost",
+                    mapHost);
+
+                SetPrivateField(
+                    floorHost,
+                    "foundationRuntimeHost",
+                    foundationHost);
+
+                Assert.That(
+                    foundationHost.TryInitialize(),
+                    Is.True);
+
+                Assert.That(
+                    floorHost.TryInitialize(),
+                    Is.True);
+
+                GridPosition cell =
+                    new GridPosition(0, 0);
+
+                Assert.That(
+                    foundationHost.FoundationConstruction
+                        .TryEnsureFoundations(
+                            new[] { cell })
+                        .Succeeded,
+                    Is.True);
+
+                Assert.That(
+                    floorHost.FloorConstruction
+                        .TryEnsureFloors(
+                            new[] { cell })
+                        .Succeeded,
+                    Is.True);
+
+                FoundationRemovalValidation validation =
+                    foundationHost.ValidateRemoval(
+                        new[] { cell });
+
+                Assert.That(validation.IsAllowed, Is.False);
+                Assert.That(validation.BlockedCell, Is.EqualTo(cell));
+            }
+            finally
+            {
+                Object.DestroyImmediate(floorObject);
+                Object.DestroyImmediate(foundationObject);
+                Object.DestroyImmediate(mapObject);
+            }
+        }
+
+
+        [Test]
+        public void ValidateRemoval_WallRequiresAtLeastOneRemainingFoundation()
+        {
+            GameObject mapObject =
+                new GameObject("Supported Wall Map");
+
+            GameObject foundationObject =
+                new GameObject("Foundation Runtime Host");
+
+            GameObject floorObject =
+                new GameObject("Floor Runtime Host");
+
+            mapObject.SetActive(false);
+            foundationObject.SetActive(false);
+            floorObject.SetActive(false);
+
+            try
+            {
+                GridMapHost mapHost =
+                    mapObject.AddComponent<GridMapHost>();
+
+                ConfigureInitializedMapHost(mapHost);
+
+                CellEdge wall =
+                    new CellEdge(
+                        new GridPosition(0, 0),
+                        CellEdgeDirection.NorthEast);
+
+                SetAutoPropertyBackingField(
+                    mapHost,
+                    "WallState",
+                    new WallState(
+                        new[] { wall }));
+
+                FoundationRuntimeHost foundationHost =
+                    foundationObject
+                        .AddComponent<FoundationRuntimeHost>();
+
+                FloorRuntimeHost floorHost =
+                    floorObject.AddComponent<FloorRuntimeHost>();
+
+                SetPrivateField(
+                    foundationHost,
+                    "mapHost",
+                    mapHost);
+
+                SetPrivateField(
+                    foundationHost,
+                    "floorRuntimeHost",
+                    floorHost);
+
+                SetPrivateField(
+                    floorHost,
+                    "mapHost",
+                    mapHost);
+
+                SetPrivateField(
+                    floorHost,
+                    "foundationRuntimeHost",
+                    foundationHost);
+
+                Assert.That(
+                    foundationHost.TryInitialize(),
+                    Is.True);
+
+                Assert.That(
+                    floorHost.TryInitialize(),
+                    Is.True);
+
+                Assert.That(
+                    foundationHost.FoundationConstruction
+                        .TryEnsureFoundations(
+                            new[] { wall.FirstCell })
+                        .Succeeded,
+                    Is.True);
+
+                FoundationRemovalValidation blockedValidation =
+                    foundationHost.ValidateRemoval(
+                        new[] { wall.FirstCell });
+
+                Assert.That(
+                    blockedValidation.IsAllowed,
+                    Is.False);
+
+                Assert.That(
+                    foundationHost.FoundationConstruction
+                        .TryEnsureFoundations(
+                            new[] { wall.SecondCell })
+                        .Succeeded,
+                    Is.True);
+
+                FoundationRemovalValidation allowedValidation =
+                    foundationHost.ValidateRemoval(
+                        new[] { wall.FirstCell });
+
+                Assert.That(
+                    allowedValidation.IsAllowed,
+                    Is.True);
+
+                FoundationRemovalValidation batchValidation =
+                    foundationHost.ValidateRemoval(
+                        new[]
+                        {
+                            wall.FirstCell,
+                            wall.SecondCell
+                        });
+
+                Assert.That(
+                    batchValidation.IsAllowed,
+                    Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(floorObject);
+                Object.DestroyImmediate(foundationObject);
+                Object.DestroyImmediate(mapObject);
+            }
+        }
+
         private static void ConfigureInitializedMapHost(
             GridMapHost mapHost)
         {
@@ -154,6 +368,11 @@ namespace BigRetail.Map.Unity.Tests
                 mapHost,
                 "ConstructionArea",
                 constructionArea);
+
+            SetAutoPropertyBackingField(
+                mapHost,
+                "WallState",
+                new WallState());
 
             SetAutoPropertyBackingField(
                 mapHost,

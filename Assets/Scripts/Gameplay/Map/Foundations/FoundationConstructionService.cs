@@ -12,17 +12,20 @@ namespace BigRetail.Map.Foundations
     /// placement requests, empty cells satisfy removal requests, and invalid
     /// placement cells are skipped. Exact edit replay is strict and atomic.
     /// </summary>
-    public sealed class FoundationConstructionService
+    public sealed class FoundationConstructionService :
+        IFoundationSupportQuery
     {
         private readonly GridMapDefinition mapDefinition;
         private readonly ConstructionAreaDefinition constructionArea;
         private readonly FoundationState foundationState;
+        private readonly IFoundationRemovalValidator removalValidator;
 
 
         public FoundationConstructionService(
             GridMapDefinition mapDefinition,
             ConstructionAreaDefinition constructionArea,
-            FoundationState foundationState)
+            FoundationState foundationState,
+            IFoundationRemovalValidator removalValidator)
         {
             this.mapDefinition =
                 mapDefinition
@@ -38,6 +41,11 @@ namespace BigRetail.Map.Foundations
                 foundationState
                 ?? throw new ArgumentNullException(
                     nameof(foundationState));
+
+            this.removalValidator =
+                removalValidator
+                ?? throw new ArgumentNullException(
+                    nameof(removalValidator));
         }
 
 
@@ -45,6 +53,36 @@ namespace BigRetail.Map.Foundations
             GridPosition cell)
         {
             return foundationState.HasFoundation(cell);
+        }
+
+
+        /// <summary>
+        /// Evaluates whether removing one existing Foundation would preserve
+        /// every dependent Floor and Wall.
+        /// </summary>
+        public FoundationChangeResult EvaluateRemoval(
+            GridPosition cell)
+        {
+            if (!foundationState.HasFoundation(cell))
+            {
+                return FoundationChangeResult.Rejected(
+                    cell,
+                    FoundationChangeFailure.NotFound);
+            }
+
+            FoundationRemovalValidation validation =
+                removalValidator.ValidateRemoval(
+                    new[] { cell });
+
+            if (!validation.IsAllowed)
+            {
+                return FoundationChangeResult.Rejected(
+                    validation.BlockedCell,
+                    FoundationChangeFailure
+                        .SupportsConstruction);
+            }
+
+            return FoundationChangeResult.Success(cell);
         }
 
 
@@ -221,6 +259,20 @@ namespace BigRetail.Map.Foundations
                 }
             }
 
+            FoundationRemovalValidation validation =
+                removalValidator.ValidateRemoval(
+                    existingCells);
+
+            if (!validation.IsAllowed)
+            {
+                return FoundationClearResult.Rejected(
+                    cells.Count,
+                    uniqueCells.Count,
+                    validation.BlockedCell,
+                    FoundationChangeFailure
+                        .SupportsConstruction);
+            }
+
             if (existingCells.Count > 0
                 && !foundationState.TryRemoveFoundations(
                     existingCells))
@@ -317,6 +369,19 @@ namespace BigRetail.Map.Foundations
                         cell,
                         FoundationChangeFailure.NotFound);
                 }
+            }
+
+            FoundationRemovalValidation validation =
+                removalValidator.ValidateRemoval(
+                    edit.Cells);
+
+            if (!validation.IsAllowed)
+            {
+                return FoundationBatchChangeResult.Rejected(
+                    edit.Count,
+                    validation.BlockedCell,
+                    FoundationChangeFailure
+                        .SupportsConstruction);
             }
 
             if (!foundationState.TryRemoveFoundations(edit.Cells))

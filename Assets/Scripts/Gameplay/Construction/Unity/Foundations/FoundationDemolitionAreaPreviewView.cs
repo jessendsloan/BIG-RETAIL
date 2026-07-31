@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Foundations;
 using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
@@ -12,6 +13,7 @@ namespace BigRetail.Construction.Unity.Foundations
     /// Displays a temporary rectangular Foundation-demolition preview.
     ///
     /// Orange means an existing Foundation will be removed.
+    /// Red means the Foundation currently supports a Floor or Wall.
     /// Gray means the cell is already empty and will be skipped.
     ///
     /// This component owns only the exact cells it places on its dedicated
@@ -69,6 +71,14 @@ namespace BigRetail.Construction.Unity.Foundations
                 0.42f,
                 0.72f);
 
+        [SerializeField]
+        private Color blockedColor =
+            new Color(
+                1f,
+                0.2f,
+                0.2f,
+                0.92f);
+
 
         private readonly Dictionary<GridPosition, Vector3Int>
             ownedDisplayCells =
@@ -88,6 +98,12 @@ namespace BigRetail.Construction.Unity.Foundations
         }
 
         public int EmptyCellCount
+        {
+            get;
+            private set;
+        }
+
+        public int BlockedCellCount
         {
             get;
             private set;
@@ -144,6 +160,7 @@ namespace BigRetail.Construction.Unity.Foundations
 
             RemovableCellCount = 0;
             EmptyCellCount = 0;
+            BlockedCellCount = 0;
 
             for (int index = 0;
                  index < plan.CellCount;
@@ -165,8 +182,20 @@ namespace BigRetail.Construction.Unity.Foundations
 
                 if (hasFoundation)
                 {
-                    RemovableCellCount++;
-                    previewColor = removableColor;
+                    FoundationChangeResult evaluation =
+                        foundationRuntimeHost.FoundationConstruction
+                            .EvaluateRemoval(cell);
+
+                    if (evaluation.Succeeded)
+                    {
+                        RemovableCellCount++;
+                        previewColor = removableColor;
+                    }
+                    else
+                    {
+                        BlockedCellCount++;
+                        previewColor = blockedColor;
+                    }
                 }
                 else
                 {
@@ -187,6 +216,7 @@ namespace BigRetail.Construction.Unity.Foundations
 
             RemovableCellCount = 0;
             EmptyCellCount = 0;
+            BlockedCellCount = 0;
         }
 
 

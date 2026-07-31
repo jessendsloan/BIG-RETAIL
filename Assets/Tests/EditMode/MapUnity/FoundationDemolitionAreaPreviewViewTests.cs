@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Floors;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Foundations;
+using BigRetail.Map.Unity.Floors;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
+using BigRetail.Map.Walls;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -241,6 +244,29 @@ namespace BigRetail.Map.Unity.Tests
 
             SetAutoPropertyBackingField(
                 mapHost,
+                "WallState",
+                new WallState());
+
+            SetAutoPropertyBackingField(
+                mapHost,
+                "IsInitialized",
+                true);
+
+            GameObject floorHostObject =
+                new GameObject("Floor Runtime Host");
+
+            floorHostObject.SetActive(false);
+
+            FloorRuntimeHost floorHost =
+                floorHostObject.AddComponent<FloorRuntimeHost>();
+
+            SetAutoPropertyBackingField(
+                floorHost,
+                "FloorState",
+                new FloorState());
+
+            SetAutoPropertyBackingField(
+                floorHost,
                 "IsInitialized",
                 true);
 
@@ -256,6 +282,11 @@ namespace BigRetail.Map.Unity.Tests
                 runtimeHost,
                 "mapHost",
                 mapHost);
+
+            SetPrivateField(
+                runtimeHost,
+                "floorRuntimeHost",
+                floorHost);
 
             Assert.That(
                 runtimeHost.TryInitialize(),
@@ -331,6 +362,7 @@ namespace BigRetail.Map.Unity.Tests
 
             return new PreviewFixture(
                 mapObject,
+                floorHostObject,
                 runtimeHostObject,
                 viewHostObject,
                 gridObject,
@@ -467,6 +499,7 @@ namespace BigRetail.Map.Unity.Tests
         private sealed class PreviewFixture
         {
             private readonly GameObject mapObject;
+            private readonly GameObject floorHostObject;
             private readonly GameObject runtimeHostObject;
             private readonly GameObject viewHostObject;
             private readonly GameObject gridObject;
@@ -483,6 +516,7 @@ namespace BigRetail.Map.Unity.Tests
 
             public PreviewFixture(
                 GameObject mapObject,
+                GameObject floorHostObject,
                 GameObject runtimeHostObject,
                 GameObject viewHostObject,
                 GameObject gridObject,
@@ -492,6 +526,7 @@ namespace BigRetail.Map.Unity.Tests
                 Component preview)
             {
                 this.mapObject = mapObject;
+                this.floorHostObject = floorHostObject;
                 this.runtimeHostObject = runtimeHostObject;
                 this.viewHostObject = viewHostObject;
                 this.gridObject = gridObject;
@@ -508,6 +543,7 @@ namespace BigRetail.Map.Unity.Tests
                 Object.DestroyImmediate(gridObject);
                 Object.DestroyImmediate(viewHostObject);
                 Object.DestroyImmediate(runtimeHostObject);
+                Object.DestroyImmediate(floorHostObject);
                 Object.DestroyImmediate(mapObject);
             }
         }

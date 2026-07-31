@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.Floors;
+using BigRetail.Map.Unity.Foundations;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Floors
@@ -16,6 +17,9 @@ namespace BigRetail.Map.Unity.Floors
     {
         [SerializeField]
         private GridMapHost mapHost;
+
+        [SerializeField]
+        private FoundationRuntimeHost foundationRuntimeHost;
 
 
         public bool IsInitialized { get; private set; }
@@ -42,6 +46,12 @@ namespace BigRetail.Map.Unity.Floors
             {
                 mapHost.Initialized +=
                     HandleMapInitialized;
+            }
+
+            if (foundationRuntimeHost != null)
+            {
+                foundationRuntimeHost.Initialized +=
+                    HandleFoundationInitialized;
             }
         }
 
@@ -72,7 +82,9 @@ namespace BigRetail.Map.Unity.Floors
             if (mapHost == null
                 || !mapHost.IsInitialized
                 || mapHost.MapDefinition == null
-                || mapHost.ConstructionArea == null)
+                || mapHost.ConstructionArea == null
+                || foundationRuntimeHost == null
+                || !foundationRuntimeHost.TryInitialize())
             {
                 return false;
             }
@@ -84,7 +96,8 @@ namespace BigRetail.Map.Unity.Floors
                 new FloorConstructionService(
                     mapHost.MapDefinition,
                     mapHost.ConstructionArea,
-                    FloorState);
+                    FloorState,
+                    foundationRuntimeHost);
 
             IsInitialized = true;
 
@@ -107,12 +120,25 @@ namespace BigRetail.Map.Unity.Floors
         }
 
 
+        private void HandleFoundationInitialized(
+            FoundationRuntimeHost initializedFoundationHost)
+        {
+            TryInitialize();
+        }
+
+
         private void OnDisable()
         {
             if (mapHost != null)
             {
                 mapHost.Initialized -=
                     HandleMapInitialized;
+            }
+
+            if (foundationRuntimeHost != null)
+            {
+                foundationRuntimeHost.Initialized -=
+                    HandleFoundationInitialized;
             }
         }
 
@@ -123,6 +149,14 @@ namespace BigRetail.Map.Unity.Floors
             {
                 Debug.LogWarning(
                     "FloorRuntimeHost requires a GridMapHost reference.",
+                    this);
+            }
+
+            if (foundationRuntimeHost == null)
+            {
+                Debug.LogWarning(
+                    "FloorRuntimeHost requires a FoundationRuntimeHost " +
+                    "reference.",
                     this);
             }
         }

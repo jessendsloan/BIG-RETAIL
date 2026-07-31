@@ -10,6 +10,7 @@ namespace BigRetail.Map.Foundations.Tests
     {
         private FoundationState foundationState;
         private FoundationConstructionService service;
+        private BlockingRemovalValidator removalValidator;
 
 
         [SetUp]
@@ -50,11 +51,15 @@ namespace BigRetail.Map.Foundations.Tests
             foundationState =
                 new FoundationState();
 
+            removalValidator =
+                new BlockingRemovalValidator();
+
             service =
                 new FoundationConstructionService(
                     map,
                     area,
-                    foundationState);
+                    foundationState,
+                    removalValidator);
         }
 
 
@@ -379,6 +384,92 @@ namespace BigRetail.Map.Foundations.Tests
 
 
         [Test]
+        public void TryClearFoundations_SupportedConstruction_IsAtomic()
+        {
+            GridPosition first =
+                CreateCell(1, 1);
+
+            GridPosition blocked =
+                CreateCell(2, 1);
+
+            Assert.That(
+                service.TryEnsureFoundations(
+                    new[] { first, blocked }).Succeeded,
+                Is.True);
+
+            removalValidator.BlockedCell = blocked;
+
+            FoundationClearResult result =
+                service.TryClearFoundations(
+                    new[] { first, blocked });
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FoundationChangeFailure
+                        .SupportsConstruction));
+            Assert.That(result.FailedCell, Is.EqualTo(blocked));
+            Assert.That(foundationState.HasFoundation(first), Is.True);
+            Assert.That(foundationState.HasFoundation(blocked), Is.True);
+        }
+
+
+        [Test]
+        public void EvaluateRemoval_SupportedConstruction_IsRejected()
+        {
+            GridPosition cell =
+                CreateCell(2, 2);
+
+            Assert.That(
+                service.TryEnsureFoundations(
+                    new[] { cell }).Succeeded,
+                Is.True);
+
+            removalValidator.BlockedCell = cell;
+
+            FoundationChangeResult result =
+                service.EvaluateRemoval(cell);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FoundationChangeFailure
+                        .SupportsConstruction));
+            Assert.That(foundationState.HasFoundation(cell), Is.True);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_RemoveSupportedFoundation_IsRejected()
+        {
+            GridPosition cell =
+                CreateCell(2, 2);
+
+            Assert.That(
+                service.TryEnsureFoundations(
+                    new[] { cell }).Succeeded,
+                Is.True);
+
+            removalValidator.BlockedCell = cell;
+
+            FoundationBatchChangeResult result =
+                service.TryApplyEdit(
+                    FoundationEdit.RemoveFoundations(
+                        new[] { cell }));
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FoundationChangeFailure
+                        .SupportsConstruction));
+            Assert.That(foundationState.HasFoundation(cell), Is.True);
+        }
+
+
+        [Test]
         public void TryApplyEdit_AddWithExistingCell_IsAtomic()
         {
             GridPosition existing =
@@ -491,6 +582,27 @@ namespace BigRetail.Map.Foundations.Tests
                 x,
                 y,
                 0);
+        }
+
+
+        private sealed class BlockingRemovalValidator :
+            IFoundationRemovalValidator
+        {
+            public GridPosition? BlockedCell
+            {
+                get;
+                set;
+            }
+
+
+            public FoundationRemovalValidation ValidateRemoval(
+                IReadOnlyList<GridPosition> cells)
+            {
+                return BlockedCell.HasValue
+                    ? FoundationRemovalValidation.Blocked(
+                        BlockedCell.Value)
+                    : FoundationRemovalValidation.Allowed();
+            }
         }
     }
 }

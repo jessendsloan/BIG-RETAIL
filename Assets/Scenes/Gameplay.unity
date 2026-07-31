@@ -147868,6 +147868,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Floors.FloorRuntimeHost
   mapHost: {fileID: 1863031834}
+  foundationRuntimeHost: {fileID: 447959067}
 --- !u!4 &336439092
 Transform:
   m_ObjectHideFlags: 0
@@ -148037,6 +148038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Foundations.FoundationRuntimeHost
   mapHost: {fileID: 1863031834}
+  floorRuntimeHost: {fileID: 336439091}
 --- !u!1 &456371214
 GameObject:
   m_ObjectHideFlags: 0
@@ -391926,6 +391928,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.GridMapHost
   mapAuthoring: {fileID: 1863031835}
   wallFinishAssets: {fileID: 11400000, guid: 4c45a1780b6138c4fa94569590cebe5c, type: 2}
+  foundationRuntimeHost: {fileID: 447959067}
   logInitializationSummary: 1
 --- !u!114 &1863031835
 MonoBehaviour:
@@ -392108,6 +392111,7 @@ MonoBehaviour:
   unityCellZ: 0
   removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
   emptyColor: {r: 0.42, g: 0.42, b: 0.42, a: 0.72}
+  blockedColor: {r: 1, g: 0.2, b: 0.2, a: 0.92}
 --- !u!483693784 &2040992008
 TilemapRenderer:
   serializedVersion: 2

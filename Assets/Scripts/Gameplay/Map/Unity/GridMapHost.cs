@@ -2,6 +2,7 @@ using System;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Unity.Walls;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Walls;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ namespace BigRetail.Map.Unity
 
         [SerializeField]
         private WallFinishAssetCatalog wallFinishAssets;
+
+        [SerializeField]
+        private FoundationRuntimeHost foundationRuntimeHost;
 
 
         [Header("Diagnostics")]
@@ -145,6 +149,16 @@ namespace BigRetail.Map.Unity
                 return;
             }
 
+            if (foundationRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "GridMapHost has no FoundationRuntimeHost assigned.",
+                    this);
+
+                enabled = false;
+                return;
+            }
+
             try
             {
                 MapDefinition =
@@ -164,7 +178,8 @@ namespace BigRetail.Map.Unity
                     new WallConstructionService(
                         MapDefinition,
                         ConstructionArea,
-                        WallState);
+                        WallState,
+                        foundationRuntimeHost);
 
                 WallFinishCatalog =
                     wallFinishAssets.CreateDomainCatalog();

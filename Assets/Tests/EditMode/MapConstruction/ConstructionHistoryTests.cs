@@ -375,13 +375,15 @@ namespace BigRetail.Map.Construction.Tests
                 new WallConstructionService(
                     map,
                     area,
-                    wallState);
+                    wallState,
+                    UnrestrictedFoundationSupportQuery.Instance);
 
             FloorConstructionService floorService =
                 new FloorConstructionService(
                     map,
                     area,
-                    floorState);
+                    floorState,
+                    UnrestrictedFoundationSupportQuery.Instance);
 
             CellEdge firstWall =
                 new CellEdge(
@@ -506,13 +508,15 @@ namespace BigRetail.Map.Construction.Tests
                 new WallConstructionService(
                     map,
                     area,
-                    new WallState());
+                    new WallState(),
+                    UnrestrictedFoundationSupportQuery.Instance);
 
             FloorConstructionService floorService =
                 new FloorConstructionService(
                     map,
                     area,
-                    new FloorState());
+                    new FloorState(),
+                    UnrestrictedFoundationSupportQuery.Instance);
 
             Assert.Throws<ArgumentException>(
                 () =>

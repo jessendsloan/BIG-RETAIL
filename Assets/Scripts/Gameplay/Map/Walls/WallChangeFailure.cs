@@ -30,6 +30,11 @@ namespace BigRetail.Map.Walls
         OutsideConstructionArea,
 
         /// <summary>
+        /// Neither logical cell touching the edge has Foundation support.
+        /// </summary>
+        MissingFoundation,
+
+        /// <summary>
         /// A wall already occupies the requested edge.
         /// </summary>
         AlreadyExists,

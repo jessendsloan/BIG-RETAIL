@@ -23,6 +23,12 @@ namespace BigRetail.Map.Foundations
         OutsideConstructionArea,
 
         /// <summary>
+        /// Removing the requested Foundation would leave a Floor or Wall
+        /// without structural support.
+        /// </summary>
+        SupportsConstruction,
+
+        /// <summary>
         /// A foundation already occupies the requested cell.
         /// </summary>
         AlreadyExists,

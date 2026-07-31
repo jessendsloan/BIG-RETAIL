@@ -345,7 +345,8 @@ namespace BigRetail.Map.Unity.Tests
             return new FoundationConstructionService(
                 mapDefinition,
                 constructionArea,
-                foundationState);
+                foundationState,
+                UnrestrictedFoundationRemovalValidator.Instance);
         }
 
         private static void SetPrivateField(

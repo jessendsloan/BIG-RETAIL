@@ -44,7 +44,8 @@ namespace BigRetail.Map.Foundations.Tests
                 new FoundationConstructionService(
                     map,
                     area,
-                    foundationState);
+                    foundationState,
+                    UnrestrictedFoundationRemovalValidator.Instance);
         }
 
 

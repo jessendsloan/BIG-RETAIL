@@ -420,7 +420,8 @@ namespace BigRetail.Map.Unity.Tests
                 new FoundationConstructionService(
                     mapDefinition,
                     constructionArea,
-                    foundationState);
+                    foundationState,
+                    UnrestrictedFoundationRemovalValidator.Instance);
 
             InvokePrivateMethod(
                 viewSystem,

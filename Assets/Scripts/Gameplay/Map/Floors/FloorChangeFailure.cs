@@ -23,6 +23,11 @@ namespace BigRetail.Map.Floors
         OutsideConstructionArea,
 
         /// <summary>
+        /// The requested cell has no constructed Foundation.
+        /// </summary>
+        MissingFoundation,
+
+        /// <summary>
         /// A floor already occupies the requested cell.
         /// </summary>
         AlreadyExists,
