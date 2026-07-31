@@ -374,12 +374,66 @@ namespace BigRetail.Characters.Rigging
                 horizontalMagnitude = 1f;
             }
 
+            bool mirrored =
+                NpcFacingUtility.IsMirrored(facing);
+
             scale.x =
-                NpcFacingUtility.IsMirrored(facing)
+                mirrored
                     ? -horizontalMagnitude
                     : horizontalMagnitude;
 
             mirrorRoot.localScale = scale;
+            ApplyDepthLayering(mirrored);
+        }
+
+
+        private void ApplyDepthLayering(
+            bool mirrored)
+        {
+            for (int index = 0; index < parts.Count; index++)
+            {
+                NpcRigPartBinding binding = parts[index];
+
+                if (binding == null
+                    || binding.SpriteRenderer == null)
+                {
+                    continue;
+                }
+
+                NpcRigPartId counterpart =
+                    NpcFacingUtility.GetMirroredDepthPart(
+                        binding.Id);
+
+                if (counterpart == binding.Id)
+                {
+                    continue;
+                }
+
+                NpcRigPartId sortingPart = mirrored
+                    ? counterpart
+                    : binding.Id;
+
+                binding.SpriteRenderer.sortingOrder =
+                    GetContractSortingOrder(sortingPart);
+            }
+        }
+
+        private static int GetContractSortingOrder(
+            NpcRigPartId partId)
+        {
+            foreach (NpcRigPartDefinition definition
+                     in NpcRigDefinition.PartDefinitions)
+            {
+                if (definition.Id == partId)
+                {
+                    return definition.SortingOrder;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(
+                nameof(partId),
+                partId,
+                "Unknown NPC rig part.");
         }
 
 
