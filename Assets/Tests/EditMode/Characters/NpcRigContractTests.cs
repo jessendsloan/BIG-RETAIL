@@ -138,22 +138,22 @@ namespace BigRetail.Characters.Rigging.Tests
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.SouthEast),
-                Is.False);
+                Is.True);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.NorthEast),
-                Is.False);
+                Is.True);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.SouthWest),
-                Is.True);
+                Is.False);
 
             Assert.That(
                 NpcFacingUtility.IsMirrored(
                     NpcFacing.NorthWest),
-                Is.True);
+                Is.False);
         }
 
         [Test]
