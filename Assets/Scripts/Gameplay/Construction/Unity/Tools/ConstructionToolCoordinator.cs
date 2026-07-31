@@ -21,6 +21,10 @@ namespace BigRetail.Construction.Unity.Tools
         private FoundationConstructionToolController
             foundationConstructionTool;
 
+        [SerializeField]
+        private FoundationDemolitionToolController
+            foundationDemolitionTool;
+
 
         [Header("Wall Tools")]
 
@@ -78,6 +82,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 foundationConstructionTool.ToolActiveChanged +=
                     HandleFoundationConstructionActivityChanged;
+            }
+
+            if (foundationDemolitionTool != null)
+            {
+                foundationDemolitionTool.ToolActiveChanged +=
+                    HandleFoundationDemolitionActivityChanged;
             }
 
             if (wallConstructionTool != null)
@@ -143,6 +153,11 @@ namespace BigRetail.Construction.Unity.Tools
                         .CancelCurrentGesture();
                     break;
 
+                case ConstructionToolMode.DemolishFoundations:
+                    foundationDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+
                 case ConstructionToolMode.BuildWalls:
                     wallConstructionTool
                         .CancelCurrentGesture();
@@ -173,6 +188,16 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 SetMode(
                     ConstructionToolMode.BuildFoundations);
+            }
+        }
+
+        [ContextMenu("Activate Foundation Demolition")]
+        public void ActivateFoundationDemolition()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.DemolishFoundations);
             }
         }
 
@@ -258,6 +283,10 @@ namespace BigRetail.Construction.Unity.Tools
                     mode
                     == ConstructionToolMode.BuildFoundations);
 
+                SetFoundationDemolitionActive(
+                    mode
+                    == ConstructionToolMode.DemolishFoundations);
+
                 SetWallConstructionActive(
                     mode
                     == ConstructionToolMode.BuildWalls);
@@ -305,6 +334,19 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 foundationConstructionTool.DeactivateTool();
+            }
+        }
+
+        private void SetFoundationDemolitionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                foundationDemolitionTool.ActivateTool();
+            }
+            else
+            {
+                foundationDemolitionTool.DeactivateTool();
             }
         }
 
@@ -385,6 +427,33 @@ namespace BigRetail.Construction.Unity.Tools
 
             if (CurrentMode
                 == ConstructionToolMode.BuildFoundations)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+        private void HandleFoundationDemolitionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.DemolishFoundations,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.DemolishFoundations)
             {
                 ApplyMode(
                     ConstructionToolMode.None,
@@ -519,6 +588,16 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (foundationDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "FoundationDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             if (wallConstructionTool == null)
             {
                 Debug.LogError(
@@ -585,6 +664,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 foundationConstructionTool.ToolActiveChanged -=
                     HandleFoundationConstructionActivityChanged;
+            }
+
+            if (foundationDemolitionTool != null)
+            {
+                foundationDemolitionTool.ToolActiveChanged -=
+                    HandleFoundationDemolitionActivityChanged;
             }
 
             if (wallConstructionTool != null)

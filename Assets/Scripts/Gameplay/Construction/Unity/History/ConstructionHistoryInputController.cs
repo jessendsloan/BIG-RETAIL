@@ -50,6 +50,10 @@ namespace BigRetail.Construction.Unity.History
             foundationConstructionTool;
 
         [SerializeField]
+        private FoundationDemolitionToolController
+            foundationDemolitionTool;
+
+        [SerializeField]
         private WallConstructionToolController
             wallConstructionTool;
 
@@ -201,6 +205,7 @@ namespace BigRetail.Construction.Unity.History
         {
             return
                 foundationConstructionTool.IsPlanningArea
+                || foundationDemolitionTool.IsPlanningArea
                 || wallConstructionTool.IsPlanningRun
                 || wallDemolitionTool.IsPlanningRun
                 || floorConstructionTool.IsPlanningArea
@@ -348,6 +353,16 @@ namespace BigRetail.Construction.Unity.History
                 Debug.LogError(
                     "ConstructionHistoryInputController has no " +
                     "FoundationConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (foundationDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "FoundationDemolitionToolController assigned.",
                     this);
 
                 isValid = false;

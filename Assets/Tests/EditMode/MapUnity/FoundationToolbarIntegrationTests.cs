@@ -56,6 +56,38 @@ namespace BigRetail.Map.Unity.Tests
                 Is.EqualTo("Foundations"));
         }
 
+        [Test]
+        public void DemolishFoundations_MapsToDemolitionToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            Assert.That(toSection, Is.Not.Null);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "DemolishFoundations")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Demolition"));
+        }
+
 
         [Test]
         public void FoundationSection_SelectsOnlyFoundationButton()

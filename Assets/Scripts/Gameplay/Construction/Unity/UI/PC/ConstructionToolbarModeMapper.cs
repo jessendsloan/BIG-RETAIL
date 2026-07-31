@@ -19,6 +19,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 ConstructionToolMode.BuildFoundations =>
                     ConstructionToolbarSection.Foundations,
 
+                ConstructionToolMode.DemolishFoundations =>
+                    ConstructionToolbarSection.Demolition,
+
                 ConstructionToolMode.BuildFloors =>
                     ConstructionToolbarSection.Floors,
 
