@@ -12,6 +12,12 @@ namespace BigRetail.Characters.Editor
     /// </summary>
     internal static class NpcRigLabAnimationGenerator
     {
+        private const string PolishedWalkMenuPath =
+            "Big Retail/Characters/Animation/Apply Polished Rowan Walk";
+
+        private const float RowanPelvisX = -0.065f;
+        private const float RowanPelvisY = 0.808f;
+
         public const string AnimationFolder =
             "Assets/Animations/Characters/Prototype";
 
@@ -20,6 +26,9 @@ namespace BigRetail.Characters.Editor
 
         public const string WalkClipPath =
             AnimationFolder + "/Rowan_Walk.anim";
+
+        public const string HandTunedWalkClipPath =
+            AnimationFolder + "/Rowan_Walk_HandTuned.anim";
 
         public const string ControllerPath =
             AnimationFolder + "/Rowan.controller";
@@ -30,6 +39,8 @@ namespace BigRetail.Characters.Editor
         {
             EnsureAssetFolder(
                 AnimationFolder);
+
+            PreserveHandTunedWalk();
 
             AnimationClip idleClip =
                 SaveOrUpdateClip(
@@ -65,19 +76,45 @@ namespace BigRetail.Characters.Editor
         }
 
 
+        [MenuItem(PolishedWalkMenuPath)]
+        public static void ApplyPolishedRowanWalk()
+        {
+            EnsureAssetFolder(
+                AnimationFolder);
+
+            PreserveHandTunedWalk();
+
+            AnimationClip walkClip =
+                SaveOrUpdateClip(
+                    CreateWalkClip(),
+                    WalkClipPath);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Selection.activeObject = walkClip;
+            EditorGUIUtility.PingObject(
+                walkClip);
+
+            Debug.Log(
+                "Applied Rowan's polished walk cycle and preserved "
+                + "the hand-tuned baseline.");
+        }
+
+
         private static AnimationClip CreateIdleClip()
         {
             AnimationClip clip =
                 CreateLoopingClip(
-                    "Rowan Idle");
+                    "Rowan_Idle");
 
             SetPositionYCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.Pelvis),
-                new Keyframe(0f, 0.90f),
-                new Keyframe(0.80f, 0.915f),
-                new Keyframe(1.60f, 0.90f));
+                new Keyframe(0f, RowanPelvisY),
+                new Keyframe(0.80f, RowanPelvisY + 0.010f),
+                new Keyframe(1.60f, RowanPelvisY));
 
             SetRotationCurve(
                 clip,
@@ -103,89 +140,205 @@ namespace BigRetail.Characters.Editor
         {
             AnimationClip clip =
                 CreateLoopingClip(
-                    "Rowan Walk");
+                    "Rowan_Walk");
+
+            // Eight distinct poses create contact, compression, passing,
+            // lift, and the mirrored second step. The ninth key closes the
+            // loop exactly at Rowan's 12 fps prototype cadence.
+            SetPositionXCurve(
+                clip,
+                BonePath(
+                    NpcRigBoneId.Pelvis),
+                SmoothKeys(
+                    RowanPelvisX + 0.007f,
+                    RowanPelvisX + 0.010f,
+                    RowanPelvisX,
+                    RowanPelvisX - 0.010f,
+                    RowanPelvisX - 0.007f,
+                    RowanPelvisX - 0.010f,
+                    RowanPelvisX,
+                    RowanPelvisX + 0.010f,
+                    RowanPelvisX + 0.007f));
 
             SetPositionYCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.Pelvis),
-                new Keyframe(0f, 0.90f),
-                new Keyframe(0.20f, 0.925f),
-                new Keyframe(0.40f, 0.90f),
-                new Keyframe(0.60f, 0.925f),
-                new Keyframe(0.80f, 0.90f));
+                SmoothKeys(
+                    RowanPelvisY,
+                    RowanPelvisY - 0.018f,
+                    RowanPelvisY + 0.008f,
+                    RowanPelvisY + 0.020f,
+                    RowanPelvisY,
+                    RowanPelvisY - 0.018f,
+                    RowanPelvisY + 0.008f,
+                    RowanPelvisY + 0.020f,
+                    RowanPelvisY));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ThighSourceCameraLeft),
-                AlternatingKeys(
-                    -17f,
-                    17f));
+                SmoothKeys(
+                    -20f,
+                    -16f,
+                    0f,
+                    14f,
+                    20f,
+                    16f,
+                    0f,
+                    -14f,
+                    -20f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ThighSourceCameraRight),
-                AlternatingKeys(
-                    17f,
-                    -17f));
+                SmoothKeys(
+                    20f,
+                    16f,
+                    0f,
+                    -14f,
+                    -20f,
+                    -16f,
+                    0f,
+                    14f,
+                    20f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ShinSourceCameraLeft),
-                AlternatingKeys(
-                    10f,
-                    -8f));
+                SmoothKeys(
+                    -2f,
+                    -5f,
+                    -3f,
+                    -7f,
+                    -12f,
+                    -22f,
+                    -32f,
+                    -15f,
+                    -2f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ShinSourceCameraRight),
-                AlternatingKeys(
-                    -8f,
-                    10f));
+                SmoothKeys(
+                    12f,
+                    22f,
+                    32f,
+                    15f,
+                    2f,
+                    5f,
+                    3f,
+                    7f,
+                    12f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.UpperArmSourceCameraLeft),
-                AlternatingKeys(
-                    14f,
-                    -14f));
+                SmoothKeys(
+                    13f,
+                    10f,
+                    0f,
+                    -10f,
+                    -13f,
+                    -10f,
+                    0f,
+                    10f,
+                    13f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.UpperArmSourceCameraRight),
-                AlternatingKeys(
-                    -14f,
-                    14f));
+                SmoothKeys(
+                    -13f,
+                    -10f,
+                    0f,
+                    10f,
+                    13f,
+                    10f,
+                    0f,
+                    -10f,
+                    -13f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ForearmSourceCameraLeft),
-                AlternatingKeys(
+                SmoothKeys(
+                    4f,
+                    6f,
+                    8f,
+                    10f,
+                    7f,
+                    6f,
                     5f,
-                    -5f));
+                    4f,
+                    4f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.ForearmSourceCameraRight),
-                AlternatingKeys(
+                SmoothKeys(
+                    -7f,
+                    -6f,
                     -5f,
-                    5f));
+                    -4f,
+                    -4f,
+                    -6f,
+                    -8f,
+                    -10f,
+                    -7f));
+
+            SetRotationCurve(
+                clip,
+                BonePath(
+                    NpcRigBoneId.SpineLower),
+                SmoothKeys(
+                    1f,
+                    0.5f,
+                    0f,
+                    -0.5f,
+                    -1f,
+                    -0.5f,
+                    0f,
+                    0.5f,
+                    1f));
 
             SetRotationCurve(
                 clip,
                 BonePath(
                     NpcRigBoneId.Chest),
-                AlternatingKeys(
-                    -2f,
-                    2f));
+                SmoothKeys(
+                    -2.4f,
+                    -1.6f,
+                    0f,
+                    1.6f,
+                    2.4f,
+                    1.6f,
+                    0f,
+                    -1.6f,
+                    -2.4f));
+
+            SetRotationCurve(
+                clip,
+                BonePath(
+                    NpcRigBoneId.Head),
+                SmoothKeys(
+                    0.8f,
+                    0.4f,
+                    0f,
+                    -0.4f,
+                    -0.8f,
+                    -0.4f,
+                    0f,
+                    0.4f,
+                    0.8f));
 
             return clip;
         }
@@ -327,7 +480,21 @@ namespace BigRetail.Characters.Editor
                 relativePath,
                 typeof(Transform),
                 "localPosition.y",
-                new AnimationCurve(
+                CreateSmoothCurve(
+                    keys));
+        }
+
+
+        private static void SetPositionXCurve(
+            AnimationClip clip,
+            string relativePath,
+            params Keyframe[] keys)
+        {
+            clip.SetCurve(
+                relativePath,
+                typeof(Transform),
+                "localPosition.x",
+                CreateSmoothCurve(
                     keys));
         }
 
@@ -341,23 +508,54 @@ namespace BigRetail.Characters.Editor
                 relativePath,
                 typeof(Transform),
                 "localEulerAnglesRaw.z",
-                new AnimationCurve(
+                CreateSmoothCurve(
                     keys));
         }
 
 
-        private static Keyframe[] AlternatingKeys(
-            float firstValue,
-            float secondValue)
+        private static Keyframe[] SmoothKeys(
+            params float[] values)
         {
-            return new[]
+            Keyframe[] keys =
+                new Keyframe[values.Length];
+
+            for (int index = 0;
+                 index < values.Length;
+                 index++)
             {
-                new Keyframe(0f, firstValue),
-                new Keyframe(0.20f, 0f),
-                new Keyframe(0.40f, secondValue),
-                new Keyframe(0.60f, 0f),
-                new Keyframe(0.80f, firstValue)
-            };
+                keys[index] =
+                    new Keyframe(
+                        index * 0.10f,
+                        values[index]);
+            }
+
+            return keys;
+        }
+
+
+        private static AnimationCurve CreateSmoothCurve(
+            params Keyframe[] keys)
+        {
+            AnimationCurve curve =
+                new AnimationCurve(
+                    keys);
+
+            for (int index = 0;
+                 index < curve.length;
+                 index++)
+            {
+                AnimationUtility.SetKeyLeftTangentMode(
+                    curve,
+                    index,
+                    AnimationUtility.TangentMode.ClampedAuto);
+
+                AnimationUtility.SetKeyRightTangentMode(
+                    curve,
+                    index,
+                    AnimationUtility.TangentMode.ClampedAuto);
+            }
+
+            return curve;
         }
 
 
@@ -371,6 +569,10 @@ namespace BigRetail.Characters.Editor
             {
                 case NpcRigBoneId.Pelvis:
                     return root + "/Pelvis";
+
+                case NpcRigBoneId.SpineLower:
+                    return root
+                        + "/Pelvis/SpineLower";
 
                 case NpcRigBoneId.Chest:
                     return root
@@ -453,6 +655,43 @@ namespace BigRetail.Characters.Editor
 
                 currentPath = nextPath;
             }
+        }
+
+
+        private static void PreserveHandTunedWalk()
+        {
+            if (AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    HandTunedWalkClipPath) != null)
+            {
+                return;
+            }
+
+            AnimationClip currentWalk =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    WalkClipPath);
+
+            if (currentWalk == null)
+            {
+                return;
+            }
+
+            if (!AssetDatabase.CopyAsset(
+                    WalkClipPath,
+                    HandTunedWalkClipPath))
+            {
+                throw new InvalidOperationException(
+                    "Could not preserve Rowan's hand-tuned walk clip.");
+            }
+
+            AnimationClip preservedWalk =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    HandTunedWalkClipPath);
+
+            preservedWalk.name =
+                "Rowan_Walk_HandTuned";
+
+            EditorUtility.SetDirty(
+                preservedWalk);
         }
     }
 }

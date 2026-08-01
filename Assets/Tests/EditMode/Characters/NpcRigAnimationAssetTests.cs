@@ -101,7 +101,20 @@ namespace BigRetail.Characters.Rigging.Tests
             Assert.That(
                 AnimationUtility.GetCurveBindings(
                     walkClip).Length,
-                Is.GreaterThanOrEqualTo(9));
+                Is.GreaterThanOrEqualTo(12));
+
+            Assert.That(
+                AnimationUtility.GetCurveBindings(
+                        walkClip)
+                    .Any(
+                        binding =>
+                            binding.path.Contains(
+                                "FootSourceCamera")
+                            && binding.propertyName.Contains(
+                                "Euler")),
+                Is.False,
+                "The shared walk clip must not override directional "
+                + "foot rotations authored by NpcCutoutRig.");
         }
 
 

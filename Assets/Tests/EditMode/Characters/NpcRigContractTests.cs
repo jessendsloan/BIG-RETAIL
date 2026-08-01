@@ -214,14 +214,20 @@ namespace BigRetail.Characters.Rigging.Tests
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.NorthEast,
-                    NpcRigPartId.FootSourceCameraLeft),
+                    NpcRigPartId.FootSourceCameraRight),
                 Is.EqualTo(12));
 
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.NorthEast,
-                    NpcRigPartId.ShinSourceCameraLeft),
+                    NpcRigPartId.ShinSourceCameraRight),
                 Is.EqualTo(14));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.FootSourceCameraLeft),
+                Is.EqualTo(4));
         }
 
         [Test]
