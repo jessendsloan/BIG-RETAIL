@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 9b24ea46d2dd22742bc6ee8cfb63bc40
+guid: 6308cbe39a9edd94d8781bbf9b6d70d8
 labels:
 - UnityAI
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5840042694825182955
-    second: UpperArmNear_0
+      213: 3633845538754256435
+    second: ThighSourceCameraRight_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UpperArmNear_0
+      name: ThighSourceCameraRight_0
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 51974d56c1004fea0800000000000000
-      internalID: -5840042694825182955
+      spriteID: 33ed51ab3430e6230800000000000000
+      internalID: 3633845538754256435
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      UpperArmNear_0: -5840042694825182955
+      ThighSourceCameraRight_0: 3633845538754256435
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

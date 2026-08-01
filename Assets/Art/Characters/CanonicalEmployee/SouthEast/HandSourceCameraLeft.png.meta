@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: c012300fa2bcfa04f9f8bc1edd4ac55c
+guid: b36fbcb857a0d0b4996f8ac1c501d74a
 labels:
 - UnityAI
 TextureImporter:
   internalIDToNameTable:
   - first:
       213: 3410244422758943318
-    second: HandFar_0
+    second: HandSourceCameraLeft_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: HandFar_0
+      name: HandSourceCameraLeft_0
       rect:
         serializedVersion: 2
         x: 0
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      HandFar_0: 3410244422758943318
+      HandSourceCameraLeft_0: 3410244422758943318
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

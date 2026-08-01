@@ -28,6 +28,16 @@ namespace BigRetail.Characters.Rigging
     }
 
     /// <summary>
+    /// A stable horizontal side in the active Game-view camera frame.
+    /// This never means the character's anatomical left or right.
+    /// </summary>
+    public enum NpcCameraSide
+    {
+        CameraLeft = 0,
+        CameraRight = 1
+    }
+
+    /// <summary>
     /// Stable identifiers for the canonical 20-bone NPC skeleton.
     /// </summary>
     public enum NpcRigBoneId
@@ -38,20 +48,20 @@ namespace BigRetail.Characters.Rigging
         Chest = 3,
         Neck = 4,
         Head = 5,
-        ShoulderFar = 6,
-        UpperArmFar = 7,
-        ForearmFar = 8,
-        HandFar = 9,
-        ShoulderNear = 10,
-        UpperArmNear = 11,
-        ForearmNear = 12,
-        HandNear = 13,
-        ThighFar = 14,
-        ShinFar = 15,
-        FootFar = 16,
-        ThighNear = 17,
-        ShinNear = 18,
-        FootNear = 19
+        ShoulderSourceCameraLeft = 6,
+        UpperArmSourceCameraLeft = 7,
+        ForearmSourceCameraLeft = 8,
+        HandSourceCameraLeft = 9,
+        ShoulderSourceCameraRight = 10,
+        UpperArmSourceCameraRight = 11,
+        ForearmSourceCameraRight = 12,
+        HandSourceCameraRight = 13,
+        ThighSourceCameraLeft = 14,
+        ShinSourceCameraLeft = 15,
+        FootSourceCameraLeft = 16,
+        ThighSourceCameraRight = 17,
+        ShinSourceCameraRight = 18,
+        FootSourceCameraRight = 19
     }
 
     /// <summary>
@@ -60,23 +70,23 @@ namespace BigRetail.Characters.Rigging
     public enum NpcRigPartId
     {
         HairRear = 0,
-        UpperArmFar = 1,
-        ForearmFar = 2,
-        HandFar = 3,
-        ThighFar = 4,
-        ShinFar = 5,
-        FootFar = 6,
+        UpperArmSourceCameraLeft = 1,
+        ForearmSourceCameraLeft = 2,
+        HandSourceCameraLeft = 3,
+        ThighSourceCameraLeft = 4,
+        ShinSourceCameraLeft = 5,
+        FootSourceCameraLeft = 6,
         Pelvis = 7,
         Torso = 8,
         Neck = 9,
         Head = 10,
         HairFront = 11,
-        ThighNear = 12,
-        ShinNear = 13,
-        FootNear = 14,
-        UpperArmNear = 15,
-        ForearmNear = 16,
-        HandNear = 17
+        ThighSourceCameraRight = 12,
+        ShinSourceCameraRight = 13,
+        FootSourceCameraRight = 14,
+        UpperArmSourceCameraRight = 15,
+        ForearmSourceCameraRight = 16,
+        HandSourceCameraRight = 17
     }
 
     /// <summary>
@@ -196,73 +206,73 @@ namespace BigRetail.Characters.Rigging
                     new Vector3(0f, 0.18f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShoulderFar,
+                    NpcRigBoneId.ShoulderSourceCameraLeft,
                     NpcRigBoneId.Chest,
                     new Vector3(-0.13f, 0.02f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.UpperArmFar,
-                    NpcRigBoneId.ShoulderFar,
+                    NpcRigBoneId.UpperArmSourceCameraLeft,
+                    NpcRigBoneId.ShoulderSourceCameraLeft,
                     Vector3.zero),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ForearmFar,
-                    NpcRigBoneId.UpperArmFar,
+                    NpcRigBoneId.ForearmSourceCameraLeft,
+                    NpcRigBoneId.UpperArmSourceCameraLeft,
                     new Vector3(-0.05f, -0.25f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.HandFar,
-                    NpcRigBoneId.ForearmFar,
+                    NpcRigBoneId.HandSourceCameraLeft,
+                    NpcRigBoneId.ForearmSourceCameraLeft,
                     new Vector3(-0.03f, -0.22f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShoulderNear,
+                    NpcRigBoneId.ShoulderSourceCameraRight,
                     NpcRigBoneId.Chest,
                     new Vector3(0.16f, 0f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.UpperArmNear,
-                    NpcRigBoneId.ShoulderNear,
+                    NpcRigBoneId.UpperArmSourceCameraRight,
+                    NpcRigBoneId.ShoulderSourceCameraRight,
                     Vector3.zero),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ForearmNear,
-                    NpcRigBoneId.UpperArmNear,
+                    NpcRigBoneId.ForearmSourceCameraRight,
+                    NpcRigBoneId.UpperArmSourceCameraRight,
                     new Vector3(0.06f, -0.26f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.HandNear,
-                    NpcRigBoneId.ForearmNear,
+                    NpcRigBoneId.HandSourceCameraRight,
+                    NpcRigBoneId.ForearmSourceCameraRight,
                     new Vector3(0.04f, -0.22f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ThighFar,
+                    NpcRigBoneId.ThighSourceCameraLeft,
                     NpcRigBoneId.Pelvis,
                     new Vector3(-0.10f, -0.04f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShinFar,
-                    NpcRigBoneId.ThighFar,
+                    NpcRigBoneId.ShinSourceCameraLeft,
+                    NpcRigBoneId.ThighSourceCameraLeft,
                     new Vector3(-0.02f, -0.36f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.FootFar,
-                    NpcRigBoneId.ShinFar,
+                    NpcRigBoneId.FootSourceCameraLeft,
+                    NpcRigBoneId.ShinSourceCameraLeft,
                     new Vector3(0.01f, -0.35f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ThighNear,
+                    NpcRigBoneId.ThighSourceCameraRight,
                     NpcRigBoneId.Pelvis,
                     new Vector3(0.10f, -0.04f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShinNear,
-                    NpcRigBoneId.ThighNear,
+                    NpcRigBoneId.ShinSourceCameraRight,
+                    NpcRigBoneId.ThighSourceCameraRight,
                     new Vector3(0.02f, -0.36f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.FootNear,
-                    NpcRigBoneId.ShinNear,
+                    NpcRigBoneId.FootSourceCameraRight,
+                    NpcRigBoneId.ShinSourceCameraRight,
                     new Vector3(0.01f, -0.35f, 0f))
             };
 
@@ -278,43 +288,43 @@ namespace BigRetail.Characters.Rigging
                     new Vector2(0.38f, 0.42f)),
 
                 DefinePart(
-                    NpcRigPartId.UpperArmFar,
-                    NpcRigBoneId.UpperArmFar,
+                    NpcRigPartId.UpperArmSourceCameraLeft,
+                    NpcRigBoneId.UpperArmSourceCameraLeft,
                     1,
                     new Vector2(-0.02f, -0.12f),
                     new Vector2(0.14f, 0.30f)),
 
                 DefinePart(
-                    NpcRigPartId.ForearmFar,
-                    NpcRigBoneId.ForearmFar,
+                    NpcRigPartId.ForearmSourceCameraLeft,
+                    NpcRigBoneId.ForearmSourceCameraLeft,
                     2,
                     new Vector2(-0.01f, -0.11f),
                     new Vector2(0.12f, 0.27f)),
 
                 DefinePart(
-                    NpcRigPartId.HandFar,
-                    NpcRigBoneId.HandFar,
+                    NpcRigPartId.HandSourceCameraLeft,
+                    NpcRigBoneId.HandSourceCameraLeft,
                     3,
                     new Vector2(0f, -0.07f),
                     new Vector2(0.12f, 0.16f)),
 
                 DefinePart(
-                    NpcRigPartId.ThighFar,
-                    NpcRigBoneId.ThighFar,
+                    NpcRigPartId.ThighSourceCameraLeft,
+                    NpcRigBoneId.ThighSourceCameraLeft,
                     4,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.18f, 0.40f)),
 
                 DefinePart(
-                    NpcRigPartId.ShinFar,
-                    NpcRigBoneId.ShinFar,
+                    NpcRigPartId.ShinSourceCameraLeft,
+                    NpcRigBoneId.ShinSourceCameraLeft,
                     5,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.15f, 0.39f)),
 
                 DefinePart(
-                    NpcRigPartId.FootFar,
-                    NpcRigBoneId.FootFar,
+                    NpcRigPartId.FootSourceCameraLeft,
+                    NpcRigBoneId.FootSourceCameraLeft,
                     6,
                     new Vector2(0.04f, -0.04f),
                     new Vector2(0.23f, 0.12f)),
@@ -355,43 +365,43 @@ namespace BigRetail.Characters.Rigging
                     new Vector2(0.36f, 0.32f)),
 
                 DefinePart(
-                    NpcRigPartId.ThighNear,
-                    NpcRigBoneId.ThighNear,
+                    NpcRigPartId.ThighSourceCameraRight,
+                    NpcRigBoneId.ThighSourceCameraRight,
                     12,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.18f, 0.40f)),
 
                 DefinePart(
-                    NpcRigPartId.ShinNear,
-                    NpcRigBoneId.ShinNear,
+                    NpcRigPartId.ShinSourceCameraRight,
+                    NpcRigBoneId.ShinSourceCameraRight,
                     13,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.15f, 0.39f)),
 
                 DefinePart(
-                    NpcRigPartId.FootNear,
-                    NpcRigBoneId.FootNear,
+                    NpcRigPartId.FootSourceCameraRight,
+                    NpcRigBoneId.FootSourceCameraRight,
                     14,
                     new Vector2(0.04f, -0.04f),
                     new Vector2(0.23f, 0.12f)),
 
                 DefinePart(
-                    NpcRigPartId.UpperArmNear,
-                    NpcRigBoneId.UpperArmNear,
+                    NpcRigPartId.UpperArmSourceCameraRight,
+                    NpcRigBoneId.UpperArmSourceCameraRight,
                     15,
                     new Vector2(0.02f, -0.12f),
                     new Vector2(0.14f, 0.30f)),
 
                 DefinePart(
-                    NpcRigPartId.ForearmNear,
-                    NpcRigBoneId.ForearmNear,
+                    NpcRigPartId.ForearmSourceCameraRight,
+                    NpcRigBoneId.ForearmSourceCameraRight,
                     16,
                     new Vector2(0.01f, -0.11f),
                     new Vector2(0.12f, 0.27f)),
 
                 DefinePart(
-                    NpcRigPartId.HandNear,
-                    NpcRigBoneId.HandNear,
+                    NpcRigPartId.HandSourceCameraRight,
+                    NpcRigBoneId.HandSourceCameraRight,
                     17,
                     new Vector2(0f, -0.07f),
                     new Vector2(0.12f, 0.16f))
@@ -475,43 +485,171 @@ namespace BigRetail.Characters.Rigging
         }
 
         /// <summary>
-        /// Returns the depth partner for a mirrored cutout limb. When the
-        /// character flips horizontally, the visual near/far limb positions
-        /// flip too, so their sorting order must exchange with this partner.
-        /// Center body parts return themselves.
+        /// The single presentation rule for the current fixed camera view.
+        /// Southeast presents the camera-left side in front; Southwest is
+        /// the mirrored counterpart. North-facing values are the matching
+        /// mirrored pair until their authored back view is introduced.
         /// </summary>
-        public static NpcRigPartId GetMirroredDepthPart(
-            NpcRigPartId partId)
+        public static NpcCameraSide GetForegroundCameraSide(
+            NpcFacing facing)
         {
+            switch (facing)
+            {
+                case NpcFacing.SouthEast:
+                case NpcFacing.NorthWest:
+                    return NpcCameraSide.CameraLeft;
+
+                case NpcFacing.SouthWest:
+                case NpcFacing.NorthEast:
+                    return NpcCameraSide.CameraRight;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(facing),
+                        facing,
+                        "Unknown NPC facing.");
+            }
+        }
+
+        /// <summary>
+        /// Resolves one paired limb's side in the current camera view. The
+        /// existing Far/Near identifiers describe source-canvas placement:
+        /// Far is camera-left in an unmirrored authored view and Near is
+        /// camera-right. Their displayed camera side reverses on a mirror.
+        /// </summary>
+        public static bool TryGetDisplayedCameraSide(
+            NpcFacing facing,
+            NpcRigPartId partId,
+            out NpcCameraSide cameraSide)
+        {
+            bool isSourceCameraLeft;
+
             switch (partId)
             {
-                case NpcRigPartId.UpperArmFar:
-                    return NpcRigPartId.UpperArmNear;
-                case NpcRigPartId.UpperArmNear:
-                    return NpcRigPartId.UpperArmFar;
-                case NpcRigPartId.ForearmFar:
-                    return NpcRigPartId.ForearmNear;
-                case NpcRigPartId.ForearmNear:
-                    return NpcRigPartId.ForearmFar;
-                case NpcRigPartId.HandFar:
-                    return NpcRigPartId.HandNear;
-                case NpcRigPartId.HandNear:
-                    return NpcRigPartId.HandFar;
-                case NpcRigPartId.ThighFar:
-                    return NpcRigPartId.ThighNear;
-                case NpcRigPartId.ThighNear:
-                    return NpcRigPartId.ThighFar;
-                case NpcRigPartId.ShinFar:
-                    return NpcRigPartId.ShinNear;
-                case NpcRigPartId.ShinNear:
-                    return NpcRigPartId.ShinFar;
-                case NpcRigPartId.FootFar:
-                    return NpcRigPartId.FootNear;
-                case NpcRigPartId.FootNear:
-                    return NpcRigPartId.FootFar;
+                case NpcRigPartId.UpperArmSourceCameraLeft:
+                case NpcRigPartId.ForearmSourceCameraLeft:
+                case NpcRigPartId.HandSourceCameraLeft:
+                case NpcRigPartId.ThighSourceCameraLeft:
+                case NpcRigPartId.ShinSourceCameraLeft:
+                case NpcRigPartId.FootSourceCameraLeft:
+                    isSourceCameraLeft = true;
+                    break;
+
+                case NpcRigPartId.UpperArmSourceCameraRight:
+                case NpcRigPartId.ForearmSourceCameraRight:
+                case NpcRigPartId.HandSourceCameraRight:
+                case NpcRigPartId.ThighSourceCameraRight:
+                case NpcRigPartId.ShinSourceCameraRight:
+                case NpcRigPartId.FootSourceCameraRight:
+                    isSourceCameraLeft = false;
+                    break;
+
                 default:
-                    return partId;
+                    cameraSide = default;
+                    return false;
             }
+
+            bool displayedCameraLeft =
+                IsMirrored(facing)
+                    ? !isSourceCameraLeft
+                    : isSourceCameraLeft;
+
+            cameraSide = displayedCameraLeft
+                ? NpcCameraSide.CameraLeft
+                : NpcCameraSide.CameraRight;
+            return true;
+        }
+
+        /// <summary>
+        /// Resolves a renderer order from the visible camera side and facing,
+        /// rather than from a permanently named Far/Near depth assumption.
+        /// </summary>
+        public static int GetPresentationSortingOrder(
+            NpcFacing facing,
+            NpcRigPartId partId)
+        {
+            bool northFacing =
+                NpcFacingUtility.GetAuthoredDirection(facing)
+                == NpcAuthoredDirection.NorthEast;
+
+            if (northFacing)
+            {
+                switch (partId)
+                {
+                    case NpcRigPartId.HairRear:
+                        // North-facing characters show the back-hair mass
+                        // over the head rather than the front fringe.
+                        return 11;
+
+                    case NpcRigPartId.HairFront:
+                        return 0;
+                }
+            }
+
+            if (!TryGetDisplayedCameraSide(
+                    facing,
+                    partId,
+                    out NpcCameraSide cameraSide))
+            {
+                return GetBaseSortingOrder(partId);
+            }
+
+            bool foreground = cameraSide
+                == GetForegroundCameraSide(facing);
+
+            switch (partId)
+            {
+                case NpcRigPartId.UpperArmSourceCameraLeft:
+                case NpcRigPartId.UpperArmSourceCameraRight:
+                    return foreground ? 15 : 1;
+
+                case NpcRigPartId.ForearmSourceCameraLeft:
+                case NpcRigPartId.ForearmSourceCameraRight:
+                    return foreground ? 16 : 2;
+
+                case NpcRigPartId.HandSourceCameraLeft:
+                case NpcRigPartId.HandSourceCameraRight:
+                    return foreground ? 17 : 3;
+
+                case NpcRigPartId.ThighSourceCameraLeft:
+                case NpcRigPartId.ThighSourceCameraRight:
+                    return northFacing
+                        ? (foreground ? 13 : 5)
+                        : (foreground ? 12 : 4);
+
+                case NpcRigPartId.ShinSourceCameraLeft:
+                case NpcRigPartId.ShinSourceCameraRight:
+                    return northFacing
+                        ? (foreground ? 14 : 6)
+                        : (foreground ? 13 : 5);
+
+                case NpcRigPartId.FootSourceCameraLeft:
+                case NpcRigPartId.FootSourceCameraRight:
+                    return northFacing
+                        ? (foreground ? 12 : 4)
+                        : (foreground ? 14 : 6);
+
+                default:
+                    return GetBaseSortingOrder(partId);
+            }
+        }
+
+        private static int GetBaseSortingOrder(
+            NpcRigPartId partId)
+        {
+            foreach (NpcRigPartDefinition definition
+                     in NpcRigDefinition.PartDefinitions)
+            {
+                if (definition.Id == partId)
+                {
+                    return definition.SortingOrder;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(
+                nameof(partId),
+                partId,
+                "Unknown NPC rig part.");
         }
     }
 }

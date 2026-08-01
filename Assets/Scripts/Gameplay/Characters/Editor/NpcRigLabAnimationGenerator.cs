@@ -118,7 +118,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ThighFar),
+                    NpcRigBoneId.ThighSourceCameraLeft),
                 AlternatingKeys(
                     -17f,
                     17f));
@@ -126,7 +126,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ThighNear),
+                    NpcRigBoneId.ThighSourceCameraRight),
                 AlternatingKeys(
                     17f,
                     -17f));
@@ -134,7 +134,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ShinFar),
+                    NpcRigBoneId.ShinSourceCameraLeft),
                 AlternatingKeys(
                     10f,
                     -8f));
@@ -142,7 +142,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ShinNear),
+                    NpcRigBoneId.ShinSourceCameraRight),
                 AlternatingKeys(
                     -8f,
                     10f));
@@ -150,7 +150,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.UpperArmFar),
+                    NpcRigBoneId.UpperArmSourceCameraLeft),
                 AlternatingKeys(
                     14f,
                     -14f));
@@ -158,7 +158,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.UpperArmNear),
+                    NpcRigBoneId.UpperArmSourceCameraRight),
                 AlternatingKeys(
                     -14f,
                     14f));
@@ -166,7 +166,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ForearmFar),
+                    NpcRigBoneId.ForearmSourceCameraLeft),
                 AlternatingKeys(
                     5f,
                     -5f));
@@ -174,7 +174,7 @@ namespace BigRetail.Characters.Editor
             SetRotationCurve(
                 clip,
                 BonePath(
-                    NpcRigBoneId.ForearmNear),
+                    NpcRigBoneId.ForearmSourceCameraRight),
                 AlternatingKeys(
                     -5f,
                     5f));
@@ -380,43 +380,43 @@ namespace BigRetail.Characters.Editor
                     return root
                         + "/Pelvis/SpineLower/Chest/Neck/Head";
 
-                case NpcRigBoneId.UpperArmFar:
+                case NpcRigBoneId.UpperArmSourceCameraLeft:
                     return root
                         + "/Pelvis/SpineLower/Chest"
-                        + "/ShoulderFar/UpperArmFar";
+                        + "/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft";
 
-                case NpcRigBoneId.ForearmFar:
+                case NpcRigBoneId.ForearmSourceCameraLeft:
                     return BonePath(
-                            NpcRigBoneId.UpperArmFar)
-                        + "/ForearmFar";
+                            NpcRigBoneId.UpperArmSourceCameraLeft)
+                        + "/ForearmSourceCameraLeft";
 
-                case NpcRigBoneId.UpperArmNear:
+                case NpcRigBoneId.UpperArmSourceCameraRight:
                     return root
                         + "/Pelvis/SpineLower/Chest"
-                        + "/ShoulderNear/UpperArmNear";
+                        + "/ShoulderSourceCameraRight/UpperArmSourceCameraRight";
 
-                case NpcRigBoneId.ForearmNear:
+                case NpcRigBoneId.ForearmSourceCameraRight:
                     return BonePath(
-                            NpcRigBoneId.UpperArmNear)
-                        + "/ForearmNear";
+                            NpcRigBoneId.UpperArmSourceCameraRight)
+                        + "/ForearmSourceCameraRight";
 
-                case NpcRigBoneId.ThighFar:
+                case NpcRigBoneId.ThighSourceCameraLeft:
                     return root
-                        + "/Pelvis/ThighFar";
+                        + "/Pelvis/ThighSourceCameraLeft";
 
-                case NpcRigBoneId.ShinFar:
+                case NpcRigBoneId.ShinSourceCameraLeft:
                     return BonePath(
-                            NpcRigBoneId.ThighFar)
-                        + "/ShinFar";
+                            NpcRigBoneId.ThighSourceCameraLeft)
+                        + "/ShinSourceCameraLeft";
 
-                case NpcRigBoneId.ThighNear:
+                case NpcRigBoneId.ThighSourceCameraRight:
                     return root
-                        + "/Pelvis/ThighNear";
+                        + "/Pelvis/ThighSourceCameraRight";
 
-                case NpcRigBoneId.ShinNear:
+                case NpcRigBoneId.ShinSourceCameraRight:
                     return BonePath(
-                            NpcRigBoneId.ThighNear)
-                        + "/ShinNear";
+                            NpcRigBoneId.ThighSourceCameraRight)
+                        + "/ShinSourceCameraRight";
 
                 default:
                     throw new ArgumentOutOfRangeException(

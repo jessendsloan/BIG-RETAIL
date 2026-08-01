@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3069971233531266168}
   - component: {fileID: 3694751207540327866}
   m_Layer: 0
-  m_Name: Slot - ForearmNear
+  m_Name: Slot - ForearmSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 489968691762855000}
   m_Layer: 0
-  m_Name: ForearmFar
+  m_Name: ForearmSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,7 @@ GameObject:
   m_Component:
   - component: {fileID: 545980790144657444}
   m_Layer: 0
-  m_Name: UpperArmFar
+  m_Name: UpperArmSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -168,7 +168,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9211247080610463205}
   m_Layer: 0
-  m_Name: ForearmNear
+  m_Name: ForearmSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -270,7 +270,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 13
+  m_SortingOrder: 11
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 0.055, g: 0.065, b: 0.075, a: 1}
@@ -293,7 +293,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8842046363335761946}
   m_Layer: 0
-  m_Name: ShoulderNear
+  m_Name: ShoulderSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 1692407380663755149}
   - component: {fileID: 2626231371287676204}
   m_Layer: 0
-  m_Name: Slot - FootFar
+  m_Name: Slot - FootSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -418,7 +418,7 @@ GameObject:
   - component: {fileID: 8117168231679888198}
   - component: {fileID: 1360120957123044418}
   m_Layer: 0
-  m_Name: Slot - ForearmFar
+  m_Name: Slot - ForearmSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -510,7 +510,7 @@ GameObject:
   - component: {fileID: 7309840031402800151}
   - component: {fileID: 2348406132282046857}
   m_Layer: 0
-  m_Name: Slot - ThighNear
+  m_Name: Slot - ThighSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -693,7 +693,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3942143174888273619}
   m_Layer: 0
-  m_Name: ThighFar
+  m_Name: ThighSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -763,7 +763,7 @@ GameObject:
   - component: {fileID: 2087270694620197202}
   - component: {fileID: 7556301686623031967}
   m_Layer: 0
-  m_Name: Slot - UpperArmNear
+  m_Name: Slot - UpperArmSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -855,7 +855,7 @@ GameObject:
   - component: {fileID: 6808513708514089155}
   - component: {fileID: 1419414582225062077}
   m_Layer: 0
-  m_Name: Slot - ThighFar
+  m_Name: Slot - ThighSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -980,7 +980,7 @@ GameObject:
   - component: {fileID: 4772805826912556461}
   - component: {fileID: 2992081730706847208}
   m_Layer: 0
-  m_Name: Slot - UpperArmFar
+  m_Name: Slot - UpperArmSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1163,7 +1163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8470604642535456946}
   m_Layer: 0
-  m_Name: ShinNear
+  m_Name: ShinSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1265,7 +1265,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 18
+  m_SortingOrder: 11
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 0.92, g: 0.84, b: 0.59, a: 1}
@@ -1381,7 +1381,7 @@ GameObject:
   - component: {fileID: 3160851596546206529}
   - component: {fileID: 7168765048202128305}
   m_Layer: 0
-  m_Name: Slot - HandFar
+  m_Name: Slot - HandSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1472,7 +1472,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1441749650266355367}
   m_Layer: 0
-  m_Name: FootFar
+  m_Name: FootSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1486,7 +1486,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5856948562806872694}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.04898975, y: 0.20517302, z: -0.22701846, w: 0.95077163}
+  m_LocalRotation: {x: 0.04899291, y: 0.20517461, z: -0.22701676, w: 0.9507715}
   m_LocalPosition: {x: 0.01, y: -0.35, z: 0}
   m_LocalScale: {x: 1.1072, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1504,7 +1504,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3409894252548209729}
   m_Layer: 0
-  m_Name: UpperArmNear
+  m_Name: UpperArmSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1538,7 +1538,7 @@ GameObject:
   - component: {fileID: 8927013975696489618}
   - component: {fileID: 7689190045208547891}
   m_Layer: 0
-  m_Name: Slot - HandNear
+  m_Name: Slot - HandSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1630,7 +1630,7 @@ GameObject:
   - component: {fileID: 838918837275582106}
   - component: {fileID: 5173393528055420339}
   m_Layer: 0
-  m_Name: Slot - ShinNear
+  m_Name: Slot - ShinSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1645,8 +1645,8 @@ Transform:
   m_GameObject: {fileID: 6901895932376469507}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.17, z: 0}
-  m_LocalScale: {x: 1.0625, y: 2.5625, z: 1}
+  m_LocalPosition: {x: 0, y: -0.1864, z: 0}
+  m_LocalScale: {x: 1.0625, y: 2.7677565, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8470604642535456946}
@@ -1721,7 +1721,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1879559816927334935}
   m_Layer: 0
-  m_Name: HandFar
+  m_Name: HandSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1851,7 +1851,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1675602820326351931}
   m_Layer: 0
-  m_Name: HandNear
+  m_Name: HandSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1959,6 +1959,26 @@ MonoBehaviour:
   facing: 0
   mirrorRoot: {fileID: 8746946351184265142}
   artKit: {fileID: 0}
+  northHiddenDetails:
+  - {fileID: 3405493233252394758}
+  southEastBonePose:
+  - id: 16
+    localPosition: {x: 0.01, y: -0.35, z: 0}
+    localEulerAngles: {x: 10.738, y: 21.991, z: -24.766}
+    localScale: {x: 1.1072, y: 1, z: 1}
+  - id: 19
+    localPosition: {x: 0.027, y: -0.3599, z: -0.0093}
+    localEulerAngles: {x: 10.738, y: 21.991, z: -24.766}
+    localScale: {x: 1.1072, y: 1, z: 1}
+  northEastBonePose:
+  - id: 16
+    localPosition: {x: -0.02, y: -0.28, z: 0}
+    localEulerAngles: {x: 10.738, y: 21.991, z: 24.766}
+    localScale: {x: 1.1072, y: 1, z: 1}
+  - id: 19
+    localPosition: {x: -0.01, y: -0.33, z: -0.0093}
+    localEulerAngles: {x: 10.738, y: 21.991, z: 24.766}
+    localScale: {x: 1.1072, y: 1, z: 1}
   bones:
   - id: 0
     bone: {fileID: 5589837670995214517}
@@ -2211,7 +2231,7 @@ GameObject:
   m_Component:
   - component: {fileID: 17802742730768922}
   m_Layer: 0
-  m_Name: ThighNear
+  m_Name: ThighSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2276,7 +2296,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6597545761143154553}
   m_Layer: 0
-  m_Name: FootNear
+  m_Name: FootSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2290,7 +2310,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8499066798980357994}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.04898975, y: 0.20517302, z: -0.22701846, w: 0.95077163}
+  m_LocalRotation: {x: 0.04899291, y: 0.20517461, z: -0.22701676, w: 0.9507715}
   m_LocalPosition: {x: 0.027, y: -0.3599, z: -0.0093}
   m_LocalScale: {x: 1.1072, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2309,7 +2329,7 @@ GameObject:
   - component: {fileID: 5370696219962655814}
   - component: {fileID: 3332498414470445736}
   m_Layer: 0
-  m_Name: Slot - FootNear
+  m_Name: Slot - FootSourceCameraRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2400,7 +2420,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8914368106517357222}
   m_Layer: 0
-  m_Name: ShoulderFar
+  m_Name: ShoulderSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2467,7 +2487,7 @@ GameObject:
   m_Component:
   - component: {fileID: 406744038825845061}
   m_Layer: 0
-  m_Name: ShinFar
+  m_Name: ShinSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2593,7 +2613,7 @@ GameObject:
   - component: {fileID: 4104296210795556415}
   - component: {fileID: 6797542075249054435}
   m_Layer: 0
-  m_Name: Slot - ShinFar
+  m_Name: Slot - ShinSourceCameraLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2608,8 +2628,8 @@ Transform:
   m_GameObject: {fileID: 9044441562780459930}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.17, z: 0}
-  m_LocalScale: {x: 1.0625, y: 2.5625, z: 1}
+  m_LocalPosition: {x: 0, y: -0.1608, z: 0}
+  m_LocalScale: {x: 1.0625, y: 2.4469314, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 406744038825845061}

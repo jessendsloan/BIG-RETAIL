@@ -32,6 +32,57 @@ namespace BigRetail.Characters.Rigging
     }
 
     /// <summary>
+    /// One authored local transform for a bone in a directional bind pose.
+    /// These are applied before the west-facing visual mirror, so one
+    /// SouthEast pose and one NorthEast pose cover all four directions.
+    /// </summary>
+    [Serializable]
+    public sealed class NpcRigDirectionalBonePose
+    {
+        [SerializeField]
+        private NpcRigBoneId id;
+
+        [SerializeField]
+        private Vector3 localPosition;
+
+        [SerializeField]
+        private Vector3 localEulerAngles;
+
+        [SerializeField]
+        private Vector3 localScale = Vector3.one;
+
+
+        public NpcRigBoneId Id => id;
+
+
+        public NpcRigDirectionalBonePose(
+            NpcRigBoneId id,
+            Vector3 localPosition,
+            Vector3 localEulerAngles,
+            Vector3 localScale)
+        {
+            this.id = id;
+            this.localPosition = localPosition;
+            this.localEulerAngles = localEulerAngles;
+            this.localScale = localScale;
+        }
+
+
+        public void Apply(
+            Transform bone)
+        {
+            if (bone == null)
+            {
+                return;
+            }
+
+            bone.localPosition = localPosition;
+            bone.localEulerAngles = localEulerAngles;
+            bone.localScale = localScale;
+        }
+    }
+
+    /// <summary>
     /// A visible rig slot with one sprite for each authored direction.
     /// </summary>
     [Serializable]
@@ -142,6 +193,30 @@ namespace BigRetail.Characters.Rigging
             "canonical skeleton.")]
         [SerializeField]
         private NpcRigArtKit artKit;
+
+        [Tooltip(
+            "Presentation details that belong on the front of the " +
+            "character, such as a name badge. They are hidden when " +
+            "the authored NorthEast back view is displayed.")]
+        [SerializeField]
+        private List<SpriteRenderer> northHiddenDetails =
+            new List<SpriteRenderer>();
+
+        [Header("Authored Direction Poses")]
+
+        [Tooltip(
+            "Local bone values for the unmirrored SouthEast pose. " +
+            "SouthWest inherits this pose through mirroring.")]
+        [SerializeField]
+        private List<NpcRigDirectionalBonePose> southEastBonePose =
+            new List<NpcRigDirectionalBonePose>();
+
+        [Tooltip(
+            "Local bone values for the unmirrored NorthEast pose. " +
+            "NorthWest inherits this pose through mirroring.")]
+        [SerializeField]
+        private List<NpcRigDirectionalBonePose> northEastBonePose =
+            new List<NpcRigDirectionalBonePose>();
 
         [Header("Generated Bindings")]
 
@@ -341,6 +416,35 @@ namespace BigRetail.Characters.Rigging
             ApplyFacing();
         }
 
+        /// <summary>
+        /// Sets the two authored local-pose tables used by generated rigs.
+        /// Each table is intentionally separate from the mirrored display
+        /// directions, so West never needs its own duplicate pose data.
+        /// </summary>
+        public void ConfigureAuthoredBonePoses(
+            List<NpcRigDirectionalBonePose> generatedSouthEastPose,
+            List<NpcRigDirectionalBonePose> generatedNorthEastPose)
+        {
+            southEastBonePose = generatedSouthEastPose
+                ?? new List<NpcRigDirectionalBonePose>();
+            northEastBonePose = generatedNorthEastPose
+                ?? new List<NpcRigDirectionalBonePose>();
+
+            ApplyFacing();
+        }
+
+        /// <summary>
+        /// Sets optional front-only presentation details for a generated rig.
+        /// </summary>
+        public void ConfigureNorthHiddenDetails(
+            List<SpriteRenderer> generatedDetails)
+        {
+            northHiddenDetails = generatedDetails
+                ?? new List<SpriteRenderer>();
+
+            ApplyFacing();
+        }
+
 
         [ContextMenu("Apply Facing")]
         private void ApplyFacing()
@@ -355,6 +459,8 @@ namespace BigRetail.Characters.Rigging
                     authoredDirection,
                     artKit);
             }
+
+            ApplyAuthoredBonePose(authoredDirection);
 
             if (mirrorRoot == null)
             {
@@ -382,12 +488,70 @@ namespace BigRetail.Characters.Rigging
                     : horizontalMagnitude;
 
             mirrorRoot.localScale = scale;
-            ApplyDepthLayering(mirrored);
+            ApplyDepthLayering(facing);
+            ApplyDirectionalDetailVisibility(authoredDirection);
+        }
+
+
+        private void ApplyAuthoredBonePose(
+            NpcAuthoredDirection authoredDirection)
+        {
+            List<NpcRigDirectionalBonePose> pose =
+                authoredDirection == NpcAuthoredDirection.SouthEast
+                    ? southEastBonePose
+                    : northEastBonePose;
+
+            if (pose == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < pose.Count; index++)
+            {
+                NpcRigDirectionalBonePose bonePose =
+                    pose[index];
+
+                if (bonePose == null
+                    || !TryGetBone(
+                        bonePose.Id,
+                        out Transform bone))
+                {
+                    continue;
+                }
+
+                bonePose.Apply(bone);
+            }
+        }
+
+
+        private void ApplyDirectionalDetailVisibility(
+            NpcAuthoredDirection authoredDirection)
+        {
+            if (northHiddenDetails == null)
+            {
+                return;
+            }
+
+            bool showFrontDetails =
+                authoredDirection == NpcAuthoredDirection.SouthEast;
+
+            for (int index = 0;
+                 index < northHiddenDetails.Count;
+                 index++)
+            {
+                SpriteRenderer detail =
+                    northHiddenDetails[index];
+
+                if (detail != null)
+                {
+                    detail.enabled = showFrontDetails;
+                }
+            }
         }
 
 
         private void ApplyDepthLayering(
-            bool mirrored)
+            NpcFacing displayedFacing)
         {
             for (int index = 0; index < parts.Count; index++)
             {
@@ -399,40 +563,11 @@ namespace BigRetail.Characters.Rigging
                     continue;
                 }
 
-                NpcRigPartId counterpart =
-                    NpcFacingUtility.GetMirroredDepthPart(
-                        binding.Id);
-
-                if (counterpart == binding.Id)
-                {
-                    continue;
-                }
-
-                NpcRigPartId sortingPart = mirrored
-                    ? counterpart
-                    : binding.Id;
-
                 binding.SpriteRenderer.sortingOrder =
-                    GetContractSortingOrder(sortingPart);
+                    NpcFacingUtility.GetPresentationSortingOrder(
+                        displayedFacing,
+                        binding.Id);
             }
-        }
-
-        private static int GetContractSortingOrder(
-            NpcRigPartId partId)
-        {
-            foreach (NpcRigPartDefinition definition
-                     in NpcRigDefinition.PartDefinitions)
-            {
-                if (definition.Id == partId)
-                {
-                    return definition.SortingOrder;
-                }
-            }
-
-            throw new ArgumentOutOfRangeException(
-                nameof(partId),
-                partId,
-                "Unknown NPC rig part.");
         }
 
 

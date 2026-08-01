@@ -35,20 +35,20 @@ The minimum canonical art kit is therefore:
 4. Chest
 5. Neck
 6. Head
-7. ShoulderFar
-8. UpperArmFar
-9. ForearmFar
-10. HandFar
-11. ShoulderNear
-12. UpperArmNear
-13. ForearmNear
-14. HandNear
-15. ThighFar
-16. ShinFar
-17. FootFar
-18. ThighNear
-19. ShinNear
-20. FootNear
+7. ShoulderSourceCameraLeft
+8. UpperArmSourceCameraLeft
+9. ForearmSourceCameraLeft
+10. HandSourceCameraLeft
+11. ShoulderSourceCameraRight
+12. UpperArmSourceCameraRight
+13. ForearmSourceCameraRight
+14. HandSourceCameraRight
+15. ThighSourceCameraLeft
+16. ShinSourceCameraLeft
+17. FootSourceCameraLeft
+18. ThighSourceCameraRight
+19. ShinSourceCameraRight
+20. FootSourceCameraRight
 
 `Root` is the NPC's world position and stays between the feet at floor
 level. Only the child visual root is mirrored.
@@ -58,23 +58,23 @@ level. Only the child visual root is mirrored.
 Back-to-front baseline:
 
 1. HairRear
-2. UpperArmFar
-3. ForearmFar
-4. HandFar
-5. ThighFar
-6. ShinFar
-7. FootFar
+2. UpperArmSourceCameraLeft
+3. ForearmSourceCameraLeft
+4. HandSourceCameraLeft
+5. ThighSourceCameraLeft
+6. ShinSourceCameraLeft
+7. FootSourceCameraLeft
 8. Pelvis
 9. Torso
 10. Neck
 11. Head
 12. HairFront
-13. ThighNear
-14. ShinNear
-15. FootNear
-16. UpperArmNear
-17. ForearmNear
-18. HandNear
+13. ThighSourceCameraRight
+14. ShinSourceCameraRight
+15. FootSourceCameraRight
+16. UpperArmSourceCameraRight
+17. ForearmSourceCameraRight
+18. HandSourceCameraRight
 
 Near/Far names remain stable in both authored directions. They describe
 visual depth relative to the camera, not left/right anatomy.
@@ -120,23 +120,23 @@ visible-part identifier:
 
 ```text
 HairRear
-UpperArmFar
-ForearmFar
-HandFar
-ThighFar
-ShinFar
-FootFar
+UpperArmSourceCameraLeft
+ForearmSourceCameraLeft
+HandSourceCameraLeft
+ThighSourceCameraLeft
+ShinSourceCameraLeft
+FootSourceCameraLeft
 Pelvis
 Torso
 Neck
 Head
 HairFront
-ThighNear
-ShinNear
-FootNear
-UpperArmNear
-ForearmNear
-HandNear
+ThighSourceCameraRight
+ShinSourceCameraRight
+FootSourceCameraRight
+UpperArmSourceCameraRight
+ForearmSourceCameraRight
+HandSourceCameraRight
 ```
 
 The file extension is irrelevant; the imported Unity Sprite name must

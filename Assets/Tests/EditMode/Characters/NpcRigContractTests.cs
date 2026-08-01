@@ -157,22 +157,71 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
         [Test]
-        public void MirroredDepthPartners_SwapOnlyPairedLimbs()
+        public void FacingRules_ResolveCameraForegroundAndBackground()
         {
             Assert.That(
-                NpcFacingUtility.GetMirroredDepthPart(
-                    NpcRigPartId.UpperArmFar),
-                Is.EqualTo(NpcRigPartId.UpperArmNear));
+                NpcFacingUtility.GetForegroundCameraSide(
+                    NpcFacing.SouthEast),
+                Is.EqualTo(NpcCameraSide.CameraLeft));
 
             Assert.That(
-                NpcFacingUtility.GetMirroredDepthPart(
-                    NpcRigPartId.FootNear),
-                Is.EqualTo(NpcRigPartId.FootFar));
+                NpcFacingUtility.GetForegroundCameraSide(
+                    NpcFacing.SouthWest),
+                Is.EqualTo(NpcCameraSide.CameraRight));
 
             Assert.That(
-                NpcFacingUtility.GetMirroredDepthPart(
-                    NpcRigPartId.Torso),
-                Is.EqualTo(NpcRigPartId.Torso));
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.SouthEast,
+                    NpcRigPartId.UpperArmSourceCameraLeft),
+                Is.EqualTo(15));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.SouthEast,
+                    NpcRigPartId.UpperArmSourceCameraRight),
+                Is.EqualTo(1));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.SouthWest,
+                    NpcRigPartId.UpperArmSourceCameraLeft),
+                Is.EqualTo(15));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.SouthWest,
+                    NpcRigPartId.UpperArmSourceCameraRight),
+                Is.EqualTo(1));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.HairRear),
+                Is.EqualTo(11));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.HairFront),
+                Is.EqualTo(0));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.SouthEast,
+                    NpcRigPartId.FootSourceCameraLeft),
+                Is.EqualTo(14));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.FootSourceCameraLeft),
+                Is.EqualTo(12));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.ShinSourceCameraLeft),
+                Is.EqualTo(14));
         }
 
         [Test]

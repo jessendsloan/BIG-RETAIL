@@ -151,18 +151,31 @@ namespace BigRetail.Characters.Editor
                     placeholderSprite,
                     profile);
 
+            List<SpriteRenderer> northHiddenDetails =
+                new List<SpriteRenderer>();
+
             if (profile != null)
             {
-                AddProfileDetails(
-                    boneLookup,
-                    placeholderSprite,
-                    profile);
+                northHiddenDetails.Add(
+                    AddProfileDetails(
+                        boneLookup,
+                        placeholderSprite,
+                        profile));
             }
 
             cutoutRig.ConfigureGeneratedRig(
                 mirrorRoot,
                 boneBindings,
                 partBindings);
+
+            if (profile != null)
+            {
+                cutoutRig.ConfigureAuthoredBonePoses(
+                    CreateRowanSouthEastFootPose(),
+                    CreateRowanNorthEastFootPose());
+                cutoutRig.ConfigureNorthHiddenDetails(
+                    northHiddenDetails);
+            }
 
             if (!cutoutRig.TryValidate(
                     out string failureReason))
@@ -287,7 +300,7 @@ namespace BigRetail.Characters.Editor
             return bindings;
         }
 
-        private static void AddProfileDetails(
+        private static SpriteRenderer AddProfileDetails(
             IReadOnlyDictionary<NpcRigBoneId, Transform> boneLookup,
             Sprite placeholderSprite,
             RoundedEmployeeProfile profile)
@@ -300,19 +313,19 @@ namespace BigRetail.Characters.Editor
             Transform chest =
                 boneLookup[NpcRigBoneId.Chest];
 
-            CreateDetailSprite(
+            return CreateDetailSprite(
                 chest,
                 "Uniform - Name Badge",
                 placeholderSprite,
                 new Vector2(0.13f, -0.08f),
                 new Vector2(0.095f, 0.045f),
                 profile.BadgeColor,
-                18,
+                11,
                 -3f);
         }
 
 
-        private static void CreateDetailSprite(
+        private static SpriteRenderer CreateDetailSprite(
             Transform parent,
             string detailName,
             Sprite sprite,
@@ -351,6 +364,8 @@ namespace BigRetail.Characters.Editor
                 detail,
                 sprite,
                 size);
+
+            return renderer;
         }
 
         private static Transform CreateChild(
@@ -421,8 +436,8 @@ namespace BigRetail.Characters.Editor
 
                 case NpcRigPartId.Head:
                 case NpcRigPartId.Neck:
-                case NpcRigPartId.HandFar:
-                case NpcRigPartId.HandNear:
+                case NpcRigPartId.HandSourceCameraLeft:
+                case NpcRigPartId.HandSourceCameraRight:
                     return new Color(
                         0.85f,
                         0.58f,
@@ -430,10 +445,10 @@ namespace BigRetail.Characters.Editor
                         1f);
 
                 case NpcRigPartId.Torso:
-                case NpcRigPartId.UpperArmFar:
-                case NpcRigPartId.UpperArmNear:
-                case NpcRigPartId.ForearmFar:
-                case NpcRigPartId.ForearmNear:
+                case NpcRigPartId.UpperArmSourceCameraLeft:
+                case NpcRigPartId.UpperArmSourceCameraRight:
+                case NpcRigPartId.ForearmSourceCameraLeft:
+                case NpcRigPartId.ForearmSourceCameraRight:
                     return ShadeForDepth(
                         new Color(
                             0.12f,
@@ -443,10 +458,10 @@ namespace BigRetail.Characters.Editor
                         IsFarPart(partId));
 
                 case NpcRigPartId.Pelvis:
-                case NpcRigPartId.ThighFar:
-                case NpcRigPartId.ThighNear:
-                case NpcRigPartId.ShinFar:
-                case NpcRigPartId.ShinNear:
+                case NpcRigPartId.ThighSourceCameraLeft:
+                case NpcRigPartId.ThighSourceCameraRight:
+                case NpcRigPartId.ShinSourceCameraLeft:
+                case NpcRigPartId.ShinSourceCameraRight:
                     return ShadeForDepth(
                         new Color(
                             0.10f,
@@ -455,8 +470,8 @@ namespace BigRetail.Characters.Editor
                             1f),
                         IsFarPart(partId));
 
-                case NpcRigPartId.FootFar:
-                case NpcRigPartId.FootNear:
+                case NpcRigPartId.FootSourceCameraLeft:
+                case NpcRigPartId.FootSourceCameraRight:
                     return ShadeForDepth(
                         new Color(
                             0.08f,
@@ -493,12 +508,12 @@ namespace BigRetail.Characters.Editor
         {
             switch (partId)
             {
-                case NpcRigPartId.UpperArmFar:
-                case NpcRigPartId.ForearmFar:
-                case NpcRigPartId.HandFar:
-                case NpcRigPartId.ThighFar:
-                case NpcRigPartId.ShinFar:
-                case NpcRigPartId.FootFar:
+                case NpcRigPartId.UpperArmSourceCameraLeft:
+                case NpcRigPartId.ForearmSourceCameraLeft:
+                case NpcRigPartId.HandSourceCameraLeft:
+                case NpcRigPartId.ThighSourceCameraLeft:
+                case NpcRigPartId.ShinSourceCameraLeft:
+                case NpcRigPartId.FootSourceCameraLeft:
                     return true;
 
                 default:
@@ -518,11 +533,11 @@ namespace BigRetail.Characters.Editor
                         new Vector3(-0.065f, 0.808f, 0f)
                     },
                     {
-                        NpcRigBoneId.ThighFar,
+                        NpcRigBoneId.ThighSourceCameraLeft,
                         new Vector3(-0.075f, -0.04f, 0f)
                     },
                     {
-                        NpcRigBoneId.ThighNear,
+                        NpcRigBoneId.ThighSourceCameraRight,
                         new Vector3(0.075f, -0.04f, 0f)
                     }
                 };
@@ -535,27 +550,27 @@ namespace BigRetail.Characters.Editor
                         new Vector2(0.39f, 0.34f)
                     },
                     {
-                        NpcRigPartId.UpperArmFar,
+                        NpcRigPartId.UpperArmSourceCameraLeft,
                         new Vector2(0.16f, 0.32f)
                     },
                     {
-                        NpcRigPartId.ForearmFar,
+                        NpcRigPartId.ForearmSourceCameraLeft,
                         new Vector2(0.14f, 0.30f)
                     },
                     {
-                        NpcRigPartId.HandFar,
+                        NpcRigPartId.HandSourceCameraLeft,
                         new Vector2(0.13f, 0.17f)
                     },
                     {
-                        NpcRigPartId.ThighFar,
+                        NpcRigPartId.ThighSourceCameraLeft,
                         new Vector2(0.20f, 0.42f)
                     },
                     {
-                        NpcRigPartId.ShinFar,
+                        NpcRigPartId.ShinSourceCameraLeft,
                         new Vector2(0.17f, 0.41f)
                     },
                     {
-                        NpcRigPartId.FootFar,
+                        NpcRigPartId.FootSourceCameraLeft,
                         new Vector2(0.24f, 0.15f)
                     },
                     {
@@ -579,27 +594,27 @@ namespace BigRetail.Characters.Editor
                         new Vector2(0.37f, 0.17f)
                     },
                     {
-                        NpcRigPartId.ThighNear,
+                        NpcRigPartId.ThighSourceCameraRight,
                         new Vector2(0.20f, 0.42f)
                     },
                     {
-                        NpcRigPartId.ShinNear,
+                        NpcRigPartId.ShinSourceCameraRight,
                         new Vector2(0.17f, 0.41f)
                     },
                     {
-                        NpcRigPartId.FootNear,
+                        NpcRigPartId.FootSourceCameraRight,
                         new Vector2(0.24f, 0.15f)
                     },
                     {
-                        NpcRigPartId.UpperArmNear,
+                        NpcRigPartId.UpperArmSourceCameraRight,
                         new Vector2(0.16f, 0.32f)
                     },
                     {
-                        NpcRigPartId.ForearmNear,
+                        NpcRigPartId.ForearmSourceCameraRight,
                         new Vector2(0.14f, 0.30f)
                     },
                     {
-                        NpcRigPartId.HandNear,
+                        NpcRigPartId.HandSourceCameraRight,
                         new Vector2(0.13f, 0.17f)
                     }
                 };
@@ -631,27 +646,27 @@ namespace BigRetail.Characters.Editor
                         new Vector3(0f, -0.070f, 0f)
                     },
                     {
-                        NpcRigPartId.ThighFar,
+                        NpcRigPartId.ThighSourceCameraLeft,
                         new Vector3(0f, -0.170f, 0f)
                     },
                     {
-                        NpcRigPartId.ShinFar,
+                        NpcRigPartId.ShinSourceCameraLeft,
                         new Vector3(0f, -0.170f, 0f)
                     },
                     {
-                        NpcRigPartId.FootFar,
+                        NpcRigPartId.FootSourceCameraLeft,
                         new Vector3(0.04f, -0.035f, 0f)
                     },
                     {
-                        NpcRigPartId.ThighNear,
+                        NpcRigPartId.ThighSourceCameraRight,
                         new Vector3(0f, -0.170f, 0f)
                     },
                     {
-                        NpcRigPartId.ShinNear,
+                        NpcRigPartId.ShinSourceCameraRight,
                         new Vector3(0f, -0.170f, 0f)
                     },
                     {
-                        NpcRigPartId.FootNear,
+                        NpcRigPartId.FootSourceCameraRight,
                         new Vector3(0.04f, -0.035f, 0f)
                     }
                 };
@@ -679,6 +694,59 @@ namespace BigRetail.Characters.Editor
                 partSizes,
                 partPositions,
                 partAngles);
+        }
+
+
+        private static List<NpcRigDirectionalBonePose>
+            CreateRowanSouthEastFootPose()
+        {
+            return CreateRowanFootPose(
+                new Vector3(10.738f, 21.991f, -24.766f));
+        }
+
+
+        private static List<NpcRigDirectionalBonePose>
+            CreateRowanNorthEastFootPose()
+        {
+            Vector3 footEulerAngles =
+                new Vector3(10.738f, 21.991f, 24.766f);
+
+            return new List<NpcRigDirectionalBonePose>
+            {
+                new NpcRigDirectionalBonePose(
+                    NpcRigBoneId.FootSourceCameraLeft,
+                    new Vector3(-0.02f, -0.28f, 0f),
+                    footEulerAngles,
+                    new Vector3(1.1072f, 1f, 1f)),
+                new NpcRigDirectionalBonePose(
+                    NpcRigBoneId.FootSourceCameraRight,
+                    new Vector3(-0.01f, -0.33f, -0.0093f),
+                    footEulerAngles,
+                    new Vector3(1.1072f, 1f, 1f))
+            };
+        }
+
+
+        private static List<NpcRigDirectionalBonePose>
+            CreateRowanFootPose(
+                Vector3 footEulerAngles)
+        {
+            Vector3 footScale =
+                new Vector3(1.1072f, 1f, 1f);
+
+            return new List<NpcRigDirectionalBonePose>
+            {
+                new NpcRigDirectionalBonePose(
+                    NpcRigBoneId.FootSourceCameraLeft,
+                    new Vector3(0.01f, -0.35f, 0f),
+                    footEulerAngles,
+                    footScale),
+                new NpcRigDirectionalBonePose(
+                    NpcRigBoneId.FootSourceCameraRight,
+                    new Vector3(0.027f, -0.3599f, -0.0093f),
+                    footEulerAngles,
+                    footScale)
+            };
         }
 
         private static void EnsureAssetFolder(
@@ -837,29 +905,29 @@ namespace BigRetail.Characters.Editor
 
                     case NpcRigPartId.Head:
                     case NpcRigPartId.Neck:
-                    case NpcRigPartId.HandFar:
-                    case NpcRigPartId.HandNear:
+                    case NpcRigPartId.HandSourceCameraLeft:
+                    case NpcRigPartId.HandSourceCameraRight:
                         color = skinColor;
                         break;
 
                     case NpcRigPartId.Torso:
-                    case NpcRigPartId.UpperArmFar:
-                    case NpcRigPartId.UpperArmNear:
-                    case NpcRigPartId.ForearmFar:
-                    case NpcRigPartId.ForearmNear:
+                    case NpcRigPartId.UpperArmSourceCameraLeft:
+                    case NpcRigPartId.UpperArmSourceCameraRight:
+                    case NpcRigPartId.ForearmSourceCameraLeft:
+                    case NpcRigPartId.ForearmSourceCameraRight:
                         color = shirtColor;
                         break;
 
                     case NpcRigPartId.Pelvis:
-                    case NpcRigPartId.ThighFar:
-                    case NpcRigPartId.ThighNear:
-                    case NpcRigPartId.ShinFar:
-                    case NpcRigPartId.ShinNear:
+                    case NpcRigPartId.ThighSourceCameraLeft:
+                    case NpcRigPartId.ThighSourceCameraRight:
+                    case NpcRigPartId.ShinSourceCameraLeft:
+                    case NpcRigPartId.ShinSourceCameraRight:
                         color = pantsColor;
                         break;
 
-                    case NpcRigPartId.FootFar:
-                    case NpcRigPartId.FootNear:
+                    case NpcRigPartId.FootSourceCameraLeft:
+                    case NpcRigPartId.FootSourceCameraRight:
                         color = shoeColor;
                         break;
 

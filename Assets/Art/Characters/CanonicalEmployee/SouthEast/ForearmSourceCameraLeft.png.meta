@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 58d814182a013e449b0cda00885e4694
+guid: 40b429750a03f544aadf0d9df92930a3
 labels:
 - UnityAI
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5048224881772762833
-    second: ShinNear_0
+      213: -8170258800890674966
+    second: ForearmSourceCameraLeft_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShinNear_0
+      name: ForearmSourceCameraLeft_0
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f2965a7773a11f9b0800000000000000
-      internalID: -5048224881772762833
+      spriteID: ae007e198e86d9e80800000000000000
+      internalID: -8170258800890674966
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShinNear_0: -5048224881772762833
+      ForearmSourceCameraLeft_0: -8170258800890674966
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

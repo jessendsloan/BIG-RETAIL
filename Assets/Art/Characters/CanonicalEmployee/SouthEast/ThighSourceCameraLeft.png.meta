@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 90acae2cf2c86a340a69fb4cce10aba6
+guid: 9fc671dc91416284fa978ffcc488e7de
 labels:
 - UnityAI
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7896739515330808291
-    second: ShinFar_0
+      213: 2917292843811512452
+    second: ThighSourceCameraLeft_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ShinFar_0
+      name: ThighSourceCameraLeft_0
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3e9451f10cad69d60800000000000000
-      internalID: 7896739515330808291
+      spriteID: 480ac2d826e4c7820800000000000000
+      internalID: 2917292843811512452
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ShinFar_0: 7896739515330808291
+      ThighSourceCameraLeft_0: 2917292843811512452
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
