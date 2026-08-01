@@ -7,10 +7,9 @@ namespace BigRetail.Departments
     /// plan has a constructed surface. Runtime hosts will adapt Foundation
     /// and Floor state to this contract.
     /// </summary>
-    public interface IDepartmentSurfaceQuery
+    public interface IDepartmentSurfaceQuery :
+        IDepartmentFoundationQuery
     {
-        bool HasFoundation(GridPosition cell);
-
         bool HasFloor(GridPosition cell);
     }
 }

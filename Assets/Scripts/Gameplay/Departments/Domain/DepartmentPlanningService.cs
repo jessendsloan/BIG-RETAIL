@@ -15,13 +15,15 @@ namespace BigRetail.Departments
         private readonly ConstructionAreaDefinition constructionArea;
         private readonly DepartmentDefinitionCatalog definitionCatalog;
         private readonly DepartmentPlanningState planningState;
+        private readonly IDepartmentFoundationQuery foundationQuery;
 
 
         public DepartmentPlanningService(
             GridMapDefinition mapDefinition,
             ConstructionAreaDefinition constructionArea,
             DepartmentDefinitionCatalog definitionCatalog,
-            DepartmentPlanningState planningState)
+            DepartmentPlanningState planningState,
+            IDepartmentFoundationQuery foundationQuery)
         {
             this.mapDefinition =
                 mapDefinition
@@ -42,6 +44,11 @@ namespace BigRetail.Departments
                 planningState
                 ?? throw new ArgumentNullException(
                     nameof(planningState));
+
+            this.foundationQuery =
+                foundationQuery
+                ?? throw new ArgumentNullException(
+                    nameof(foundationQuery));
         }
 
 
@@ -198,6 +205,14 @@ namespace BigRetail.Departments
                         cell);
                 }
 
+                if (!foundationQuery.HasFoundation(cell))
+                {
+                    return DepartmentPlanChangeResult.Rejected(
+                        planId,
+                        DepartmentPlanChangeFailure.MissingFoundation,
+                        cell);
+                }
+
                 if (planningState.TryGetPlanAt(cell, out _))
                 {
                     return DepartmentPlanChangeResult.Rejected(
@@ -239,6 +254,14 @@ namespace BigRetail.Departments
                         planId,
                         DepartmentPlanChangeFailure
                             .OutsideConstructionArea,
+                        cell);
+                }
+
+                if (!foundationQuery.HasFoundation(cell))
+                {
+                    return DepartmentPlanChangeResult.Rejected(
+                        planId,
+                        DepartmentPlanChangeFailure.MissingFoundation,
                         cell);
                 }
 

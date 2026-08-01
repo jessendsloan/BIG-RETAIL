@@ -40,6 +40,12 @@ namespace BigRetail.Departments.Tests
             DepartmentPlanningState state =
                 new DepartmentPlanningState();
 
+            surface =
+                new MutableSurfaceQuery();
+
+            surface.AddFoundation(FirstCell);
+            surface.AddFoundation(SecondCell);
+
             DepartmentDefinitionCatalog catalog =
                 new DepartmentDefinitionCatalog(
                     new[]
@@ -58,7 +64,8 @@ namespace BigRetail.Departments.Tests
                             SecondCell
                         }),
                     catalog,
-                    state);
+                    state,
+                    surface);
 
             service.TryCreatePlan(
                 GroceryPlan,
@@ -69,9 +76,6 @@ namespace BigRetail.Departments.Tests
                     SecondCell
                 });
 
-            surface =
-                new MutableSurfaceQuery();
-
             evaluator =
                 new DepartmentSpatialReadinessEvaluator(
                     catalog,
@@ -81,13 +85,15 @@ namespace BigRetail.Departments.Tests
 
 
         [Test]
-        public void Evaluate_ReportsEveryMissingFoundationAndFloor()
+        public void Evaluate_ReportsMissingSurfacesIfSupportLaterChanges()
         {
+            surface.RemoveFoundation(SecondCell);
+
             DepartmentSpatialReadiness readiness =
                 evaluator.Evaluate(GroceryPlan);
 
             Assert.That(readiness.AssignedCellCount, Is.EqualTo(2));
-            Assert.That(readiness.MissingFoundationCount, Is.EqualTo(2));
+            Assert.That(readiness.MissingFoundationCount, Is.EqualTo(1));
             Assert.That(readiness.MissingFloorCount, Is.EqualTo(2));
             Assert.That(readiness.MeetsMinimumArea, Is.False);
             Assert.That(readiness.IsSpatiallyReady, Is.False);
@@ -147,7 +153,8 @@ namespace BigRetail.Departments.Tests
                         map,
                         map.EnumerateValidCells()),
                     catalog,
-                    readyState);
+                    readyState,
+                    surface);
 
             service.TryCreatePlan(
                 GroceryPlan,
@@ -198,6 +205,13 @@ namespace BigRetail.Departments.Tests
                 GridPosition cell)
             {
                 floors.Add(cell);
+            }
+
+
+            public void RemoveFoundation(
+                GridPosition cell)
+            {
+                foundations.Remove(cell);
             }
 
 

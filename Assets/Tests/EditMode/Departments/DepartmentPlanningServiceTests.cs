@@ -34,6 +34,7 @@ namespace BigRetail.Departments.Tests
 
         private DepartmentPlanningState state;
         private DepartmentPlanningService service;
+        private MutableFoundationQuery foundations;
 
 
         [SetUp]
@@ -53,6 +54,13 @@ namespace BigRetail.Departments.Tests
             state =
                 new DepartmentPlanningState();
 
+            foundations =
+                new MutableFoundationQuery();
+
+            foundations.Add(FirstCell);
+            foundations.Add(SecondCell);
+            foundations.Add(ThirdCell);
+
             service =
                 new DepartmentPlanningService(
                     map,
@@ -65,12 +73,13 @@ namespace BigRetail.Departments.Tests
                             ThirdCell
                         }),
                     new DepartmentDefinitionCatalog(
-                        new[]
-                        {
-                            new DepartmentDefinition(Grocery, 4),
-                            new DepartmentDefinition(Produce, 2)
-                        }),
-                    state);
+                    new[]
+                    {
+                        new DepartmentDefinition(Grocery, 4),
+                        new DepartmentDefinition(Produce, 2)
+                    }),
+                    state,
+                    foundations);
         }
 
 
@@ -178,6 +187,30 @@ namespace BigRetail.Departments.Tests
                 Is.EqualTo(
                     DepartmentPlanChangeFailure
                         .OutsideConstructionArea));
+            Assert.That(state.PlanCount, Is.Zero);
+        }
+
+
+        [Test]
+        public void CreatePlan_RequiresFoundationWithoutMutation()
+        {
+            foundations.Remove(FirstCell);
+
+            DepartmentPlanChangeResult result =
+                service.TryCreatePlan(
+                    GroceryPlan,
+                    Grocery,
+                    new[]
+                    {
+                        FirstCell
+                    });
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    DepartmentPlanChangeFailure.MissingFoundation));
+            Assert.That(result.FailureCell, Is.EqualTo(FirstCell));
             Assert.That(state.PlanCount, Is.Zero);
         }
 
@@ -309,6 +342,33 @@ namespace BigRetail.Departments.Tests
             Assert.That(result.Succeeded, Is.True);
             Assert.That(result.Changed, Is.False);
             Assert.That(result.AddedCellCount, Is.Zero);
+        }
+
+
+        private sealed class MutableFoundationQuery :
+            IDepartmentFoundationQuery
+        {
+            private readonly System.Collections.Generic.HashSet<GridPosition>
+                cells =
+                    new System.Collections.Generic.HashSet<GridPosition>();
+
+
+            public void Add(GridPosition cell)
+            {
+                cells.Add(cell);
+            }
+
+
+            public void Remove(GridPosition cell)
+            {
+                cells.Remove(cell);
+            }
+
+
+            public bool HasFoundation(GridPosition cell)
+            {
+                return cells.Contains(cell);
+            }
         }
     }
 }

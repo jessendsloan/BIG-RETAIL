@@ -54,6 +54,10 @@ namespace BigRetail.Departments
         }
 
 
+        public int Count =>
+            definitions.Count;
+
+
         public bool TryGetDefinition(
             DepartmentDefinitionId id,
             out DepartmentDefinition definition)

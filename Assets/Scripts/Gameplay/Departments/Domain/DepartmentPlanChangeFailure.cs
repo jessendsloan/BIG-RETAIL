@@ -9,6 +9,7 @@ namespace BigRetail.Departments
         PlanNotFound,
         OutsideMap,
         OutsideConstructionArea,
+        MissingFoundation,
         OverlapsAnotherDepartment
     }
 }
