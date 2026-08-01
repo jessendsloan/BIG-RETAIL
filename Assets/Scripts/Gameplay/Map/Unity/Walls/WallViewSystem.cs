@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Foundations;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
 using BigRetail.Map.Walls;
@@ -24,6 +26,9 @@ namespace BigRetail.Map.Unity.Walls
 
         [SerializeField]
         private GridMapHost mapHost;
+
+        [SerializeField]
+        private FoundationRuntimeHost foundationRuntimeHost;
 
 
         [Header("Coordinate Mapping")]
@@ -59,6 +64,10 @@ namespace BigRetail.Map.Unity.Walls
         [SerializeField]
         private Transform wallViewParent;
 
+        [SerializeField]
+        private WallDisplayMode startingDisplayMode =
+            WallDisplayMode.WallsUp;
+
 
         private readonly Dictionary<CellEdge, WallSegmentView>
             wallViews =
@@ -66,15 +75,32 @@ namespace BigRetail.Map.Unity.Walls
 
         private WallState subscribedWallState;
         private WallFinishService subscribedFinishService;
+        private FoundationState subscribedFoundationState;
         private WallFinishPresentationResolver finishResolver;
 
+
+        public int WallViewCount =>
+            wallViews.Count;
 
         public int VisibleWallCount =>
             wallViews.Count;
 
+        public WallDisplayMode CurrentDisplayMode
+        {
+            get;
+            private set;
+        }
+
+
+        public event Action<WallDisplayMode, WallDisplayMode>
+            DisplayModeChanged;
+
 
         private void Awake()
         {
+            CurrentDisplayMode =
+                startingDisplayMode;
+
             if (!ValidateReferences())
             {
                 enabled = false;
@@ -97,6 +123,12 @@ namespace BigRetail.Map.Unity.Walls
                     HandleMapInitialized;
             }
 
+            if (foundationRuntimeHost != null)
+            {
+                foundationRuntimeHost.Initialized +=
+                    HandleFoundationRuntimeInitialized;
+            }
+
             if (viewHost != null)
             {
                 viewHost.OrientationChanged +=
@@ -110,6 +142,13 @@ namespace BigRetail.Map.Unity.Walls
                     mapHost.WallState,
                     mapHost.WallFinishes,
                     mapHost.WallFinishAssets);
+            }
+
+            if (foundationRuntimeHost != null
+                && foundationRuntimeHost.IsInitialized)
+            {
+                AttachToFoundationState(
+                    foundationRuntimeHost.FoundationState);
             }
         }
 
@@ -128,8 +167,55 @@ namespace BigRetail.Map.Unity.Walls
                     HandleOrientationChanged;
             }
 
+            if (foundationRuntimeHost != null)
+            {
+                foundationRuntimeHost.Initialized -=
+                    HandleFoundationRuntimeInitialized;
+            }
+
             DetachFromRuntimeModel();
+            DetachFromFoundationState();
             ClearAllViews();
+        }
+
+
+        public bool CycleDisplayMode()
+        {
+            return TrySetDisplayMode(
+                WallDisplayModeCycle.Next(
+                    CurrentDisplayMode));
+        }
+
+
+        public bool TrySetDisplayMode(
+            WallDisplayMode displayMode)
+        {
+            if (!IsSupportedDisplayMode(displayMode))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(displayMode),
+                    displayMode,
+                    "Unknown wall display mode.");
+            }
+
+            if (displayMode == CurrentDisplayMode)
+            {
+                return false;
+            }
+
+            WallDisplayMode previousMode =
+                CurrentDisplayMode;
+
+            CurrentDisplayMode =
+                displayMode;
+
+            RefreshAllWallPresentations();
+
+            DisplayModeChanged?.Invoke(
+                previousMode,
+                CurrentDisplayMode);
+
+            return true;
         }
 
 
@@ -140,6 +226,14 @@ namespace BigRetail.Map.Unity.Walls
                 initializedHost.WallState,
                 initializedHost.WallFinishes,
                 initializedHost.WallFinishAssets);
+        }
+
+
+        private void HandleFoundationRuntimeInitialized(
+            FoundationRuntimeHost initializedHost)
+        {
+            AttachToFoundationState(
+                initializedHost.FoundationState);
         }
 
 
@@ -233,6 +327,56 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void AttachToFoundationState(
+            FoundationState foundationState)
+        {
+            if (foundationState == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem received a null FoundationState.",
+                    this);
+                return;
+            }
+
+            if (subscribedFoundationState == foundationState)
+            {
+                RefreshAllWallPresentations();
+                return;
+            }
+
+            DetachFromFoundationState();
+
+            subscribedFoundationState =
+                foundationState;
+
+            subscribedFoundationState.FoundationAdded +=
+                HandleFoundationChanged;
+
+            subscribedFoundationState.FoundationRemoved +=
+                HandleFoundationChanged;
+
+            RefreshAllWallPresentations();
+        }
+
+
+        private void DetachFromFoundationState()
+        {
+            if (subscribedFoundationState == null)
+            {
+                return;
+            }
+
+            subscribedFoundationState.FoundationAdded -=
+                HandleFoundationChanged;
+
+            subscribedFoundationState.FoundationRemoved -=
+                HandleFoundationChanged;
+
+            subscribedFoundationState =
+                null;
+        }
+
+
         private void HandleWallAdded(
             CellEdge edge)
         {
@@ -310,7 +454,8 @@ namespace BigRetail.Map.Unity.Walls
                     logicalLevel,
                     unityCellZ,
                     viewHost.Projection,
-                    finishResolver);
+                    finishResolver,
+                    ResolveWallHeight(edge));
 
                 wallViews.Add(
                     edge,
@@ -359,10 +504,77 @@ namespace BigRetail.Map.Unity.Walls
             {
                 if (view != null)
                 {
-                    view.ApplyProjection(
-                        viewHost.Projection);
+                    ApplyWallPresentation(
+                        view.Edge,
+                        view);
                 }
             }
+        }
+
+
+        private void HandleFoundationChanged(
+            GridPosition cell)
+        {
+            foreach (
+                KeyValuePair<CellEdge, WallSegmentView> entry
+                in wallViews)
+            {
+                if (entry.Key.TouchesCell(cell)
+                    && entry.Value != null)
+                {
+                    ApplyWallPresentation(
+                        entry.Key,
+                        entry.Value);
+                }
+            }
+        }
+
+
+        private void RefreshAllWallPresentations()
+        {
+            foreach (
+                KeyValuePair<CellEdge, WallSegmentView> entry
+                in wallViews)
+            {
+                if (entry.Value != null)
+                {
+                    ApplyWallPresentation(
+                        entry.Key,
+                        entry.Value);
+                }
+            }
+        }
+
+
+        private void ApplyWallPresentation(
+            CellEdge edge,
+            WallSegmentView view)
+        {
+            view.ApplyProjection(
+                viewHost.Projection,
+                ResolveWallHeight(edge));
+        }
+
+
+        private WallPresentationHeight ResolveWallHeight(
+            CellEdge edge)
+        {
+            bool firstCellHasFoundation =
+                subscribedFoundationState != null
+                && subscribedFoundationState.HasFoundation(
+                    edge.FirstCell);
+
+            bool secondCellHasFoundation =
+                subscribedFoundationState != null
+                && subscribedFoundationState.HasFoundation(
+                    edge.SecondCell);
+
+            return WallPresentationHeightResolver.Resolve(
+                    CurrentDisplayMode,
+                    edge,
+                    viewHost.Projection,
+                    firstCellHasFoundation,
+                    secondCellHasFoundation);
         }
 
 
@@ -395,6 +607,15 @@ namespace BigRetail.Map.Unity.Walls
                 isValid = false;
             }
 
+            if (foundationRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem has no FoundationRuntimeHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             if (coordinateTilemap == null)
             {
                 Debug.LogError(
@@ -422,7 +643,25 @@ namespace BigRetail.Map.Unity.Walls
                 isValid = false;
             }
 
+            if (!IsSupportedDisplayMode(startingDisplayMode))
+            {
+                Debug.LogError(
+                    "WallViewSystem has an unknown starting display mode.",
+                    this);
+
+                isValid = false;
+            }
+
             return isValid;
+        }
+
+
+        private static bool IsSupportedDisplayMode(
+            WallDisplayMode displayMode)
+        {
+            return displayMode == WallDisplayMode.WallsUp
+                || displayMode == WallDisplayMode.Cutaway
+                || displayMode == WallDisplayMode.WallsDown;
         }
     }
 }

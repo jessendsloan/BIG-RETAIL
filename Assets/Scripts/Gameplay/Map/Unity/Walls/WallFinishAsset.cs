@@ -27,6 +27,18 @@ namespace BigRetail.Map.Unity.Walls
         private Sprite risingRight;
 
         [Tooltip(
+            "Low/base wall shown in cutaway and walls-down views. "
+            + "When empty, the matching full wall is used safely.")]
+        [SerializeField]
+        private Sprite lowRisingLeft;
+
+        [Tooltip(
+            "Low/base wall shown in cutaway and walls-down views. "
+            + "When empty, the matching full wall is used safely.")]
+        [SerializeField]
+        private Sprite lowRisingRight;
+
+        [Tooltip(
             "Optional icon displayed by player-facing wall-finish catalogs. "
             + "Wall rendering does not depend on this sprite.")]
         [SerializeField]
@@ -54,6 +66,45 @@ namespace BigRetail.Map.Unity.Walls
         {
             ValidateConfiguration();
 
+            return GetFullSprite(
+                displaySlope);
+        }
+
+
+        public Sprite GetSprite(
+            WallDisplaySlope displaySlope,
+            WallPresentationHeight presentationHeight)
+        {
+            ValidateConfiguration();
+
+            switch (presentationHeight)
+            {
+                case WallPresentationHeight.Full:
+                    return GetFullSprite(
+                        displaySlope);
+
+                case WallPresentationHeight.Low:
+                    Sprite lowSprite =
+                        GetLowSprite(
+                            displaySlope);
+
+                    return lowSprite != null
+                        ? lowSprite
+                        : GetFullSprite(
+                            displaySlope);
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(presentationHeight),
+                        presentationHeight,
+                        "Unsupported wall presentation height.");
+            }
+        }
+
+
+        private Sprite GetFullSprite(
+            WallDisplaySlope displaySlope)
+        {
             switch (displaySlope)
             {
                 case WallDisplaySlope.RisingLeft:
@@ -61,6 +112,26 @@ namespace BigRetail.Map.Unity.Walls
 
                 case WallDisplaySlope.RisingRight:
                     return risingRight;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(displaySlope),
+                        displaySlope,
+                        "Unsupported wall display slope.");
+            }
+        }
+
+
+        private Sprite GetLowSprite(
+            WallDisplaySlope displaySlope)
+        {
+            switch (displaySlope)
+            {
+                case WallDisplaySlope.RisingLeft:
+                    return lowRisingLeft;
+
+                case WallDisplaySlope.RisingRight:
+                    return lowRisingRight;
 
                 default:
                     throw new ArgumentOutOfRangeException(

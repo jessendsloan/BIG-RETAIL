@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using BigRetail.Map.View;
 using NUnit.Framework;
 using UnityEngine.UIElements;
 
@@ -228,11 +229,63 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        [Test]
+        public void WallDisplayMode_SelectsOnlyRequestedModeButton()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                MethodInfo setWallDisplayMode =
+                    viewType.GetMethod(
+                        "SetWallDisplayMode",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(setWallDisplayMode, Is.Not.Null);
+
+                setWallDisplayMode.Invoke(
+                    view,
+                    new object[]
+                    {
+                        WallDisplayMode.Cutaway
+                    });
+
+                Assert.That(
+                    root.Q<Button>("wall-view-cutaway-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+                Assert.That(
+                    root.Q<Button>("wall-view-up-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+                Assert.That(
+                    root.Q<Button>("wall-view-down-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
         private static VisualElement CreateToolbarRoot()
         {
             VisualElement root =
                 new VisualElement();
 
+            root.Add(CreateButton("departments-button"));
             root.Add(CreateButton("walls-button"));
             root.Add(CreateButton("foundations-button"));
             root.Add(CreateButton("floors-button"));
@@ -245,6 +298,10 @@ namespace BigRetail.Map.Unity.Tests
                 {
                     name = "demolition-picker"
                 });
+
+            root.Add(CreateButton("wall-view-up-button"));
+            root.Add(CreateButton("wall-view-cutaway-button"));
+            root.Add(CreateButton("wall-view-down-button"));
             root.Add(CreateButton("undo-button"));
             root.Add(CreateButton("redo-button"));
 

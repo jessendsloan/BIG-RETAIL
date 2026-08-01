@@ -169,6 +169,160 @@ namespace BigRetail.Map.View.Tests
         }
 
 
+        [Test]
+        public void WallsUp_AlwaysUsesFullStructuralWall()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.WallsUp,
+                    LogicalEdge,
+                    CreateProjection(
+                        IsometricViewOrientation.North),
+                    firstCellHasFoundation: false,
+                    secondCellHasFoundation: false);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Full));
+        }
+
+
+        [Test]
+        public void WallsDown_AlwaysUsesLowStructuralWall()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.WallsDown,
+                    LogicalEdge,
+                    CreateProjection(
+                        IsometricViewOrientation.North),
+                    firstCellHasFoundation: true,
+                    secondCellHasFoundation: true);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Low));
+        }
+
+
+        [Test]
+        public void Cutaway_LowersExteriorWallBetweenViewerAndFoundation()
+        {
+            IsometricViewProjection projection =
+                CreateProjection(
+                    IsometricViewOrientation.North);
+
+            WallPresentationSelection selection =
+                projection.SelectWallPresentation(
+                    LogicalEdge);
+
+            bool firstCellHasFoundation =
+                selection.ViewerFacingCell
+                != LogicalEdge.FirstCell;
+
+            bool secondCellHasFoundation =
+                selection.ViewerFacingCell
+                != LogicalEdge.SecondCell;
+
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    LogicalEdge,
+                    projection,
+                    firstCellHasFoundation,
+                    secondCellHasFoundation);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Low));
+        }
+
+
+        [Test]
+        public void Cutaway_KeepsFarExteriorAndInteriorWallsFullHeight()
+        {
+            IsometricViewProjection projection =
+                CreateProjection(
+                    IsometricViewOrientation.North);
+
+            WallPresentationSelection selection =
+                projection.SelectWallPresentation(
+                    LogicalEdge);
+
+            bool viewerIsFirstCell =
+                selection.ViewerFacingCell
+                == LogicalEdge.FirstCell;
+
+            WallPresentationHeight farExteriorHeight =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    LogicalEdge,
+                    projection,
+                    firstCellHasFoundation: viewerIsFirstCell,
+                    secondCellHasFoundation: !viewerIsFirstCell);
+
+            WallPresentationHeight interiorHeight =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    LogicalEdge,
+                    projection,
+                    firstCellHasFoundation: true,
+                    secondCellHasFoundation: true);
+
+            Assert.That(
+                farExteriorHeight,
+                Is.EqualTo(WallPresentationHeight.Full));
+            Assert.That(
+                interiorHeight,
+                Is.EqualTo(WallPresentationHeight.Full));
+        }
+
+
+        [Test]
+        public void Cutaway_RotationReevaluatesWhichExteriorWallIsNear()
+        {
+            WallPresentationHeight northHeight =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    LogicalEdge,
+                    CreateProjection(
+                        IsometricViewOrientation.North),
+                    firstCellHasFoundation: false,
+                    secondCellHasFoundation: true);
+
+            WallPresentationHeight southHeight =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    LogicalEdge,
+                    CreateProjection(
+                        IsometricViewOrientation.South),
+                    firstCellHasFoundation: false,
+                    secondCellHasFoundation: true);
+
+            Assert.That(
+                northHeight,
+                Is.EqualTo(WallPresentationHeight.Low));
+            Assert.That(
+                southHeight,
+                Is.EqualTo(WallPresentationHeight.Full));
+        }
+
+
+        [Test]
+        public void WallDisplayModeCycle_VisitsAllModesAndWraps()
+        {
+            WallDisplayMode cutaway =
+                WallDisplayModeCycle.Next(
+                    WallDisplayMode.WallsUp);
+
+            WallDisplayMode wallsDown =
+                WallDisplayModeCycle.Next(
+                    cutaway);
+
+            WallDisplayMode wallsUp =
+                WallDisplayModeCycle.Next(
+                    wallsDown);
+
+            Assert.That(cutaway, Is.EqualTo(WallDisplayMode.Cutaway));
+            Assert.That(wallsDown, Is.EqualTo(WallDisplayMode.WallsDown));
+            Assert.That(wallsUp, Is.EqualTo(WallDisplayMode.WallsUp));
+        }
+
+
         private static IsometricViewProjection CreateProjection(
             IsometricViewOrientation orientation)
         {

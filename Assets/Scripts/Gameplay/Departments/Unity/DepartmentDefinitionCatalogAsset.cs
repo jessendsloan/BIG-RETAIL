@@ -19,6 +19,10 @@ namespace BigRetail.Departments.Unity
             Array.Empty<DepartmentDefinitionAsset>();
 
 
+        public IReadOnlyList<DepartmentDefinitionAsset> Definitions =>
+            definitions;
+
+
         public bool TryCreateCatalog(
             out DepartmentDefinitionCatalog catalog,
             out string error)

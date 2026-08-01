@@ -23,9 +23,18 @@ namespace BigRetail.Departments.Unity
         [SerializeField]
         private int minimumCellCount = 1;
 
+        [Tooltip(
+            "Optional player-facing icon used by Department planning "
+            + "catalogs. Simulation rules do not depend on this sprite.")]
+        [SerializeField]
+        private Sprite catalogIcon;
+
 
         public string DisplayName =>
             displayName;
+
+        public Sprite CatalogIcon =>
+            catalogIcon;
 
 
         public bool TryCreateDefinition(

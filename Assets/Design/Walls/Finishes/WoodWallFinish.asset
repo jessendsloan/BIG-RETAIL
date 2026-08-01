@@ -15,4 +15,6 @@ MonoBehaviour:
   finishId: wood
   risingLeft: {fileID: 21300000, guid: dffa441c8d2f27d40a8cb3f75d4726d9, type: 3}
   risingRight: {fileID: 21300000, guid: eeaa0e65f04090d4fb8d4c2b93c26189, type: 3}
+  lowRisingLeft: {fileID: 21300000, guid: 51cbd9e55c93c6646b4526b056daf24c, type: 3}
+  lowRisingRight: {fileID: 21300000, guid: 0d599a040ff458e4aa2bfedc123cd8e4, type: 3}
   catalogIcon: {fileID: 21300000, guid: 65a0d5be3fa7b2843aa1cd2108403aa2, type: 3}

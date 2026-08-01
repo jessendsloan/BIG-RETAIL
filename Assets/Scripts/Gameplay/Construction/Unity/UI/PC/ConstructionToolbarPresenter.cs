@@ -1,11 +1,13 @@
 using BigRetail.Construction.Unity.Tools;
+using BigRetail.Map.Unity.Walls;
+using BigRetail.Map.View;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
-    /// Connects PC construction-rail intent to authoritative construction
-    /// services and mirrors tool-mode changes back into UI selection state.
+    /// Connects PC construction-rail intent to authoritative construction and
+    /// wall-presentation services, then mirrors their state back into the UI.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
@@ -22,6 +24,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         [SerializeField]
         private ConstructionToolCoordinator toolCoordinator;
+
+
+        [Header("View Services")]
+
+        [SerializeField]
+        private WallViewSystem wallViewSystem;
 
 
         private ConstructionToolbarView boundView;
@@ -62,6 +70,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             toolCoordinator.ModeChanged +=
                 HandleModeChanged;
 
+            wallViewSystem.DisplayModeChanged +=
+                HandleWallDisplayModeChanged;
+
             if (documentHost.HasView)
             {
                 BindView(
@@ -82,6 +93,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 toolCoordinator.ModeChanged -=
                     HandleModeChanged;
+            }
+
+            if (wallViewSystem != null)
+            {
+                wallViewSystem.DisplayModeChanged -=
+                    HandleWallDisplayModeChanged;
             }
 
             UnbindView();
@@ -143,6 +160,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 toolCoordinator.CurrentMode);
         }
 
+        private void HandleDepartmentsRequested()
+        {
+            // Department Planning is a separate rail section. It must close
+            // the last construction drawer even when the coordinator is
+            // already in None and therefore does not publish ModeChanged.
+            isDemolitionPickerRequested = false;
+            toolCoordinator.SetMode(ConstructionToolMode.None);
+            RefreshDemolitionPicker(toolCoordinator.CurrentMode);
+        }
+
 
         private void HandleDemolitionTargetRequested(
             ConstructionToolbarDemolitionTarget target)
@@ -186,6 +213,23 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
 
+        private void HandleWallDisplayModeRequested(
+            WallDisplayMode displayMode)
+        {
+            wallViewSystem.TrySetDisplayMode(
+                displayMode);
+        }
+
+
+        private void HandleWallDisplayModeChanged(
+            WallDisplayMode previousMode,
+            WallDisplayMode currentMode)
+        {
+            RefreshWallDisplayMode(
+                currentMode);
+        }
+
+
         private void BindView(
             ConstructionToolbarView view)
         {
@@ -201,17 +245,26 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SectionRequested +=
                 HandleSectionRequested;
 
+            boundView.DepartmentsRequested +=
+                HandleDepartmentsRequested;
+
             boundView.DemolitionPickerRequested +=
                 HandleDemolitionPickerRequested;
 
             boundView.DemolitionTargetRequested +=
                 HandleDemolitionTargetRequested;
 
+            boundView.WallDisplayModeRequested +=
+                HandleWallDisplayModeRequested;
+
             RefreshSelection(
                 toolCoordinator.CurrentMode);
 
             RefreshDemolitionPicker(
                 toolCoordinator.CurrentMode);
+
+            RefreshWallDisplayMode(
+                wallViewSystem.CurrentDisplayMode);
         }
 
 
@@ -225,11 +278,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SectionRequested -=
                 HandleSectionRequested;
 
+            boundView.DepartmentsRequested -=
+                HandleDepartmentsRequested;
+
             boundView.DemolitionPickerRequested -=
                 HandleDemolitionPickerRequested;
 
             boundView.DemolitionTargetRequested -=
                 HandleDemolitionTargetRequested;
+
+            boundView.WallDisplayModeRequested -=
+                HandleWallDisplayModeRequested;
 
             boundView = null;
         }
@@ -262,6 +321,19 @@ namespace BigRetail.Construction.Unity.UI.PC
                 isDemolitionMode || isDemolitionPickerRequested);
             boundView.SetSelectedDemolitionTarget(
                 ToDemolitionTarget(mode));
+        }
+
+
+        private void RefreshWallDisplayMode(
+            WallDisplayMode displayMode)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            boundView.SetWallDisplayMode(
+                displayMode);
         }
 
 
@@ -312,6 +384,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "ConstructionToolCoordinator assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (wallViewSystem == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "WallViewSystem assigned.",
                     this);
 
                 isValid = false;

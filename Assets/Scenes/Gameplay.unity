@@ -168,6 +168,8 @@ GameObject:
   - component: {fileID: 87599329}
   - component: {fileID: 87599330}
   - component: {fileID: 87599331}
+  - component: {fileID: 87599333}
+  - component: {fileID: 87599332}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -275,6 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionToolbarPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
+  wallViewSystem: {fileID: 1309671814}
 --- !u!114 &87599328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,6 +338,34 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   pointerController: {fileID: 933909791}
   toolCoordinator: {fileID: 1508060588}
+--- !u!114 &87599332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff13ddd80d61c34482895b9a85dd125, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.DepartmentPickerPresenter
+  documentHost: {fileID: 87599325}
+  toolCoordinator: {fileID: 1508060588}
+  selectionHost: {fileID: 87599333}
+--- !u!114 &87599333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4a8b9d20d194142ba074b955c41e8e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Departments.Unity::BigRetail.Departments.Unity.UI.DepartmentDefinitionSelectionHost
+  definitionCatalog: {fileID: 11400000, guid: 7328d542737990343a15e549bdea3389, type: 2}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -298988,12 +299019,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Map.Unity.Walls.WallViewSystem
   mapHost: {fileID: 1863031834}
+  foundationRuntimeHost: {fileID: 447959067}
   coordinateTilemap: {fileID: 463974780}
   viewHost: {fileID: 2111000001}
   logicalLevel: 0
   unityCellZ: 0
   wallSegmentPrefab: {fileID: -7345488321890811669, guid: 3661555d1529cae4b94b51f50743659d, type: 3}
   wallViewParent: {fileID: 1309671815}
+  startingDisplayMode: 0
 --- !u!4 &1309671815
 Transform:
   m_ObjectHideFlags: 0
@@ -391975,6 +392008,7 @@ GameObject:
   - component: {fileID: 1863031834}
   - component: {fileID: 2111000001}
   - component: {fileID: 2111000003}
+  - component: {fileID: 2111000004}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -392638,6 +392672,22 @@ MonoBehaviour:
   directionalTilemaps:
   - {fileID: 463974780}
   unityCellZ: 0
+--- !u!114 &2111000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d6b88a39e3bb114fad338bd84b690f5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Departments.Unity::BigRetail.Departments.Unity.DepartmentRuntimeHost
+  mapHost: {fileID: 1863031834}
+  foundationRuntimeHost: {fileID: 447959067}
+  floorRuntimeHost: {fileID: 336439091}
+  definitionAssets: {fileID: 11400000, guid: 7328d542737990343a15e549bdea3389, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

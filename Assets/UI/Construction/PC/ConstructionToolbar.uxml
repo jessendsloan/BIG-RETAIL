@@ -7,6 +7,22 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="department-picker"
+            class="department-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Departments"
+                class="department-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="department-picker-items"
+                class="department-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="wall-finish-picker"
             class="finish-picker"
             picking-mode="Position">
@@ -82,6 +98,39 @@
         </ui:VisualElement>
 
         <ui:VisualElement
+            name="wall-view-controls"
+            class="wall-view-controls"
+            picking-mode="Position">
+
+            <ui:Button
+                name="wall-view-up-button"
+                class="wall-view-controls__button is-selected"
+                tooltip="Walls up: show every wall at full height.">
+                <ui:VisualElement
+                    class="wall-view-controls__icon wall-view-controls__icon--up"
+                    picking-mode="Ignore" />
+            </ui:Button>
+
+            <ui:Button
+                name="wall-view-cutaway-button"
+                class="wall-view-controls__button"
+                tooltip="Cutaway: lower camera-facing exterior walls.">
+                <ui:VisualElement
+                    class="wall-view-controls__icon wall-view-controls__icon--cutaway"
+                    picking-mode="Ignore" />
+            </ui:Button>
+
+            <ui:Button
+                name="wall-view-down-button"
+                class="wall-view-controls__button"
+                tooltip="Walls down: show every wall at base height.">
+                <ui:VisualElement
+                    class="wall-view-controls__icon wall-view-controls__icon--down"
+                    picking-mode="Ignore" />
+            </ui:Button>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="construction-toolbar"
             class="construction-toolbar"
             picking-mode="Position">
@@ -89,6 +138,19 @@
             <ui:VisualElement
                 name="construction-tool-group"
                 class="construction-toolbar__group">
+
+                <ui:Button
+                    name="departments-button"
+                    class="construction-toolbar__button"
+                    tooltip="Departments">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--departments"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:VisualElement
+                    class="construction-toolbar__separator"
+                    picking-mode="Ignore" />
 
                 <ui:Button
                     name="foundations-button"

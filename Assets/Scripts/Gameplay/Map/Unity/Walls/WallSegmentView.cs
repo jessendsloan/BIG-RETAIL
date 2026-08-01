@@ -41,6 +41,9 @@ namespace BigRetail.Map.Unity.Walls
 
         public WallDisplaySlope CurrentDisplaySlope { get; private set; }
 
+        public WallPresentationHeight CurrentHeight { get; private set; } =
+            WallPresentationHeight.Full;
+
 
         private Tilemap coordinateTilemap;
         private int logicalLevel;
@@ -57,7 +60,8 @@ namespace BigRetail.Map.Unity.Walls
             int logicalLevel,
             int unityCellZ,
             IsometricViewProjection projection,
-            WallFinishPresentationResolver finishResolver)
+            WallFinishPresentationResolver finishResolver,
+            WallPresentationHeight presentationHeight)
         {
             ValidatePresentation();
 
@@ -76,7 +80,8 @@ namespace BigRetail.Map.Unity.Walls
             this.unityCellZ = unityCellZ;
 
             ApplyProjection(
-                projection);
+                projection,
+                presentationHeight);
 
             gameObject.name =
                 $"Wall {Edge.AnchorCell.X}, "
@@ -90,6 +95,16 @@ namespace BigRetail.Map.Unity.Walls
 
         public void ApplyProjection(
             IsometricViewProjection projection)
+        {
+            ApplyProjection(
+                projection,
+                CurrentHeight);
+        }
+
+
+        public void ApplyProjection(
+            IsometricViewProjection projection,
+            WallPresentationHeight presentationHeight)
         {
             if (projection == null)
             {
@@ -106,15 +121,18 @@ namespace BigRetail.Map.Unity.Walls
                     projection);
 
             ApplyWorldPose(
-                worldPose);
+                worldPose,
+                presentationHeight);
         }
 
 
         private void ApplyWorldPose(
-            CellEdgeWorldPose worldPose)
+            CellEdgeWorldPose worldPose,
+            WallPresentationHeight presentationHeight)
         {
             ApplyDirectionalFinish(
-                worldPose);
+                worldPose,
+                presentationHeight);
 
             spriteRenderer.sortingOrder =
                 WallRenderOrderResolver.ResolveWall(
@@ -127,7 +145,8 @@ namespace BigRetail.Map.Unity.Walls
 
 
         private void ApplyDirectionalFinish(
-            CellEdgeWorldPose worldPose)
+            CellEdgeWorldPose worldPose,
+            WallPresentationHeight presentationHeight)
         {
             WallFinishAsset visibleFinish =
                 finishResolver.ResolveAsset(
@@ -143,9 +162,13 @@ namespace BigRetail.Map.Unity.Walls
             CurrentDisplaySlope =
                 worldPose.DisplaySlope;
 
+            CurrentHeight =
+                presentationHeight;
+
             spriteRenderer.sprite =
                 visibleFinish.GetSprite(
-                    worldPose.DisplaySlope);
+                    worldPose.DisplaySlope,
+                    presentationHeight);
 
             transform.SetPositionAndRotation(
                 worldPose.Position
