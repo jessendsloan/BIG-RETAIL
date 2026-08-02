@@ -91,24 +91,15 @@ namespace BigRetail.Map.View
 
     /// <summary>
     /// Resolves which authored height variant should represent a structural
-    /// wall. Cutaway lowers only the exterior wall between the viewer and a
-    /// built foundation cell. Interior and far-side walls remain full height.
+    /// wall. The caller supplies the current foundation-occlusion result so
+    /// display-mode selection remains separate from footprint analysis.
     /// </summary>
     public static class WallPresentationHeightResolver
     {
         public static WallPresentationHeight Resolve(
             WallDisplayMode displayMode,
-            CellEdge logicalEdge,
-            IsometricViewProjection projection,
-            bool firstCellHasFoundation,
-            bool secondCellHasFoundation)
+            bool wallOccludesFoundation)
         {
-            if (projection == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(projection));
-            }
-
             switch (displayMode)
             {
                 case WallDisplayMode.WallsUp:
@@ -118,25 +109,7 @@ namespace BigRetail.Map.View
                     return WallPresentationHeight.Low;
 
                 case WallDisplayMode.Cutaway:
-                    WallPresentationSelection selection =
-                        WallPresentationSelector.Select(
-                            logicalEdge,
-                            projection);
-
-                    bool viewerCellHasFoundation =
-                        selection.ViewerFacingCell
-                        == logicalEdge.FirstCell
-                            ? firstCellHasFoundation
-                            : secondCellHasFoundation;
-
-                    bool farCellHasFoundation =
-                        selection.ViewerFacingCell
-                        == logicalEdge.FirstCell
-                            ? secondCellHasFoundation
-                            : firstCellHasFoundation;
-
-                    return !viewerCellHasFoundation
-                        && farCellHasFoundation
+                    return wallOccludesFoundation
                             ? WallPresentationHeight.Low
                             : WallPresentationHeight.Full;
 

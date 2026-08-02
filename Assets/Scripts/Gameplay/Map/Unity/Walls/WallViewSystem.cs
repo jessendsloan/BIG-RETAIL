@@ -77,6 +77,7 @@ namespace BigRetail.Map.Unity.Walls
         private WallFinishService subscribedFinishService;
         private FoundationState subscribedFoundationState;
         private WallFinishPresentationResolver finishResolver;
+        private FoundationCutawayMap foundationCutawayMap;
 
 
         public int WallViewCount =>
@@ -340,6 +341,7 @@ namespace BigRetail.Map.Unity.Walls
 
             if (subscribedFoundationState == foundationState)
             {
+                RebuildFoundationCutawayMap();
                 RefreshAllWallPresentations();
                 return;
             }
@@ -355,6 +357,7 @@ namespace BigRetail.Map.Unity.Walls
             subscribedFoundationState.FoundationRemoved +=
                 HandleFoundationChanged;
 
+            RebuildFoundationCutawayMap();
             RefreshAllWallPresentations();
         }
 
@@ -374,20 +377,27 @@ namespace BigRetail.Map.Unity.Walls
 
             subscribedFoundationState =
                 null;
+
+            foundationCutawayMap =
+                null;
         }
 
 
         private void HandleWallAdded(
             CellEdge edge)
         {
+            RebuildFoundationCutawayMap();
             CreateWallView(edge);
+            RefreshAllWallPresentations();
         }
 
 
         private void HandleWallRemoved(
             CellEdge edge)
         {
+            RebuildFoundationCutawayMap();
             RemoveWallView(edge);
+            RefreshAllWallPresentations();
         }
 
 
@@ -417,6 +427,8 @@ namespace BigRetail.Map.Unity.Walls
             {
                 return;
             }
+
+            RebuildFoundationCutawayMap();
 
             foreach (
                 CellEdge wall
@@ -498,6 +510,8 @@ namespace BigRetail.Map.Unity.Walls
             IsometricViewOrientation previousOrientation,
             IsometricViewOrientation currentOrientation)
         {
+            RebuildFoundationCutawayMap();
+
             foreach (
                 WallSegmentView view
                 in wallViews.Values)
@@ -515,18 +529,8 @@ namespace BigRetail.Map.Unity.Walls
         private void HandleFoundationChanged(
             GridPosition cell)
         {
-            foreach (
-                KeyValuePair<CellEdge, WallSegmentView> entry
-                in wallViews)
-            {
-                if (entry.Key.TouchesCell(cell)
-                    && entry.Value != null)
-                {
-                    ApplyWallPresentation(
-                        entry.Key,
-                        entry.Value);
-                }
-            }
+            RebuildFoundationCutawayMap();
+            RefreshAllWallPresentations();
         }
 
 
@@ -536,7 +540,10 @@ namespace BigRetail.Map.Unity.Walls
                 KeyValuePair<CellEdge, WallSegmentView> entry
                 in wallViews)
             {
-                if (entry.Value != null)
+                if (entry.Value != null
+                    && subscribedWallState != null
+                    && subscribedWallState.HasWall(
+                        entry.Key))
                 {
                     ApplyWallPresentation(
                         entry.Key,
@@ -559,22 +566,36 @@ namespace BigRetail.Map.Unity.Walls
         private WallPresentationHeight ResolveWallHeight(
             CellEdge edge)
         {
-            bool firstCellHasFoundation =
-                subscribedFoundationState != null
-                && subscribedFoundationState.HasFoundation(
-                    edge.FirstCell);
-
-            bool secondCellHasFoundation =
-                subscribedFoundationState != null
-                && subscribedFoundationState.HasFoundation(
-                    edge.SecondCell);
+            bool wallOccludesFoundation =
+                foundationCutawayMap != null
+                && foundationCutawayMap.ShouldLowerWall(
+                    edge);
 
             return WallPresentationHeightResolver.Resolve(
                     CurrentDisplayMode,
-                    edge,
+                    wallOccludesFoundation);
+        }
+
+
+        private void RebuildFoundationCutawayMap()
+        {
+            if (subscribedFoundationState == null
+                || viewHost == null
+                || viewHost.Projection == null)
+            {
+                foundationCutawayMap =
+                    null;
+                return;
+            }
+
+            foundationCutawayMap =
+                FoundationCutawayMap.Calculate(
                     viewHost.Projection,
-                    firstCellHasFoundation,
-                    secondCellHasFoundation);
+                    subscribedFoundationState
+                        .EnumerateFoundations(),
+                    subscribedWallState != null
+                        ? subscribedWallState.EnumerateWalls()
+                        : Array.Empty<CellEdge>());
         }
 
 

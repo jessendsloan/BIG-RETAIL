@@ -103,29 +103,29 @@
             picking-mode="Position">
 
             <ui:Button
-                name="wall-view-up-button"
-                class="wall-view-controls__button is-selected"
-                tooltip="Walls up: show every wall at full height.">
+                name="wall-view-down-button"
+                class="wall-view-controls__button"
+                tooltip="Walls down: show every wall at base height.">
                 <ui:VisualElement
-                    class="wall-view-controls__icon wall-view-controls__icon--up"
+                    class="wall-view-controls__icon wall-view-controls__icon--down"
                     picking-mode="Ignore" />
             </ui:Button>
 
             <ui:Button
                 name="wall-view-cutaway-button"
                 class="wall-view-controls__button"
-                tooltip="Cutaway: lower camera-facing exterior walls.">
+                tooltip="Cutaway: lower walls that block constructed foundation.">
                 <ui:VisualElement
                     class="wall-view-controls__icon wall-view-controls__icon--cutaway"
                     picking-mode="Ignore" />
             </ui:Button>
 
             <ui:Button
-                name="wall-view-down-button"
-                class="wall-view-controls__button"
-                tooltip="Walls down: show every wall at base height.">
+                name="wall-view-up-button"
+                class="wall-view-controls__button is-selected"
+                tooltip="Walls up: show every wall at full height.">
                 <ui:VisualElement
-                    class="wall-view-controls__icon wall-view-controls__icon--down"
+                    class="wall-view-controls__icon wall-view-controls__icon--up"
                     picking-mode="Ignore" />
             </ui:Button>
         </ui:VisualElement>

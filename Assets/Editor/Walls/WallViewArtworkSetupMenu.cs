@@ -15,6 +15,16 @@ namespace BigRetail.Editor.Walls
         private const string MenuPath =
             "Big Retail/Walls/Refresh Wall View Artwork";
 
+        private const string WallIconImportTemplatePath =
+            "Assets/Art/UI/Construction/Icons/Icon_Walls.png";
+
+        private static readonly string[] WallViewIconPaths =
+        {
+            "Assets/Art/UI/WallView/Icons/WallView_WallsUp.png",
+            "Assets/Art/UI/WallView/Icons/WallView_Cutaway.png",
+            "Assets/Art/UI/WallView/Icons/WallView_WallsDown.png"
+        };
+
         private static readonly WallArtworkPair[] ArtworkPairs =
         {
             new WallArtworkPair(
@@ -63,6 +73,13 @@ namespace BigRetail.Editor.Walls
                     pair.LowRisingRightPath);
 
                 AssignLowSprites(pair);
+            }
+
+            foreach (string iconPath in WallViewIconPaths)
+            {
+                SyncSpriteImportSettings(
+                    WallIconImportTemplatePath,
+                    iconPath);
             }
 
             AssetDatabase.SaveAssets();

@@ -3,7 +3,12 @@
 The wall-view system uses three display modes:
 
 - **Walls Up** uses the existing full-height wall sprites.
-- **Cutaway** uses low/base sprites only for camera-facing exterior walls.
+- **Cutaway** uses low/base sprites for walls that obscure constructed
+  foundation in the current isometric view. This includes interior walls and
+  concave L-shaped boundaries when foundation continues farther back along
+  the same viewing lane. Isolated full-height corner caps between two lowered
+  wall runs are lowered as a continuity cleanup. Apron tiles do not count as
+  foundation.
 - **Walls Down** uses low/base sprites for every wall.
 
 Walls are never disabled. If low art is unavailable, the system safely uses
