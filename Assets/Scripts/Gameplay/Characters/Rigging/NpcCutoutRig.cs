@@ -200,6 +200,9 @@ namespace BigRetail.Characters.Rigging
         [SerializeField]
         private NpcAppearanceProfile appearanceProfile;
 
+        [NonSerialized]
+        private NpcAppearanceProfile appearancePreview;
+
         [Tooltip(
             "Presentation details that belong on the front of the " +
             "character, such as a name badge. They are hidden when " +
@@ -283,6 +286,27 @@ namespace BigRetail.Characters.Rigging
             NpcAppearanceProfile newAppearanceProfile)
         {
             appearanceProfile = newAppearanceProfile;
+            appearancePreview = null;
+            ApplyFacing();
+        }
+
+        /// <summary>
+        /// Temporarily displays an editor-authored appearance without
+        /// replacing the saved profile reference on the rig.
+        /// </summary>
+        public void SetAppearancePreview(
+            NpcAppearanceProfile previewProfile)
+        {
+            appearancePreview = previewProfile;
+            ApplyFacing();
+        }
+
+        /// <summary>
+        /// Returns the rig to its saved appearance profile.
+        /// </summary>
+        public void ClearAppearancePreview()
+        {
+            appearancePreview = null;
             ApplyFacing();
         }
 
@@ -498,7 +522,12 @@ namespace BigRetail.Characters.Rigging
                 NpcFacingUtility.GetAuthoredDirection(
                     facing);
 
-            appearanceProfile?.ApplyBonePlacements(this);
+            NpcAppearanceProfile effectiveAppearance =
+                appearancePreview != null
+                    ? appearancePreview
+                    : appearanceProfile;
+
+            effectiveAppearance?.ApplyBonePlacements(this);
 
             for (int index = 0; index < parts.Count; index++)
             {
@@ -510,7 +539,7 @@ namespace BigRetail.Characters.Rigging
 
                 if (binding != null)
                 {
-                    appearanceProfile?.ApplyPart(
+                    effectiveAppearance?.ApplyPart(
                         binding.Id,
                         binding.SpriteRenderer,
                         authoredDirection);
@@ -546,7 +575,9 @@ namespace BigRetail.Characters.Rigging
 
             mirrorRoot.localScale = scale;
             ApplyDepthLayering(facing);
-            ApplyDirectionalDetailVisibility(authoredDirection);
+            ApplyDirectionalDetailVisibility(
+                authoredDirection,
+                effectiveAppearance);
         }
 
 
@@ -582,7 +613,8 @@ namespace BigRetail.Characters.Rigging
 
 
         private void ApplyDirectionalDetailVisibility(
-            NpcAuthoredDirection authoredDirection)
+            NpcAuthoredDirection authoredDirection,
+            NpcAppearanceProfile effectiveAppearance)
         {
             if (northHiddenDetails == null)
             {
@@ -591,9 +623,9 @@ namespace BigRetail.Characters.Rigging
 
             bool showFrontDetails =
                 authoredDirection == NpcAuthoredDirection.SouthEast
-                && (appearanceProfile == null
-                    || appearanceProfile.OutfitSet == null
-                    || appearanceProfile.OutfitSet.ShowBadge);
+                && (effectiveAppearance == null
+                    || effectiveAppearance.OutfitSet == null
+                    || effectiveAppearance.OutfitSet.ShowBadge);
 
             for (int index = 0;
                  index < northHiddenDetails.Count;
@@ -606,10 +638,10 @@ namespace BigRetail.Characters.Rigging
                 {
                     detail.enabled = showFrontDetails;
 
-                    if (appearanceProfile?.OutfitSet != null)
+                    if (effectiveAppearance?.OutfitSet != null)
                     {
                         detail.color =
-                            appearanceProfile.OutfitSet.BadgeColor;
+                            effectiveAppearance.OutfitSet.BadgeColor;
                     }
                 }
             }

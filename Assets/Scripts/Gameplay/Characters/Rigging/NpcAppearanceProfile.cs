@@ -179,6 +179,29 @@ namespace BigRetail.Characters.Rigging
         }
 
 
+        public void Configure(
+            string newDisplayName,
+            NpcAppearanceSelection selection)
+        {
+            Configure(
+                newDisplayName,
+                selection?.BodySilhouette,
+                selection?.SkinPalette,
+                selection?.OutfitSet,
+                selection?.HairSet);
+        }
+
+
+        public NpcAppearanceSelection CreateSelection()
+        {
+            return new NpcAppearanceSelection(
+                bodySilhouette,
+                skinPalette,
+                outfitSet,
+                hairSet);
+        }
+
+
         public void ApplyBonePlacements(
             NpcCutoutRig rig)
         {

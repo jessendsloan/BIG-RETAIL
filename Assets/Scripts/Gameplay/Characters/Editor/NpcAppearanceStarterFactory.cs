@@ -8,7 +8,7 @@ namespace BigRetail.Characters.Editor
     public static class NpcAppearanceStarterFactory
     {
         private const string MenuPath =
-            "Big Retail/Characters/Appearance Creator/Create Starter Library";
+            "Big Retail/Characters/Character Studio/Repair Starter Content";
 
         private const string RootFolder =
             "Assets/Art/Characters/Appearance";
@@ -18,8 +18,10 @@ namespace BigRetail.Characters.Editor
         private const string OutfitFolder = RootFolder + "/Outfits";
         private const string HairFolder = RootFolder + "/Hair";
         private const string ProfileFolder = RootFolder + "/Profiles";
+        private const string TemplateFolder = RootFolder + "/Templates";
+        private const string LibraryFolder = RootFolder + "/Library";
 
-        private const string RowanPrefabPath =
+        private const string BasePersonPrefabPath =
             "Assets/Prefabs/Characters/Prototype/RoundedEmployeeRowan.prefab";
 
         private const string MinaPrefabPath =
@@ -34,31 +36,35 @@ namespace BigRetail.Characters.Editor
             EnsureFolder(OutfitFolder);
             EnsureFolder(HairFolder);
             EnsureFolder(ProfileFolder);
+            EnsureFolder(TemplateFolder);
+            EnsureFolder(LibraryFolder);
 
-            GameObject rowanPrefab =
+            GameObject basePersonPrefab =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
-                    RowanPrefabPath);
+                    BasePersonPrefabPath);
 
-            if (rowanPrefab == null)
+            if (basePersonPrefab == null)
             {
                 throw new UnityException(
-                    $"Rowan prefab was not found at '{RowanPrefabPath}'.");
+                    "The shared base person prefab was not found at " +
+                    $"'{BasePersonPrefabPath}'.");
             }
 
-            NpcCutoutRig rowanRig =
-                rowanPrefab.GetComponent<NpcCutoutRig>();
+            NpcCutoutRig baseRig =
+                basePersonPrefab.GetComponent<NpcCutoutRig>();
 
-            if (rowanRig == null)
+            if (baseRig == null)
             {
                 throw new UnityException(
-                    "Rowan prefab has no NpcCutoutRig component.");
+                    "The shared base person prefab has no " +
+                    "NpcCutoutRig component.");
             }
 
-            List<NpcAppearancePartShape> rowanShapes =
-                CapturePartShapes(rowanRig);
+            List<NpcAppearancePartShape> baselineShapes =
+                CapturePartShapes(baseRig);
 
-            List<NpcAppearanceBonePlacement> rowanBones =
-                CaptureWidthBones(rowanRig);
+            List<NpcAppearanceBonePlacement> baselineBones =
+                CaptureWidthBones(baseRig);
 
             NpcBodySilhouette masculine =
                 LoadOrCreate<NpcBodySilhouette>(
@@ -67,8 +73,8 @@ namespace BigRetail.Characters.Editor
             masculine.Configure(
                 "Standard Masculine",
                 NpcBodySilhouetteKind.Masculine,
-                rowanShapes,
-                rowanBones);
+                baselineShapes,
+                baselineBones);
 
             NpcBodySilhouette feminine =
                 LoadOrCreate<NpcBodySilhouette>(
@@ -77,17 +83,17 @@ namespace BigRetail.Characters.Editor
             feminine.Configure(
                 "Standard Feminine",
                 NpcBodySilhouetteKind.Feminine,
-                CreateFeminineShapes(rowanShapes),
-                CreateFeminineBones(rowanBones));
+                CreateFeminineShapes(baselineShapes),
+                CreateFeminineBones(baselineBones));
 
-            Color rowanSkin = GetPartColor(
-                rowanRig,
+            Color baselineSkin = GetPartColor(
+                baseRig,
                 NpcRigPartId.Head,
                 new Color(0.54f, 0.31f, 0.20f, 1f));
 
             NpcSkinPalette warmBrown = CreateSkinPalette(
                 "Warm Brown",
-                rowanSkin,
+                baselineSkin,
                 "WarmBrown");
 
             NpcSkinPalette deepBrown = CreateSkinPalette(
@@ -100,35 +106,35 @@ namespace BigRetail.Characters.Editor
                 new Color(0.66f, 0.42f, 0.27f, 1f),
                 "MediumTan");
 
-            CreateSkinPalette(
+            NpcSkinPalette golden = CreateSkinPalette(
                 "Golden",
                 new Color(0.76f, 0.53f, 0.31f, 1f),
                 "Golden");
 
-            CreateSkinPalette(
+            NpcSkinPalette lightWarm = CreateSkinPalette(
                 "Light Warm",
                 new Color(0.86f, 0.68f, 0.54f, 1f),
                 "LightWarm");
 
-            CreateSkinPalette(
+            NpcSkinPalette rosyLight = CreateSkinPalette(
                 "Rosy Light",
                 new Color(0.91f, 0.72f, 0.65f, 1f),
                 "RosyLight");
 
             NpcOutfitSet rustPolo = CreateOutfit(
-                rowanRig,
+                baseRig,
                 "Rust Employee Polo",
                 "RustEmployeePolo",
                 GetPartColor(
-                    rowanRig,
+                    baseRig,
                     NpcRigPartId.Torso,
                     new Color(0.77f, 0.28f, 0.13f, 1f)),
                 GetPartColor(
-                    rowanRig,
+                    baseRig,
                     NpcRigPartId.Pelvis,
                     new Color(0.26f, 0.20f, 0.16f, 1f)),
                 GetPartColor(
-                    rowanRig,
+                    baseRig,
                     NpcRigPartId.FootSourceCameraRight,
                     new Color(0.10f, 0.07f, 0.05f, 1f)),
                 new Color(0.92f, 0.84f, 0.59f, 1f),
@@ -136,7 +142,7 @@ namespace BigRetail.Characters.Editor
                 false);
 
             NpcOutfitSet tealShortSleeve = CreateOutfit(
-                rowanRig,
+                baseRig,
                 "Teal Short-Sleeve Employee Shirt",
                 "TealShortSleeve",
                 new Color(0.12f, 0.52f, 0.50f, 1f),
@@ -146,8 +152,8 @@ namespace BigRetail.Characters.Editor
                 true,
                 true);
 
-            CreateOutfit(
-                rowanRig,
+            NpcOutfitSet navyJacket = CreateOutfit(
+                baseRig,
                 "Navy Jacket",
                 "NavyJacket",
                 new Color(0.12f, 0.23f, 0.42f, 1f),
@@ -157,48 +163,59 @@ namespace BigRetail.Characters.Editor
                 false,
                 false);
 
+            NpcOutfitSet casualShortSleeve = CreateOutfit(
+                baseRig,
+                "Casual Green Short-Sleeve Shirt",
+                "CasualGreenShortSleeve",
+                new Color(0.23f, 0.48f, 0.28f, 1f),
+                new Color(0.22f, 0.19f, 0.25f, 1f),
+                new Color(0.10f, 0.08f, 0.08f, 1f),
+                new Color(0.72f, 0.76f, 0.62f, 1f),
+                false,
+                true);
+
             NpcHairSet shortCrop = CreateHairSet(
-                rowanRig,
+                baseRig,
                 "Short Crop / Black",
                 "ShortCropBlack",
                 GetPartColor(
-                    rowanRig,
+                    baseRig,
                     NpcRigPartId.HairFront,
                     new Color(0.055f, 0.065f, 0.075f, 1f)),
-                rowanShapes,
+                baselineShapes,
                 1f,
                 0f,
                 1f,
                 0f);
 
             NpcHairSet longAuburn = CreateHairSet(
-                rowanRig,
+                baseRig,
                 "Long Back / Auburn",
                 "LongBackAuburn",
                 new Color(0.31f, 0.11f, 0.055f, 1f),
-                rowanShapes,
+                baselineShapes,
                 1.05f,
                 -0.09f,
                 1.10f,
                 0.015f);
 
-            CreateHairSet(
-                rowanRig,
+            NpcHairSet highTop = CreateHairSet(
+                baseRig,
                 "High Top / Dark",
                 "HighTopDark",
                 new Color(0.045f, 0.038f, 0.035f, 1f),
-                rowanShapes,
+                baselineShapes,
                 0.95f,
                 0.02f,
                 1.55f,
                 0.055f);
 
-            CreateHairSet(
-                rowanRig,
+            NpcHairSet closeCropSilver = CreateHairSet(
+                baseRig,
                 "Close Crop / Silver",
                 "CloseCropSilver",
                 new Color(0.47f, 0.49f, 0.52f, 1f),
-                rowanShapes,
+                baselineShapes,
                 0.82f,
                 0.025f,
                 0.72f,
@@ -226,25 +243,115 @@ namespace BigRetail.Characters.Editor
                 tealShortSleeve,
                 longAuburn);
 
+            NpcCharacterTemplate customerTemplate =
+                LoadOrCreate<NpcCharacterTemplate>(
+                    TemplateFolder + "/Customer.asset");
+
+            customerTemplate.Configure(
+                "Customer",
+                NpcCharacterRole.Customer,
+                CreateBodyChoices(masculine, feminine),
+                CreateSkinChoices(
+                    warmBrown,
+                    deepBrown,
+                    mediumTan,
+                    golden,
+                    lightWarm,
+                    rosyLight),
+                CreateOutfitChoices(
+                    navyJacket,
+                    casualShortSleeve),
+                CreateHairChoices(
+                    shortCrop,
+                    longAuburn,
+                    highTop,
+                    closeCropSilver));
+
+            NpcCharacterTemplate employeeTemplate =
+                LoadOrCreate<NpcCharacterTemplate>(
+                    TemplateFolder + "/StoreEmployee.asset");
+
+            employeeTemplate.Configure(
+                "Store Employee",
+                NpcCharacterRole.Employee,
+                CreateBodyChoices(masculine, feminine),
+                CreateSkinChoices(
+                    warmBrown,
+                    deepBrown,
+                    mediumTan,
+                    golden,
+                    lightWarm,
+                    rosyLight),
+                CreateOutfitChoices(
+                    rustPolo,
+                    tealShortSleeve),
+                CreateHairChoices(
+                    shortCrop,
+                    longAuburn,
+                    highTop,
+                    closeCropSilver));
+
+            NpcCharacterLibrary library =
+                LoadOrCreate<NpcCharacterLibrary>(
+                    LibraryFolder + "/BigRetailCharacters.asset");
+
+            library.Configure(
+                "Big Retail Characters",
+                new[] { customerTemplate, employeeTemplate },
+                new[] { masculine, feminine },
+                new[]
+                {
+                    warmBrown,
+                    deepBrown,
+                    mediumTan,
+                    golden,
+                    lightWarm,
+                    rosyLight
+                },
+                new[]
+                {
+                    rustPolo,
+                    tealShortSleeve,
+                    navyJacket,
+                    casualShortSleeve
+                },
+                new[]
+                {
+                    shortCrop,
+                    longAuburn,
+                    highTop,
+                    closeCropSilver
+                });
+
             MarkDirty(
                 masculine,
                 feminine,
                 warmBrown,
                 deepBrown,
                 mediumTan,
+                golden,
+                lightWarm,
+                rosyLight,
                 rustPolo,
                 tealShortSleeve,
+                navyJacket,
+                casualShortSleeve,
                 shortCrop,
                 longAuburn,
+                highTop,
+                closeCropSilver,
                 rowanProfile,
-                minaProfile);
+                minaProfile,
+                customerTemplate,
+                employeeTemplate,
+                library);
 
             AssignProfileToPrefab(
-                RowanPrefabPath,
+                BasePersonPrefabPath,
                 rowanProfile);
 
             CreateProfilePrefab(
-                rowanPrefab,
+                basePersonPrefab,
                 MinaPrefabPath,
                 "Rounded Employee - Mina",
                 minaProfile);
@@ -252,13 +359,74 @@ namespace BigRetail.Characters.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Selection.activeObject = minaProfile;
-            EditorGUIUtility.PingObject(minaProfile);
+            Selection.activeObject = library;
+            EditorGUIUtility.PingObject(library);
 
             Debug.Log(
-                "Created the starter appearance library: two body " +
-                "silhouettes, six skin palettes, three outfits, four " +
-                "hair sets, Rowan and Mina profiles, and a Mina prefab.");
+                "Character Studio starter content is ready: Customer " +
+                "and Store Employee templates, two body silhouettes, " +
+                "six skin palettes, four outfits, four hair sets, " +
+                "Rowan and Mina profiles, and the Mina comparison prefab.");
+        }
+
+
+        private static NpcWeightedBodyChoice[] CreateBodyChoices(
+            params NpcBodySilhouette[] assets)
+        {
+            NpcWeightedBodyChoice[] choices =
+                new NpcWeightedBodyChoice[assets.Length];
+
+            for (int index = 0; index < assets.Length; index++)
+            {
+                choices[index] = new NpcWeightedBodyChoice(assets[index]);
+            }
+
+            return choices;
+        }
+
+
+        private static NpcWeightedSkinChoice[] CreateSkinChoices(
+            params NpcSkinPalette[] assets)
+        {
+            NpcWeightedSkinChoice[] choices =
+                new NpcWeightedSkinChoice[assets.Length];
+
+            for (int index = 0; index < assets.Length; index++)
+            {
+                choices[index] = new NpcWeightedSkinChoice(assets[index]);
+            }
+
+            return choices;
+        }
+
+
+        private static NpcWeightedOutfitChoice[] CreateOutfitChoices(
+            params NpcOutfitSet[] assets)
+        {
+            NpcWeightedOutfitChoice[] choices =
+                new NpcWeightedOutfitChoice[assets.Length];
+
+            for (int index = 0; index < assets.Length; index++)
+            {
+                choices[index] = new NpcWeightedOutfitChoice(assets[index]);
+            }
+
+            return choices;
+        }
+
+
+        private static NpcWeightedHairChoice[] CreateHairChoices(
+            params NpcHairSet[] assets)
+        {
+            NpcWeightedHairChoice[] choices =
+                new NpcWeightedHairChoice[assets.Length];
+
+            for (int index = 0; index < assets.Length; index++)
+            {
+                choices[index] = new NpcWeightedHairChoice(assets[index]);
+            }
+
+            return choices;
         }
 
 
@@ -277,7 +445,8 @@ namespace BigRetail.Characters.Editor
                         out SpriteRenderer renderer))
                 {
                     throw new UnityException(
-                        $"Rowan is missing part {definition.Id}.");
+                        "The shared base rig is missing part " +
+                        $"{definition.Id}.");
                 }
 
                 Transform partTransform = renderer.transform;
@@ -694,7 +863,8 @@ namespace BigRetail.Characters.Editor
             if (instance == null)
             {
                 throw new UnityException(
-                    "Could not instantiate Rowan for a profile prefab.");
+                    "Could not instantiate the shared base person " +
+                    "for a profile prefab.");
             }
 
             try

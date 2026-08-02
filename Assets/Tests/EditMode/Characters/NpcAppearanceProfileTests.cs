@@ -12,6 +12,8 @@ namespace BigRetail.Characters.Rigging.Tests
         [TestCase(typeof(NpcOutfitSet), "NpcOutfitSet")]
         [TestCase(typeof(NpcHairSet), "NpcHairSet")]
         [TestCase(typeof(NpcAppearanceProfile), "NpcAppearanceProfile")]
+        [TestCase(typeof(NpcCharacterTemplate), "NpcCharacterTemplate")]
+        [TestCase(typeof(NpcCharacterLibrary), "NpcCharacterLibrary")]
         public void SavedAssetType_HasMatchingMonoScript(
             System.Type assetType,
             string expectedScriptName)
@@ -132,6 +134,286 @@ namespace BigRetail.Characters.Rigging.Tests
             finally
             {
                 fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void SameTemplateAndSeed_ProduceSameSelection()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcCharacterTemplate template = null;
+            Object[] variants = null;
+
+            try
+            {
+                template = CreateVariedTemplate(
+                    fixture,
+                    out variants);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        template,
+                        4815,
+                        null,
+                        null,
+                        out NpcAppearanceSelection first,
+                        out string firstReason),
+                    Is.True,
+                    firstReason);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        template,
+                        4815,
+                        null,
+                        null,
+                        out NpcAppearanceSelection second,
+                        out string secondReason),
+                    Is.True,
+                    secondReason);
+
+                Assert.That(
+                    second.BodySilhouette,
+                    Is.SameAs(first.BodySilhouette));
+                Assert.That(
+                    second.SkinPalette,
+                    Is.SameAs(first.SkinPalette));
+                Assert.That(
+                    second.OutfitSet,
+                    Is.SameAs(first.OutfitSet));
+                Assert.That(
+                    second.HairSet,
+                    Is.SameAs(first.HairSet));
+            }
+            finally
+            {
+                DestroyObjects(variants);
+                Object.DestroyImmediate(template);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void OutfitLock_PreservesApprovedUniform()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcCharacterTemplate template = null;
+            Object[] variants = null;
+
+            try
+            {
+                template = CreateVariedTemplate(
+                    fixture,
+                    out variants);
+
+                NpcAppearanceSelection current =
+                    fixture.Profile.CreateSelection();
+
+                NpcAppearanceLocks locks =
+                    new NpcAppearanceLocks();
+
+                locks.Configure(
+                    false,
+                    false,
+                    true,
+                    false);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        template,
+                        99,
+                        current,
+                        locks,
+                        out NpcAppearanceSelection generated,
+                        out string reason),
+                    Is.True,
+                    reason);
+
+                Assert.That(
+                    generated.OutfitSet,
+                    Is.SameAs(fixture.Outfit));
+            }
+            finally
+            {
+                DestroyObjects(variants);
+                Object.DestroyImmediate(template);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void LockedOutfitOutsideTemplate_IsRejected()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcCharacterTemplate template = null;
+            Object[] variants = null;
+            NpcOutfitSet disallowedOutfit = null;
+
+            try
+            {
+                template = CreateVariedTemplate(
+                    fixture,
+                    out variants);
+
+                disallowedOutfit =
+                    Object.Instantiate(fixture.Outfit);
+                disallowedOutfit.name = "Disallowed Outfit";
+
+                NpcAppearanceSelection current =
+                    new NpcAppearanceSelection(
+                        fixture.Body,
+                        fixture.Skin,
+                        disallowedOutfit,
+                        fixture.Hair);
+
+                NpcAppearanceLocks locks =
+                    new NpcAppearanceLocks();
+
+                locks.Configure(
+                    false,
+                    false,
+                    true,
+                    false);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        template,
+                        99,
+                        current,
+                        locks,
+                        out _,
+                        out string reason),
+                    Is.False);
+
+                StringAssert.Contains(
+                    "not allowed",
+                    reason.ToLowerInvariant());
+            }
+            finally
+            {
+                Object.DestroyImmediate(disallowedOutfit);
+                DestroyObjects(variants);
+                Object.DestroyImmediate(template);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void EmployeeTemplate_GeneratesOnlyApprovedOutfits()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcCharacterTemplate template = null;
+            Object[] variants = null;
+
+            try
+            {
+                template = CreateVariedTemplate(
+                    fixture,
+                    out variants);
+
+                NpcOutfitSet alternate =
+                    (NpcOutfitSet)variants[2];
+
+                for (int seed = 0; seed < 64; seed++)
+                {
+                    Assert.That(
+                        NpcAppearanceGenerator.TryGenerate(
+                            template,
+                            seed,
+                            null,
+                            null,
+                            out NpcAppearanceSelection generated,
+                            out string reason),
+                        Is.True,
+                        reason);
+
+                    Assert.That(
+                        generated.OutfitSet == fixture.Outfit
+                        || generated.OutfitSet == alternate,
+                        Is.True);
+                }
+            }
+            finally
+            {
+                DestroyObjects(variants);
+                Object.DestroyImmediate(template);
+                fixture.Dispose();
+            }
+        }
+
+
+        private static NpcCharacterTemplate CreateVariedTemplate(
+            AppearanceFixture fixture,
+            out Object[] variants)
+        {
+            NpcBodySilhouette alternateBody =
+                Object.Instantiate(fixture.Body);
+            NpcSkinPalette alternateSkin =
+                Object.Instantiate(fixture.Skin);
+            NpcOutfitSet alternateOutfit =
+                Object.Instantiate(fixture.Outfit);
+            NpcHairSet alternateHair =
+                Object.Instantiate(fixture.Hair);
+
+            alternateBody.name = "Alternate Body";
+            alternateSkin.name = "Alternate Skin";
+            alternateOutfit.name = "Alternate Outfit";
+            alternateHair.name = "Alternate Hair";
+
+            variants = new Object[]
+            {
+                alternateBody,
+                alternateSkin,
+                alternateOutfit,
+                alternateHair
+            };
+
+            NpcCharacterTemplate template =
+                ScriptableObject.CreateInstance<NpcCharacterTemplate>();
+
+            template.Configure(
+                "Store Employee",
+                NpcCharacterRole.Employee,
+                new[]
+                {
+                    new NpcWeightedBodyChoice(fixture.Body),
+                    new NpcWeightedBodyChoice(alternateBody)
+                },
+                new[]
+                {
+                    new NpcWeightedSkinChoice(fixture.Skin),
+                    new NpcWeightedSkinChoice(alternateSkin)
+                },
+                new[]
+                {
+                    new NpcWeightedOutfitChoice(fixture.Outfit),
+                    new NpcWeightedOutfitChoice(alternateOutfit)
+                },
+                new[]
+                {
+                    new NpcWeightedHairChoice(fixture.Hair),
+                    new NpcWeightedHairChoice(alternateHair)
+                });
+
+            return template;
+        }
+
+
+        private static void DestroyObjects(
+            Object[] objects)
+        {
+            if (objects == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < objects.Length; index++)
+            {
+                Object.DestroyImmediate(objects[index]);
             }
         }
 
