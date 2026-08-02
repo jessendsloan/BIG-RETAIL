@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf860199cfd6ba447b51bf25a4af2453, type: 3}
-  m_Name: RowanAppearance
+  m_Name: DefaultAppearance
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAppearanceProfile
-  displayName: Rowan
+  displayName: Default Appearance
   bodySilhouette: {fileID: 11400000, guid: bd2f26a027dacc54191534f3b75ca211, type: 2}
   skinPalette: {fileID: 11400000, guid: 9a4be361103df624d953177f9565bc56, type: 2}
   outfitSet: {fileID: 11400000, guid: 55dfd699be475fe499e083551a657717, type: 2}

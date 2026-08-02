@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace BigRetail.Characters.Editor
 {
-    public static class NpcAppearanceStarterFactory
+    public static class NpcPopulationStarterFactory
     {
         private const string MenuPath =
-            "Big Retail/Characters/Character Studio/Repair Starter Content";
+            "Big Retail/Characters/Population Studio/Repair Starter Content";
 
         private const string RootFolder =
             "Assets/Art/Characters/Appearance";
@@ -17,27 +17,25 @@ namespace BigRetail.Characters.Editor
         private const string SkinFolder = RootFolder + "/Skin Palettes";
         private const string OutfitFolder = RootFolder + "/Outfits";
         private const string HairFolder = RootFolder + "/Hair";
-        private const string ProfileFolder = RootFolder + "/Profiles";
-        private const string TemplateFolder = RootFolder + "/Templates";
-        private const string LibraryFolder = RootFolder + "/Library";
+        private const string DefaultFolder = RootFolder + "/Defaults";
+        private const string PopulationDefinitionFolder =
+            RootFolder + "/Population Definitions";
+        private const string CatalogFolder = RootFolder + "/Catalog";
 
         private const string BasePersonPrefabPath =
-            "Assets/Prefabs/Characters/Prototype/RoundedEmployeeRowan.prefab";
-
-        private const string MinaPrefabPath =
-            "Assets/Prefabs/Characters/Prototype/RoundedEmployeeMina.prefab";
+            "Assets/Prefabs/Characters/Core/Person.prefab";
 
 
         [MenuItem(MenuPath)]
-        public static void CreateOrUpdateStarterLibrary()
+        public static void CreateOrUpdateStarterCatalog()
         {
             EnsureFolder(BodyFolder);
             EnsureFolder(SkinFolder);
             EnsureFolder(OutfitFolder);
             EnsureFolder(HairFolder);
-            EnsureFolder(ProfileFolder);
-            EnsureFolder(TemplateFolder);
-            EnsureFolder(LibraryFolder);
+            EnsureFolder(DefaultFolder);
+            EnsureFolder(PopulationDefinitionFolder);
+            EnsureFolder(CatalogFolder);
 
             GameObject basePersonPrefab =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -221,33 +219,22 @@ namespace BigRetail.Characters.Editor
                 0.72f,
                 -0.015f);
 
-            NpcAppearanceProfile rowanProfile =
+            NpcAppearanceProfile defaultAppearance =
                 LoadOrCreate<NpcAppearanceProfile>(
-                    ProfileFolder + "/RowanAppearance.asset");
+                    DefaultFolder + "/DefaultAppearance.asset");
 
-            rowanProfile.Configure(
-                "Rowan",
+            defaultAppearance.Configure(
+                "Default Appearance",
                 masculine,
                 warmBrown,
                 rustPolo,
                 shortCrop);
 
-            NpcAppearanceProfile minaProfile =
-                LoadOrCreate<NpcAppearanceProfile>(
-                    ProfileFolder + "/MinaAppearance.asset");
+            NpcPopulationDefinition customerDefinition =
+                LoadOrCreate<NpcPopulationDefinition>(
+                    PopulationDefinitionFolder + "/Customer.asset");
 
-            minaProfile.Configure(
-                "Mina",
-                feminine,
-                mediumTan,
-                tealShortSleeve,
-                longAuburn);
-
-            NpcCharacterTemplate customerTemplate =
-                LoadOrCreate<NpcCharacterTemplate>(
-                    TemplateFolder + "/Customer.asset");
-
-            customerTemplate.Configure(
+            customerDefinition.Configure(
                 "Customer",
                 NpcCharacterRole.Customer,
                 CreateBodyChoices(masculine, feminine),
@@ -267,11 +254,11 @@ namespace BigRetail.Characters.Editor
                     highTop,
                     closeCropSilver));
 
-            NpcCharacterTemplate employeeTemplate =
-                LoadOrCreate<NpcCharacterTemplate>(
-                    TemplateFolder + "/StoreEmployee.asset");
+            NpcPopulationDefinition employeeDefinition =
+                LoadOrCreate<NpcPopulationDefinition>(
+                    PopulationDefinitionFolder + "/StoreEmployee.asset");
 
-            employeeTemplate.Configure(
+            employeeDefinition.Configure(
                 "Store Employee",
                 NpcCharacterRole.Employee,
                 CreateBodyChoices(masculine, feminine),
@@ -291,13 +278,13 @@ namespace BigRetail.Characters.Editor
                     highTop,
                     closeCropSilver));
 
-            NpcCharacterLibrary library =
-                LoadOrCreate<NpcCharacterLibrary>(
-                    LibraryFolder + "/BigRetailCharacters.asset");
+            NpcAppearanceCatalog catalog =
+                LoadOrCreate<NpcAppearanceCatalog>(
+                    CatalogFolder + "/PersonAppearanceCatalog.asset");
 
-            library.Configure(
-                "Big Retail Characters",
-                new[] { customerTemplate, employeeTemplate },
+            catalog.Configure(
+                "Person Appearance Catalog",
+                new[] { customerDefinition, employeeDefinition },
                 new[] { masculine, feminine },
                 new[]
                 {
@@ -340,33 +327,26 @@ namespace BigRetail.Characters.Editor
                 longAuburn,
                 highTop,
                 closeCropSilver,
-                rowanProfile,
-                minaProfile,
-                customerTemplate,
-                employeeTemplate,
-                library);
+                defaultAppearance,
+                customerDefinition,
+                employeeDefinition,
+                catalog);
 
             AssignProfileToPrefab(
                 BasePersonPrefabPath,
-                rowanProfile);
-
-            CreateProfilePrefab(
-                basePersonPrefab,
-                MinaPrefabPath,
-                "Rounded Employee - Mina",
-                minaProfile);
+                defaultAppearance);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Selection.activeObject = library;
-            EditorGUIUtility.PingObject(library);
+            Selection.activeObject = catalog;
+            EditorGUIUtility.PingObject(catalog);
 
             Debug.Log(
-                "Character Studio starter content is ready: Customer " +
-                "and Store Employee templates, two body silhouettes, " +
-                "six skin palettes, four outfits, four hair sets, " +
-                "Rowan and Mina profiles, and the Mina comparison prefab.");
+                "Population Studio starter content is ready: Customer " +
+                "and Store Employee definitions, two body silhouettes, " +
+                "six skin palettes, four outfits, four hair sets, and " +
+                "one neutral default appearance.");
         }
 
 
@@ -846,41 +826,6 @@ namespace BigRetail.Characters.Editor
             finally
             {
                 PrefabUtility.UnloadPrefabContents(root);
-            }
-        }
-
-
-        private static void CreateProfilePrefab(
-            GameObject sourcePrefab,
-            string destinationPath,
-            string rootName,
-            NpcAppearanceProfile profile)
-        {
-            GameObject instance =
-                PrefabUtility.InstantiatePrefab(sourcePrefab)
-                as GameObject;
-
-            if (instance == null)
-            {
-                throw new UnityException(
-                    "Could not instantiate the shared base person " +
-                    "for a profile prefab.");
-            }
-
-            try
-            {
-                instance.name = rootName;
-
-                NpcCutoutRig rig = instance.GetComponent<NpcCutoutRig>();
-                rig.SetAppearanceProfile(profile);
-
-                PrefabUtility.SaveAsPrefabAsset(
-                    instance,
-                    destinationPath);
-            }
-            finally
-            {
-                Object.DestroyImmediate(instance);
             }
         }
 

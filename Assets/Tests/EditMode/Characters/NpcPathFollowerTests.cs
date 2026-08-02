@@ -14,7 +14,7 @@ namespace BigRetail.Characters.Rigging.Tests
             try
             {
                 NpcPathFollower follower = character.AddComponent<NpcPathFollower>();
-                follower.ConfigurePrototype(2f, 0.01f, 1f);
+                follower.Configure(2f, 0.01f, 1f);
                 follower.SetPath(new[] { new Vector3(1f, 0f, 0f) });
 
                 follower.Tick(0.25f);
@@ -80,7 +80,7 @@ namespace BigRetail.Characters.Rigging.Tests
             {
                 NpcCutoutRig rig = character.AddComponent<NpcCutoutRig>();
                 NpcPathFollower follower = character.AddComponent<NpcPathFollower>();
-                follower.ConfigurePrototype(1f, 0.01f, 1f);
+                follower.Configure(1f, 0.01f, 1f);
                 follower.SetPath(new[] { new Vector3(x, y, 0f) });
 
                 follower.Tick(0.25f);

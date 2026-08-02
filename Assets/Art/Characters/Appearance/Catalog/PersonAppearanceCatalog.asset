@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6adf14a31319491c9d1d53d8090d8cc2, type: 3}
-  m_Name: BigRetailCharacters
-  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcCharacterLibrary
-  displayName: Big Retail Characters
-  templates:
+  m_Name: PersonAppearanceCatalog
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAppearanceCatalog
+  displayName: Person Appearance Catalog
+  populationDefinitions:
   - {fileID: 11400000, guid: 23b213dcafaab2f44bf6a3de44a9f220, type: 2}
   - {fileID: 11400000, guid: 94662b1bc05e1f343acef58639594997, type: 2}
   bodies:

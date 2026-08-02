@@ -1,19 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BigRetail.Characters.Rigging
 {
     [CreateAssetMenu(
-        fileName = "CharacterLibrary",
-        menuName = "Big Retail/Characters/Character Library")]
-    public sealed class NpcCharacterLibrary : ScriptableObject
+        fileName = "AppearanceCatalog",
+        menuName = "Big Retail/Characters/Appearance Catalog")]
+    public sealed class NpcAppearanceCatalog : ScriptableObject
     {
         [SerializeField]
-        private string displayName = "Character Library";
+        private string displayName = "Appearance Catalog";
 
+        [FormerlySerializedAs("templates")]
         [SerializeField]
-        private List<NpcCharacterTemplate> templates =
-            new List<NpcCharacterTemplate>();
+        private List<NpcPopulationDefinition> populationDefinitions =
+            new List<NpcPopulationDefinition>();
 
         [SerializeField]
         private List<NpcBodySilhouette> bodies =
@@ -34,7 +36,8 @@ namespace BigRetail.Characters.Rigging
 
         public string DisplayName => displayName;
 
-        public IReadOnlyList<NpcCharacterTemplate> Templates => templates;
+        public IReadOnlyList<NpcPopulationDefinition> Definitions =>
+            populationDefinitions;
 
         public IReadOnlyList<NpcBodySilhouette> Bodies => bodies;
 
@@ -47,7 +50,7 @@ namespace BigRetail.Characters.Rigging
 
         public void Configure(
             string newDisplayName,
-            IEnumerable<NpcCharacterTemplate> newTemplates,
+            IEnumerable<NpcPopulationDefinition> newDefinitions,
             IEnumerable<NpcBodySilhouette> newBodies,
             IEnumerable<NpcSkinPalette> newSkins,
             IEnumerable<NpcOutfitSet> newOutfits,
@@ -56,7 +59,7 @@ namespace BigRetail.Characters.Rigging
             displayName = string.IsNullOrWhiteSpace(newDisplayName)
                 ? name
                 : newDisplayName;
-            templates = Copy(newTemplates);
+            populationDefinitions = Copy(newDefinitions);
             bodies = Copy(newBodies);
             skins = Copy(newSkins);
             outfits = Copy(newOutfits);
@@ -64,17 +67,20 @@ namespace BigRetail.Characters.Rigging
         }
 
 
-        public NpcCharacterTemplate GetTemplate(
+        public NpcPopulationDefinition GetDefinition(
             NpcCharacterRole role)
         {
-            if (templates == null)
+            if (populationDefinitions == null)
             {
                 return null;
             }
 
-            for (int index = 0; index < templates.Count; index++)
+            for (int index = 0;
+                 index < populationDefinitions.Count;
+                 index++)
             {
-                NpcCharacterTemplate candidate = templates[index];
+                NpcPopulationDefinition candidate =
+                    populationDefinitions[index];
 
                 if (candidate != null && candidate.Role == role)
                 {
@@ -89,24 +95,29 @@ namespace BigRetail.Characters.Rigging
         public bool TryValidate(
             out string failureReason)
         {
-            if (templates == null || templates.Count == 0)
+            if (populationDefinitions == null
+                || populationDefinitions.Count == 0)
             {
-                failureReason = "The library has no character templates.";
+                failureReason =
+                    "The catalog has no population definitions.";
                 return false;
             }
 
-            for (int index = 0; index < templates.Count; index++)
+            for (int index = 0;
+                 index < populationDefinitions.Count;
+                 index++)
             {
-                NpcCharacterTemplate template = templates[index];
+                NpcPopulationDefinition definition =
+                    populationDefinitions[index];
 
-                if (template == null)
+                if (definition == null)
                 {
                     failureReason =
-                        "The library contains an empty character template.";
+                        "The catalog contains an empty population definition.";
                     return false;
                 }
 
-                if (!template.TryValidate(out failureReason))
+                if (!definition.TryValidate(out failureReason))
                 {
                     return false;
                 }
@@ -143,7 +154,7 @@ namespace BigRetail.Characters.Rigging
             if (assets == null || assets.Count == 0)
             {
                 failureReason =
-                    $"The library has no registered {label} assets.";
+                    $"The catalog has no registered {label} assets.";
                 return false;
             }
 
@@ -156,7 +167,7 @@ namespace BigRetail.Characters.Rigging
                 if (asset == null)
                 {
                     failureReason =
-                        $"The library contains an empty {label} asset.";
+                        $"The catalog contains an empty {label} asset.";
                     return false;
                 }
 

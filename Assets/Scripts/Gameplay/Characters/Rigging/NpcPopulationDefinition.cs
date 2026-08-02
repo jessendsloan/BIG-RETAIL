@@ -108,12 +108,12 @@ namespace BigRetail.Characters.Rigging
 
 
     [CreateAssetMenu(
-        fileName = "CharacterTemplate",
-        menuName = "Big Retail/Characters/Character Template")]
-    public sealed class NpcCharacterTemplate : ScriptableObject
+        fileName = "PopulationDefinition",
+        menuName = "Big Retail/Characters/Population Definition")]
+    public sealed class NpcPopulationDefinition : ScriptableObject
     {
         [SerializeField]
-        private string displayName = "Character Template";
+        private string displayName = "Population Definition";
 
         [SerializeField]
         private NpcCharacterRole role;
@@ -309,7 +309,7 @@ namespace BigRetail.Characters.Rigging
             if (choices == null || choices.Count == 0)
             {
                 failureReason =
-                    $"The template has no allowed {label} choices.";
+                    $"The definition has no allowed {label} choices.";
                 return false;
             }
 
@@ -323,7 +323,7 @@ namespace BigRetail.Characters.Rigging
                 if (asset == null)
                 {
                     failureReason =
-                        $"The template has an empty {label} choice.";
+                        $"The definition has an empty {label} choice.";
                     return false;
                 }
 

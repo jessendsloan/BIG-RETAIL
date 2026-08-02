@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BigRetail.Characters.Rigging
 {
     /// <summary>
-    /// One exact, unsaved appearance recipe. Character templates produce
+    /// One exact, unsaved appearance recipe. Population definitions produce
     /// selections; saved appearance profiles preserve them as project assets.
     /// </summary>
     [Serializable]

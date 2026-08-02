@@ -78,15 +78,13 @@ namespace BigRetail.Characters.Rigging
     }
 
     /// <summary>
-    /// A reusable appearance kit for the canonical cutout skeleton.
+    /// Archived compatibility data for the early 36-PNG segmentation
+    /// experiment. Production characters use composable appearance assets.
     ///
     /// The kit owns exactly one entry for each of the 18 visible
     /// parts. Each entry can hold SouthEast and NorthEast source art,
     /// producing all four displayed facings through mirroring.
     /// </summary>
-    [CreateAssetMenu(
-        fileName = "NpcRigArtKit",
-        menuName = "Big Retail/Characters/NPC Rig Art Kit")]
     public sealed class NpcRigArtKit : ScriptableObject
     {
         [SerializeField]

@@ -16,7 +16,7 @@ namespace BigRetail.Characters.Rigging
 
 
         public static bool TryGenerate(
-            NpcCharacterTemplate template,
+            NpcPopulationDefinition definition,
             int seed,
             NpcAppearanceSelection current,
             NpcAppearanceLocks locks,
@@ -25,13 +25,13 @@ namespace BigRetail.Characters.Rigging
         {
             selection = null;
 
-            if (template == null)
+            if (definition == null)
             {
-                failureReason = "No character template is selected.";
+                failureReason = "No population definition is selected.";
                 return false;
             }
 
-            if (!template.TryValidate(out failureReason))
+            if (!definition.TryValidate(out failureReason))
             {
                 return false;
             }
@@ -42,28 +42,28 @@ namespace BigRetail.Characters.Rigging
             if (!TryUseLockedChoice(
                     locks.Body,
                     current.BodySilhouette,
-                    template.Allows,
+                    definition.Allows,
                     "body",
                     out NpcBodySilhouette lockedBody,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Skin,
                     current.SkinPalette,
-                    template.Allows,
+                    definition.Allows,
                     "skin",
                     out NpcSkinPalette lockedSkin,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Outfit,
                     current.OutfitSet,
-                    template.Allows,
+                    definition.Allows,
                     "outfit",
                     out NpcOutfitSet lockedOutfit,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Hair,
                     current.HairSet,
-                    template.Allows,
+                    definition.Allows,
                     "hair",
                     out NpcHairSet lockedHair,
                     out failureReason))
@@ -73,19 +73,19 @@ namespace BigRetail.Characters.Rigging
 
             NpcBodySilhouette body = locks.Body
                 ? lockedBody
-                : PickBody(template, seed);
+                : PickBody(definition, seed);
 
             NpcSkinPalette skin = locks.Skin
                 ? lockedSkin
-                : PickSkin(template, seed);
+                : PickSkin(definition, seed);
 
             NpcOutfitSet outfit = locks.Outfit
                 ? lockedOutfit
-                : PickOutfit(template, seed);
+                : PickOutfit(definition, seed);
 
             NpcHairSet hair = locks.Hair
                 ? lockedHair
-                : PickHair(template, seed);
+                : PickHair(definition, seed);
 
             selection = new NpcAppearanceSelection(
                 body,
@@ -98,58 +98,58 @@ namespace BigRetail.Characters.Rigging
 
 
         private static NpcBodySilhouette PickBody(
-            NpcCharacterTemplate template,
+            NpcPopulationDefinition definition,
             int seed)
         {
             int selected = PickWeightedIndex(
-                template.Bodies.Count,
-                index => template.Bodies[index].Weight,
+                definition.Bodies.Count,
+                index => definition.Bodies[index].Weight,
                 seed,
                 BodySalt);
 
-            return template.Bodies[selected].Asset;
+            return definition.Bodies[selected].Asset;
         }
 
 
         private static NpcSkinPalette PickSkin(
-            NpcCharacterTemplate template,
+            NpcPopulationDefinition definition,
             int seed)
         {
             int selected = PickWeightedIndex(
-                template.Skins.Count,
-                index => template.Skins[index].Weight,
+                definition.Skins.Count,
+                index => definition.Skins[index].Weight,
                 seed,
                 SkinSalt);
 
-            return template.Skins[selected].Asset;
+            return definition.Skins[selected].Asset;
         }
 
 
         private static NpcOutfitSet PickOutfit(
-            NpcCharacterTemplate template,
+            NpcPopulationDefinition definition,
             int seed)
         {
             int selected = PickWeightedIndex(
-                template.Outfits.Count,
-                index => template.Outfits[index].Weight,
+                definition.Outfits.Count,
+                index => definition.Outfits[index].Weight,
                 seed,
                 OutfitSalt);
 
-            return template.Outfits[selected].Asset;
+            return definition.Outfits[selected].Asset;
         }
 
 
         private static NpcHairSet PickHair(
-            NpcCharacterTemplate template,
+            NpcPopulationDefinition definition,
             int seed)
         {
             int selected = PickWeightedIndex(
-                template.Hair.Count,
-                index => template.Hair[index].Weight,
+                definition.Hair.Count,
+                index => definition.Hair[index].Weight,
                 seed,
                 HairSalt);
 
-            return template.Hair[selected].Asset;
+            return definition.Hair[selected].Asset;
         }
 
 
@@ -213,7 +213,7 @@ namespace BigRetail.Characters.Rigging
             if (!isAllowed(current))
             {
                 failureReason =
-                    $"{current.name} is not allowed by this template. " +
+                    $"{current.name} is not allowed by this definition. " +
                     $"Unlock {label} or choose an allowed option.";
                 return false;
             }

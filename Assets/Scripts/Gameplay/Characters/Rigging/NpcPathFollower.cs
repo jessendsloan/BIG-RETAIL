@@ -14,7 +14,7 @@ namespace BigRetail.Characters.Rigging
         private static readonly int SpeedParameter =
             Animator.StringToHash("Speed");
 
-        [Header("Prototype Path")]
+        [Header("Path Following")]
         [SerializeField]
         private Vector3[] waypoints = Array.Empty<Vector3>();
 
@@ -136,9 +136,9 @@ namespace BigRetail.Characters.Rigging
         }
 
         /// <summary>
-        /// Sets the small prototype profile used by generated characters.
+        /// Configures movement and animation-speed synchronization.
         /// </summary>
-        public void ConfigurePrototype(float newMovementSpeed, float newArrivalDistance, float newWalkAnimationMetersPerSecond)
+        public void Configure(float newMovementSpeed, float newArrivalDistance, float newWalkAnimationMetersPerSecond)
         {
             movementSpeed = Mathf.Max(0f, newMovementSpeed);
             arrivalDistance = Mathf.Max(0.0001f, newArrivalDistance);

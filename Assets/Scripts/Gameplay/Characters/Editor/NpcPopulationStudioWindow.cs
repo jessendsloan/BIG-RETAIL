@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace BigRetail.Characters.Editor
 {
-    public sealed class NpcAppearanceCreatorWindow : EditorWindow
+    public sealed class NpcPopulationStudioWindow : EditorWindow
     {
         private const string MenuPath =
-            "Big Retail/Characters/Character Studio/Open Character Studio";
+            "Big Retail/Characters/Population Studio/Open Population Studio";
 
-        private string personName = "New Person";
+        private string personName = "Saved Appearance";
         private int seed = 1001;
         private bool lockBody;
         private bool lockSkin;
@@ -21,8 +21,8 @@ namespace BigRetail.Characters.Editor
         private string statusMessage = string.Empty;
         private MessageType statusType = MessageType.None;
 
-        private NpcCharacterLibrary library;
-        private NpcCharacterTemplate selectedTemplate;
+        private NpcAppearanceCatalog catalog;
+        private NpcPopulationDefinition selectedDefinition;
         private NpcBodySilhouette bodySilhouette;
         private NpcSkinPalette skinPalette;
         private NpcOutfitSet outfitSet;
@@ -36,8 +36,8 @@ namespace BigRetail.Characters.Editor
         [MenuItem(MenuPath)]
         public static void Open()
         {
-            GetWindow<NpcAppearanceCreatorWindow>(
-                "Character Studio");
+            GetWindow<NpcPopulationStudioWindow>(
+                "Population Studio");
         }
 
 
@@ -47,10 +47,10 @@ namespace BigRetail.Characters.Editor
                 CreateInstance<NpcAppearanceProfile>();
             previewProfile.hideFlags = HideFlags.HideAndDontSave;
 
-            FindStarterLibrary();
+            FindAppearanceCatalog();
             TryUseSelection();
 
-            if (selectedTemplate != null
+            if (selectedDefinition != null
                 && !TryValidateCurrentSelection(out _))
             {
                 RandomizeSelection();
@@ -86,16 +86,16 @@ namespace BigRetail.Characters.Editor
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField(
-                "Big Retail Character Studio",
+                "Big Retail Population Studio",
                 EditorStyles.boldLabel);
 
             EditorGUILayout.HelpBox(
-                "Build one exact person from controlled choices. A " +
-                "template decides what is allowed; the seed makes a " +
-                "random result repeatable.",
+                "Define what each population may look like, then preview " +
+                "repeatable samples. Population definitions control what " +
+                "is allowed; the simulation generates the people.",
                 MessageType.Info);
 
-            DrawTemplateSection();
+            DrawDefinitionSection();
             EditorGUILayout.Space(8f);
             DrawComposeSection();
             EditorGUILayout.Space(8f);
@@ -109,57 +109,57 @@ namespace BigRetail.Characters.Editor
         }
 
 
-        private void DrawTemplateSection()
+        private void DrawDefinitionSection()
         {
             EditorGUILayout.LabelField(
                 "1. Population Rules",
                 EditorStyles.boldLabel);
 
             EditorGUI.BeginChangeCheck();
-            library =
-                (NpcCharacterLibrary)EditorGUILayout.ObjectField(
-                    "Character Library",
-                    library,
-                    typeof(NpcCharacterLibrary),
+            catalog =
+                (NpcAppearanceCatalog)EditorGUILayout.ObjectField(
+                    "Appearance Catalog",
+                    catalog,
+                    typeof(NpcAppearanceCatalog),
                     false);
 
             if (EditorGUI.EndChangeCheck())
             {
-                selectedTemplate = GetFirstTemplate(library);
+                selectedDefinition = GetFirstDefinition(catalog);
                 statusMessage = string.Empty;
             }
 
-            if (library == null)
+            if (catalog == null)
             {
                 EditorGUILayout.HelpBox(
-                    "No Character Library was found. Open Starter " +
+                    "No Appearance Catalog was found. Open Starter " +
                     "Content below and create it once.",
                     MessageType.Warning);
                 return;
             }
 
-            IReadOnlyList<NpcCharacterTemplate> templates =
-                library.Templates;
+            IReadOnlyList<NpcPopulationDefinition> definitions =
+                catalog.Definitions;
 
-            if (templates == null || templates.Count == 0)
+            if (definitions == null || definitions.Count == 0)
             {
                 EditorGUILayout.HelpBox(
-                    "This library has no population templates.",
+                    "This catalog has no population definitions.",
                     MessageType.Error);
                 return;
             }
 
-            string[] names = new string[templates.Count];
+            string[] names = new string[definitions.Count];
             int selectedIndex = 0;
 
-            for (int index = 0; index < templates.Count; index++)
+            for (int index = 0; index < definitions.Count; index++)
             {
-                NpcCharacterTemplate template = templates[index];
-                names[index] = template != null
-                    ? template.DisplayName
-                    : "Missing Template";
+                NpcPopulationDefinition definition = definitions[index];
+                names[index] = definition != null
+                    ? definition.DisplayName
+                    : "Missing Definition";
 
-                if (template == selectedTemplate)
+                if (definition == selectedDefinition)
                 {
                     selectedIndex = index;
                 }
@@ -173,15 +173,15 @@ namespace BigRetail.Characters.Editor
 
             if (EditorGUI.EndChangeCheck())
             {
-                selectedTemplate = templates[selectedIndex];
-                ReleaseLocksNotAllowedByTemplate();
+                selectedDefinition = definitions[selectedIndex];
+                ReleaseLocksNotAllowedByDefinition();
                 RandomizeSelection();
             }
 
-            if (selectedTemplate != null)
+            if (selectedDefinition != null)
             {
                 EditorGUILayout.LabelField(
-                    selectedTemplate.Role == NpcCharacterRole.Employee
+                    selectedDefinition.Role == NpcCharacterRole.Employee
                         ? "Only approved employee uniforms can be chosen."
                         : "Only customer-appropriate outfits can be chosen.",
                     EditorStyles.wordWrappedMiniLabel);
@@ -192,7 +192,7 @@ namespace BigRetail.Characters.Editor
         private void DrawComposeSection()
         {
             EditorGUILayout.LabelField(
-                "2. Compose Person",
+                "2. Generate Sample",
                 EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();
@@ -207,7 +207,7 @@ namespace BigRetail.Characters.Editor
             EditorGUILayout.EndHorizontal();
 
             using (new EditorGUI.DisabledScope(
-                       selectedTemplate == null))
+                       selectedDefinition == null))
             {
                 if (GUILayout.Button("Randomize Unlocked Choices"))
                 {
@@ -217,10 +217,10 @@ namespace BigRetail.Characters.Editor
 
             EditorGUILayout.Space(4f);
 
-            if (selectedTemplate == null)
+            if (selectedDefinition == null)
             {
                 EditorGUILayout.HelpBox(
-                    "Choose a person type before composing a person.",
+                    "Choose a person type before generating a sample.",
                     MessageType.Warning);
                 return;
             }
@@ -241,7 +241,7 @@ namespace BigRetail.Characters.Editor
             {
                 EditorGUILayout.HelpBox(
                     "Valid recipe for " +
-                    selectedTemplate.DisplayName + ".",
+                    selectedDefinition.DisplayName + ".",
                     MessageType.None);
             }
             else
@@ -254,13 +254,13 @@ namespace BigRetail.Characters.Editor
         private void DrawProfileSection()
         {
             EditorGUILayout.LabelField(
-                "3. Save the Person",
+                "3. Optional Saved Appearance",
                 EditorStyles.boldLabel);
 
             EditorGUI.BeginChangeCheck();
             selectedProfile =
                 (NpcAppearanceProfile)EditorGUILayout.ObjectField(
-                    "Saved Profile",
+                    "Saved Appearance",
                     selectedProfile,
                     typeof(NpcAppearanceProfile),
                     false);
@@ -273,13 +273,13 @@ namespace BigRetail.Characters.Editor
             }
 
             personName = EditorGUILayout.TextField(
-                "Person Name",
+                "Label",
                 personName);
 
             using (new EditorGUI.DisabledScope(
                        !TryValidateCurrentSelection(out _)))
             {
-                if (GUILayout.Button("Save as New Person"))
+                if (GUILayout.Button("Save Exact Appearance"))
                 {
                     SaveNewProfile();
                 }
@@ -287,7 +287,7 @@ namespace BigRetail.Characters.Editor
                 using (new EditorGUI.DisabledScope(
                            selectedProfile == null))
                 {
-                    if (GUILayout.Button("Update Saved Person"))
+                    if (GUILayout.Button("Update Exact Appearance"))
                     {
                         UpdateSelectedProfile();
                     }
@@ -295,8 +295,9 @@ namespace BigRetail.Characters.Editor
             }
 
             EditorGUILayout.LabelField(
-                "A saved profile is the exact appearance recipe that " +
-                "gameplay can later assign to a spawned person.",
+                "Optional: preserve an exact appearance for a default, " +
+                "story character, or repeatable test. Normal customers " +
+                "and employees are generated from population definitions.",
                 EditorStyles.wordWrappedMiniLabel);
         }
 
@@ -348,7 +349,7 @@ namespace BigRetail.Characters.Editor
             }
 
             EditorGUILayout.HelpBox(
-                "Preview is temporary. Assign Saved Person is the " +
+                "Preview is temporary. Assign Saved Appearance is the " +
                 "intentional, persistent change. The Animator, pathing, " +
                 "and other gameplay components are never replaced.",
                 MessageType.None);
@@ -375,10 +376,10 @@ namespace BigRetail.Characters.Editor
 
             if (GUILayout.Button("Repair / Refresh Starter Content"))
             {
-                NpcAppearanceStarterFactory
-                    .CreateOrUpdateStarterLibrary();
-                FindStarterLibrary();
-                selectedTemplate ??= GetFirstTemplate(library);
+                NpcPopulationStarterFactory
+                    .CreateOrUpdateStarterCatalog();
+                FindAppearanceCatalog();
+                selectedDefinition ??= GetFirstDefinition(catalog);
                 RandomizeSelection();
                 statusMessage = "Starter content refreshed.";
                 statusType = MessageType.Info;
@@ -399,7 +400,7 @@ namespace BigRetail.Characters.Editor
         private void DrawBodyChoice()
         {
             IReadOnlyList<NpcWeightedBodyChoice> choices =
-                selectedTemplate.Bodies;
+                selectedDefinition.Bodies;
             string[] labels = new string[choices.Count];
             int current = 0;
 
@@ -432,7 +433,7 @@ namespace BigRetail.Characters.Editor
         private void DrawSkinChoice()
         {
             IReadOnlyList<NpcWeightedSkinChoice> choices =
-                selectedTemplate.Skins;
+                selectedDefinition.Skins;
             string[] labels = new string[choices.Count];
             int current = 0;
 
@@ -465,7 +466,7 @@ namespace BigRetail.Characters.Editor
         private void DrawOutfitChoice()
         {
             IReadOnlyList<NpcWeightedOutfitChoice> choices =
-                selectedTemplate.Outfits;
+                selectedDefinition.Outfits;
             string[] labels = new string[choices.Count];
             int current = 0;
 
@@ -498,7 +499,7 @@ namespace BigRetail.Characters.Editor
         private void DrawHairChoice()
         {
             IReadOnlyList<NpcWeightedHairChoice> choices =
-                selectedTemplate.Hair;
+                selectedDefinition.Hair;
             string[] labels = new string[choices.Count];
             int current = 0;
 
@@ -539,7 +540,7 @@ namespace BigRetail.Characters.Editor
                 lockHair);
 
             if (!NpcAppearanceGenerator.TryGenerate(
-                    selectedTemplate,
+                    selectedDefinition,
                     seed,
                     current,
                     locks,
@@ -557,23 +558,23 @@ namespace BigRetail.Characters.Editor
             hairSet = generated.HairSet;
             statusMessage =
                 $"Seed {seed} generated a valid " +
-                $"{selectedTemplate.DisplayName}.";
+                $"{selectedDefinition.DisplayName}.";
             statusType = MessageType.Info;
             PreviewCurrentRecipe();
         }
 
 
-        private void ReleaseLocksNotAllowedByTemplate()
+        private void ReleaseLocksNotAllowedByDefinition()
         {
-            if (selectedTemplate == null)
+            if (selectedDefinition == null)
             {
                 return;
             }
 
-            lockBody &= selectedTemplate.Allows(bodySilhouette);
-            lockSkin &= selectedTemplate.Allows(skinPalette);
-            lockOutfit &= selectedTemplate.Allows(outfitSet);
-            lockHair &= selectedTemplate.Allows(hairSet);
+            lockBody &= selectedDefinition.Allows(bodySilhouette);
+            lockSkin &= selectedDefinition.Allows(skinPalette);
+            lockOutfit &= selectedDefinition.Allows(outfitSet);
+            lockHair &= selectedDefinition.Allows(hairSet);
         }
 
 
@@ -587,7 +588,7 @@ namespace BigRetail.Characters.Editor
             }
 
             previewProfile.Configure(
-                "Character Studio Preview",
+                "Population Studio Preview",
                 CreateSelection());
             previewRig.SetAppearancePreview(previewProfile);
             SceneView.RepaintAll();
@@ -650,7 +651,7 @@ namespace BigRetail.Characters.Editor
                     defaultName,
                     "asset",
                     "Choose where to save the exact appearance recipe.",
-                    "Assets/Art/Characters/Appearance/Profiles");
+                    "Assets/Art/Characters/Appearance/Defaults");
 
             if (string.IsNullOrWhiteSpace(assetPath))
             {
@@ -681,23 +682,23 @@ namespace BigRetail.Characters.Editor
             skinPalette = profile.SkinPalette;
             outfitSet = profile.OutfitSet;
             hairSet = profile.HairSet;
-            SelectCompatibleTemplate();
+            SelectCompatibleDefinition();
         }
 
 
-        private void SelectCompatibleTemplate()
+        private void SelectCompatibleDefinition()
         {
-            if (library?.Templates == null)
+            if (catalog?.Definitions == null)
             {
                 return;
             }
 
             for (int index = 0;
-                 index < library.Templates.Count;
+                 index < catalog.Definitions.Count;
                  index++)
             {
-                NpcCharacterTemplate candidate =
-                    library.Templates[index];
+                NpcPopulationDefinition candidate =
+                    catalog.Definitions[index];
 
                 if (candidate != null
                     && candidate.Allows(bodySilhouette)
@@ -705,7 +706,7 @@ namespace BigRetail.Characters.Editor
                     && candidate.Allows(outfitSet)
                     && candidate.Allows(hairSet))
                 {
-                    selectedTemplate = candidate;
+                    selectedDefinition = candidate;
                     return;
                 }
             }
@@ -732,16 +733,16 @@ namespace BigRetail.Characters.Editor
                 return false;
             }
 
-            if (selectedTemplate == null)
+            if (selectedDefinition == null)
             {
-                reason = "No character template is selected.";
+                reason = "No population definition is selected.";
                 return false;
             }
 
-            if (!selectedTemplate.Allows(bodySilhouette)
-                || !selectedTemplate.Allows(skinPalette)
-                || !selectedTemplate.Allows(outfitSet)
-                || !selectedTemplate.Allows(hairSet))
+            if (!selectedDefinition.Allows(bodySilhouette)
+                || !selectedDefinition.Allows(skinPalette)
+                || !selectedDefinition.Allows(outfitSet)
+                || !selectedDefinition.Allows(hairSet))
             {
                 reason =
                     "One or more choices are not allowed by the " +
@@ -765,17 +766,17 @@ namespace BigRetail.Characters.Editor
             }
 
             if (Selection.activeObject
-                is NpcCharacterLibrary selectedLibrary)
+                is NpcAppearanceCatalog selectedCatalog)
             {
-                library = selectedLibrary;
-                selectedTemplate = GetFirstTemplate(library);
+                catalog = selectedCatalog;
+                selectedDefinition = GetFirstDefinition(catalog);
                 return;
             }
 
             if (Selection.activeObject
-                is NpcCharacterTemplate template)
+                is NpcPopulationDefinition definition)
             {
-                selectedTemplate = template;
+                selectedDefinition = definition;
                 return;
             }
 
@@ -803,15 +804,15 @@ namespace BigRetail.Characters.Editor
         }
 
 
-        private void FindStarterLibrary()
+        private void FindAppearanceCatalog()
         {
-            if (library != null)
+            if (catalog != null)
             {
                 return;
             }
 
             string[] candidates =
-                AssetDatabase.FindAssets("t:NpcCharacterLibrary");
+                AssetDatabase.FindAssets("t:NpcAppearanceCatalog");
 
             if (candidates.Length == 0)
             {
@@ -819,19 +820,19 @@ namespace BigRetail.Characters.Editor
             }
 
             string path = AssetDatabase.GUIDToAssetPath(candidates[0]);
-            library =
-                AssetDatabase.LoadAssetAtPath<NpcCharacterLibrary>(path);
-            selectedTemplate = GetFirstTemplate(library);
+            catalog =
+                AssetDatabase.LoadAssetAtPath<NpcAppearanceCatalog>(path);
+            selectedDefinition = GetFirstDefinition(catalog);
         }
 
 
-        private static NpcCharacterTemplate GetFirstTemplate(
-            NpcCharacterLibrary source)
+        private static NpcPopulationDefinition GetFirstDefinition(
+            NpcAppearanceCatalog source)
         {
             return source != null
-                   && source.Templates != null
-                   && source.Templates.Count > 0
-                ? source.Templates[0]
+                   && source.Definitions != null
+                   && source.Definitions.Count > 0
+                ? source.Definitions[0]
                 : null;
         }
 
@@ -904,7 +905,7 @@ namespace BigRetail.Characters.Editor
                 source.name + " Copy",
                 "asset",
                 "Create a new " + kind.ToLowerInvariant() +
-                " choice from this working template.",
+                " choice from this working definition.",
                 directory);
 
             if (string.IsNullOrWhiteSpace(destination))

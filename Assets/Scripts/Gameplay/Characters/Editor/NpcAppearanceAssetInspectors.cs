@@ -3,27 +3,27 @@ using UnityEditor;
 
 namespace BigRetail.Characters.Editor
 {
-    [CustomEditor(typeof(NpcCharacterLibrary))]
-    public sealed class NpcCharacterLibraryInspector : UnityEditor.Editor
+    [CustomEditor(typeof(NpcAppearanceCatalog))]
+    public sealed class NpcAppearanceCatalogInspector : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "The central catalog for Character Studio. Templates " +
-                "control what gameplay may generate; the remaining lists " +
+                "The central appearance catalog for Population Studio. " +
+                "Population definitions control what gameplay may generate; the lists " +
                 "register every reusable appearance asset available for " +
                 "authoring.",
                 MessageType.Info);
 
             DrawDefaultInspector();
 
-            NpcCharacterLibrary library =
-                (NpcCharacterLibrary)target;
+            NpcAppearanceCatalog catalog =
+                (NpcAppearanceCatalog)target;
 
-            if (library.TryValidate(out string reason))
+            if (catalog.TryValidate(out string reason))
             {
                 EditorGUILayout.HelpBox(
-                    "Character library is ready.",
+                    "Appearance catalog is ready.",
                     MessageType.None);
             }
             else
@@ -34,27 +34,27 @@ namespace BigRetail.Characters.Editor
     }
 
 
-    [CustomEditor(typeof(NpcCharacterTemplate))]
-    public sealed class NpcCharacterTemplateInspector : UnityEditor.Editor
+    [CustomEditor(typeof(NpcPopulationDefinition))]
+    public sealed class NpcPopulationDefinitionInspector : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "A population rule set. The Customer template should " +
-                "contain customer clothing; the Employee template should " +
+                "A population definition. Customer definitions should " +
+                "contain customer clothing; Employee definitions should " +
                 "contain approved uniforms. Weight controls how often an " +
                 "allowed option appears during random generation.",
                 MessageType.Info);
 
             DrawDefaultInspector();
 
-            NpcCharacterTemplate template =
-                (NpcCharacterTemplate)target;
+            NpcPopulationDefinition definition =
+                (NpcPopulationDefinition)target;
 
-            if (template.TryValidate(out string reason))
+            if (definition.TryValidate(out string reason))
             {
                 EditorGUILayout.HelpBox(
-                    "Template is ready for deterministic generation.",
+                    "Population definition is ready for generation.",
                     MessageType.None);
             }
             else

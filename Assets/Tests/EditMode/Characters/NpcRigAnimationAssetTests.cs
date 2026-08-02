@@ -9,24 +9,20 @@ namespace BigRetail.Characters.Rigging.Tests
     public sealed class NpcRigAnimationAssetTests
     {
         private const string PrefabPath =
-            "Assets/Prefabs/Characters/Prototype/"
-            + "RoundedEmployeeRowan.prefab";
+            "Assets/Prefabs/Characters/Core/Person.prefab";
 
         private const string IdleClipPath =
-            "Assets/Animations/Characters/Prototype/"
-            + "Rowan_Idle.anim";
+            "Assets/Animations/Characters/Core/Person_Idle.anim";
 
         private const string WalkClipPath =
-            "Assets/Animations/Characters/Prototype/"
-            + "Rowan_Walk.anim";
+            "Assets/Animations/Characters/Core/Person_Walk.anim";
 
         private const string ControllerPath =
-            "Assets/Animations/Characters/Prototype/"
-            + "Rowan.controller";
+            "Assets/Animations/Characters/Core/Person.controller";
 
 
         [Test]
-        public void RowanPrefab_HasValidRigAndAnimationController()
+        public void PersonPrefab_HasValidRigAndAnimationController()
         {
             GameObject prefab =
                 AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -65,7 +61,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
-        public void RowanAnimationLibrary_HasLoopingIdleAndWalk()
+        public void PersonAnimationLibrary_HasLoopingIdleAndWalk()
         {
             AnimationClip idleClip =
                 AssetDatabase.LoadAssetAtPath<AnimationClip>(
@@ -119,7 +115,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
-        public void RowanController_UsesSpeedForIdleWalkTransitions()
+        public void PersonController_UsesSpeedForIdleWalkTransitions()
         {
             AnimatorController controller =
                 AssetDatabase.LoadAssetAtPath<AnimatorController>(

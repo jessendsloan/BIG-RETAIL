@@ -12,8 +12,8 @@ namespace BigRetail.Characters.Rigging.Tests
         [TestCase(typeof(NpcOutfitSet), "NpcOutfitSet")]
         [TestCase(typeof(NpcHairSet), "NpcHairSet")]
         [TestCase(typeof(NpcAppearanceProfile), "NpcAppearanceProfile")]
-        [TestCase(typeof(NpcCharacterTemplate), "NpcCharacterTemplate")]
-        [TestCase(typeof(NpcCharacterLibrary), "NpcCharacterLibrary")]
+        [TestCase(typeof(NpcPopulationDefinition), "NpcPopulationDefinition")]
+        [TestCase(typeof(NpcAppearanceCatalog), "NpcAppearanceCatalog")]
         public void SavedAssetType_HasMatchingMonoScript(
             System.Type assetType,
             string expectedScriptName)
@@ -142,18 +142,18 @@ namespace BigRetail.Characters.Rigging.Tests
         public void SameTemplateAndSeed_ProduceSameSelection()
         {
             AppearanceFixture fixture = new AppearanceFixture();
-            NpcCharacterTemplate template = null;
+            NpcPopulationDefinition definition = null;
             Object[] variants = null;
 
             try
             {
-                template = CreateVariedTemplate(
+                definition = CreateVariedDefinition(
                     fixture,
                     out variants);
 
                 Assert.That(
                     NpcAppearanceGenerator.TryGenerate(
-                        template,
+                        definition,
                         4815,
                         null,
                         null,
@@ -164,7 +164,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
                 Assert.That(
                     NpcAppearanceGenerator.TryGenerate(
-                        template,
+                        definition,
                         4815,
                         null,
                         null,
@@ -189,7 +189,7 @@ namespace BigRetail.Characters.Rigging.Tests
             finally
             {
                 DestroyObjects(variants);
-                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(definition);
                 fixture.Dispose();
             }
         }
@@ -199,12 +199,12 @@ namespace BigRetail.Characters.Rigging.Tests
         public void OutfitLock_PreservesApprovedUniform()
         {
             AppearanceFixture fixture = new AppearanceFixture();
-            NpcCharacterTemplate template = null;
+            NpcPopulationDefinition definition = null;
             Object[] variants = null;
 
             try
             {
-                template = CreateVariedTemplate(
+                definition = CreateVariedDefinition(
                     fixture,
                     out variants);
 
@@ -222,7 +222,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
                 Assert.That(
                     NpcAppearanceGenerator.TryGenerate(
-                        template,
+                        definition,
                         99,
                         current,
                         locks,
@@ -238,7 +238,7 @@ namespace BigRetail.Characters.Rigging.Tests
             finally
             {
                 DestroyObjects(variants);
-                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(definition);
                 fixture.Dispose();
             }
         }
@@ -248,13 +248,13 @@ namespace BigRetail.Characters.Rigging.Tests
         public void LockedOutfitOutsideTemplate_IsRejected()
         {
             AppearanceFixture fixture = new AppearanceFixture();
-            NpcCharacterTemplate template = null;
+            NpcPopulationDefinition definition = null;
             Object[] variants = null;
             NpcOutfitSet disallowedOutfit = null;
 
             try
             {
-                template = CreateVariedTemplate(
+                definition = CreateVariedDefinition(
                     fixture,
                     out variants);
 
@@ -280,7 +280,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
                 Assert.That(
                     NpcAppearanceGenerator.TryGenerate(
-                        template,
+                        definition,
                         99,
                         current,
                         locks,
@@ -296,7 +296,7 @@ namespace BigRetail.Characters.Rigging.Tests
             {
                 Object.DestroyImmediate(disallowedOutfit);
                 DestroyObjects(variants);
-                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(definition);
                 fixture.Dispose();
             }
         }
@@ -306,12 +306,12 @@ namespace BigRetail.Characters.Rigging.Tests
         public void EmployeeTemplate_GeneratesOnlyApprovedOutfits()
         {
             AppearanceFixture fixture = new AppearanceFixture();
-            NpcCharacterTemplate template = null;
+            NpcPopulationDefinition definition = null;
             Object[] variants = null;
 
             try
             {
-                template = CreateVariedTemplate(
+                definition = CreateVariedDefinition(
                     fixture,
                     out variants);
 
@@ -322,7 +322,7 @@ namespace BigRetail.Characters.Rigging.Tests
                 {
                     Assert.That(
                         NpcAppearanceGenerator.TryGenerate(
-                            template,
+                            definition,
                             seed,
                             null,
                             null,
@@ -340,13 +340,13 @@ namespace BigRetail.Characters.Rigging.Tests
             finally
             {
                 DestroyObjects(variants);
-                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(definition);
                 fixture.Dispose();
             }
         }
 
 
-        private static NpcCharacterTemplate CreateVariedTemplate(
+        private static NpcPopulationDefinition CreateVariedDefinition(
             AppearanceFixture fixture,
             out Object[] variants)
         {
@@ -372,10 +372,10 @@ namespace BigRetail.Characters.Rigging.Tests
                 alternateHair
             };
 
-            NpcCharacterTemplate template =
-                ScriptableObject.CreateInstance<NpcCharacterTemplate>();
+            NpcPopulationDefinition definition =
+                ScriptableObject.CreateInstance<NpcPopulationDefinition>();
 
-            template.Configure(
+            definition.Configure(
                 "Store Employee",
                 NpcCharacterRole.Employee,
                 new[]
@@ -399,7 +399,7 @@ namespace BigRetail.Characters.Rigging.Tests
                     new NpcWeightedHairChoice(alternateHair)
                 });
 
-            return template;
+            return definition;
         }
 
 
