@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf860199cfd6ba447b51bf25a4af2453, type: 3}
+  m_Name: MinaAppearance
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAppearanceProfile
+  displayName: Mina
+  bodySilhouette: {fileID: 11400000, guid: d3a6a92546d735b4e93e995a9ba8f2d6, type: 2}
+  skinPalette: {fileID: 11400000, guid: 338003d0462ce0b41bc31c698e350566, type: 2}
+  outfitSet: {fileID: 11400000, guid: 8ecf97bb843fd874c9e25149c2a92c37, type: 2}
+  hairSet: {fileID: 11400000, guid: d67e4ff4506735b4a8336de6481d745d, type: 2}

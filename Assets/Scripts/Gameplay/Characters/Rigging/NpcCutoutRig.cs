@@ -195,6 +195,12 @@ namespace BigRetail.Characters.Rigging
         private NpcRigArtKit artKit;
 
         [Tooltip(
+            "Four-part appearance recipe: body silhouette, skin " +
+            "palette, outfit set, and hair set.")]
+        [SerializeField]
+        private NpcAppearanceProfile appearanceProfile;
+
+        [Tooltip(
             "Presentation details that belong on the front of the " +
             "character, such as a name badge. They are hidden when " +
             "the authored NorthEast back view is displayed.")]
@@ -233,6 +239,9 @@ namespace BigRetail.Characters.Rigging
 
         public NpcRigArtKit ArtKit => artKit;
 
+        public NpcAppearanceProfile AppearanceProfile =>
+            appearanceProfile;
+
         public int BoneCount => bones.Count;
 
         public int PartCount => parts.Count;
@@ -267,6 +276,17 @@ namespace BigRetail.Characters.Rigging
         }
 
         /// <summary>
+        /// Applies one composable appearance recipe without replacing the
+        /// skeleton, Animator, or gameplay components.
+        /// </summary>
+        public void SetAppearanceProfile(
+            NpcAppearanceProfile newAppearanceProfile)
+        {
+            appearanceProfile = newAppearanceProfile;
+            ApplyFacing();
+        }
+
+        /// <summary>
         /// Looks up a generated bone without relying on hierarchy
         /// searches or string names.
         /// </summary>
@@ -288,6 +308,31 @@ namespace BigRetail.Characters.Rigging
             }
 
             bone = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the renderer for one canonical visible part.
+        /// Authoring tools use this to capture and preview appearances
+        /// without hierarchy-name searches.
+        /// </summary>
+        public bool TryGetPartRenderer(
+            NpcRigPartId partId,
+            out SpriteRenderer renderer)
+        {
+            for (int index = 0; index < parts.Count; index++)
+            {
+                NpcRigPartBinding binding = parts[index];
+
+                if (binding != null
+                    && binding.Id == partId)
+                {
+                    renderer = binding.SpriteRenderer;
+                    return renderer != null;
+                }
+            }
+
+            renderer = null;
             return false;
         }
 
@@ -453,11 +498,23 @@ namespace BigRetail.Characters.Rigging
                 NpcFacingUtility.GetAuthoredDirection(
                     facing);
 
+            appearanceProfile?.ApplyBonePlacements(this);
+
             for (int index = 0; index < parts.Count; index++)
             {
-                parts[index]?.Apply(
+                NpcRigPartBinding binding = parts[index];
+
+                binding?.Apply(
                     authoredDirection,
                     artKit);
+
+                if (binding != null)
+                {
+                    appearanceProfile?.ApplyPart(
+                        binding.Id,
+                        binding.SpriteRenderer,
+                        authoredDirection);
+                }
             }
 
             ApplyAuthoredBonePose(authoredDirection);
@@ -533,7 +590,10 @@ namespace BigRetail.Characters.Rigging
             }
 
             bool showFrontDetails =
-                authoredDirection == NpcAuthoredDirection.SouthEast;
+                authoredDirection == NpcAuthoredDirection.SouthEast
+                && (appearanceProfile == null
+                    || appearanceProfile.OutfitSet == null
+                    || appearanceProfile.OutfitSet.ShowBadge);
 
             for (int index = 0;
                  index < northHiddenDetails.Count;
@@ -545,6 +605,12 @@ namespace BigRetail.Characters.Rigging
                 if (detail != null)
                 {
                     detail.enabled = showFrontDetails;
+
+                    if (appearanceProfile?.OutfitSet != null)
+                    {
+                        detail.color =
+                            appearanceProfile.OutfitSet.BadgeColor;
+                    }
                 }
             }
         }
