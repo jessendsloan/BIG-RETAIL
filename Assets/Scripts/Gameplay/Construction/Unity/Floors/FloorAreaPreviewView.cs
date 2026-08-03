@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BigRetail.Construction.Unity.Cells;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Floors;
 using BigRetail.Map.Unity.Floors;
@@ -12,7 +13,7 @@ namespace BigRetail.Construction.Unity.Floors
     /// <summary>
     /// Displays a temporary rectangular floor-construction preview.
     ///
-    /// Green means a new floor will be created.
+    /// A neutral tile and centered pylon mean a new floor will be created.
     /// Blue means a floor already exists.
     /// Red means the cell is invalid and will be skipped.
     ///
@@ -46,6 +47,28 @@ namespace BigRetail.Construction.Unity.Floors
         [SerializeField]
         private IsometricViewHost viewHost;
 
+        [Header("Preview Pylons")]
+
+        [SerializeField]
+        private TilePlacementPylonView pylonPrefab;
+
+        [Tooltip(
+            "Parent for pooled tile pylons. " +
+            "When empty, this object's Transform is used.")]
+        [SerializeField]
+        private Transform pylonParent;
+
+        [Header("Preview Border")]
+
+        [SerializeField]
+        private Color borderColor =
+            Color.white;
+
+        [Min(0.001f)]
+        [SerializeField]
+        private float borderWidth =
+            0.04f;
+
 
         [Header("Coordinate Mapping")]
 
@@ -61,10 +84,10 @@ namespace BigRetail.Construction.Unity.Floors
         [SerializeField]
         private Color buildableColor =
             new Color(
-                0.35f,
                 1f,
-                0.35f,
-                0.85f);
+                1f,
+                1f,
+                0.5f);
 
         [SerializeField]
         private Color existingColor =
@@ -72,7 +95,7 @@ namespace BigRetail.Construction.Unity.Floors
                 0.25f,
                 0.7f,
                 1f,
-                0.9f);
+                0.5f);
 
         [SerializeField]
         private Color invalidColor =
@@ -80,7 +103,7 @@ namespace BigRetail.Construction.Unity.Floors
                 1f,
                 0.25f,
                 0.25f,
-                0.88f);
+                0.5f);
 
 
         private readonly HashSet<GridPosition>
@@ -91,12 +114,25 @@ namespace BigRetail.Construction.Unity.Floors
             visibleColors =
                 new Dictionary<GridPosition, Color>();
 
+        private TilePlacementPylonPool pylonPool;
+        private TilePlacementBoundaryPool boundaryPool;
+
 
         public bool IsVisible =>
             visibleCells.Count > 0;
 
         public int VisibleCellCount =>
             visibleCells.Count;
+
+        public int VisiblePylonCount =>
+            pylonPool != null
+                ? pylonPool.VisibleCount
+                : 0;
+
+        public int VisibleBorderSegmentCount =>
+            boundaryPool != null
+                ? boundaryPool.VisibleCount
+                : 0;
 
         public int BuildableCellCount
         {
@@ -124,6 +160,21 @@ namespace BigRetail.Construction.Unity.Floors
                 enabled = false;
                 return;
             }
+
+            if (pylonParent == null)
+            {
+                pylonParent = transform;
+            }
+
+            pylonPool =
+                new TilePlacementPylonPool(
+                    pylonPrefab,
+                    pylonParent);
+
+            boundaryPool =
+                new TilePlacementBoundaryPool(
+                    pylonParent,
+                    pylonPrefab.SharedMaterial);
 
             Hide();
         }
@@ -222,6 +273,19 @@ namespace BigRetail.Construction.Unity.Floors
                     cell,
                     previewColor);
             }
+
+            pylonPool.HideUnused(
+                visibleCells.Count);
+
+            boundaryPool.Show(
+                CellAreaBoundaryResolver.Resolve(
+                    visibleCells),
+                previewTilemap,
+                logicalLevel,
+                unityCellZ,
+                viewHost.Projection,
+                borderColor,
+                borderWidth);
         }
 
 
@@ -260,6 +324,28 @@ namespace BigRetail.Construction.Unity.Floors
             visibleCells.Add(cell);
             visibleColors[cell] =
                 color;
+
+            int pylonIndex =
+                visibleCells.Count - 1;
+
+            pylonPool.Show(
+                pylonIndex,
+                cell,
+                previewTilemap.GetCellCenterWorld(
+                    unityCell),
+                unityCell.x + unityCell.y,
+                ToPylonColor(color));
+        }
+
+
+        private static Color ToPylonColor(
+            Color previewColor)
+        {
+            return new Color(
+                previewColor.r,
+                previewColor.g,
+                previewColor.b,
+                1f);
         }
 
 
@@ -276,6 +362,16 @@ namespace BigRetail.Construction.Unity.Floors
 
             visibleCells.Clear();
             visibleColors.Clear();
+
+            if (pylonPool != null)
+            {
+                pylonPool.HideAll();
+            }
+
+            if (boundaryPool != null)
+            {
+                boundaryPool.HideAll();
+            }
         }
 
 
@@ -384,6 +480,25 @@ namespace BigRetail.Construction.Unity.Floors
                 Debug.LogError(
                     "FloorAreaPreviewView has no " +
                     "IsometricViewHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (pylonPrefab == null)
+            {
+                Debug.LogError(
+                    "FloorAreaPreviewView has no tile-pylon " +
+                    "prefab assigned.",
+                    this);
+
+                isValid = false;
+            }
+            else if (pylonPrefab.SharedMaterial == null)
+            {
+                Debug.LogError(
+                    "FloorAreaPreviewView's tile-pylon prefab " +
+                    "has no shared Material for its border lines.",
                     this);
 
                 isValid = false;

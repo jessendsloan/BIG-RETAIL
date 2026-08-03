@@ -21,6 +21,10 @@ namespace BigRetail.Map.Unity.Tests
             "BigRetail.Construction.Unity.Foundations." +
             "FoundationAreaPreviewView, Assembly-CSharp";
 
+        private const string PylonTypeName =
+            "BigRetail.Construction.Unity.Cells." +
+            "TilePlacementPylonView, Assembly-CSharp";
+
 
         [Test]
         public void ShowCell_BuildableCell_UsesBuildablePreview()
@@ -48,9 +52,93 @@ namespace BigRetail.Map.Unity.Tests
                     Is.EqualTo(1));
 
                 Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisiblePylonCount"),
+                    Is.EqualTo(1));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronCount"),
+                    Is.EqualTo(8));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronPylonCount"),
+                    Is.EqualTo(8));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleBorderSegmentCount"),
+                    Is.EqualTo(4));
+
+                Assert.That(
                     fixture.Tilemap.GetTile(
                         new Vector3Int(2, 2, 0)),
                     Is.SameAs(fixture.PreviewTile));
+
+                Assert.That(
+                    fixture.Tilemap.GetColor(
+                        new Vector3Int(2, 2, 0)),
+                    Is.EqualTo(
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            0.5f)));
+
+                Assert.That(
+                    fixture.Tilemap.GetTile(
+                        new Vector3Int(1, 1, 0)),
+                    Is.SameAs(fixture.PreviewApronTile));
+
+                Assert.That(
+                    fixture.Tilemap.GetColor(
+                        new Vector3Int(1, 1, 0)),
+                    Is.EqualTo(
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            0.5f)));
+
+                SpriteRenderer[] pylons =
+                    fixture.Tilemap.GetComponentsInChildren<
+                        SpriteRenderer>(true);
+
+                Assert.That(
+                    pylons,
+                    Has.Length.EqualTo(9));
+
+                Vector3 foundationCenter =
+                    fixture.Tilemap.GetCellCenterWorld(
+                        new Vector3Int(2, 2, 0));
+
+                bool hasCenteredPylon = false;
+
+                for (int index = 0;
+                     index < pylons.Length;
+                     index++)
+                {
+                    Assert.That(
+                        pylons[index].color.a,
+                        Is.EqualTo(1f));
+
+                    if (Vector3.Distance(
+                            pylons[index].transform.position,
+                            foundationCenter)
+                        < 0.0001f)
+                    {
+                        hasCenteredPylon = true;
+                    }
+                }
+
+                Assert.That(
+                    hasCenteredPylon,
+                    Is.True);
             }
             finally
             {
@@ -93,6 +181,12 @@ namespace BigRetail.Map.Unity.Tests
                         fixture.Preview,
                         "BuildableCellCount"),
                     Is.EqualTo(0));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronCount"),
+                    Is.EqualTo(8));
             }
             finally
             {
@@ -125,6 +219,12 @@ namespace BigRetail.Map.Unity.Tests
                         fixture.Preview,
                         "VisibleCellCount"),
                     Is.EqualTo(1));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronCount"),
+                    Is.EqualTo(0));
             }
             finally
             {
@@ -167,8 +267,37 @@ namespace BigRetail.Map.Unity.Tests
                     Is.EqualTo(0));
 
                 Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisiblePylonCount"),
+                    Is.EqualTo(0));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronCount"),
+                    Is.EqualTo(0));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronPylonCount"),
+                    Is.EqualTo(0));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleBorderSegmentCount"),
+                    Is.EqualTo(0));
+
+                Assert.That(
                     fixture.Tilemap.GetTile(
                         new Vector3Int(2, 2, 0)),
+                    Is.Null);
+
+                Assert.That(
+                    fixture.Tilemap.GetTile(
+                        new Vector3Int(1, 1, 0)),
                     Is.Null);
 
                 Assert.That(
@@ -216,6 +345,12 @@ namespace BigRetail.Map.Unity.Tests
                     GetPublicProperty<int>(
                         fixture.Preview,
                         "VisibleCellCount"),
+                    Is.EqualTo(0));
+
+                Assert.That(
+                    GetPublicProperty<int>(
+                        fixture.Preview,
+                        "VisibleApronCount"),
                     Is.EqualTo(0));
 
                 InvokePublicMethod(
@@ -276,10 +411,18 @@ namespace BigRetail.Map.Unity.Tests
             Type previewType =
                 Type.GetType(PreviewTypeName);
 
+            Type pylonType =
+                Type.GetType(PylonTypeName);
+
             Assert.That(
                 previewType,
                 Is.Not.Null,
                 $"Could not resolve {PreviewTypeName}.");
+
+            Assert.That(
+                pylonType,
+                Is.Not.Null,
+                $"Could not resolve {PylonTypeName}.");
 
             GameObject mapObject =
                 new GameObject("Foundation Preview Map");
@@ -376,6 +519,59 @@ namespace BigRetail.Map.Unity.Tests
             Tile previewTile =
                 ScriptableObject.CreateInstance<Tile>();
 
+            Tile previewApronTile =
+                ScriptableObject.CreateInstance<Tile>();
+
+            Texture2D pylonTexture =
+                new Texture2D(1, 1);
+
+            Sprite pylonSprite =
+                Sprite.Create(
+                    pylonTexture,
+                    new Rect(0f, 0f, 1f, 1f),
+                    new Vector2(0.5f, 0f));
+
+            GameObject pylonObject =
+                new GameObject("Tile Placement Pylon Prefab");
+
+            pylonObject.SetActive(false);
+
+            SpriteRenderer pylonRenderer =
+                pylonObject.AddComponent<SpriteRenderer>();
+
+            pylonRenderer.sprite =
+                pylonSprite;
+
+            Component pylonPrefab =
+                pylonObject.AddComponent(
+                    pylonType);
+
+            SetPrivateField(
+                pylonPrefab,
+                "spriteRenderer",
+                pylonRenderer);
+
+            GameObject apronPylonObject =
+                new GameObject(
+                    "Apron Tile Placement Pylon Prefab");
+
+            apronPylonObject.SetActive(false);
+
+            SpriteRenderer apronPylonRenderer =
+                apronPylonObject.AddComponent<SpriteRenderer>();
+
+            apronPylonRenderer.sprite =
+                pylonSprite;
+
+            Component apronPylonPrefab =
+                apronPylonObject.AddComponent(
+                    pylonType);
+
+            SetPrivateField(
+                apronPylonPrefab,
+                "spriteRenderer",
+                apronPylonRenderer);
+
             SetPrivateField(
                 preview,
                 "foundationRuntimeHost",
@@ -393,8 +589,23 @@ namespace BigRetail.Map.Unity.Tests
 
             SetPrivateField(
                 preview,
+                "previewApronTile",
+                previewApronTile);
+
+            SetPrivateField(
+                preview,
                 "viewHost",
                 viewHost);
+
+            SetPrivateField(
+                preview,
+                "pylonPrefab",
+                pylonPrefab);
+
+            SetPrivateField(
+                preview,
+                "apronPylonPrefab",
+                apronPylonPrefab);
 
             InvokePrivateMethod(
                 preview,
@@ -405,8 +616,13 @@ namespace BigRetail.Map.Unity.Tests
                 runtimeHostObject,
                 viewHostObject,
                 gridObject,
+                pylonObject,
+                apronPylonObject,
                 tilemap,
                 previewTile,
+                previewApronTile,
+                pylonTexture,
+                pylonSprite,
                 runtimeHost,
                 preview);
         }
@@ -539,9 +755,14 @@ namespace BigRetail.Map.Unity.Tests
             private readonly GameObject runtimeHostObject;
             private readonly GameObject viewHostObject;
             private readonly GameObject gridObject;
+            private readonly GameObject pylonObject;
+            private readonly GameObject apronPylonObject;
+            private readonly Texture2D pylonTexture;
+            private readonly Sprite pylonSprite;
 
             public Tilemap Tilemap { get; }
             public Tile PreviewTile { get; }
+            public Tile PreviewApronTile { get; }
             public FoundationRuntimeHost RuntimeHost { get; }
             public Component Preview { get; }
 
@@ -551,8 +772,13 @@ namespace BigRetail.Map.Unity.Tests
                 GameObject runtimeHostObject,
                 GameObject viewHostObject,
                 GameObject gridObject,
+                GameObject pylonObject,
+                GameObject apronPylonObject,
                 Tilemap tilemap,
                 Tile previewTile,
+                Tile previewApronTile,
+                Texture2D pylonTexture,
+                Sprite pylonSprite,
                 FoundationRuntimeHost runtimeHost,
                 Component preview)
             {
@@ -560,8 +786,13 @@ namespace BigRetail.Map.Unity.Tests
                 this.runtimeHostObject = runtimeHostObject;
                 this.viewHostObject = viewHostObject;
                 this.gridObject = gridObject;
+                this.pylonObject = pylonObject;
+                this.apronPylonObject = apronPylonObject;
+                this.pylonTexture = pylonTexture;
+                this.pylonSprite = pylonSprite;
                 Tilemap = tilemap;
                 PreviewTile = previewTile;
+                PreviewApronTile = previewApronTile;
                 RuntimeHost = runtimeHost;
                 Preview = preview;
             }
@@ -570,7 +801,12 @@ namespace BigRetail.Map.Unity.Tests
             public void Dispose()
             {
                 Object.DestroyImmediate(PreviewTile);
+                Object.DestroyImmediate(PreviewApronTile);
                 Object.DestroyImmediate(gridObject);
+                Object.DestroyImmediate(pylonObject);
+                Object.DestroyImmediate(apronPylonObject);
+                Object.DestroyImmediate(pylonSprite);
+                Object.DestroyImmediate(pylonTexture);
                 Object.DestroyImmediate(viewHostObject);
                 Object.DestroyImmediate(runtimeHostObject);
                 Object.DestroyImmediate(mapObject);

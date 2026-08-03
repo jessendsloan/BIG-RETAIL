@@ -298443,12 +298443,19 @@ MonoBehaviour:
   foundationRuntimeHost: {fileID: 447959067}
   previewTilemap: {fileID: 1050077010}
   previewTile: {fileID: 11400000, guid: 9c797845fe5a9c645b6ede8033521600, type: 2}
+  previewApronTile: {fileID: 11400000, guid: 10179745bcf233f4d968c78b2fb50ebb, type: 2}
   viewHost: {fileID: 2111000001}
+  pylonPrefab: {fileID: 7351159851562248240, guid: 572adeb498104af282782625f0959105, type: 3}
+  apronPylonPrefab: {fileID: 7351159851562248240, guid: 1d7d28db92bf424db86d0f3ae33440b4, type: 3}
+  pylonParent: {fileID: 0}
+  apronColor: {r: 1, g: 1, b: 1, a: 0.5}
+  borderColor: {r: 1, g: 1, b: 1, a: 1}
+  borderWidth: 0.04
   logicalLevel: 0
   unityCellZ: 0
-  buildableColor: {r: 0.35, g: 1, b: 0.35, a: 0.85}
-  existingColor: {r: 0.25, g: 0.7, b: 1, a: 0.9}
-  invalidColor: {r: 1, g: 0.25, b: 0.25, a: 0.88}
+  buildableColor: {r: 1, g: 1, b: 1, a: 0.5}
+  existingColor: {r: 0.25, g: 0.7, b: 1, a: 0.5}
+  invalidColor: {r: 1, g: 0.25, b: 0.25, a: 0.5}
 --- !u!483693784 &1050077009
 TilemapRenderer:
   serializedVersion: 2
@@ -298753,11 +298760,15 @@ MonoBehaviour:
   previewTilemap: {fileID: 1159354256}
   previewTile: {fileID: 11400000, guid: a57e79b88fd081d47a89c2c8d05ad2c7, type: 2}
   viewHost: {fileID: 2111000001}
+  pylonPrefab: {fileID: 7351159851562248240, guid: 572adeb498104af282782625f0959105, type: 3}
+  pylonParent: {fileID: 0}
+  borderColor: {r: 1, g: 1, b: 1, a: 1}
+  borderWidth: 0.04
   logicalLevel: 0
   unityCellZ: 0
-  buildableColor: {r: 0.35, g: 1, b: 0.35, a: 0.85}
-  existingColor: {r: 0.25, g: 0.7, b: 1, a: 0.9}
-  invalidColor: {r: 1, g: 0.25, b: 0.25, a: 0.88}
+  buildableColor: {r: 1, g: 1, b: 1, a: 0.5}
+  existingColor: {r: 0.25, g: 0.7, b: 1, a: 0.5}
+  invalidColor: {r: 1, g: 0.25, b: 0.25, a: 0.5}
 --- !u!1 &1161128889
 GameObject:
   m_ObjectHideFlags: 0
