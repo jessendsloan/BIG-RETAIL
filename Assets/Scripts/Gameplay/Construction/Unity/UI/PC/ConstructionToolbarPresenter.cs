@@ -1,3 +1,4 @@
+using BigRetail.CameraControl;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
@@ -30,6 +31,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         [SerializeField]
         private WallViewSystem wallViewSystem;
+
+        [SerializeField]
+        private IsometricViewRotationController viewRotationController;
 
 
         private ConstructionToolbarView boundView;
@@ -73,6 +77,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             wallViewSystem.DisplayModeChanged +=
                 HandleWallDisplayModeChanged;
 
+            viewRotationController.ViewOrientationChanged +=
+                HandleCameraViewOrientationChanged;
+
             if (documentHost.HasView)
             {
                 BindView(
@@ -99,6 +106,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 wallViewSystem.DisplayModeChanged -=
                     HandleWallDisplayModeChanged;
+            }
+
+            if (viewRotationController != null)
+            {
+                viewRotationController.ViewOrientationChanged -=
+                    HandleCameraViewOrientationChanged;
             }
 
             UnbindView();
@@ -230,6 +243,22 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
 
+        private void HandleCameraViewOrientationRequested(
+            IsometricViewOrientation orientation)
+        {
+            viewRotationController.SetViewOrientation(
+                orientation);
+        }
+
+
+        private void HandleCameraViewOrientationChanged(
+            IsometricViewOrientation orientation)
+        {
+            RefreshCameraViewOrientation(
+                orientation);
+        }
+
+
         private void BindView(
             ConstructionToolbarView view)
         {
@@ -257,6 +286,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.WallDisplayModeRequested +=
                 HandleWallDisplayModeRequested;
 
+            boundView.CameraViewOrientationRequested +=
+                HandleCameraViewOrientationRequested;
+
             RefreshSelection(
                 toolCoordinator.CurrentMode);
 
@@ -265,6 +297,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             RefreshWallDisplayMode(
                 wallViewSystem.CurrentDisplayMode);
+
+            RefreshCameraViewOrientation(
+                viewRotationController.CurrentOrientation);
         }
 
 
@@ -289,6 +324,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.WallDisplayModeRequested -=
                 HandleWallDisplayModeRequested;
+
+            boundView.CameraViewOrientationRequested -=
+                HandleCameraViewOrientationRequested;
 
             boundView = null;
         }
@@ -334,6 +372,19 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.SetWallDisplayMode(
                 displayMode);
+        }
+
+
+        private void RefreshCameraViewOrientation(
+            IsometricViewOrientation orientation)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            boundView.SetCameraViewOrientation(
+                orientation);
         }
 
 
@@ -394,6 +445,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "WallViewSystem assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewRotationController == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "IsometricViewRotationController assigned.",
                     this);
 
                 isValid = false;

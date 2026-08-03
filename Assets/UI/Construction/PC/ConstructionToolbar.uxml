@@ -98,36 +98,84 @@
         </ui:VisualElement>
 
         <ui:VisualElement
-            name="wall-view-controls"
-            class="wall-view-controls"
+            name="view-controls"
+            class="view-controls"
             picking-mode="Position">
 
-            <ui:Button
-                name="wall-view-down-button"
-                class="wall-view-controls__button"
-                tooltip="Walls down: show every wall at base height.">
-                <ui:VisualElement
-                    class="wall-view-controls__icon wall-view-controls__icon--down"
-                    picking-mode="Ignore" />
-            </ui:Button>
+            <ui:VisualElement
+                name="camera-rotation-controls"
+                class="camera-rotation-controls"
+                picking-mode="Position">
 
-            <ui:Button
-                name="wall-view-cutaway-button"
-                class="wall-view-controls__button"
-                tooltip="Cutaway: lower walls that block constructed foundation.">
-                <ui:VisualElement
-                    class="wall-view-controls__icon wall-view-controls__icon--cutaway"
-                    picking-mode="Ignore" />
-            </ui:Button>
+                <ui:Button
+                    name="camera-view-north-button"
+                    class="camera-rotation-controls__button is-selected"
+                    tooltip="View from the north.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--north"
+                        picking-mode="Ignore" />
+                </ui:Button>
 
-            <ui:Button
-                name="wall-view-up-button"
-                class="wall-view-controls__button is-selected"
-                tooltip="Walls up: show every wall at full height.">
-                <ui:VisualElement
-                    class="wall-view-controls__icon wall-view-controls__icon--up"
-                    picking-mode="Ignore" />
-            </ui:Button>
+                <ui:Button
+                    name="camera-view-east-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the east.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--east"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="camera-view-south-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the south.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--south"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="camera-view-west-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the west.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--west"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                name="wall-view-controls"
+                class="wall-view-controls"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="wall-view-down-button"
+                    class="wall-view-controls__button"
+                    tooltip="Walls down: show every wall at base height.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--down"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="wall-view-cutaway-button"
+                    class="wall-view-controls__button"
+                    tooltip="Cutaway: lower walls that block constructed foundation.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--cutaway"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="wall-view-up-button"
+                    class="wall-view-controls__button is-selected"
+                    tooltip="Walls up: show every wall at full height.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--up"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement

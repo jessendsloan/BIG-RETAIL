@@ -280,6 +280,63 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        [Test]
+        public void CameraOrientation_SelectsOnlyRequestedViewButton()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                MethodInfo setCameraViewOrientation =
+                    viewType.GetMethod(
+                        "SetCameraViewOrientation",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(
+                    setCameraViewOrientation,
+                    Is.Not.Null);
+
+                setCameraViewOrientation.Invoke(
+                    view,
+                    new object[]
+                    {
+                        IsometricViewOrientation.South
+                    });
+
+                Assert.That(
+                    root.Q<Button>("camera-view-north-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+                Assert.That(
+                    root.Q<Button>("camera-view-east-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+                Assert.That(
+                    root.Q<Button>("camera-view-south-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+                Assert.That(
+                    root.Q<Button>("camera-view-west-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
         private static VisualElement CreateToolbarRoot()
         {
             VisualElement root =
@@ -302,6 +359,18 @@ namespace BigRetail.Map.Unity.Tests
             root.Add(CreateButton("wall-view-up-button"));
             root.Add(CreateButton("wall-view-cutaway-button"));
             root.Add(CreateButton("wall-view-down-button"));
+            root.Add(
+                CreateButton(
+                    "camera-view-north-button"));
+            root.Add(
+                CreateButton(
+                    "camera-view-east-button"));
+            root.Add(
+                CreateButton(
+                    "camera-view-south-button"));
+            root.Add(
+                CreateButton(
+                    "camera-view-west-button"));
             root.Add(CreateButton("undo-button"));
             root.Add(CreateButton("redo-button"));
 

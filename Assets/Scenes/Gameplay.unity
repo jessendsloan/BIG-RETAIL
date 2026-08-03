@@ -278,6 +278,7 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   wallViewSystem: {fileID: 1309671814}
+  viewRotationController: {fileID: 2111000002}
 --- !u!114 &87599328
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,7 @@
+using System;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
 using BigRetail.Map.Unity.View;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -55,6 +57,15 @@ namespace BigRetail.CameraControl
         private bool logRotations = true;
 
 
+        public IsometricViewOrientation CurrentOrientation =>
+            viewHost != null
+                ? viewHost.Orientation
+                : IsometricViewOrientation.North;
+
+        public event Action<IsometricViewOrientation>
+            ViewOrientationChanged;
+
+
         private void Awake()
         {
             if (!ValidateReferences())
@@ -104,6 +115,21 @@ namespace BigRetail.CameraControl
         }
 
 
+        /// <summary>
+        /// Changes directly to one of the four authored map views while
+        /// preserving the logical cell under the camera center.
+        /// </summary>
+        public void SetViewOrientation(
+            IsometricViewOrientation orientation)
+        {
+            if (RequirePlayMode())
+            {
+                SetViewOrientationInternal(
+                    orientation);
+            }
+        }
+
+
         private void Rotate(
             bool clockwise)
         {
@@ -117,6 +143,34 @@ namespace BigRetail.CameraControl
                 return;
             }
 
+            IsometricViewOrientation requestedOrientation =
+                clockwise
+                    ? viewHost.Orientation.RotateClockwise()
+                    : viewHost.Orientation.RotateCounterClockwise();
+
+            SetViewOrientationInternal(
+                requestedOrientation);
+        }
+
+
+        private void SetViewOrientationInternal(
+            IsometricViewOrientation orientation)
+        {
+            if (!viewHost.TryInitialize())
+            {
+                Debug.LogError(
+                    "The isometric view could not initialize before " +
+                    "rotation.",
+                    this);
+
+                return;
+            }
+
+            if (orientation == viewHost.Orientation)
+            {
+                return;
+            }
+
             GridPosition logicalFocus =
                 viewHost.WorldToLogicalCell(
                     cameraController.WorldCenter,
@@ -126,9 +180,8 @@ namespace BigRetail.CameraControl
                 .CancelActiveGesture();
 
             bool changed =
-                clockwise
-                    ? viewHost.RotateClockwise()
-                    : viewHost.RotateCounterClockwise();
+                viewHost.TrySetOrientation(
+                    orientation);
 
             if (!changed)
             {
@@ -163,6 +216,9 @@ namespace BigRetail.CameraControl
                     $"Logical camera focus: {logicalFocus}.",
                     this);
             }
+
+            ViewOrientationChanged?.Invoke(
+                viewHost.Orientation);
         }
 
 

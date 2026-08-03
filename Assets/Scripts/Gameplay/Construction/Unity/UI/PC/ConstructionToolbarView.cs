@@ -27,6 +27,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             "wall-view-cutaway-button";
         public const string WallViewDownButtonName =
             "wall-view-down-button";
+        public const string CameraViewNorthButtonName =
+            "camera-view-north-button";
+        public const string CameraViewEastButtonName =
+            "camera-view-east-button";
+        public const string CameraViewSouthButtonName =
+            "camera-view-south-button";
+        public const string CameraViewWestButtonName =
+            "camera-view-west-button";
         public const string UndoButtonName = "undo-button";
         public const string RedoButtonName = "redo-button";
         public const string SelectedClassName = "is-selected";
@@ -43,6 +51,10 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button wallViewUpButton;
         private readonly Button wallViewCutawayButton;
         private readonly Button wallViewDownButton;
+        private readonly Button cameraViewNorthButton;
+        private readonly Button cameraViewEastButton;
+        private readonly Button cameraViewSouthButton;
+        private readonly Button cameraViewWestButton;
         private readonly Button undoButton;
         private readonly Button redoButton;
 
@@ -75,6 +87,14 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, WallViewCutawayButtonName);
             wallViewDownButton =
                 RequireButton(root, WallViewDownButtonName);
+            cameraViewNorthButton =
+                RequireButton(root, CameraViewNorthButtonName);
+            cameraViewEastButton =
+                RequireButton(root, CameraViewEastButtonName);
+            cameraViewSouthButton =
+                RequireButton(root, CameraViewSouthButtonName);
+            cameraViewWestButton =
+                RequireButton(root, CameraViewWestButtonName);
             undoButton = RequireButton(root, UndoButtonName);
             redoButton = RequireButton(root, RedoButtonName);
 
@@ -92,6 +112,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             wallViewCutawayButton.clicked +=
                 HandleWallViewCutawayRequested;
             wallViewDownButton.clicked += HandleWallViewDownRequested;
+            cameraViewNorthButton.clicked += HandleCameraViewNorthRequested;
+            cameraViewEastButton.clicked += HandleCameraViewEastRequested;
+            cameraViewSouthButton.clicked += HandleCameraViewSouthRequested;
+            cameraViewWestButton.clicked += HandleCameraViewWestRequested;
             undoButton.clicked += HandleUndoRequested;
             redoButton.clicked += HandleRedoRequested;
         }
@@ -102,6 +126,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action<ConstructionToolbarDemolitionTarget>
             DemolitionTargetRequested;
         public event Action<WallDisplayMode> WallDisplayModeRequested;
+        public event Action<IsometricViewOrientation>
+            CameraViewOrientationRequested;
         public event Action UndoRequested;
         public event Action RedoRequested;
 
@@ -167,6 +193,37 @@ namespace BigRetail.Construction.Unity.UI.PC
                 displayMode == WallDisplayMode.WallsDown);
         }
 
+        public void SetCameraViewOrientation(
+            IsometricViewOrientation orientation)
+        {
+            if (orientation != IsometricViewOrientation.North
+                && orientation != IsometricViewOrientation.East
+                && orientation != IsometricViewOrientation.South
+                && orientation != IsometricViewOrientation.West)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(orientation),
+                    orientation,
+                    "Unknown isometric-view orientation.");
+            }
+
+            SetSelected(
+                cameraViewNorthButton,
+                orientation == IsometricViewOrientation.North);
+
+            SetSelected(
+                cameraViewEastButton,
+                orientation == IsometricViewOrientation.East);
+
+            SetSelected(
+                cameraViewSouthButton,
+                orientation == IsometricViewOrientation.South);
+
+            SetSelected(
+                cameraViewWestButton,
+                orientation == IsometricViewOrientation.West);
+        }
+
         public void SetRedoEnabled(bool isEnabled)
         {
             redoButton.SetEnabled(isEnabled);
@@ -193,6 +250,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             wallViewCutawayButton.clicked -=
                 HandleWallViewCutawayRequested;
             wallViewDownButton.clicked -= HandleWallViewDownRequested;
+            cameraViewNorthButton.clicked -= HandleCameraViewNorthRequested;
+            cameraViewEastButton.clicked -= HandleCameraViewEastRequested;
+            cameraViewSouthButton.clicked -= HandleCameraViewSouthRequested;
+            cameraViewWestButton.clicked -= HandleCameraViewWestRequested;
             undoButton.clicked -= HandleUndoRequested;
             redoButton.clicked -= HandleRedoRequested;
 
@@ -259,6 +320,37 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             WallDisplayModeRequested?.Invoke(
                 WallDisplayMode.WallsDown);
+        }
+
+        private void HandleCameraViewNorthRequested()
+        {
+            RequestCameraViewOrientation(
+                IsometricViewOrientation.North);
+        }
+
+        private void HandleCameraViewEastRequested()
+        {
+            RequestCameraViewOrientation(
+                IsometricViewOrientation.East);
+        }
+
+        private void HandleCameraViewSouthRequested()
+        {
+            RequestCameraViewOrientation(
+                IsometricViewOrientation.South);
+        }
+
+        private void HandleCameraViewWestRequested()
+        {
+            RequestCameraViewOrientation(
+                IsometricViewOrientation.West);
+        }
+
+        private void RequestCameraViewOrientation(
+            IsometricViewOrientation orientation)
+        {
+            CameraViewOrientationRequested?.Invoke(
+                orientation);
         }
 
         private void HandleUndoRequested()

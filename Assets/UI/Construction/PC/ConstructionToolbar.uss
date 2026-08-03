@@ -339,10 +339,16 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
-.wall-view-controls {
+.view-controls {
     position: absolute;
     right: 24px;
     bottom: 24px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.camera-rotation-controls,
+.wall-view-controls {
     flex-direction: row;
     align-items: center;
     padding: 4px;
@@ -352,6 +358,11 @@
     border-radius: 10px;
 }
 
+.camera-rotation-controls {
+    margin-right: 12px;
+}
+
+.camera-rotation-controls__button,
 .wall-view-controls__button {
     width: 56px;
     height: 56px;
@@ -366,23 +377,48 @@
     border-radius: 8px;
 }
 
+.camera-rotation-controls__button:hover,
 .wall-view-controls__button:hover {
     background-color: rgba(54, 63, 69, 0.08);
 }
 
+.camera-rotation-controls__button:active,
 .wall-view-controls__button:active {
     background-color: rgba(54, 63, 69, 0.16);
 }
 
+.camera-rotation-controls__button:focus,
+.wall-view-controls__button:focus {
+    border-color: rgba(35, 43, 50, 0.48);
+}
+
+.camera-rotation-controls__button.is-selected,
 .wall-view-controls__button.is-selected {
     background-color: rgba(54, 63, 69, 0.18);
     border-color: rgba(35, 43, 50, 0.48);
 }
 
+.camera-rotation-controls__icon,
 .wall-view-controls__icon {
     width: 44px;
     height: 44px;
     -unity-background-scale-mode: scale-to-fit;
+}
+
+.camera-rotation-controls__icon--north {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewNorth.png");
+}
+
+.camera-rotation-controls__icon--east {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewEast.png");
+}
+
+.camera-rotation-controls__icon--south {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewSouth.png");
+}
+
+.camera-rotation-controls__icon--west {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewWest.png");
 }
 
 .wall-view-controls__icon--up {
