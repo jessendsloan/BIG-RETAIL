@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using BigRetail.Map.View;
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace BigRetail.Map.Unity.Tests
@@ -23,6 +24,10 @@ namespace BigRetail.Map.Unity.Tests
         private const string ViewTypeName =
             "BigRetail.Construction.Unity.UI.PC." +
             "ConstructionToolbarView, Assembly-CSharp";
+
+        private const string DocumentHostTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "ConstructionToolbarDocumentHost, Assembly-CSharp";
 
 
         [Test]
@@ -334,6 +339,38 @@ namespace BigRetail.Map.Unity.Tests
             {
                 view.Dispose();
             }
+        }
+
+
+        [Test]
+        public void UiHitTest_MirrorsBottomLeftPointerToTopLeftCoordinates()
+        {
+            Type documentHostType =
+                RequireType(DocumentHostTypeName);
+
+            MethodInfo toUiToolkitScreenPosition =
+                documentHostType.GetMethod(
+                    "ToUiToolkitScreenPosition",
+                    BindingFlags.NonPublic
+                    | BindingFlags.Static);
+
+            Assert.That(
+                toUiToolkitScreenPosition,
+                Is.Not.Null);
+
+            Vector2 convertedPosition =
+                (Vector2)toUiToolkitScreenPosition.Invoke(
+                    null,
+                    new object[]
+                    {
+                        new Vector2(300f, 120f),
+                        1080f
+                    });
+
+            Assert.That(
+                convertedPosition,
+                Is.EqualTo(
+                    new Vector2(300f, 960f)));
         }
 
 

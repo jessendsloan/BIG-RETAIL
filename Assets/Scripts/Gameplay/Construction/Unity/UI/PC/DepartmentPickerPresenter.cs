@@ -13,6 +13,7 @@ namespace BigRetail.Construction.Unity.UI.PC
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
+    [RequireComponent(typeof(ConstructionUiInputGate))]
     [DefaultExecutionOrder(370)]
     public sealed class DepartmentPickerPresenter : MonoBehaviour
     {
@@ -26,6 +27,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private DepartmentDefinitionSelectionHost selectionHost;
 
         private DepartmentPickerView boundView;
+        private ConstructionUiInputGate uiInputGate;
         private bool referencesAreValid;
         private bool catalogIsBound;
         private bool isPickerRequested;
@@ -44,6 +46,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 documentHost = GetComponent<ConstructionToolbarDocumentHost>();
             }
 
+            uiInputGate = GetComponent<ConstructionUiInputGate>();
+
             referencesAreValid = ValidateReferences();
         }
 
@@ -56,6 +60,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             documentHost.DepartmentPickerViewReady += HandleViewReady;
+            uiInputGate.CancelRequested += HandleCancelRequested;
             toolCoordinator.ModeChanged += HandleModeChanged;
             selectionHost.SelectedDefinitionChanged +=
                 HandleSelectedDefinitionChanged;
@@ -83,6 +88,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (toolCoordinator != null)
             {
                 toolCoordinator.ModeChanged -= HandleModeChanged;
+            }
+
+            if (uiInputGate != null)
+            {
+                uiInputGate.CancelRequested -= HandleCancelRequested;
             }
 
             if (selectionHost != null)
@@ -132,6 +142,18 @@ namespace BigRetail.Construction.Unity.UI.PC
                 isPickerRequested = false;
             }
 
+            RefreshView();
+        }
+
+
+        private void HandleCancelRequested()
+        {
+            if (!isPickerRequested)
+            {
+                return;
+            }
+
+            isPickerRequested = false;
             RefreshView();
         }
 
@@ -226,6 +248,14 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "DepartmentPickerPresenter has no construction "
                     + "tool coordinator assigned.", this);
+                isValid = false;
+            }
+
+            if (uiInputGate == null)
+            {
+                Debug.LogError(
+                    "DepartmentPickerPresenter has no construction "
+                    + "UI input gate assigned.", this);
                 isValid = false;
             }
 

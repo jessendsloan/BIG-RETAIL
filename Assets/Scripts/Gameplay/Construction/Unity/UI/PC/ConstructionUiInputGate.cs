@@ -1,6 +1,8 @@
+using System;
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Construction.Unity.Tools;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace BigRetail.Construction.Unity.UI.PC
 {
@@ -23,7 +25,21 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private ConstructionToolCoordinator toolCoordinator;
 
+        [Header("Action Names")]
+
+        [SerializeField]
+        private string constructionActionMapName =
+            "Construction";
+
+        [SerializeField]
+        private string cancelActionName =
+            "Cancel";
+
         public bool IsPointerOverConstructionUi { get; private set; }
+
+        public event Action CancelRequested;
+
+        private InputAction cancelAction;
 
         private void Reset()
         {
@@ -49,11 +65,22 @@ namespace BigRetail.Construction.Unity.UI.PC
                     this);
 
                 enabled = false;
+                return;
+            }
+
+            if (!TryResolveCancelAction())
+            {
+                enabled = false;
             }
         }
 
         private void Update()
         {
+            if (cancelAction.WasPressedThisFrame())
+            {
+                CancelRequested?.Invoke();
+            }
+
             bool wasOverConstructionUi =
                 IsPointerOverConstructionUi;
 
@@ -71,6 +98,56 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void OnDisable()
         {
             IsPointerOverConstructionUi = false;
+        }
+
+        private bool TryResolveCancelAction()
+        {
+            PlayerInput playerInput =
+                pointerController.GetComponent<PlayerInput>();
+
+            if (playerInput == null
+                || playerInput.actions == null)
+            {
+                Debug.LogError(
+                    "ConstructionUiInputGate could not access the "
+                    + "construction Input Actions asset.",
+                    this);
+
+                return false;
+            }
+
+            InputActionMap constructionActionMap =
+                playerInput.actions.FindActionMap(
+                    constructionActionMapName,
+                    throwIfNotFound: false);
+
+            if (constructionActionMap == null)
+            {
+                Debug.LogError(
+                    $"ConstructionUiInputGate could not find the "
+                    + $"'{constructionActionMapName}' action map.",
+                    this);
+
+                return false;
+            }
+
+            cancelAction =
+                constructionActionMap.FindAction(
+                    cancelActionName,
+                    throwIfNotFound: false);
+
+            if (cancelAction != null)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"ConstructionUiInputGate could not find the "
+                + $"'{cancelActionName}' action in the "
+                + $"'{constructionActionMapName}' action map.",
+                this);
+
+            return false;
         }
     }
 }

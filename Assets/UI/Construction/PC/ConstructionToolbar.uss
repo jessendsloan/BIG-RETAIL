@@ -258,12 +258,25 @@
 
 .construction-toolbar {
     position: absolute;
-    top: 24px;
+    top: 116px;
     left: 24px;
-    width: 72px;
     flex-direction: column;
     align-items: center;
-    padding: 0;
+    padding: 4px;
+    background-color: rgba(244, 240, 230, 0.94);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.departments-button {
+    position: absolute;
+    top: 28px;
+    left: 29px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
 }
 
 .construction-toolbar__group {

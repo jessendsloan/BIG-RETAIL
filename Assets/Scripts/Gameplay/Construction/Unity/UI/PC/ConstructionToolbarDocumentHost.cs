@@ -67,10 +67,15 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return false;
             }
 
+            Vector2 uiToolkitScreenPosition =
+                ToUiToolkitScreenPosition(
+                    screenPosition,
+                    Screen.height);
+
             Vector2 panelPosition =
                 RuntimePanelUtils.ScreenToPanel(
                     rootElement.panel,
-                    screenPosition);
+                    uiToolkitScreenPosition);
 
             VisualElement pickedElement =
                 rootElement.panel.Pick(panelPosition);
@@ -80,6 +85,16 @@ namespace BigRetail.Construction.Unity.UI.PC
             // construction targeting.
             return pickedElement != null
                 && pickedElement != rootElement;
+        }
+
+        internal static Vector2 ToUiToolkitScreenPosition(
+            Vector2 screenPosition,
+            float screenHeight)
+        {
+            screenPosition.y =
+                screenHeight - screenPosition.y;
+
+            return screenPosition;
         }
 
         public event Action<ConstructionToolbarView> ViewReady;

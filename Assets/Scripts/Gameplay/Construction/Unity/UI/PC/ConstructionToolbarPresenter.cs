@@ -12,6 +12,7 @@ namespace BigRetail.Construction.Unity.UI.PC
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
+    [RequireComponent(typeof(ConstructionUiInputGate))]
     [DefaultExecutionOrder(350)]
     public sealed class ConstructionToolbarPresenter : MonoBehaviour
     {
@@ -37,6 +38,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
 
         private ConstructionToolbarView boundView;
+        private ConstructionUiInputGate uiInputGate;
         private bool referencesAreValid;
         private bool isDemolitionPickerRequested;
 
@@ -56,6 +58,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                     GetComponent<ConstructionToolbarDocumentHost>();
             }
 
+            uiInputGate =
+                GetComponent<ConstructionUiInputGate>();
+
             referencesAreValid =
                 ValidateReferences();
         }
@@ -70,6 +75,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             documentHost.ViewReady +=
                 HandleViewReady;
+
+            uiInputGate.CancelRequested +=
+                HandleCancelRequested;
 
             toolCoordinator.ModeChanged +=
                 HandleModeChanged;
@@ -100,6 +108,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 toolCoordinator.ModeChanged -=
                     HandleModeChanged;
+            }
+
+            if (uiInputGate != null)
+            {
+                uiInputGate.CancelRequested -=
+                    HandleCancelRequested;
             }
 
             if (wallViewSystem != null)
@@ -223,6 +237,31 @@ namespace BigRetail.Construction.Unity.UI.PC
                 mode);
 
             RefreshDemolitionPicker(mode);
+        }
+
+
+        private void HandleCancelRequested()
+        {
+            ConstructionToolMode currentMode =
+                toolCoordinator.CurrentMode;
+
+            if (!isDemolitionPickerRequested
+                && !IsDemolitionMode(currentMode))
+            {
+                return;
+            }
+
+            isDemolitionPickerRequested = false;
+
+            if (currentMode != ConstructionToolMode.None)
+            {
+                toolCoordinator.SetMode(
+                    ConstructionToolMode.None);
+
+                return;
+            }
+
+            RefreshDemolitionPicker(currentMode);
         }
 
 
@@ -435,6 +474,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "ConstructionToolCoordinator assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (uiInputGate == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "ConstructionUiInputGate assigned.",
                     this);
 
                 isValid = false;

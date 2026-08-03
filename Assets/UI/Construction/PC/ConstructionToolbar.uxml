@@ -108,20 +108,20 @@
                 picking-mode="Position">
 
                 <ui:Button
+                    name="camera-view-west-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the west.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--west"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
                     name="camera-view-north-button"
                     class="camera-rotation-controls__button is-selected"
                     tooltip="View from the north.">
                     <ui:VisualElement
                         class="camera-rotation-controls__icon camera-rotation-controls__icon--north"
-                        picking-mode="Ignore" />
-                </ui:Button>
-
-                <ui:Button
-                    name="camera-view-east-button"
-                    class="camera-rotation-controls__button"
-                    tooltip="View from the east.">
-                    <ui:VisualElement
-                        class="camera-rotation-controls__icon camera-rotation-controls__icon--east"
                         picking-mode="Ignore" />
                 </ui:Button>
 
@@ -135,11 +135,11 @@
                 </ui:Button>
 
                 <ui:Button
-                    name="camera-view-west-button"
+                    name="camera-view-east-button"
                     class="camera-rotation-controls__button"
-                    tooltip="View from the west.">
+                    tooltip="View from the east.">
                     <ui:VisualElement
-                        class="camera-rotation-controls__icon camera-rotation-controls__icon--west"
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--east"
                         picking-mode="Ignore" />
                 </ui:Button>
             </ui:VisualElement>
@@ -178,6 +178,15 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
+        <ui:Button
+            name="departments-button"
+            class="construction-toolbar__button departments-button"
+            tooltip="Departments">
+            <ui:VisualElement
+                class="construction-toolbar__icon construction-toolbar__icon--departments"
+                picking-mode="Ignore" />
+        </ui:Button>
+
         <ui:VisualElement
             name="construction-toolbar"
             class="construction-toolbar"
@@ -186,19 +195,6 @@
             <ui:VisualElement
                 name="construction-tool-group"
                 class="construction-toolbar__group">
-
-                <ui:Button
-                    name="departments-button"
-                    class="construction-toolbar__button"
-                    tooltip="Departments">
-                    <ui:VisualElement
-                        class="construction-toolbar__icon construction-toolbar__icon--departments"
-                        picking-mode="Ignore" />
-                </ui:Button>
-
-                <ui:VisualElement
-                    class="construction-toolbar__separator"
-                    picking-mode="Ignore" />
 
                 <ui:Button
                     name="foundations-button"
