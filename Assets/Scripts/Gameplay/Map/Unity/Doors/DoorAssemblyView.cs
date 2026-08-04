@@ -6,13 +6,18 @@ namespace BigRetail.Map.Unity.Doors
 {
     /// <summary>
     /// Layered presentation for one complete door assembly. The frame remains
-    /// static while the two door transforms are deliberately independent so
-    /// a later interaction pass can slide them without changing the artwork.
+    /// static while the two center panels slide outward over a short,
+    /// presentation-only open or close transition.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class DoorAssemblyView : MonoBehaviour
     {
         public const int RequiredPanelCount = 4;
+
+        private const float OpeningDurationSeconds = 1.5f;
+        private const float ClosingDurationSeconds = 2.25f;
+        private const float MaximumAnimationDeltaTimeSeconds =
+            1f / 30f;
 
         // Door panels share the nearest supporting wall's depth slot. A
         // perpendicular wall closer to the viewer can then occlude the whole
@@ -26,6 +31,15 @@ namespace BigRetail.Map.Unity.Doors
         private SpriteRenderer rightDoorRenderer;
         private SpriteRenderer rightGlassRenderer;
 
+        private Vector3 leftDoorClosedLocalPosition;
+        private Vector3 leftDoorOpenLocalPosition;
+        private Vector3 rightDoorClosedLocalPosition;
+        private Vector3 rightDoorOpenLocalPosition;
+
+        private bool hasPresentation;
+        private float openProgress;
+        private float targetOpenProgress;
+
 
         public DoorAssemblyId AssemblyId { get; private set; }
 
@@ -38,6 +52,17 @@ namespace BigRetail.Map.Unity.Doors
             rightDoorRenderer != null
                 ? rightDoorRenderer.transform
                 : null;
+
+        public float OpenProgress =>
+            openProgress;
+
+        public float TargetOpenProgress =>
+            targetOpenProgress;
+
+        public bool IsAnimating =>
+            !Mathf.Approximately(
+                openProgress,
+                targetOpenProgress);
 
 
         public void Initialize(
@@ -69,6 +94,63 @@ namespace BigRetail.Map.Unity.Doors
 
             gameObject.name =
                 $"Door Assembly {assemblyId}";
+
+            // Idle doors do not need a per-frame callback. Open and Close
+            // re-enable the component only while a transition is active.
+            enabled = false;
+        }
+
+
+        [ContextMenu("Open Door")]
+        public void Open()
+        {
+            SetOpen(
+                true);
+        }
+
+
+        [ContextMenu("Close Door")]
+        public void Close()
+        {
+            SetOpen(
+                false);
+        }
+
+
+        [ContextMenu("Toggle Door")]
+        public void Toggle()
+        {
+            SetOpen(
+                targetOpenProgress < 0.5f);
+        }
+
+
+        public void SetOpen(
+            bool shouldOpen)
+        {
+            targetOpenProgress =
+                shouldOpen
+                    ? 1f
+                    : 0f;
+
+            enabled =
+                hasPresentation
+                && IsAnimating;
+        }
+
+
+        public void SetOpenProgressImmediately(
+            float progress)
+        {
+            openProgress =
+                Mathf.Clamp01(
+                    progress);
+
+            targetOpenProgress =
+                openProgress;
+
+            ApplySlidingDoorPositions();
+            enabled = false;
         }
 
 
@@ -101,6 +183,24 @@ namespace BigRetail.Map.Unity.Doors
             transform.localScale =
                 Vector3.one;
 
+            leftDoorClosedLocalPosition =
+                screenOrderedPanelPositions[1]
+                - worldPosition;
+
+            leftDoorOpenLocalPosition =
+                screenOrderedPanelPositions[0]
+                - worldPosition;
+
+            rightDoorClosedLocalPosition =
+                screenOrderedPanelPositions[2]
+                - worldPosition;
+
+            rightDoorOpenLocalPosition =
+                screenOrderedPanelPositions[3]
+                - worldPosition;
+
+            hasPresentation = true;
+
             ApplyLayer(
                 leftGlassRenderer,
                 sprites.LeftGlass,
@@ -114,7 +214,7 @@ namespace BigRetail.Map.Unity.Doors
             ApplyLayer(
                 leftDoorRenderer,
                 sprites.LeftDoor,
-                screenOrderedPanelPositions[1] - worldPosition,
+                ResolveLeftDoorLocalPosition(),
                 sortingLayerId,
                 sortingOrder,
                 rendererPriority + 1,
@@ -124,7 +224,7 @@ namespace BigRetail.Map.Unity.Doors
             ApplyLayer(
                 rightDoorRenderer,
                 sprites.RightDoor,
-                screenOrderedPanelPositions[2] - worldPosition,
+                ResolveRightDoorLocalPosition(),
                 sortingLayerId,
                 sortingOrder,
                 rendererPriority + 2,
@@ -150,6 +250,87 @@ namespace BigRetail.Map.Unity.Doors
                 rendererPriority + 4,
                 sharedMaterial,
                 tint);
+
+            enabled =
+                IsAnimating;
+        }
+
+
+        private void Update()
+        {
+            if (!hasPresentation
+                || !IsAnimating)
+            {
+                enabled = false;
+                return;
+            }
+
+            openProgress =
+                Mathf.MoveTowards(
+                    openProgress,
+                    targetOpenProgress,
+                    Mathf.Min(
+                        Time.deltaTime,
+                        MaximumAnimationDeltaTimeSeconds)
+                    / ResolveTransitionDuration());
+
+            ApplySlidingDoorPositions();
+
+            if (!IsAnimating)
+            {
+                enabled = false;
+            }
+        }
+
+
+        private void ApplySlidingDoorPositions()
+        {
+            if (!hasPresentation)
+            {
+                return;
+            }
+
+            leftDoorRenderer.transform.localPosition =
+                ResolveLeftDoorLocalPosition();
+
+            rightDoorRenderer.transform.localPosition =
+                ResolveRightDoorLocalPosition();
+        }
+
+
+        private Vector3 ResolveLeftDoorLocalPosition()
+        {
+            return Vector3.Lerp(
+                leftDoorClosedLocalPosition,
+                leftDoorOpenLocalPosition,
+                ResolveEasedOpenProgress());
+        }
+
+
+        private Vector3 ResolveRightDoorLocalPosition()
+        {
+            return Vector3.Lerp(
+                rightDoorClosedLocalPosition,
+                rightDoorOpenLocalPosition,
+                ResolveEasedOpenProgress());
+        }
+
+
+        private float ResolveTransitionDuration()
+        {
+            return targetOpenProgress
+                    > openProgress
+                ? OpeningDurationSeconds
+                : ClosingDurationSeconds;
+        }
+
+
+        private float ResolveEasedOpenProgress()
+        {
+            return Mathf.SmoothStep(
+                0f,
+                1f,
+                openProgress);
         }
 
 
