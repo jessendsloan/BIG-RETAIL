@@ -8,6 +8,7 @@ using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using BigRetail.Map.Walls;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace BigRetail.Construction.Unity.Doors
 {
@@ -19,6 +20,8 @@ namespace BigRetail.Construction.Unity.Doors
     [DisallowMultipleComponent]
     public sealed class DoorRunPreviewView : MonoBehaviour
     {
+        private const int PreviewAssemblySortingOrderOffset = 1;
+
         private static readonly DoorAssemblyId PreviewAssemblyId =
             new DoorAssemblyId("door-placement-preview");
 
@@ -72,6 +75,7 @@ namespace BigRetail.Construction.Unity.Doors
             new List<WallRunPreviewSegmentView>();
 
         private DoorAssemblyView assemblyPreview;
+        private SortingGroup assemblyPreviewSortingGroup;
 
 
         public bool IsVisible { get; private set; }
@@ -338,14 +342,25 @@ namespace BigRetail.Construction.Unity.Doors
                 panelWorldPositions,
                 ComparePanelWorldPositions);
 
+            int assemblySortingOrder =
+                sortingOrder
+                + DoorAssemblyView
+                    .SortingOrderOffsetFromSupportingWall;
+
+            // Keep the layered door preview together when it competes with
+            // the translucent wall panels. Its children still use their
+            // individual renderer priorities inside this preview-only group.
+            assemblyPreviewSortingGroup.sortingLayerID = 0;
+            assemblyPreviewSortingGroup.sortingOrder =
+                assemblySortingOrder
+                + PreviewAssemblySortingOrderOffset;
+
             assemblyPreview.ApplyPresentation(
                 sprites,
                 panelWorldPositions,
                 worldPosition / plan.SegmentCount,
                 sortingLayerId: 0,
-                sortingOrder: sortingOrder
-                    + DoorAssemblyView
-                        .SortingOrderOffsetFromSupportingWall,
+                sortingOrder: assemblySortingOrder,
                 rendererPriority: rendererPriority + 1,
                 sharedMaterial: null,
                 tint: IsPlanValid
@@ -382,6 +397,9 @@ namespace BigRetail.Construction.Unity.Doors
             previewObject.transform.SetParent(
                 panelParent,
                 false);
+
+            assemblyPreviewSortingGroup =
+                previewObject.AddComponent<SortingGroup>();
 
             assemblyPreview =
                 previewObject.AddComponent<DoorAssemblyView>();
