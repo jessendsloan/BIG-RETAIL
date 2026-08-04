@@ -202,7 +202,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8083632074012694180e098a59e44635, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionToolbarDocumentHost
   panelRenderer: {fileID: 87599326}
 --- !u!1931382934 &87599326
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7210aaa308e9044448cffc87dd18c542, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionToolbarPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
@@ -289,7 +289,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46e80f82a2953bf45a21edb4de4cf9e1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.WallFinishPickerPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
@@ -298581,6 +298581,7 @@ Transform:
   m_Children:
   - {fileID: 1588797418}
   - {fileID: 542041196}
+  - {fileID: 2112000001}
   - {fileID: 2048649449}
   m_Father: {fileID: 1161128890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -299121,6 +299122,7 @@ MonoBehaviour:
   vertexParent: {fileID: 0}
   removableColor: {r: 1, g: 0.5, b: 0.08, a: 0.95}
   alreadyEmptyColor: {r: 0.55, g: 0.55, b: 0.55, a: 0.65}
+  protectedByDoorColor: {r: 1, g: 0.2, b: 0.2, a: 0.95}
   worldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &1431275728
 Transform:
@@ -299185,6 +299187,7 @@ MonoBehaviour:
   foundationDemolitionTool: {fileID: 1197160369}
   wallConstructionTool: {fileID: 1588797417}
   wallDemolitionTool: {fileID: 542041195}
+  doorConstructionTool: {fileID: 2112000002}
   floorConstructionTool: {fileID: 1747614301}
   floorDemolitionTool: {fileID: 2110000102}
   startingMode: 1
@@ -392042,6 +392045,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.GridMapHost
   mapAuthoring: {fileID: 1863031835}
   wallFinishAssets: {fileID: 11400000, guid: 4c45a1780b6138c4fa94569590cebe5c, type: 2}
+  doorDefinitionAssets: {fileID: 11400000, guid: 396e59cca10e470898db1d160ccf5ab2, type: 2}
   foundationRuntimeHost: {fileID: 447959067}
   logInitializationSummary: 1
 --- !u!114 &1863031835
@@ -392353,6 +392357,7 @@ Transform:
   - {fileID: 199414980}
   - {fileID: 1858901738}
   - {fileID: 1431275728}
+  - {fileID: 2112000011}
   m_Father: {fileID: 1111047126}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2082405062
@@ -392700,6 +392705,134 @@ MonoBehaviour:
   foundationRuntimeHost: {fileID: 447959067}
   floorRuntimeHost: {fileID: 336439091}
   definitionAssets: {fileID: 11400000, guid: 7328d542737990343a15e549bdea3389, type: 2}
+--- !u!1 &2112000000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2112000001}
+  - component: {fileID: 2112000002}
+  - component: {fileID: 2112000003}
+  m_Layer: 0
+  m_Name: DoorConstructionTool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2112000001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1111047126}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2112000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85f335a1f4d546b5acd466d2e69ad592, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorConstructionToolController
+  playerInput: {fileID: 933909789}
+  constructionActionMapName: Construction
+  confirmActionName: Confirm
+  cancelActionName: Cancel
+  targetResolver: {fileID: 2082405065}
+  wallTargetResolver: {fileID: 2082405063}
+  runPreviewView: {fileID: 2112000012}
+  mapHost: {fileID: 1863031834}
+  historyHost: {fileID: 746913718}
+  definitionSelection: {fileID: 2112000003}
+  startActive: 0
+  logPlacementResults: 1
+--- !u!114 &2112000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acbaf8af78544b668ceea465382bb122, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorDefinitionSelectionHost
+  mapHost: {fileID: 1863031834}
+  startingDefinition: {fileID: 11400000, guid: 35d30cd7ad89474480fabc487ab81afb, type: 2}
+  logSelectionChanges: 1
+--- !u!1 &2112000010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2112000011}
+  - component: {fileID: 2112000012}
+  m_Layer: 0
+  m_Name: DoorRunPreview
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2112000011
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2048649449}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2112000012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d88dd68b88bd4f7c906b892432445142, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorRunPreviewView
+  mapHost: {fileID: 1863031834}
+  targetResolver: {fileID: 2082405065}
+  definitionSelection: {fileID: 2112000003}
+  vertexPrefab: {fileID: 2852154828798584248, guid: 36b97ac5065c3464686a41442f48f133, type: 3}
+  vertexParent: {fileID: 0}
+  panelPrefab: {fileID: 780474292405220875, guid: 3cbbd7263bfc42c47a7f6470b78debbe, type: 3}
+  panelParent: {fileID: 0}
+  validColor: {r: 0.55, g: 0.9, b: 1, a: 0.8}
+  invalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.85}
+  placeholderPanelColor: {r: 0.58, g: 0.82, b: 0.92, a: 0.72}
+  pylonWorldPositionOffset: {x: 0, y: 0, z: 0}
+  panelWorldPositionOffset: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

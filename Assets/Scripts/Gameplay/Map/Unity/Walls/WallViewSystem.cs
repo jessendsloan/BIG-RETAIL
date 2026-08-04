@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Foundations;
+using BigRetail.Map.Unity.Doors;
 using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
@@ -73,10 +74,16 @@ namespace BigRetail.Map.Unity.Walls
             wallViews =
                 new Dictionary<CellEdge, WallSegmentView>();
 
+        private readonly Dictionary<DoorAssemblyId, DoorAssemblyView>
+            doorAssemblyViews =
+                new Dictionary<DoorAssemblyId, DoorAssemblyView>();
+
         private WallState subscribedWallState;
         private WallFinishService subscribedFinishService;
+        private DoorAssemblyState subscribedDoorAssemblyState;
         private FoundationState subscribedFoundationState;
         private WallFinishPresentationResolver finishResolver;
+        private DoorPresentationResolver doorResolver;
         private FoundationCutawayMap foundationCutawayMap;
 
 
@@ -142,7 +149,9 @@ namespace BigRetail.Map.Unity.Walls
                 AttachToRuntimeModel(
                     mapHost.WallState,
                     mapHost.WallFinishes,
-                    mapHost.WallFinishAssets);
+                    mapHost.WallFinishAssets,
+                    mapHost.DoorAssemblies,
+                    mapHost.DoorDefinitionAssets);
             }
 
             if (foundationRuntimeHost != null
@@ -226,7 +235,9 @@ namespace BigRetail.Map.Unity.Walls
             AttachToRuntimeModel(
                 initializedHost.WallState,
                 initializedHost.WallFinishes,
-                initializedHost.WallFinishAssets);
+                initializedHost.WallFinishAssets,
+                initializedHost.DoorAssemblies,
+                initializedHost.DoorDefinitionAssets);
         }
 
 
@@ -241,7 +252,9 @@ namespace BigRetail.Map.Unity.Walls
         private void AttachToRuntimeModel(
             WallState wallState,
             WallFinishService finishService,
-            WallFinishAssetCatalog finishAssets)
+            WallFinishAssetCatalog finishAssets,
+            DoorAssemblyState doorAssemblyState,
+            DoorDefinitionAssetCatalog doorAssets)
         {
             if (wallState == null)
             {
@@ -267,8 +280,19 @@ namespace BigRetail.Map.Unity.Walls
                 return;
             }
 
+            if (doorAssemblyState == null
+                || doorAssets == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem received incomplete door presentation "
+                    + "services.",
+                    this);
+                return;
+            }
+
             if (subscribedWallState == wallState
-                && subscribedFinishService == finishService)
+                && subscribedFinishService == finishService
+                && subscribedDoorAssemblyState == doorAssemblyState)
             {
                 RebuildAllViews();
                 return;
@@ -287,6 +311,14 @@ namespace BigRetail.Map.Unity.Walls
                     subscribedFinishService,
                     finishAssets);
 
+            subscribedDoorAssemblyState =
+                doorAssemblyState;
+
+            doorResolver =
+                new DoorPresentationResolver(
+                    subscribedDoorAssemblyState,
+                    doorAssets);
+
             subscribedWallState.WallAdded +=
                 HandleWallAdded;
 
@@ -295,6 +327,12 @@ namespace BigRetail.Map.Unity.Walls
 
             subscribedFinishService.EffectiveFinishChanged +=
                 HandleEffectiveFinishChanged;
+
+            subscribedDoorAssemblyState.AssemblyAdded +=
+                HandleDoorAssemblyChanged;
+
+            subscribedDoorAssemblyState.AssemblyRemoved +=
+                HandleDoorAssemblyChanged;
 
             RebuildAllViews();
         }
@@ -317,13 +355,28 @@ namespace BigRetail.Map.Unity.Walls
                     HandleEffectiveFinishChanged;
             }
 
+            if (subscribedDoorAssemblyState != null)
+            {
+                subscribedDoorAssemblyState.AssemblyAdded -=
+                    HandleDoorAssemblyChanged;
+
+                subscribedDoorAssemblyState.AssemblyRemoved -=
+                    HandleDoorAssemblyChanged;
+            }
+
             subscribedWallState =
                 null;
 
             subscribedFinishService =
                 null;
 
+            subscribedDoorAssemblyState =
+                null;
+
             finishResolver =
+                null;
+
+            doorResolver =
                 null;
         }
 
@@ -418,12 +471,39 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void HandleDoorAssemblyChanged(
+            DoorAssembly assembly)
+        {
+            for (int index = 0;
+                 index < assembly.SegmentCount;
+                 index++)
+            {
+                CellEdge edge =
+                    assembly.GetEdge(index);
+
+                if (wallViews.TryGetValue(
+                        edge,
+                        out WallSegmentView view)
+                    && view != null)
+                {
+                    ApplyWallPresentation(
+                        edge,
+                        view);
+                }
+            }
+
+            SynchronizeDoorAssemblyView(
+                assembly);
+        }
+
+
         private void RebuildAllViews()
         {
             ClearAllViews();
 
             if (subscribedWallState == null
-                || finishResolver == null)
+                || finishResolver == null
+                || doorResolver == null)
             {
                 return;
             }
@@ -436,6 +516,8 @@ namespace BigRetail.Map.Unity.Walls
             {
                 CreateWallView(wall);
             }
+
+            RefreshAllDoorAssemblyPresentations();
         }
 
 
@@ -443,7 +525,8 @@ namespace BigRetail.Map.Unity.Walls
             CellEdge edge)
         {
             if (edge.FirstCell.Level != logicalLevel
-                || finishResolver == null)
+                || finishResolver == null
+                || doorResolver == null)
             {
                 return;
             }
@@ -467,6 +550,7 @@ namespace BigRetail.Map.Unity.Walls
                     unityCellZ,
                     viewHost.Projection,
                     finishResolver,
+                    doorResolver,
                     ResolveWallHeight(edge));
 
                 wallViews.Add(
@@ -511,18 +595,7 @@ namespace BigRetail.Map.Unity.Walls
             IsometricViewOrientation currentOrientation)
         {
             RebuildFoundationCutawayMap();
-
-            foreach (
-                WallSegmentView view
-                in wallViews.Values)
-            {
-                if (view != null)
-                {
-                    ApplyWallPresentation(
-                        view.Edge,
-                        view);
-                }
-            }
+            RefreshAllWallPresentations();
         }
 
 
@@ -549,6 +622,203 @@ namespace BigRetail.Map.Unity.Walls
                         entry.Key,
                         entry.Value);
                 }
+            }
+
+            RefreshAllDoorAssemblyPresentations();
+        }
+
+
+        private void RefreshAllDoorAssemblyPresentations()
+        {
+            if (subscribedDoorAssemblyState == null
+                || doorResolver == null)
+            {
+                return;
+            }
+
+            foreach (
+                DoorAssembly assembly
+                in subscribedDoorAssemblyState.EnumerateAssemblies())
+            {
+                SynchronizeDoorAssemblyView(
+                    assembly);
+            }
+        }
+
+
+        private void SynchronizeDoorAssemblyView(
+            DoorAssembly changedAssembly)
+        {
+            if (subscribedDoorAssemblyState == null
+                || doorResolver == null
+                || !subscribedDoorAssemblyState.TryGetAssembly(
+                    changedAssembly.Id,
+                    out DoorAssembly assembly)
+                || assembly.SegmentCount
+                    != DoorAssemblyView.RequiredPanelCount)
+            {
+                RemoveDoorAssemblyView(
+                    changedAssembly.Id);
+                return;
+            }
+
+            WallDisplaySlope displaySlope =
+                default;
+
+            Vector3 worldPosition =
+                Vector3.zero;
+
+            Vector3[] panelWorldPositions =
+                new Vector3[DoorAssemblyView.RequiredPanelCount];
+
+            int sortingLayerId =
+                0;
+
+            int sortingOrder =
+                int.MinValue;
+
+            int rendererPriority =
+                int.MinValue;
+
+            Material sharedMaterial =
+                null;
+
+            for (int index = 0;
+                 index < assembly.SegmentCount;
+                 index++)
+            {
+                if (!wallViews.TryGetValue(
+                        assembly.GetEdge(index),
+                        out WallSegmentView wallView)
+                    || wallView == null
+                    || wallView.CurrentHeight
+                        != WallPresentationHeight.Full)
+                {
+                    RemoveDoorAssemblyView(
+                        assembly.Id);
+                    return;
+                }
+
+                if (index == 0)
+                {
+                    displaySlope =
+                        wallView.CurrentDisplaySlope;
+
+                    sortingLayerId =
+                        wallView.SortingLayerId;
+
+                    sharedMaterial =
+                        wallView.SharedMaterial;
+                }
+                else if (wallView.CurrentDisplaySlope
+                         != displaySlope)
+                {
+                    RemoveDoorAssemblyView(
+                        assembly.Id);
+                    return;
+                }
+
+                worldPosition +=
+                    wallView.transform.position;
+
+                panelWorldPositions[index] =
+                    wallView.transform.position;
+
+                sortingOrder =
+                    Math.Max(
+                        sortingOrder,
+                        wallView.SortingOrder);
+
+                rendererPriority =
+                    Math.Max(
+                        rendererPriority,
+                        wallView.RendererPriority);
+            }
+
+            if (!doorResolver.TryResolveSprites(
+                    assembly,
+                    displaySlope,
+                    out DoorAssemblySprites sprites))
+            {
+                RemoveDoorAssemblyView(
+                    assembly.Id);
+                return;
+            }
+
+            worldPosition /=
+                assembly.SegmentCount;
+
+            Array.Sort(
+                panelWorldPositions,
+                ComparePanelWorldPositions);
+
+            if (!doorAssemblyViews.TryGetValue(
+                    assembly.Id,
+                    out DoorAssemblyView doorView)
+                || doorView == null)
+            {
+                GameObject viewObject =
+                    new GameObject();
+
+                viewObject.transform.SetParent(
+                    wallViewParent,
+                    false);
+
+                doorView =
+                    viewObject.AddComponent<DoorAssemblyView>();
+
+                doorView.Initialize(
+                    assembly.Id);
+
+                doorAssemblyViews[assembly.Id] =
+                    doorView;
+            }
+
+            doorView.ApplyPresentation(
+                sprites,
+                panelWorldPositions,
+                worldPosition,
+                sortingLayerId,
+                sortingOrder
+                    + DoorAssemblyView
+                        .SortingOrderOffsetFromSupportingWall,
+                rendererPriority + 1,
+                sharedMaterial,
+                Color.white);
+        }
+
+
+        private static int ComparePanelWorldPositions(
+            Vector3 left,
+            Vector3 right)
+        {
+            int comparison =
+                left.x.CompareTo(
+                    right.x);
+
+            return comparison != 0
+                ? comparison
+                : right.y.CompareTo(
+                    left.y);
+        }
+
+
+        private void RemoveDoorAssemblyView(
+            DoorAssemblyId assemblyId)
+        {
+            if (!doorAssemblyViews.TryGetValue(
+                    assemblyId,
+                    out DoorAssemblyView view))
+            {
+                return;
+            }
+
+            doorAssemblyViews.Remove(
+                assemblyId);
+
+            if (view != null)
+            {
+                Destroy(view.gameObject);
             }
         }
 
@@ -601,6 +871,18 @@ namespace BigRetail.Map.Unity.Walls
 
         private void ClearAllViews()
         {
+            foreach (
+                DoorAssemblyView view
+                in doorAssemblyViews.Values)
+            {
+                if (view != null)
+                {
+                    Destroy(view.gameObject);
+                }
+            }
+
+            doorAssemblyViews.Clear();
+
             foreach (
                 WallSegmentView view
                 in wallViews.Values)

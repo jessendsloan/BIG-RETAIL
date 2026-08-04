@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba65ec1c17d44009a07d3071a4e89bbc, type: 3}
+  m_Name: AutomaticFrontDoor
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Doors.DoorDefinitionAsset
+  definitionId: automatic-front-door
+  displayName: Automatic Front Door
+  segmentCount: 4
+  passageSegmentIndices:
+  - 1
+  - 2
+  catalogIcon: {fileID: -7091060295620839411, guid: 3e4cfec9d24ca1b47aa51395ac06cb57, type: 3}
+  assemblyVisuals:
+    risingLeftFrame: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a101, type: 3}
+    risingLeftLeftGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a107, type: 3}
+    risingLeftLeftDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a102, type: 3}
+    risingLeftRightDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a103, type: 3}
+    risingLeftRightGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a108, type: 3}
+    risingRightFrame: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a104, type: 3}
+    risingRightLeftGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a109, type: 3}
+    risingRightLeftDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a105, type: 3}
+    risingRightRightDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a106, type: 3}
+    risingRightRightGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a10a, type: 3}
+  apertureBottomNormalized: 0
+  apertureHeightNormalized: 0.82

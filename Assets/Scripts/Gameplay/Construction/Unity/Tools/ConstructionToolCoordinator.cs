@@ -1,4 +1,5 @@
 using System;
+using BigRetail.Construction.Unity.Doors;
 using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Foundations;
 using BigRetail.Construction.Unity.Walls;
@@ -35,6 +36,13 @@ namespace BigRetail.Construction.Unity.Tools
         [SerializeField]
         private WallDemolitionToolController
             wallDemolitionTool;
+
+
+        [Header("Door Tools")]
+
+        [SerializeField]
+        private DoorConstructionToolController
+            doorConstructionTool;
 
 
         [Header("Floor Tools")]
@@ -100,6 +108,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 wallDemolitionTool.ToolActiveChanged +=
                     HandleWallDemolitionActivityChanged;
+            }
+
+            if (doorConstructionTool != null)
+            {
+                doorConstructionTool.ToolActiveChanged +=
+                    HandleDoorConstructionActivityChanged;
             }
 
             if (floorConstructionTool != null)
@@ -168,6 +182,11 @@ namespace BigRetail.Construction.Unity.Tools
                         .CancelCurrentGesture();
                     break;
 
+                case ConstructionToolMode.BuildDoors:
+                    doorConstructionTool
+                        .ClearPlacementPreview();
+                    break;
+
                 case ConstructionToolMode.BuildFloors:
                     floorConstructionTool
                         .CancelCurrentGesture();
@@ -220,6 +239,17 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 SetMode(
                     ConstructionToolMode.DemolishWalls);
+            }
+        }
+
+
+        [ContextMenu("Activate Door Construction")]
+        public void ActivateDoorConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildDoors);
             }
         }
 
@@ -294,6 +324,10 @@ namespace BigRetail.Construction.Unity.Tools
                 SetWallDemolitionActive(
                     mode
                     == ConstructionToolMode.DemolishWalls);
+
+                SetDoorConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildDoors);
 
                 SetFloorConstructionActive(
                     mode
@@ -375,6 +409,20 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 wallDemolitionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetDoorConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                doorConstructionTool.ActivateTool();
+            }
+            else
+            {
+                doorConstructionTool.DeactivateTool();
             }
         }
 
@@ -518,6 +566,33 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleDoorConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildDoors,
+                    forceRefresh: false);
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildDoors)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private void HandleFloorConstructionActivityChanged(
             bool isActive)
         {
@@ -618,6 +693,16 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (doorConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no "
+                    + "DoorConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             if (floorConstructionTool == null)
             {
                 Debug.LogError(
@@ -682,6 +767,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 wallDemolitionTool.ToolActiveChanged -=
                     HandleWallDemolitionActivityChanged;
+            }
+
+            if (doorConstructionTool != null)
+            {
+                doorConstructionTool.ToolActiveChanged -=
+                    HandleDoorConstructionActivityChanged;
             }
 
             if (floorConstructionTool != null)

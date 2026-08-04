@@ -129,6 +129,37 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void BuildDoors_MapsToDoorsToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildDoors")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Doors"));
+        }
+
+
+        [Test]
         public void FoundationSection_SelectsOnlyFoundationButton()
         {
             Type viewType =
@@ -178,6 +209,11 @@ namespace BigRetail.Map.Unity.Tests
 
                 Assert.That(
                     root.Q<Button>("floors-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                Assert.That(
+                    root.Q<Button>("doors-button")
                         .ClassListContains("is-selected"),
                     Is.False);
 
@@ -381,6 +417,7 @@ namespace BigRetail.Map.Unity.Tests
 
             root.Add(CreateButton("departments-button"));
             root.Add(CreateButton("walls-button"));
+            root.Add(CreateButton("doors-button"));
             root.Add(CreateButton("foundations-button"));
             root.Add(CreateButton("floors-button"));
             root.Add(CreateButton("demolition-button"));

@@ -162,6 +162,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildFloors;
                     break;
 
+                case ConstructionToolbarSection.Doors:
+                    requestedMode =
+                        ConstructionToolMode.BuildDoors;
+                    break;
+
                 default:
                     return;
             }

@@ -450,6 +450,10 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }
 
+.construction-toolbar__icon--doors {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
+}
+
 .construction-toolbar__icon--foundations {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
 }

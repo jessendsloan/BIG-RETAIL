@@ -224,6 +224,15 @@
                 </ui:Button>
 
                 <ui:Button
+                    name="doors-button"
+                    class="construction-toolbar__button"
+                    tooltip="Doors">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--doors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
                     name="demolition-button"
                     class="construction-toolbar__button"
                     tooltip="Demolition">

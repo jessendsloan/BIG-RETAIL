@@ -292,6 +292,32 @@ namespace BigRetail.Construction.Unity.Walls
                 return false;
             }
 
+            for (int index = 0;
+                 index < CurrentRunPlan.SegmentCount;
+                 index++)
+            {
+                CellEdge edge =
+                    CurrentRunPlan.Edges[index];
+
+                if (mapHost.DoorAssemblies != null
+                    && mapHost.DoorAssemblies.TryGetAssemblyAtEdge(
+                        edge,
+                        out DoorAssembly assembly))
+                {
+                    LogWarning(
+                        $"Wall demolition is blocked by door "
+                        + $"'{assembly.Id}'. Undo or remove the door before "
+                        + "demolishing its supporting wall.");
+
+                    if (!runStartedWithGamepad)
+                    {
+                        FinishRun();
+                    }
+
+                    return false;
+                }
+            }
+
             WallClearResult result =
                 mapHost.WallConstruction
                     .TryClearWalls(CurrentRunPlan.Edges);
