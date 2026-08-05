@@ -249,12 +249,15 @@ namespace BigRetail.Map.Unity.Walls
                     worldPose.DisplaySlope,
                     presentationHeight);
 
-            spriteRenderer.color =
+            bool usesDoorPlaceholder =
                 IsDoorPanel
                 && presentationHeight == WallPresentationHeight.Full
-                && !usesLayeredDoorArt
+                && !usesLayeredDoorArt;
+
+            spriteRenderer.color =
+                usesDoorPlaceholder
                     ? doorPlaceholderColor
-                    : Color.white;
+                    : WallWorldOrientationShading.Resolve(Edge);
 
             transform.SetPositionAndRotation(
                 worldPose.Position
