@@ -166,6 +166,7 @@ GameObject:
   - component: {fileID: 87599327}
   - component: {fileID: 87599328}
   - component: {fileID: 87599329}
+  - component: {fileID: 87599334}
   - component: {fileID: 87599330}
   - component: {fileID: 87599331}
   - component: {fileID: 87599333}
@@ -309,6 +310,21 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   finishSelectionHost: {fileID: 456371216}
+--- !u!114 &87599334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6666b69171e54c4fbaf49cec2bceb835, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.DoorDefinitionPickerPresenter
+  documentHost: {fileID: 87599325}
+  toolCoordinator: {fileID: 1508060588}
+  definitionSelectionHost: {fileID: 2112000003}
 --- !u!114 &87599330
 MonoBehaviour:
   m_ObjectHideFlags: 0

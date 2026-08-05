@@ -18,7 +18,7 @@ MonoBehaviour:
   passageSegmentIndices:
   - 1
   - 2
-  catalogIcon: {fileID: -7091060295620839411, guid: 3e4cfec9d24ca1b47aa51395ac06cb57, type: 3}
+  catalogIcon: {fileID: 21300000, guid: 22fa98d9d0094e5fbc2e6c30d38ba390, type: 3}
   assemblyVisuals:
     risingLeftFrame: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a101, type: 3}
     risingLeftLeftGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a107, type: 3}

@@ -29,6 +29,14 @@ namespace BigRetail.Map.Unity.Tests
             "BigRetail.Construction.Unity.UI.PC." +
             "ConstructionToolbarDocumentHost, Assembly-CSharp";
 
+        private const string DoorDefinitionPickerViewTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "DoorDefinitionPickerView, Assembly-CSharp";
+
+        private const string DoorDefinitionPickerItemTypeName =
+            "BigRetail.Construction.Unity.UI.PC." +
+            "DoorDefinitionPickerItem, Assembly-CSharp";
+
 
         [Test]
         public void BuildFoundations_MapsToFoundationToolbarSection()
@@ -160,6 +168,105 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void DoorDefinitionPicker_BuildsAndSelectsCatalogButton()
+        {
+            Type viewType =
+                RequireType(DoorDefinitionPickerViewTypeName);
+
+            Type itemType =
+                RequireType(DoorDefinitionPickerItemTypeName);
+
+            VisualElement root =
+                new VisualElement();
+
+            VisualElement panel =
+                new VisualElement
+                {
+                    name = "door-definition-picker"
+                };
+
+            VisualElement itemsContainer =
+                new VisualElement
+                {
+                    name = "door-definition-picker-items"
+                };
+
+            panel.Add(
+                itemsContainer);
+            root.Add(
+                panel);
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                object item =
+                    Activator.CreateInstance(
+                        itemType,
+                        "AUTOMATIC-FRONT-DOOR",
+                        "Automatic Front Door",
+                        null);
+
+                Array items =
+                    Array.CreateInstance(
+                        itemType,
+                        1);
+
+                items.SetValue(
+                    item,
+                    0);
+
+                viewType.GetMethod(
+                        "SetItems",
+                        BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(
+                        view,
+                        new object[] { items });
+
+                Button button =
+                    root.Q<Button>(
+                        "door-definition-AUTOMATIC-FRONT-DOOR-button");
+
+                Assert.That(
+                    button,
+                    Is.Not.Null);
+                Assert.That(
+                    button.tooltip,
+                    Is.EqualTo("Automatic Front Door"));
+
+                viewType.GetMethod(
+                        "SetSelectedDefinition",
+                        BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(
+                        view,
+                        new object[] { "AUTOMATIC-FRONT-DOOR" });
+
+                Assert.That(
+                    button.ClassListContains("is-selected"),
+                    Is.True);
+
+                viewType.GetMethod(
+                        "SetVisible",
+                        BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(
+                        view,
+                        new object[] { false });
+
+                Assert.That(
+                    panel.style.display.value,
+                    Is.EqualTo(DisplayStyle.None));
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
         public void FoundationSection_SelectsOnlyFoundationButton()
         {
             Type viewType =
@@ -219,6 +326,35 @@ namespace BigRetail.Map.Unity.Tests
 
                 Assert.That(
                     root.Q<Button>("demolition-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                Assert.That(
+                    root.Q<VisualElement>("foundation-picker")
+                        .style.display.value,
+                    Is.EqualTo(DisplayStyle.Flex));
+
+                Assert.That(
+                    root.Q<Button>("foundation-default-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                setSelectedSection.Invoke(
+                    view,
+                    new[]
+                    {
+                        Enum.Parse(
+                            sectionType,
+                            "Walls")
+                    });
+
+                Assert.That(
+                    root.Q<VisualElement>("foundation-picker")
+                        .style.display.value,
+                    Is.EqualTo(DisplayStyle.None));
+
+                Assert.That(
+                    root.Q<Button>("foundation-default-button")
                         .ClassListContains("is-selected"),
                     Is.False);
             }
@@ -416,6 +552,14 @@ namespace BigRetail.Map.Unity.Tests
                 new VisualElement();
 
             root.Add(CreateButton("departments-button"));
+            VisualElement foundationPicker =
+                new VisualElement
+                {
+                    name = "foundation-picker"
+                };
+            foundationPicker.Add(
+                CreateButton("foundation-default-button"));
+            root.Add(foundationPicker);
             root.Add(CreateButton("walls-button"));
             root.Add(CreateButton("doors-button"));
             root.Add(CreateButton("foundations-button"));

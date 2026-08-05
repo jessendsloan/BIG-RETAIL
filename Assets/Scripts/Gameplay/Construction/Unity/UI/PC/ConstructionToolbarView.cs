@@ -13,6 +13,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string WallsButtonName = "walls-button";
         public const string DoorsButtonName = "doors-button";
         public const string FoundationsButtonName = "foundations-button";
+        public const string FoundationPickerName = "foundation-picker";
+        public const string FoundationDefaultButtonName =
+            "foundation-default-button";
         public const string FloorsButtonName = "floors-button";
         public const string DemolitionButtonName = "demolition-button";
         public const string DemolishFoundationsButtonName =
@@ -44,6 +47,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button doorsButton;
         private readonly Button departmentsButton;
         private readonly Button foundationsButton;
+        private readonly VisualElement foundationPicker;
+        private readonly Button foundationDefaultButton;
         private readonly Button floorsButton;
         private readonly Button demolitionButton;
         private readonly Button demolishFoundationsButton;
@@ -75,6 +80,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, DepartmentPickerView.DepartmentsButtonName);
             foundationsButton =
                 RequireButton(root, FoundationsButtonName);
+            foundationPicker =
+                RequireElement(root, FoundationPickerName);
+            foundationDefaultButton =
+                RequireButton(root, FoundationDefaultButtonName);
             floorsButton = RequireButton(root, FloorsButtonName);
             demolitionButton = RequireButton(root, DemolitionButtonName);
             demolishFoundationsButton =
@@ -105,6 +114,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             doorsButton.clicked += HandleDoorsRequested;
             departmentsButton.clicked += HandleDepartmentsRequested;
             foundationsButton.clicked +=
+                HandleFoundationsRequested;
+            foundationDefaultButton.clicked +=
                 HandleFoundationsRequested;
             floorsButton.clicked += HandleFloorsRequested;
             demolitionButton.clicked += HandleDemolitionPickerRequested;
@@ -137,11 +148,21 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public void SetSelectedSection(ConstructionToolbarSection section)
         {
+            bool isFoundationSelected =
+                section == ConstructionToolbarSection.Foundations;
+
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
             SetSelected(doorsButton, section == ConstructionToolbarSection.Doors);
             SetSelected(
                 foundationsButton,
-                section == ConstructionToolbarSection.Foundations);
+                isFoundationSelected);
+            SetSelected(
+                foundationDefaultButton,
+                isFoundationSelected);
+            foundationPicker.style.display =
+                isFoundationSelected
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
             SetSelected(floorsButton, section == ConstructionToolbarSection.Floors);
             SetSelected(demolitionButton, section == ConstructionToolbarSection.Demolition);
         }
@@ -245,6 +266,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             doorsButton.clicked -= HandleDoorsRequested;
             departmentsButton.clicked -= HandleDepartmentsRequested;
             foundationsButton.clicked -=
+                HandleFoundationsRequested;
+            foundationDefaultButton.clicked -=
                 HandleFoundationsRequested;
             floorsButton.clicked -= HandleFloorsRequested;
             demolitionButton.clicked -= HandleDemolitionPickerRequested;

@@ -23,6 +23,31 @@
         </ui:VisualElement>
 
         <ui:VisualElement
+            name="foundation-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Foundations"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="finish-picker__items"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="foundation-default-button"
+                    class="finish-picker__button"
+                    tooltip="Foundation">
+                    <ui:VisualElement
+                        class="finish-picker__icon foundation-picker__icon--default"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="wall-finish-picker"
             class="finish-picker"
             picking-mode="Position">
@@ -50,6 +75,22 @@
 
             <ui:VisualElement
                 name="floor-finish-picker-items"
+                class="finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="door-definition-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Doors"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="door-definition-picker-items"
                 class="finish-picker__items"
                 picking-mode="Position" />
         </ui:VisualElement>

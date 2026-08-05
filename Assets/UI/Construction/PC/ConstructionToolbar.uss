@@ -105,18 +105,26 @@
     white-space: normal;
 }
 
-#floor-finish-picker {
+#foundation-picker {
     top: 100px;
 }
 
-#wall-finish-picker {
+#floor-finish-picker {
     top: 172px;
+}
+
+#wall-finish-picker {
+    top: 244px;
+}
+
+#door-definition-picker {
+    top: 316px;
 }
 
 .demolition-picker {
     display: none;
     position: absolute;
-    top: 244px;
+    top: 388px;
     left: 104px;
     flex-direction: column;
     align-items: center;
@@ -450,8 +458,12 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }
 
+.foundation-picker__icon--default {
+    background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation.png");
+}
+
 .construction-toolbar__icon--doors {
-    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Doors.png");
 }
 
 .construction-toolbar__icon--foundations {
