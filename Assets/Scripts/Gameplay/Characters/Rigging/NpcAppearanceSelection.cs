@@ -11,6 +11,9 @@ namespace BigRetail.Characters.Rigging
     public sealed class NpcAppearanceSelection
     {
         [SerializeField]
+        private NpcPersonGender gender;
+
+        [SerializeField]
         private NpcBodySilhouette bodySilhouette;
 
         [SerializeField]
@@ -24,6 +27,8 @@ namespace BigRetail.Characters.Rigging
 
 
         public NpcBodySilhouette BodySilhouette => bodySilhouette;
+
+        public NpcPersonGender Gender => gender;
 
         public NpcSkinPalette SkinPalette => skinPalette;
 
@@ -42,8 +47,25 @@ namespace BigRetail.Characters.Rigging
             NpcSkinPalette newSkinPalette,
             NpcOutfitSet newOutfitSet,
             NpcHairSet newHairSet)
+            : this(
+                InferGender(newBodySilhouette),
+                newBodySilhouette,
+                newSkinPalette,
+                newOutfitSet,
+                newHairSet)
+        {
+        }
+
+
+        public NpcAppearanceSelection(
+            NpcPersonGender newGender,
+            NpcBodySilhouette newBodySilhouette,
+            NpcSkinPalette newSkinPalette,
+            NpcOutfitSet newOutfitSet,
+            NpcHairSet newHairSet)
         {
             Configure(
+                newGender,
                 newBodySilhouette,
                 newSkinPalette,
                 newOutfitSet,
@@ -57,6 +79,23 @@ namespace BigRetail.Characters.Rigging
             NpcOutfitSet newOutfitSet,
             NpcHairSet newHairSet)
         {
+            Configure(
+                InferGender(newBodySilhouette),
+                newBodySilhouette,
+                newSkinPalette,
+                newOutfitSet,
+                newHairSet);
+        }
+
+
+        public void Configure(
+            NpcPersonGender newGender,
+            NpcBodySilhouette newBodySilhouette,
+            NpcSkinPalette newSkinPalette,
+            NpcOutfitSet newOutfitSet,
+            NpcHairSet newHairSet)
+        {
+            gender = newGender;
             bodySilhouette = newBodySilhouette;
             skinPalette = newSkinPalette;
             outfitSet = newOutfitSet;
@@ -67,6 +106,7 @@ namespace BigRetail.Characters.Rigging
         public NpcAppearanceSelection Copy()
         {
             return new NpcAppearanceSelection(
+                gender,
                 bodySilhouette,
                 skinPalette,
                 outfitSet,
@@ -88,6 +128,14 @@ namespace BigRetail.Characters.Rigging
                 return false;
             }
 
+            if (!bodySilhouette.Supports(gender))
+            {
+                failureReason =
+                    $"{bodySilhouette.DisplayName} is not a valid body " +
+                    $"for a {gender.ToString().ToLowerInvariant()}.";
+                return false;
+            }
+
             if (skinPalette == null)
             {
                 failureReason = "No skin palette is selected.";
@@ -105,13 +153,42 @@ namespace BigRetail.Characters.Rigging
                 return false;
             }
 
+            if (!outfitSet.Supports(gender))
+            {
+                failureReason =
+                    $"{outfitSet.DisplayName} does not support {gender}.";
+                return false;
+            }
+
             if (hairSet == null)
             {
                 failureReason = "No hair set is selected.";
                 return false;
             }
 
-            return hairSet.TryValidate(out failureReason);
+            if (!hairSet.TryValidate(out failureReason))
+            {
+                return false;
+            }
+
+            if (!hairSet.Supports(gender))
+            {
+                failureReason =
+                    $"{hairSet.DisplayName} does not support {gender}.";
+                return false;
+            }
+
+            failureReason = string.Empty;
+            return true;
+        }
+
+
+        private static NpcPersonGender InferGender(
+            NpcBodySilhouette body)
+        {
+            return body != null
+                ? body.Gender
+                : NpcPersonGender.Man;
         }
     }
 
@@ -119,6 +196,9 @@ namespace BigRetail.Characters.Rigging
     [Serializable]
     public sealed class NpcAppearanceLocks
     {
+        [SerializeField]
+        private bool gender;
+
         [SerializeField]
         private bool body;
 
@@ -134,6 +214,8 @@ namespace BigRetail.Characters.Rigging
 
         public bool Body => body;
 
+        public bool Gender => gender;
+
         public bool Skin => skin;
 
         public bool Outfit => outfit;
@@ -147,6 +229,23 @@ namespace BigRetail.Characters.Rigging
             bool lockOutfit,
             bool lockHair)
         {
+            Configure(
+                false,
+                lockBody,
+                lockSkin,
+                lockOutfit,
+                lockHair);
+        }
+
+
+        public void Configure(
+            bool lockGender,
+            bool lockBody,
+            bool lockSkin,
+            bool lockOutfit,
+            bool lockHair)
+        {
+            gender = lockGender;
             body = lockBody;
             skin = lockSkin;
             outfit = lockOutfit;

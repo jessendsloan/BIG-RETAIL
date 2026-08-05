@@ -162,6 +162,9 @@ namespace BigRetail.Characters.Rigging
     [DisallowMultipleComponent]
     public sealed class NpcCutoutRig : MonoBehaviour
     {
+        private static readonly Vector2 DefaultBadgeTorsoAnchor =
+            new Vector2(0.32f, 0.10f);
+
         [Header("Facing")]
 
         [SerializeField]
@@ -217,6 +220,13 @@ namespace BigRetail.Characters.Rigging
         private List<NpcRigPartBinding> parts =
             new List<NpcRigPartBinding>();
 
+        [NonSerialized]
+        private Transform hairDetailRoot;
+
+        [NonSerialized]
+        private List<SpriteRenderer> hairDetailRenderers =
+            new List<SpriteRenderer>();
+
 
         public NpcFacing Facing => facing;
 
@@ -226,6 +236,9 @@ namespace BigRetail.Characters.Rigging
         public int BoneCount => bones.Count;
 
         public int PartCount => parts.Count;
+
+        public IReadOnlyList<SpriteRenderer> HairDetailRenderers =>
+            hairDetailRenderers;
 
 
         private void Awake()
@@ -473,7 +486,7 @@ namespace BigRetail.Characters.Rigging
                     ? appearancePreview
                     : appearanceProfile;
 
-            effectiveAppearance?.ApplyBonePlacements(this);
+            ResetAppearanceBonePositions();
 
             for (int index = 0; index < parts.Count; index++)
             {
@@ -491,6 +504,11 @@ namespace BigRetail.Characters.Rigging
             }
 
             ApplyAuthoredBonePose(authoredDirection);
+            effectiveAppearance?.ApplyBonePlacements(this);
+
+            ApplyHairDetails(
+                effectiveAppearance?.HairSet,
+                authoredDirection);
 
             if (mirrorRoot == null)
             {
@@ -556,6 +574,56 @@ namespace BigRetail.Characters.Rigging
         }
 
 
+        private void ResetAppearanceBonePositions()
+        {
+            IReadOnlyList<NpcRigBoneDefinition> definitions =
+                NpcRigDefinition.BoneDefinitions;
+
+            for (int index = 0; index < definitions.Count; index++)
+            {
+                NpcRigBoneDefinition definition = definitions[index];
+
+                if (!IsAppearancePositionBone(definition.Id)
+                    || !TryGetBone(definition.Id, out Transform bone))
+                {
+                    continue;
+                }
+
+                bone.localPosition = definition.LocalPosition;
+            }
+        }
+
+
+        private static bool IsAppearancePositionBone(
+            NpcRigBoneId id)
+        {
+            switch (id)
+            {
+                case NpcRigBoneId.Pelvis:
+                case NpcRigBoneId.SpineLower:
+                case NpcRigBoneId.Chest:
+                case NpcRigBoneId.Neck:
+                case NpcRigBoneId.Head:
+                case NpcRigBoneId.ShoulderSourceCameraLeft:
+                case NpcRigBoneId.ForearmSourceCameraLeft:
+                case NpcRigBoneId.HandSourceCameraLeft:
+                case NpcRigBoneId.ShoulderSourceCameraRight:
+                case NpcRigBoneId.ForearmSourceCameraRight:
+                case NpcRigBoneId.HandSourceCameraRight:
+                case NpcRigBoneId.ThighSourceCameraLeft:
+                case NpcRigBoneId.ShinSourceCameraLeft:
+                case NpcRigBoneId.FootSourceCameraLeft:
+                case NpcRigBoneId.ThighSourceCameraRight:
+                case NpcRigBoneId.ShinSourceCameraRight:
+                case NpcRigBoneId.FootSourceCameraRight:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+
         private void ApplyDirectionalDetailVisibility(
             NpcAuthoredDirection authoredDirection,
             NpcAppearanceProfile effectiveAppearance)
@@ -571,6 +639,10 @@ namespace BigRetail.Characters.Rigging
                     || effectiveAppearance.OutfitSet == null
                     || effectiveAppearance.OutfitSet.ShowBadge);
 
+            Vector2 badgeAnchor = effectiveAppearance?.OutfitSet != null
+                ? effectiveAppearance.OutfitSet.BadgeTorsoAnchor
+                : DefaultBadgeTorsoAnchor;
+
             for (int index = 0;
                  index < northHiddenDetails.Count;
                  index++)
@@ -580,6 +652,9 @@ namespace BigRetail.Characters.Rigging
 
                 if (detail != null)
                 {
+                    AnchorDetailToTorso(
+                        detail,
+                        badgeAnchor);
                     detail.enabled = showFrontDetails;
 
                     if (effectiveAppearance?.OutfitSet != null)
@@ -592,6 +667,43 @@ namespace BigRetail.Characters.Rigging
         }
 
 
+        private void AnchorDetailToTorso(
+            SpriteRenderer detail,
+            Vector2 normalizedAnchor)
+        {
+            if (detail == null
+                || !TryGetPartRenderer(
+                    NpcRigPartId.Torso,
+                    out SpriteRenderer torso)
+                || torso.sprite == null)
+            {
+                return;
+            }
+
+            Bounds torsoBounds = torso.sprite.bounds;
+            Vector3 torsoLocalAnchor = torsoBounds.center
+                + new Vector3(
+                    torsoBounds.size.x * normalizedAnchor.x,
+                    torsoBounds.size.y * normalizedAnchor.y,
+                    0f);
+            Vector3 worldAnchor =
+                torso.transform.TransformPoint(torsoLocalAnchor);
+            Transform detailTransform = detail.transform;
+
+            if (detailTransform.parent != null)
+            {
+                Vector3 localAnchor = detailTransform.parent
+                    .InverseTransformPoint(worldAnchor);
+                localAnchor.z = detailTransform.localPosition.z;
+                detailTransform.localPosition = localAnchor;
+            }
+            else
+            {
+                Vector3 position = worldAnchor;
+                position.z = detailTransform.position.z;
+                detailTransform.position = position;
+            }
+        }
         private void ApplyDepthLayering(
             NpcFacing displayedFacing)
         {
@@ -613,9 +725,210 @@ namespace BigRetail.Characters.Rigging
         }
 
 
+        private void ApplyHairDetails(
+            NpcHairSet hairSet,
+            NpcAuthoredDirection authoredDirection)
+        {
+            IReadOnlyList<NpcHairDetailLayer> detailLayers =
+                hairSet?.DetailLayers;
+
+            if (detailLayers == null || detailLayers.Count == 0)
+            {
+                SetHairDetailRenderersEnabled(false);
+                return;
+            }
+
+            if (!TryGetBone(NpcRigBoneId.Head, out Transform head))
+            {
+                SetHairDetailRenderersEnabled(false);
+                return;
+            }
+
+            EnsureHairDetailRoot(head);
+            EnsureHairDetailRendererCount(detailLayers.Count);
+
+            int headSortingOrder =
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    facing,
+                    NpcRigPartId.Head);
+
+            for (int index = 0; index < detailLayers.Count; index++)
+            {
+                NpcHairDetailLayer layer = detailLayers[index];
+                SpriteRenderer renderer = hairDetailRenderers[index];
+
+                if (layer == null || renderer == null)
+                {
+                    if (renderer != null)
+                    {
+                        renderer.enabled = false;
+                    }
+
+                    continue;
+                }
+
+                layer.Apply(
+                    renderer,
+                    authoredDirection,
+                    hairSet.HairColor,
+                    GetHairDetailSortingOrder(
+                        layer.Depth,
+                        headSortingOrder));
+            }
+
+            for (int index = detailLayers.Count;
+                 index < hairDetailRenderers.Count;
+                 index++)
+            {
+                if (hairDetailRenderers[index] != null)
+                {
+                    hairDetailRenderers[index].enabled = false;
+                }
+            }
+        }
+
+
+        private void EnsureHairDetailRoot(
+            Transform head)
+        {
+            if (hairDetailRoot != null)
+            {
+                if (hairDetailRoot.parent != head)
+                {
+                    hairDetailRoot.SetParent(head, false);
+                }
+
+                return;
+            }
+
+            hairDetailRenderers ??= new List<SpriteRenderer>();
+            hairDetailRenderers.Clear();
+
+            GameObject rootObject =
+                new GameObject("Hair Details (Generated)");
+            rootObject.hideFlags = HideFlags.HideAndDontSave;
+            hairDetailRoot = rootObject.transform;
+            hairDetailRoot.SetParent(head, false);
+            hairDetailRoot.localPosition = Vector3.zero;
+            hairDetailRoot.localRotation = Quaternion.identity;
+            hairDetailRoot.localScale = Vector3.one;
+        }
+
+
+        private void EnsureHairDetailRendererCount(
+            int requiredCount)
+        {
+            hairDetailRenderers ??= new List<SpriteRenderer>();
+
+            SpriteRenderer presentationSource = null;
+
+            if (!TryGetPartRenderer(
+                    NpcRigPartId.HairFront,
+                    out presentationSource))
+            {
+                TryGetPartRenderer(
+                    NpcRigPartId.Head,
+                    out presentationSource);
+            }
+
+            while (hairDetailRenderers.Count < requiredCount)
+            {
+                int layerNumber = hairDetailRenderers.Count + 1;
+                GameObject layerObject =
+                    new GameObject($"Hair Detail {layerNumber}");
+                layerObject.hideFlags = HideFlags.HideAndDontSave;
+                layerObject.transform.SetParent(hairDetailRoot, false);
+
+                SpriteRenderer renderer =
+                    layerObject.AddComponent<SpriteRenderer>();
+
+                if (presentationSource != null)
+                {
+                    renderer.sortingLayerID =
+                        presentationSource.sortingLayerID;
+                    renderer.sharedMaterial =
+                        presentationSource.sharedMaterial;
+                    renderer.maskInteraction =
+                        presentationSource.maskInteraction;
+                }
+
+                hairDetailRenderers.Add(renderer);
+            }
+        }
+
+
+        private void SetHairDetailRenderersEnabled(
+            bool enabled)
+        {
+            if (hairDetailRenderers == null)
+            {
+                return;
+            }
+
+            for (int index = 0;
+                 index < hairDetailRenderers.Count;
+                 index++)
+            {
+                SpriteRenderer renderer =
+                    hairDetailRenderers[index];
+
+                if (renderer != null)
+                {
+                    renderer.enabled = enabled;
+                }
+            }
+        }
+
+
+        private static int GetHairDetailSortingOrder(
+            NpcHairLayerDepth depth,
+            int headSortingOrder)
+        {
+            switch (depth)
+            {
+                case NpcHairLayerDepth.BehindHead:
+                    return headSortingOrder - 1;
+
+                case NpcHairLayerDepth.Crown:
+                    return headSortingOrder + 1;
+
+                case NpcHairLayerDepth.Fringe:
+                    return headSortingOrder + 2;
+
+                default:
+                    return headSortingOrder + 1;
+            }
+        }
+
+
         private void OnValidate()
         {
+#if UNITY_EDITOR
+            // SpriteRenderer changes can trigger Unity's internal bounds
+            // notifications, which are forbidden during OnValidate itself.
+            // Refresh on the next editor tick so Inspector changes still
+            // preview immediately without producing lifecycle errors.
+            UnityEditor.EditorApplication.delayCall -=
+                ApplyFacingAfterValidation;
+            UnityEditor.EditorApplication.delayCall +=
+                ApplyFacingAfterValidation;
+#endif
+        }
+
+
+#if UNITY_EDITOR
+        private void ApplyFacingAfterValidation()
+        {
+            UnityEditor.EditorApplication.delayCall -=
+                ApplyFacingAfterValidation;
+
+            if (this == null)
+            {
+                return;
+            }
+
             ApplyFacing();
         }
+#endif
     }
 }

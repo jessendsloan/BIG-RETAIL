@@ -4,11 +4,13 @@ namespace BigRetail.Characters.Rigging
 {
     /// <summary>
     /// Produces repeatable appearance selections without using Unity's
-    /// global random state. Each category has its own random stream, so
-    /// locking one category does not reshuffle the other three.
+    /// global random state. Gender is selected first; body, outfit, and hair
+    /// are then filtered to compatible assets. Each category has its own
+    /// random stream, so locking one category does not reshuffle the others.
     /// </summary>
     public static class NpcAppearanceGenerator
     {
+        private const uint GenderSalt = 0x9E3779B9u;
         private const uint BodySalt = 0xA511E9B3u;
         private const uint SkinSalt = 0x63D83595u;
         private const uint OutfitSalt = 0xC2B2AE35u;
@@ -39,31 +41,45 @@ namespace BigRetail.Characters.Rigging
             current ??= new NpcAppearanceSelection();
             locks ??= new NpcAppearanceLocks();
 
+            NpcPersonGender gender = locks.Gender
+                ? current.Gender
+                : PickGender(definition, seed);
+
+            if (locks.Gender && !definition.Allows(gender))
+            {
+                failureReason =
+                    $"{gender} is not enabled for this population.";
+                return false;
+            }
+
+            NpcPopulationAppearancePool pool =
+                definition.GetAppearancePool(gender);
+
             if (!TryUseLockedChoice(
                     locks.Body,
                     current.BodySilhouette,
-                    definition.Allows,
+                    candidate => definition.Allows(gender, candidate),
                     "body",
                     out NpcBodySilhouette lockedBody,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Skin,
                     current.SkinPalette,
-                    definition.Allows,
+                    candidate => definition.Allows(gender, candidate),
                     "skin",
                     out NpcSkinPalette lockedSkin,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Outfit,
                     current.OutfitSet,
-                    definition.Allows,
+                    candidate => definition.Allows(gender, candidate),
                     "outfit",
                     out NpcOutfitSet lockedOutfit,
                     out failureReason)
                 || !TryUseLockedChoice(
                     locks.Hair,
                     current.HairSet,
-                    definition.Allows,
+                    candidate => definition.Allows(gender, candidate),
                     "hair",
                     out NpcHairSet lockedHair,
                     out failureReason))
@@ -71,23 +87,48 @@ namespace BigRetail.Characters.Rigging
                 return false;
             }
 
+            if (locks.Body && !lockedBody.Supports(gender))
+            {
+                failureReason =
+                    $"{lockedBody.DisplayName} is not compatible with " +
+                    $"{gender}.";
+                return false;
+            }
+
+            if (locks.Outfit && !lockedOutfit.Supports(gender))
+            {
+                failureReason =
+                    $"{lockedOutfit.DisplayName} is not compatible with " +
+                    $"{gender}.";
+                return false;
+            }
+
+            if (locks.Hair && !lockedHair.Supports(gender))
+            {
+                failureReason =
+                    $"{lockedHair.DisplayName} is not compatible with " +
+                    $"{gender}.";
+                return false;
+            }
+
             NpcBodySilhouette body = locks.Body
                 ? lockedBody
-                : PickBody(definition, seed);
+                : PickBody(pool, gender, seed);
 
             NpcSkinPalette skin = locks.Skin
                 ? lockedSkin
-                : PickSkin(definition, seed);
+                : PickSkin(pool, seed);
 
             NpcOutfitSet outfit = locks.Outfit
                 ? lockedOutfit
-                : PickOutfit(definition, seed);
+                : PickOutfit(pool, gender, seed);
 
             NpcHairSet hair = locks.Hair
                 ? lockedHair
-                : PickHair(definition, seed);
+                : PickHair(pool, gender, seed);
 
             selection = new NpcAppearanceSelection(
+                gender,
                 body,
                 skin,
                 outfit,
@@ -97,65 +138,94 @@ namespace BigRetail.Characters.Rigging
         }
 
 
-        private static NpcBodySilhouette PickBody(
+        private static NpcPersonGender PickGender(
             NpcPopulationDefinition definition,
             int seed)
         {
+            int menWeight = Math.Max(0, definition.MenWeight);
+            int womenWeight = Math.Max(0, definition.WomenWeight);
+            int totalWeight = menWeight + womenWeight;
+
+            DeterministicRandom random =
+                new DeterministicRandom(
+                    unchecked((uint)seed) ^ GenderSalt);
+
+            return random.Next(totalWeight) < menWeight
+                ? NpcPersonGender.Man
+                : NpcPersonGender.Woman;
+        }
+
+
+        private static NpcBodySilhouette PickBody(
+            NpcPopulationAppearancePool pool,
+            NpcPersonGender gender,
+            int seed)
+        {
             int selected = PickWeightedIndex(
-                definition.Bodies.Count,
-                index => definition.Bodies[index].Weight,
+                pool.Bodies.Count,
+                index => pool.Bodies[index].Weight,
+                index => pool.Bodies[index].Asset
+                    .Supports(gender),
                 seed,
                 BodySalt);
 
-            return definition.Bodies[selected].Asset;
+            return pool.Bodies[selected].Asset;
         }
 
 
         private static NpcSkinPalette PickSkin(
-            NpcPopulationDefinition definition,
+            NpcPopulationAppearancePool pool,
             int seed)
         {
             int selected = PickWeightedIndex(
-                definition.Skins.Count,
-                index => definition.Skins[index].Weight,
+                pool.Skins.Count,
+                index => pool.Skins[index].Weight,
+                index => true,
                 seed,
                 SkinSalt);
 
-            return definition.Skins[selected].Asset;
+            return pool.Skins[selected].Asset;
         }
 
 
         private static NpcOutfitSet PickOutfit(
-            NpcPopulationDefinition definition,
+            NpcPopulationAppearancePool pool,
+            NpcPersonGender gender,
             int seed)
         {
             int selected = PickWeightedIndex(
-                definition.Outfits.Count,
-                index => definition.Outfits[index].Weight,
+                pool.Outfits.Count,
+                index => pool.Outfits[index].Weight,
+                index => pool.Outfits[index].Asset
+                    .Supports(gender),
                 seed,
                 OutfitSalt);
 
-            return definition.Outfits[selected].Asset;
+            return pool.Outfits[selected].Asset;
         }
 
 
         private static NpcHairSet PickHair(
-            NpcPopulationDefinition definition,
+            NpcPopulationAppearancePool pool,
+            NpcPersonGender gender,
             int seed)
         {
             int selected = PickWeightedIndex(
-                definition.Hair.Count,
-                index => definition.Hair[index].Weight,
+                pool.Hair.Count,
+                index => pool.Hair[index].Weight,
+                index => pool.Hair[index].Asset
+                    .Supports(gender),
                 seed,
                 HairSalt);
 
-            return definition.Hair[selected].Asset;
+            return pool.Hair[selected].Asset;
         }
 
 
         private static int PickWeightedIndex(
             int count,
             Func<int, int> getWeight,
+            Func<int, bool> isCompatible,
             int seed,
             uint salt)
         {
@@ -163,7 +233,10 @@ namespace BigRetail.Characters.Rigging
 
             for (int index = 0; index < count; index++)
             {
-                totalWeight += Math.Max(1, getWeight(index));
+                if (isCompatible(index))
+                {
+                    totalWeight += Math.Max(1, getWeight(index));
+                }
             }
 
             DeterministicRandom random =
@@ -174,6 +247,11 @@ namespace BigRetail.Characters.Rigging
 
             for (int index = 0; index < count; index++)
             {
+                if (!isCompatible(index))
+                {
+                    continue;
+                }
+
                 roll -= Math.Max(1, getWeight(index));
 
                 if (roll < 0)
@@ -182,7 +260,25 @@ namespace BigRetail.Characters.Rigging
                 }
             }
 
-            return count - 1;
+            return FindLastCompatibleIndex(count, isCompatible);
+        }
+
+
+        private static int FindLastCompatibleIndex(
+            int count,
+            Func<int, bool> isCompatible)
+        {
+            for (int index = count - 1; index >= 0; index--)
+            {
+                if (isCompatible(index))
+                {
+                    return index;
+                }
+            }
+
+            throw new InvalidOperationException(
+                "A validated population has no compatible appearance " +
+                "choice.");
         }
 
 

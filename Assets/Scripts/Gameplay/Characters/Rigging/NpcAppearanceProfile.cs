@@ -139,6 +139,12 @@ namespace BigRetail.Characters.Rigging
         private string displayName = "Person";
 
         [SerializeField]
+        private NpcPersonGender gender;
+
+        [SerializeField, HideInInspector]
+        private bool hasExplicitGender;
+
+        [SerializeField]
         private NpcBodySilhouette bodySilhouette;
 
         [SerializeField]
@@ -152,6 +158,12 @@ namespace BigRetail.Characters.Rigging
 
 
         public string DisplayName => displayName;
+
+        public NpcPersonGender Gender => hasExplicitGender
+            ? gender
+            : bodySilhouette != null
+                ? bodySilhouette.Gender
+                : gender;
 
         public NpcBodySilhouette BodySilhouette => bodySilhouette;
 
@@ -169,9 +181,31 @@ namespace BigRetail.Characters.Rigging
             NpcOutfitSet newOutfitSet,
             NpcHairSet newHairSet)
         {
+            Configure(
+                newDisplayName,
+                newBodySilhouette != null
+                    ? newBodySilhouette.Gender
+                    : NpcPersonGender.Man,
+                newBodySilhouette,
+                newSkinPalette,
+                newOutfitSet,
+                newHairSet);
+        }
+
+
+        public void Configure(
+            string newDisplayName,
+            NpcPersonGender newGender,
+            NpcBodySilhouette newBodySilhouette,
+            NpcSkinPalette newSkinPalette,
+            NpcOutfitSet newOutfitSet,
+            NpcHairSet newHairSet)
+        {
             displayName = string.IsNullOrWhiteSpace(newDisplayName)
                 ? name
                 : newDisplayName;
+            gender = newGender;
+            hasExplicitGender = true;
             bodySilhouette = newBodySilhouette;
             skinPalette = newSkinPalette;
             outfitSet = newOutfitSet;
@@ -185,6 +219,7 @@ namespace BigRetail.Characters.Rigging
         {
             Configure(
                 newDisplayName,
+                selection?.Gender ?? NpcPersonGender.Man,
                 selection?.BodySilhouette,
                 selection?.SkinPalette,
                 selection?.OutfitSet,
@@ -195,6 +230,7 @@ namespace BigRetail.Characters.Rigging
         public NpcAppearanceSelection CreateSelection()
         {
             return new NpcAppearanceSelection(
+                Gender,
                 bodySilhouette,
                 skinPalette,
                 outfitSet,
@@ -298,47 +334,7 @@ namespace BigRetail.Characters.Rigging
         public bool TryValidate(
             out string failureReason)
         {
-            if (bodySilhouette == null)
-            {
-                failureReason = "No body silhouette is assigned.";
-                return false;
-            }
-
-            if (!bodySilhouette.TryValidate(out failureReason))
-            {
-                return false;
-            }
-
-            if (skinPalette == null)
-            {
-                failureReason = "No skin palette is assigned.";
-                return false;
-            }
-
-            if (outfitSet == null)
-            {
-                failureReason = "No outfit set is assigned.";
-                return false;
-            }
-
-            if (!outfitSet.TryValidate(out failureReason))
-            {
-                return false;
-            }
-
-            if (hairSet == null)
-            {
-                failureReason = "No hair set is assigned.";
-                return false;
-            }
-
-            if (!hairSet.TryValidate(out failureReason))
-            {
-                return false;
-            }
-
-            failureReason = string.Empty;
-            return true;
+            return CreateSelection().TryValidate(out failureReason);
         }
     }
 

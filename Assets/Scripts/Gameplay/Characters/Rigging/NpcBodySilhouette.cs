@@ -27,8 +27,20 @@ namespace BigRetail.Characters.Rigging
 
         public NpcBodySilhouetteKind Kind => kind;
 
+        public NpcPersonGender Gender =>
+            kind == NpcBodySilhouetteKind.Feminine
+                ? NpcPersonGender.Woman
+                : NpcPersonGender.Man;
+
         public IReadOnlyList<NpcAppearancePartShape> PartShapes =>
             partShapes;
+
+
+        public bool Supports(
+            NpcPersonGender gender)
+        {
+            return Gender == gender;
+        }
 
 
         public void Configure(
@@ -95,7 +107,21 @@ namespace BigRetail.Characters.Rigging
                         placement.Id,
                         out Transform bone))
                 {
-                    bone.localPosition = placement.LocalPosition;
+                    if (NpcRigDefinition.TryGetBoneDefinition(
+                            placement.Id,
+                            out NpcRigBoneDefinition definition))
+                    {
+                        // Body assets store their authored bind position.
+                        // Apply its difference from the canonical rig so
+                        // directional foot poses remain intact underneath.
+                        bone.localPosition +=
+                            placement.LocalPosition
+                            - definition.LocalPosition;
+                    }
+                    else
+                    {
+                        bone.localPosition = placement.LocalPosition;
+                    }
                 }
             }
         }

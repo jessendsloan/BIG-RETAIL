@@ -77,6 +77,17 @@ namespace BigRetail.Characters.Rigging
         [SerializeField]
         private bool showBadge;
 
+        [Tooltip(
+            "Normalized position within the torso sprite. Zero is the " +
+            "torso center; 0.5 reaches its camera-right or top edge.")]
+        [SerializeField]
+        private Vector2 badgeTorsoAnchor =
+            new Vector2(0.32f, 0.10f);
+
+        [SerializeField]
+        private NpcGenderCompatibility supportedGenders =
+            NpcGenderCompatibility.Everyone;
+
         [SerializeField]
         private List<NpcOutfitPartStyle> partStyles =
             new List<NpcOutfitPartStyle>();
@@ -86,7 +97,12 @@ namespace BigRetail.Characters.Rigging
 
         public bool ShowBadge => showBadge;
 
+        public NpcGenderCompatibility SupportedGenders =>
+            supportedGenders;
+
         public Color BadgeColor => accent;
+
+        public Vector2 BadgeTorsoAnchor => badgeTorsoAnchor;
 
 
         public void Configure(
@@ -98,6 +114,28 @@ namespace BigRetail.Characters.Rigging
             bool newShowBadge,
             IEnumerable<NpcOutfitPartStyle> newPartStyles)
         {
+            Configure(
+                newDisplayName,
+                newPrimaryFabric,
+                newSecondaryFabric,
+                newFootwear,
+                newAccent,
+                newShowBadge,
+                NpcGenderCompatibility.Everyone,
+                newPartStyles);
+        }
+
+
+        public void Configure(
+            string newDisplayName,
+            Color newPrimaryFabric,
+            Color newSecondaryFabric,
+            Color newFootwear,
+            Color newAccent,
+            bool newShowBadge,
+            NpcGenderCompatibility newSupportedGenders,
+            IEnumerable<NpcOutfitPartStyle> newPartStyles)
+        {
             displayName = string.IsNullOrWhiteSpace(newDisplayName)
                 ? name
                 : newDisplayName;
@@ -106,9 +144,17 @@ namespace BigRetail.Characters.Rigging
             footwear = newFootwear;
             accent = newAccent;
             showBadge = newShowBadge;
+            supportedGenders = newSupportedGenders;
             partStyles = newPartStyles != null
                 ? new List<NpcOutfitPartStyle>(newPartStyles)
                 : new List<NpcOutfitPartStyle>();
+        }
+
+
+        public bool Supports(
+            NpcPersonGender gender)
+        {
+            return supportedGenders.Supports(gender);
         }
 
 
@@ -182,6 +228,13 @@ namespace BigRetail.Characters.Rigging
         public bool TryValidate(
             out string failureReason)
         {
+            if (supportedGenders == NpcGenderCompatibility.None)
+            {
+                failureReason =
+                    "The outfit is not enabled for men or women.";
+                return false;
+            }
+
             if (partStyles == null)
             {
                 failureReason = "Outfit part rules are missing.";

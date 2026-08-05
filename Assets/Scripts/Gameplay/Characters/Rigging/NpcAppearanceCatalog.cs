@@ -67,12 +67,15 @@ namespace BigRetail.Characters.Rigging
         }
 
 
-        public NpcPopulationDefinition GetDefinition(
+        public IReadOnlyList<NpcPopulationDefinition> GetDefinitions(
             NpcCharacterRole role)
         {
+            List<NpcPopulationDefinition> matches =
+                new List<NpcPopulationDefinition>();
+
             if (populationDefinitions == null)
             {
-                return null;
+                return matches;
             }
 
             for (int index = 0;
@@ -84,11 +87,117 @@ namespace BigRetail.Characters.Rigging
 
                 if (candidate != null && candidate.Role == role)
                 {
-                    return candidate;
+                    matches.Add(candidate);
                 }
             }
 
-            return null;
+            return matches;
+        }
+
+
+        public bool AddDefinition(
+            NpcPopulationDefinition definition)
+        {
+            if (definition == null)
+            {
+                return false;
+            }
+
+            populationDefinitions ??=
+                new List<NpcPopulationDefinition>();
+
+            if (populationDefinitions.Contains(definition))
+            {
+                return false;
+            }
+
+            populationDefinitions.Add(definition);
+            return true;
+        }
+
+
+        public bool RegisterAssetsFrom(
+            NpcPopulationDefinition definition)
+        {
+            if (definition == null)
+            {
+                return false;
+            }
+
+            definition.EnsureGenderAppearancePools();
+
+            bool changed = RegisterAssetsFrom(definition.MenAppearance);
+            changed |= RegisterAssetsFrom(definition.WomenAppearance);
+            return changed;
+        }
+
+        private bool RegisterAssetsFrom(
+            NpcPopulationAppearancePool pool)
+        {
+            if (pool == null)
+            {
+                return false;
+            }
+
+            bool changed = false;
+
+            for (int index = 0; index < pool.Bodies.Count; index++)
+            {
+                changed |= RegisterAsset(
+                    bodies,
+                    pool.Bodies[index]?.Asset);
+            }
+
+            for (int index = 0; index < pool.Skins.Count; index++)
+            {
+                changed |= RegisterAsset(
+                    skins,
+                    pool.Skins[index]?.Asset);
+            }
+
+            for (int index = 0; index < pool.Outfits.Count; index++)
+            {
+                changed |= RegisterAsset(
+                    outfits,
+                    pool.Outfits[index]?.Asset);
+            }
+
+            for (int index = 0; index < pool.Hair.Count; index++)
+            {
+                changed |= RegisterAsset(
+                    hair,
+                    pool.Hair[index]?.Asset);
+            }
+
+            return changed;
+        }
+
+
+        public bool RegisterAsset(
+            NpcBodySilhouette asset)
+        {
+            return RegisterAsset(bodies, asset);
+        }
+
+
+        public bool RegisterAsset(
+            NpcSkinPalette asset)
+        {
+            return RegisterAsset(skins, asset);
+        }
+
+
+        public bool RegisterAsset(
+            NpcOutfitSet asset)
+        {
+            return RegisterAsset(outfits, asset);
+        }
+
+
+        public bool RegisterAsset(
+            NpcHairSet asset)
+        {
+            return RegisterAsset(hair, asset);
         }
 
 
@@ -142,6 +251,21 @@ namespace BigRetail.Characters.Rigging
             return source != null
                 ? new List<T>(source)
                 : new List<T>();
+        }
+
+
+        private static bool RegisterAsset<T>(
+            List<T> assets,
+            T asset)
+            where T : UnityEngine.Object
+        {
+            if (assets == null || asset == null || assets.Contains(asset))
+            {
+                return false;
+            }
+
+            assets.Add(asset);
+            return true;
         }
 
 

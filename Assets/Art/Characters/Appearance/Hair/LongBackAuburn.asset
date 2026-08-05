@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e72a5d90fc3e45aba831cf43d615b27c, type: 3}
-  m_Name: LongBackAuburn
+  m_Name: LongBackAuburn Working Copy Working Copy Working Copy Working Copy Working
+    Copy
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcHairSet
   displayName: Long Back / Auburn
   hairColor: {r: 0.31, g: 0.11, b: 0.055, a: 1}
+  supportedGenders: 2
   hairRear:
     id: 0
     colorRole: 0
@@ -28,13 +30,14 @@ MonoBehaviour:
     visible: 1
   hairRearShape:
     id: 0
-    localPosition: {x: 0, y: 0.009999998, z: 0}
+    localPosition: {x: -0.001, y: -0.131, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.39, y: 0.357}
+    size: {x: 0.488, y: 0.831}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: 0.02, y: 0.185, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 353}
-    size: {x: 0.37, y: 0.187}
+    localPosition: {x: 0.015, y: 0.09, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.411, y: 0.162}
     visible: 1
+  detailLayers: []

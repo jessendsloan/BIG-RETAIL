@@ -38,7 +38,12 @@ namespace BigRetail.Characters.Rigging
     }
 
     /// <summary>
-    /// Stable identifiers for the canonical 20-bone NPC skeleton.
+    /// Stable identifiers for the canonical 20-bone NPC skeleton. Limb bones
+    /// are named for the visible segment they own, while their Transform
+    /// origin is the segment's proximal joint: UpperArm = shoulder, Forearm =
+    /// elbow, Hand = wrist, Thigh = hip, Shin = knee, and Foot = ankle.
+    /// Camera-left and camera-right always describe the authored image as seen
+    /// by the viewer, never the character's anatomical left and right.
     /// </summary>
     public enum NpcRigBoneId
     {
@@ -273,7 +278,7 @@ namespace BigRetail.Characters.Rigging
                 new NpcRigBoneDefinition(
                     NpcRigBoneId.FootSourceCameraRight,
                     NpcRigBoneId.ShinSourceCameraRight,
-                    new Vector3(0.01f, -0.35f, 0f))
+                    new Vector3(0.027f, -0.3599f, -0.0093f))
             };
 
 
@@ -415,6 +420,42 @@ namespace BigRetail.Characters.Rigging
         public static IReadOnlyList<NpcRigPartDefinition>
             PartDefinitions =>
             partDefinitions;
+
+
+        public static bool TryGetBoneDefinition(
+            NpcRigBoneId requestedId,
+            out NpcRigBoneDefinition definition)
+        {
+            for (int index = 0; index < boneDefinitions.Length; index++)
+            {
+                if (boneDefinitions[index].Id == requestedId)
+                {
+                    definition = boneDefinitions[index];
+                    return true;
+                }
+            }
+
+            definition = default;
+            return false;
+        }
+
+
+        public static bool TryGetPartDefinition(
+            NpcRigPartId requestedId,
+            out NpcRigPartDefinition definition)
+        {
+            for (int index = 0; index < partDefinitions.Length; index++)
+            {
+                if (partDefinitions[index].Id == requestedId)
+                {
+                    definition = partDefinitions[index];
+                    return true;
+                }
+            }
+
+            definition = default;
+            return false;
+        }
 
 
         private static NpcRigPartDefinition DefinePart(

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -154,6 +155,105 @@ namespace BigRetail.Characters.Rigging.Tests
             CollectionAssert.Contains(
                 stateNames,
                 "Walk");
+        }
+
+
+        [Test]
+        public void AppearanceCorePlacements_DoNotAccumulateOnRefresh()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+            GameObject instance = Object.Instantiate(prefab);
+            NpcBodySilhouette body =
+                ScriptableObject.CreateInstance<NpcBodySilhouette>();
+            NpcAppearanceProfile profile =
+                ScriptableObject.CreateInstance<NpcAppearanceProfile>();
+
+            NpcRigBoneId[] coreBones =
+            {
+                NpcRigBoneId.Pelvis,
+                NpcRigBoneId.SpineLower,
+                NpcRigBoneId.Chest,
+                NpcRigBoneId.Neck,
+                NpcRigBoneId.Head
+            };
+
+            try
+            {
+                List<NpcAppearanceBonePlacement> placements =
+                    new List<NpcAppearanceBonePlacement>();
+
+                for (int index = 0; index < coreBones.Length; index++)
+                {
+                    Assert.That(
+                        NpcRigDefinition.TryGetBoneDefinition(
+                            coreBones[index],
+                            out NpcRigBoneDefinition definition),
+                        Is.True);
+
+                    placements.Add(
+                        new NpcAppearanceBonePlacement(
+                            coreBones[index],
+                            definition.LocalPosition
+                            + new Vector3(
+                                0.01f * (index + 1),
+                                0.02f * (index + 1),
+                                0f)));
+                }
+
+                body.Configure(
+                    "Core Placement Regression Body",
+                    NpcBodySilhouetteKind.Masculine,
+                    System.Array.Empty<NpcAppearancePartShape>(),
+                    placements);
+                profile.Configure(
+                    "Core Placement Regression Profile",
+                    body,
+                    null,
+                    null,
+                    null);
+
+                NpcCutoutRig rig = instance.GetComponent<NpcCutoutRig>();
+                rig.SetAppearancePreview(profile);
+
+                Dictionary<NpcRigBoneId, Vector3> firstPositions =
+                    new Dictionary<NpcRigBoneId, Vector3>();
+
+                for (int index = 0; index < coreBones.Length; index++)
+                {
+                    Assert.That(
+                        rig.TryGetBone(
+                            coreBones[index],
+                            out Transform bone),
+                        Is.True);
+                    firstPositions[coreBones[index]] = bone.localPosition;
+                }
+
+                rig.SetAppearancePreview(profile);
+                rig.SetFacing(rig.Facing);
+
+                for (int index = 0; index < coreBones.Length; index++)
+                {
+                    Assert.That(
+                        rig.TryGetBone(
+                            coreBones[index],
+                            out Transform bone),
+                        Is.True);
+                    Assert.That(
+                        Vector3.Distance(
+                            bone.localPosition,
+                            firstPositions[coreBones[index]]),
+                        Is.LessThan(0.00001f),
+                        $"{coreBones[index]} moved after an identical "
+                        + "appearance refresh.");
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(profile);
+                Object.DestroyImmediate(body);
+                Object.DestroyImmediate(instance);
+            }
         }
     }
 }

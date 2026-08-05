@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e72a5d90fc3e45aba831cf43d615b27c, type: 3}
-  m_Name: ShortCropBlack
+  m_Name: ShortCropBlack Working Copy Working Copy
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcHairSet
   displayName: Short Crop / Black
   hairColor: {r: 0.055, g: 0.065, b: 0.075, a: 1}
+  supportedGenders: 2
   hairRear:
     id: 0
     colorRole: 0
@@ -28,13 +29,14 @@ MonoBehaviour:
     visible: 1
   hairRearShape:
     id: 0
-    localPosition: {x: 0, y: 0.1, z: 0}
+    localPosition: {x: 0.013, y: 0.047, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.39, y: 0.34}
+    size: {x: 0.441, y: 0.524}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: 0.02, y: 0.17, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 353}
-    size: {x: 0.37, y: 0.17}
+    localPosition: {x: 0.016, y: 0.166, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.416, y: 0.19}
     visible: 1
+  detailLayers: []

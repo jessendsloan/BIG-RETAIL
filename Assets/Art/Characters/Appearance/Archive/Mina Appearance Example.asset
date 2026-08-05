@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf860199cfd6ba447b51bf25a4af2453, type: 3}
-  m_Name: MinaAppearance
+  m_Name: Mina Appearance Example
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAppearanceProfile
   displayName: Mina
   bodySilhouette: {fileID: 11400000, guid: d3a6a92546d735b4e93e995a9ba8f2d6, type: 2}

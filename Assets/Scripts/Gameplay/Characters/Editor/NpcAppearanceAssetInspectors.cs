@@ -9,7 +9,7 @@ namespace BigRetail.Characters.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "The central appearance catalog for Population Studio. " +
+                "The central appearance catalog for Population Definitions. " +
                 "Population definitions control what gameplay may generate; the lists " +
                 "register every reusable appearance asset available for " +
                 "authoring.",
@@ -39,17 +39,23 @@ namespace BigRetail.Characters.Editor
     {
         public override void OnInspectorGUI()
         {
+            NpcPopulationDefinition definition =
+                (NpcPopulationDefinition)target;
+
+            if (definition.EnsureGenderAppearancePools())
+            {
+                EditorUtility.SetDirty(definition);
+                serializedObject.Update();
+            }
+
             EditorGUILayout.HelpBox(
-                "A population definition. Customer definitions should " +
-                "contain customer clothing; Employee definitions should " +
-                "contain approved uniforms. Weight controls how often an " +
-                "allowed option appears during random generation.",
+                "A population definition controls Men/Women weights and " +
+                "separate Body, Skin, Outfit, and Hair pools for one " +
+                "gameplay population. " +
+                "Use the Population Definitions window for normal editing.",
                 MessageType.Info);
 
             DrawDefaultInspector();
-
-            NpcPopulationDefinition definition =
-                (NpcPopulationDefinition)target;
 
             if (definition.TryValidate(out string reason))
             {
@@ -71,9 +77,10 @@ namespace BigRetail.Characters.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "A body silhouette changes the proportions and spacing " +
-                "of the same shared skeleton. Duplicate a starter body " +
-                "before editing. Keep all 18 part-shape entries.",
+                "A body silhouette defines Man or Woman and changes safe " +
+                "proportions and spacing on the shared skeleton. Use the " +
+                "Appearance Creator for normal editing. Keep all 18 " +
+                "part-shape entries.",
                 MessageType.Info);
 
             DrawDefaultInspector();
@@ -123,7 +130,9 @@ namespace BigRetail.Characters.Editor
                 "An outfit is a coordinated clothing recipe. Primary " +
                 "fabric usually colors the shirt and sleeves; secondary " +
                 "fabric colors trousers; footwear colors shoes; accent " +
-                "colors the badge. Each Part Style may optionally swap " +
+                "colors the badge. Its compatibility determines whether " +
+                "it may be generated for men, women, or everyone. Each " +
+                "Part Style may optionally swap " +
                 "in SouthEast and NorthEast sprites for painted clothing.",
                 MessageType.Info);
 
@@ -154,7 +163,8 @@ namespace BigRetail.Characters.Editor
                 "A hair set owns coordinated rear and front hair pieces. " +
                 "Their shapes create simple procedural haircuts; optional " +
                 "SouthEast and NorthEast sprites can replace those shapes " +
-                "later without changing the recipe system.",
+                "later without changing the recipe system. Compatibility " +
+                "controls whether it may be used for men, women, or both.",
                 MessageType.Info);
 
             DrawDefaultInspector();
@@ -181,8 +191,8 @@ namespace BigRetail.Characters.Editor
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "This is the final person recipe: one body, one skin " +
-                "palette, one outfit, and one hair set. It references " +
+                "This is the final person recipe: Man or Woman, one body, " +
+                "one skin palette, one outfit, and one hair set. It references " +
                 "shared assets rather than copying art or animations.",
                 MessageType.Info);
 

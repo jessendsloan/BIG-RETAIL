@@ -14,6 +14,133 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcPopulationDefinition
   displayName: Customer
   role: 0
+  menWeight: 1
+  womenWeight: 1
+  menAppearance:
+    bodies:
+    - asset: {fileID: 11400000, guid: bd2f26a027dacc54191534f3b75ca211, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 17f2f19f43586e44884592d175fbea57, type: 2}
+      weight: 1
+    skins:
+    - asset: {fileID: 11400000, guid: 9a4be361103df624d953177f9565bc56, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 43d3bd6294619af43b6ddc977a09983a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 338003d0462ce0b41bc31c698e350566, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: bc9289351d3459447b41af4bab5ca90a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 9687bf77d490b594c8afa85f598ff60a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 29031b692b5b1824d905a2f2b33ef964, type: 2}
+      weight: 1
+    outfits:
+    - asset: {fileID: 11400000, guid: 2b7283e7b7b5fd847ab616cb9f823907, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 55d629cc69fa0c346be4729bd489e23d, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 9fd776acf1c555444b44a074feb20c47, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 9fc5ea1be450a894080aa0cb5797ad0c, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: e8301f96ccca18242849968aad5cf71e, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 074f8f35b718e4841a4b1f15555ccea1, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 55d7ce070f74f924fb6f10905cf9e9b1, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 61923a82ee9ea1a42a5894ea1415a15b, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 124b9192405fa6d43aaa900e42b540a3, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 1cc6eb8eb9efe6b41899d1b5a9394f6b, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: a285d14bc90cdec498c5105d18ce682a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 47a30018cd5053c41a8c31487e7154af, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: d3a83db86922be748a08d5ded01451a2, type: 2}
+      weight: 1
+    hair:
+    - asset: {fileID: 11400000, guid: 794f791640dd0b24d939cb5eda0b4076, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 833c882c22027404a90c4346a834ab13, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 4191981ab609dfa409a1f6f1bc492280, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 606b143303eb7a64f875e690bbc31353, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 38d84e565f6e8a14fa329d8abeb3a6fb, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: b4bb023942f6fb44896428768eb38ecb, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 7b6d1a9cf27ad2b4684e5b5c6f54fa75, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: f2717bd83349c2749b3d2b7158ecebaf, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 28321012e3a7a7f499ca4fc6a698ac50, type: 2}
+      weight: 2
+  womenAppearance:
+    bodies:
+    - asset: {fileID: 11400000, guid: b24ec3de1fc7ad841a2fb985dc44b77b, type: 2}
+      weight: 1
+    skins:
+    - asset: {fileID: 11400000, guid: 9a4be361103df624d953177f9565bc56, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 43d3bd6294619af43b6ddc977a09983a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 338003d0462ce0b41bc31c698e350566, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: bc9289351d3459447b41af4bab5ca90a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 9687bf77d490b594c8afa85f598ff60a, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 29031b692b5b1824d905a2f2b33ef964, type: 2}
+      weight: 1
+    outfits:
+    - asset: {fileID: 11400000, guid: 2b7283e7b7b5fd847ab616cb9f823907, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 55d629cc69fa0c346be4729bd489e23d, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 0c1a035a606b6384c9bfd99e4113e7c7, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: e54223e6be01ef94e84f71eaf30af338, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 47c2f9a1bda498d4b8bceec6fb9643c3, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: f76ae269a444b3040814d5fb24eaa944, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 4f3f74c8faeafb94098e6234d4ec18df, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 561b7a0494be0bf4eb7d85ca0d40b0db, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 8a977017693cd8946a87b2ebb12ac43c, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 9a50e6a82916d204b9f93d5ac71bc9ed, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 057763c33fa51174882ea7a8b1b6137f, type: 2}
+      weight: 1
+    hair:
+    - asset: {fileID: 11400000, guid: 22901978a261c6f45af38934dfe44359, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: d67e4ff4506735b4a8336de6481d745d, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 38d84e565f6e8a14fa329d8abeb3a6fb, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 47e588433084b45429011094fbab85cf, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: b4bb023942f6fb44896428768eb38ecb, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 7b6d1a9cf27ad2b4684e5b5c6f54fa75, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: f2717bd83349c2749b3d2b7158ecebaf, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 28321012e3a7a7f499ca4fc6a698ac50, type: 2}
+      weight: 2
+    - asset: {fileID: 11400000, guid: 2c6927ad96fa93444a736513c121fd2b, type: 2}
+      weight: 2
+  hasGenderAppearancePools: 1
   bodies:
   - asset: {fileID: 11400000, guid: bd2f26a027dacc54191534f3b75ca211, type: 2}
     weight: 1

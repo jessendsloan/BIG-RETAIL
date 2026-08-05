@@ -43,7 +43,7 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
-        public void CompleteFourPartRecipe_Validates()
+        public void CompleteAppearanceRecipe_Validates()
         {
             AppearanceFixture fixture = new AppearanceFixture();
 
@@ -139,6 +139,233 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
+        public void HairDetailLayer_AppliesDirectionalPoseAndShade()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            GameObject layerObject = new GameObject("Hair Detail");
+
+            try
+            {
+                SpriteRenderer renderer =
+                    layerObject.AddComponent<SpriteRenderer>();
+
+                Color hairColor =
+                    new Color(0.4f, 0.2f, 0.1f, 1f);
+
+                NpcHairDetailLayer layer =
+                    new NpcHairDetailLayer(
+                        "Sweep",
+                        NpcHairLayerDepth.Crown,
+                        0.5f,
+                        fixture.Sprite,
+                        fixture.Sprite,
+                        new NpcHairLayerPose(
+                            new Vector3(0.12f, 0.25f, 0f),
+                            new Vector3(0f, 0f, -18f),
+                            new Vector2(0.3f, 0.08f)),
+                        new NpcHairLayerPose(
+                            new Vector3(-0.12f, 0.25f, 0f),
+                            new Vector3(0f, 0f, 18f),
+                            new Vector2(0.3f, 0.08f)));
+
+                layer.Apply(
+                    renderer,
+                    NpcAuthoredDirection.SouthEast,
+                    hairColor,
+                    12);
+
+                Assert.That(renderer.enabled, Is.True);
+                Assert.That(renderer.sprite, Is.SameAs(fixture.Sprite));
+                Assert.That(renderer.sortingOrder, Is.EqualTo(12));
+                Assert.That(
+                    renderer.transform.localPosition,
+                    Is.EqualTo(new Vector3(0.12f, 0.25f, 0f)));
+                Assert.That(
+                    renderer.transform.localEulerAngles.z,
+                    Is.EqualTo(342f).Within(0.01f));
+                Assert.That(
+                    renderer.transform.localScale.x,
+                    Is.EqualTo(0.3f).Within(0.001f));
+                Assert.That(
+                    renderer.color.r,
+                    Is.EqualTo(0.2f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(layerObject);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void LayeredHairSet_ValidatesWithoutChangingCoreRigContract()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcHairSet layeredHair =
+                ScriptableObject.CreateInstance<NpcHairSet>();
+
+            try
+            {
+                NpcAppearancePartShape rearShape =
+                    new NpcAppearancePartShape(
+                        NpcRigPartId.HairRear,
+                        Vector3.zero,
+                        Vector3.zero,
+                        Vector2.one);
+                NpcAppearancePartShape frontShape =
+                    new NpcAppearancePartShape(
+                        NpcRigPartId.HairFront,
+                        Vector3.zero,
+                        Vector3.zero,
+                        Vector2.one);
+
+                layeredHair.Configure(
+                    "Layered Hair",
+                    Color.black,
+                    NpcGenderCompatibility.Everyone,
+                    new NpcOutfitPartStyle(
+                        NpcRigPartId.HairRear,
+                        NpcAppearanceColorRole.Preserve,
+                        fixture.Sprite,
+                        fixture.Sprite),
+                    new NpcOutfitPartStyle(
+                        NpcRigPartId.HairFront,
+                        NpcAppearanceColorRole.Preserve,
+                        fixture.Sprite,
+                        fixture.Sprite),
+                    rearShape,
+                    frontShape,
+                    new[]
+                    {
+                        new NpcHairDetailLayer(
+                            "Tuft",
+                            NpcHairLayerDepth.Crown,
+                            1f,
+                            fixture.Sprite,
+                            fixture.Sprite,
+                            new NpcHairLayerPose(
+                                Vector3.zero,
+                                Vector3.zero,
+                                new Vector2(0.1f, 0.1f)),
+                            new NpcHairLayerPose(
+                                Vector3.zero,
+                                Vector3.zero,
+                                new Vector2(0.1f, 0.1f)))
+                    });
+
+                Assert.That(
+                    layeredHair.TryValidate(out string reason),
+                    Is.True,
+                    reason);
+                Assert.That(layeredHair.DetailLayers, Has.Count.EqualTo(1));
+                Assert.That(
+                    NpcRigDefinition.ExpectedPartCount,
+                    Is.EqualTo(18));
+            }
+            finally
+            {
+                Object.DestroyImmediate(layeredHair);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void CatalogSupportsMultipleDefinitionsInOneBehaviorFamily()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcPopulationDefinition employee = null;
+            NpcPopulationDefinition manager = null;
+            NpcAppearanceCatalog catalog = null;
+
+            try
+            {
+                employee = CreateDefinition(
+                    fixture,
+                    "Store Employee",
+                    NpcCharacterRole.Employee);
+
+                manager = CreateDefinition(
+                    fixture,
+                    "Manager",
+                    NpcCharacterRole.Employee);
+
+                catalog = ScriptableObject
+                    .CreateInstance<NpcAppearanceCatalog>();
+
+                catalog.Configure(
+                    "Test Catalog",
+                    new[] { employee, manager },
+                    new[] { fixture.Body },
+                    new[] { fixture.Skin },
+                    new[] { fixture.Outfit },
+                    new[] { fixture.Hair });
+
+                IReadOnlyList<NpcPopulationDefinition> definitions =
+                    catalog.GetDefinitions(NpcCharacterRole.Employee);
+
+                Assert.That(definitions.Count, Is.EqualTo(2));
+                Assert.That(definitions[0], Is.SameAs(employee));
+                Assert.That(definitions[1], Is.SameAs(manager));
+            }
+            finally
+            {
+                Object.DestroyImmediate(catalog);
+                Object.DestroyImmediate(manager);
+                Object.DestroyImmediate(employee);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void RegisterAssetsFromDefinitionBuildsCatalogLibrary()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcPopulationDefinition definition = null;
+            NpcAppearanceCatalog catalog = null;
+
+            try
+            {
+                definition = CreateDefinition(
+                    fixture,
+                    "Customer",
+                    NpcCharacterRole.Customer);
+
+                catalog = ScriptableObject
+                    .CreateInstance<NpcAppearanceCatalog>();
+
+                catalog.Configure(
+                    "Test Catalog",
+                    new[] { definition },
+                    System.Array.Empty<NpcBodySilhouette>(),
+                    System.Array.Empty<NpcSkinPalette>(),
+                    System.Array.Empty<NpcOutfitSet>(),
+                    System.Array.Empty<NpcHairSet>());
+
+                Assert.That(
+                    catalog.RegisterAssetsFrom(definition),
+                    Is.True);
+                Assert.That(catalog.Bodies, Has.Count.EqualTo(1));
+                Assert.That(catalog.Skins, Has.Count.EqualTo(1));
+                Assert.That(catalog.Outfits, Has.Count.EqualTo(1));
+                Assert.That(catalog.Hair, Has.Count.EqualTo(1));
+                Assert.That(
+                    catalog.TryValidate(out string reason),
+                    Is.True,
+                    reason);
+            }
+            finally
+            {
+                Object.DestroyImmediate(catalog);
+                Object.DestroyImmediate(definition);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
         public void SameTemplateAndSeed_ProduceSameSelection()
         {
             AppearanceFixture fixture = new AppearanceFixture();
@@ -190,6 +417,242 @@ namespace BigRetail.Characters.Rigging.Tests
             {
                 DestroyObjects(variants);
                 Object.DestroyImmediate(definition);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void WomanOnlyPopulation_GeneratesCompatibleAppearance()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcBodySilhouette feminineBody = null;
+            NpcPopulationDefinition definition = null;
+
+            try
+            {
+                feminineBody = ScriptableObject
+                    .CreateInstance<NpcBodySilhouette>();
+
+                feminineBody.Configure(
+                    "Test Feminine Body",
+                    NpcBodySilhouetteKind.Feminine,
+                    fixture.Body.PartShapes,
+                    null);
+
+                definition = ScriptableObject
+                    .CreateInstance<NpcPopulationDefinition>();
+
+                definition.Configure(
+                    "Women Customers",
+                    NpcCharacterRole.Customer,
+                    new[]
+                    {
+                        new NpcWeightedBodyChoice(fixture.Body),
+                        new NpcWeightedBodyChoice(feminineBody)
+                    },
+                    new[] { new NpcWeightedSkinChoice(fixture.Skin) },
+                    new[] { new NpcWeightedOutfitChoice(fixture.Outfit) },
+                    new[] { new NpcWeightedHairChoice(fixture.Hair) });
+
+                definition.SetGenderWeights(0, 1);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        definition,
+                        1234,
+                        null,
+                        null,
+                        out NpcAppearanceSelection generated,
+                        out string reason),
+                    Is.True,
+                    reason);
+
+                Assert.That(
+                    generated.Gender,
+                    Is.EqualTo(NpcPersonGender.Woman));
+                Assert.That(
+                    generated.BodySilhouette,
+                    Is.SameAs(feminineBody));
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+                Object.DestroyImmediate(feminineBody);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void LegacySharedPool_SplitsIntoMenAndWomenPools()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcBodySilhouette feminineBody = null;
+            NpcPopulationDefinition definition = null;
+
+            try
+            {
+                feminineBody = ScriptableObject
+                    .CreateInstance<NpcBodySilhouette>();
+
+                feminineBody.Configure(
+                    "Test Feminine Body",
+                    NpcBodySilhouetteKind.Feminine,
+                    fixture.Body.PartShapes,
+                    null);
+
+                definition = ScriptableObject
+                    .CreateInstance<NpcPopulationDefinition>();
+
+                definition.Configure(
+                    "Customers",
+                    NpcCharacterRole.Customer,
+                    new[]
+                    {
+                        new NpcWeightedBodyChoice(fixture.Body),
+                        new NpcWeightedBodyChoice(feminineBody)
+                    },
+                    new[] { new NpcWeightedSkinChoice(fixture.Skin) },
+                    new[] { new NpcWeightedOutfitChoice(fixture.Outfit) },
+                    new[] { new NpcWeightedHairChoice(fixture.Hair) });
+
+                Assert.That(
+                    definition.MenAppearance.Bodies,
+                    Has.Count.EqualTo(1));
+                Assert.That(
+                    definition.MenAppearance.Bodies[0].Asset,
+                    Is.SameAs(fixture.Body));
+                Assert.That(
+                    definition.WomenAppearance.Bodies,
+                    Has.Count.EqualTo(1));
+                Assert.That(
+                    definition.WomenAppearance.Bodies[0].Asset,
+                    Is.SameAs(feminineBody));
+                Assert.That(
+                    definition.MenAppearance.Skins,
+                    Has.Count.EqualTo(1));
+                Assert.That(
+                    definition.WomenAppearance.Skins,
+                    Has.Count.EqualTo(1));
+                Assert.That(
+                    definition.MenAppearance.Outfits,
+                    Has.Count.EqualTo(1));
+                Assert.That(
+                    definition.WomenAppearance.Outfits,
+                    Has.Count.EqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+                Object.DestroyImmediate(feminineBody);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void GeneratorUsesOnlyTheSelectedGenderPool()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcBodySilhouette feminineBody = null;
+            NpcSkinPalette womenSkin = null;
+            NpcPopulationDefinition definition = null;
+
+            try
+            {
+                feminineBody = ScriptableObject
+                    .CreateInstance<NpcBodySilhouette>();
+
+                feminineBody.Configure(
+                    "Test Feminine Body",
+                    NpcBodySilhouetteKind.Feminine,
+                    fixture.Body.PartShapes,
+                    null);
+
+                womenSkin = Object.Instantiate(fixture.Skin);
+                womenSkin.name = "Women Pool Skin";
+
+                NpcPopulationAppearancePool men =
+                    CreateAppearancePool(
+                        fixture.Body,
+                        fixture.Skin,
+                        fixture.Outfit,
+                        fixture.Hair);
+
+                NpcPopulationAppearancePool women =
+                    CreateAppearancePool(
+                        feminineBody,
+                        womenSkin,
+                        fixture.Outfit,
+                        fixture.Hair);
+
+                definition = ScriptableObject
+                    .CreateInstance<NpcPopulationDefinition>();
+
+                definition.Configure(
+                    "Customers",
+                    NpcCharacterRole.Customer,
+                    men,
+                    women,
+                    0,
+                    1);
+
+                Assert.That(
+                    NpcAppearanceGenerator.TryGenerate(
+                        definition,
+                        703,
+                        null,
+                        null,
+                        out NpcAppearanceSelection generated,
+                        out string reason),
+                    Is.True,
+                    reason);
+
+                Assert.That(
+                    generated.Gender,
+                    Is.EqualTo(NpcPersonGender.Woman));
+                Assert.That(
+                    generated.BodySilhouette,
+                    Is.SameAs(feminineBody));
+                Assert.That(
+                    generated.SkinPalette,
+                    Is.SameAs(womenSkin));
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+                Object.DestroyImmediate(womenSkin);
+                Object.DestroyImmediate(feminineBody);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void SelectionRejectsBodyFromDifferentGender()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+
+            try
+            {
+                NpcAppearanceSelection selection =
+                    new NpcAppearanceSelection(
+                        NpcPersonGender.Woman,
+                        fixture.Body,
+                        fixture.Skin,
+                        fixture.Outfit,
+                        fixture.Hair);
+
+                Assert.That(
+                    selection.TryValidate(out string reason),
+                    Is.False);
+                StringAssert.Contains(
+                    "body",
+                    reason.ToLowerInvariant());
+            }
+            finally
+            {
                 fixture.Dispose();
             }
         }
@@ -398,6 +861,45 @@ namespace BigRetail.Characters.Rigging.Tests
                     new NpcWeightedHairChoice(fixture.Hair),
                     new NpcWeightedHairChoice(alternateHair)
                 });
+
+            return definition;
+        }
+
+
+        private static NpcPopulationAppearancePool CreateAppearancePool(
+            NpcBodySilhouette body,
+            NpcSkinPalette skin,
+            NpcOutfitSet outfit,
+            NpcHairSet hair)
+        {
+            NpcPopulationAppearancePool pool =
+                new NpcPopulationAppearancePool();
+
+            pool.Configure(
+                new[] { new NpcWeightedBodyChoice(body) },
+                new[] { new NpcWeightedSkinChoice(skin) },
+                new[] { new NpcWeightedOutfitChoice(outfit) },
+                new[] { new NpcWeightedHairChoice(hair) });
+
+            return pool;
+        }
+
+
+        private static NpcPopulationDefinition CreateDefinition(
+            AppearanceFixture fixture,
+            string displayName,
+            NpcCharacterRole role)
+        {
+            NpcPopulationDefinition definition =
+                ScriptableObject.CreateInstance<NpcPopulationDefinition>();
+
+            definition.Configure(
+                displayName,
+                role,
+                new[] { new NpcWeightedBodyChoice(fixture.Body) },
+                new[] { new NpcWeightedSkinChoice(fixture.Skin) },
+                new[] { new NpcWeightedOutfitChoice(fixture.Outfit) },
+                new[] { new NpcWeightedHairChoice(fixture.Hair) });
 
             return definition;
         }

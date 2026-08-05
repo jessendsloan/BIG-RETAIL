@@ -8,7 +8,10 @@ namespace BigRetail.Characters.Editor
     public static class NpcPopulationStarterFactory
     {
         private const string MenuPath =
-            "Big Retail/Characters/Population Studio/Repair Starter Content";
+            "Big Retail/Population/Setup/Repair Starter Content";
+
+        private const string MasculineStylePackMenuPath =
+            "Big Retail/Population/Setup/Add Masculine Style Pack";
 
         private const string RootFolder =
             "Assets/Art/Characters/Appearance";
@@ -339,14 +342,234 @@ namespace BigRetail.Characters.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
+            // Repair restores the complete supported starter library. The
+            // pack command is idempotent, so this never duplicates choices.
+            AddMasculineStylePack();
+
             Selection.activeObject = catalog;
             EditorGUIUtility.PingObject(catalog);
 
             Debug.Log(
-                "Population Studio starter content is ready: Customer " +
-                "and Store Employee definitions, two body silhouettes, " +
-                "six skin palettes, four outfits, four hair sets, and " +
+                "Population Definitions starter content is ready: Customer " +
+                "and Store Employee definitions, four body silhouettes, " +
+                "six skin palettes, seven outfits, seven hair sets, and " +
                 "one neutral default appearance.");
+        }
+
+
+        [MenuItem(MasculineStylePackMenuPath)]
+        public static void AddMasculineStylePack()
+        {
+            EnsureFolder(BodyFolder);
+            EnsureFolder(OutfitFolder);
+            EnsureFolder(HairFolder);
+
+            GameObject basePersonPrefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    BasePersonPrefabPath);
+
+            NpcCutoutRig baseRig =
+                basePersonPrefab != null
+                    ? basePersonPrefab.GetComponent<NpcCutoutRig>()
+                    : null;
+
+            if (baseRig == null)
+            {
+                throw new UnityException(
+                    "The shared Person prefab is missing or has no " +
+                    "NpcCutoutRig. Repair the base character before " +
+                    "installing the style pack.");
+            }
+
+            NpcPopulationDefinition customer =
+                AssetDatabase.LoadAssetAtPath<NpcPopulationDefinition>(
+                    PopulationDefinitionFolder + "/Customer.asset");
+
+            NpcPopulationDefinition employee =
+                AssetDatabase.LoadAssetAtPath<NpcPopulationDefinition>(
+                    PopulationDefinitionFolder + "/StoreEmployee.asset");
+
+            NpcAppearanceCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<NpcAppearanceCatalog>(
+                    CatalogFolder + "/PersonAppearanceCatalog.asset");
+
+            if (customer == null || employee == null || catalog == null)
+            {
+                throw new UnityException(
+                    "The starter population library is incomplete. Run " +
+                    "Repair Starter Content once, then add this pack.");
+            }
+
+            List<NpcAppearancePartShape> baselineShapes =
+                CapturePartShapes(baseRig);
+
+            List<NpcAppearanceBonePlacement> baselineBones =
+                CaptureWidthBones(baseRig);
+
+            NpcBodySilhouette leanMasculine =
+                CreateMasculineBodyVariant(
+                    "Lean Masculine",
+                    "LeanMasculine",
+                    baselineShapes,
+                    baselineBones,
+                    0.88f,
+                    0.90f,
+                    0.88f,
+                    0.92f,
+                    0.88f,
+                    0.92f);
+
+            NpcBodySilhouette broadMasculine =
+                CreateMasculineBodyVariant(
+                    "Broad Masculine",
+                    "BroadMasculine",
+                    baselineShapes,
+                    baselineBones,
+                    1.13f,
+                    1.04f,
+                    1.08f,
+                    1.03f,
+                    1.12f,
+                    1.04f);
+
+            NpcOutfitSet burgundyCrewneck = CreateOutfit(
+                baseRig,
+                "Burgundy Crewneck / Dark Denim",
+                "BurgundyCrewneckDarkDenim",
+                new Color(0.43f, 0.10f, 0.15f, 1f),
+                new Color(0.10f, 0.16f, 0.24f, 1f),
+                new Color(0.08f, 0.065f, 0.055f, 1f),
+                new Color(0.72f, 0.58f, 0.42f, 1f),
+                false,
+                false,
+                NpcGenderCompatibility.Men);
+
+            NpcOutfitSet mustardOvershirt = CreateOutfit(
+                baseRig,
+                "Mustard Overshirt / Navy Chinos",
+                "MustardOvershirtNavyChinos",
+                new Color(0.68f, 0.43f, 0.10f, 1f),
+                new Color(0.11f, 0.17f, 0.26f, 1f),
+                new Color(0.16f, 0.10f, 0.06f, 1f),
+                new Color(0.91f, 0.78f, 0.42f, 1f),
+                false,
+                true,
+                NpcGenderCompatibility.Men);
+
+            NpcOutfitSet slateEmployeeShirt = CreateOutfit(
+                baseRig,
+                "Slate Employee Shirt",
+                "SlateEmployeeShirt",
+                new Color(0.22f, 0.31f, 0.38f, 1f),
+                new Color(0.13f, 0.15f, 0.18f, 1f),
+                new Color(0.055f, 0.06f, 0.07f, 1f),
+                new Color(0.93f, 0.77f, 0.36f, 1f),
+                true,
+                true,
+                NpcGenderCompatibility.Men);
+
+            NpcHairSet sidePart = CreateHairSet(
+                baseRig,
+                "Tidy Side Part / Chestnut",
+                "TidySidePartChestnut",
+                new Color(0.22f, 0.095f, 0.045f, 1f),
+                baselineShapes,
+                0.78f,
+                0.015f,
+                0.88f,
+                0.025f,
+                0.92f,
+                1.12f,
+                NpcGenderCompatibility.Men,
+                CreateSidePartLayers(baseRig));
+
+            NpcHairSet buzzCut = CreateHairSet(
+                baseRig,
+                "Buzz Cut / Dark Brown",
+                "BuzzCutDarkBrown",
+                new Color(0.095f, 0.065f, 0.05f, 1f),
+                baselineShapes,
+                0.56f,
+                0.04f,
+                0.48f,
+                0.055f,
+                0.80f,
+                0.82f,
+                NpcGenderCompatibility.Men,
+                CreateBuzzCutLayers(baseRig));
+
+            NpcHairSet tousledCrop = CreateHairSet(
+                baseRig,
+                "Tousled Crop / Sandy Brown",
+                "TousledCropSandyBrown",
+                new Color(0.43f, 0.29f, 0.16f, 1f),
+                baselineShapes,
+                0.82f,
+                0.015f,
+                1.18f,
+                0.045f,
+                0.94f,
+                1.08f,
+                NpcGenderCompatibility.Men,
+                CreateTousledCropLayers(baseRig));
+
+            NpcPopulationAppearancePool customerMen =
+                ExpandAppearancePool(
+                    customer.MenAppearance,
+                    new[] { leanMasculine, broadMasculine },
+                    new[] { burgundyCrewneck, mustardOvershirt },
+                    new[] { sidePart, buzzCut, tousledCrop });
+
+            customer.Configure(
+                customer.DisplayName,
+                customer.Role,
+                customerMen,
+                customer.WomenAppearance,
+                customer.MenWeight,
+                customer.WomenWeight);
+
+            NpcPopulationAppearancePool employeeMen =
+                ExpandAppearancePool(
+                    employee.MenAppearance,
+                    new[] { leanMasculine, broadMasculine },
+                    new[] { slateEmployeeShirt },
+                    new[] { sidePart, buzzCut, tousledCrop });
+
+            employee.Configure(
+                employee.DisplayName,
+                employee.Role,
+                employeeMen,
+                employee.WomenAppearance,
+                employee.MenWeight,
+                employee.WomenWeight);
+
+            catalog.RegisterAssetsFrom(customer);
+            catalog.RegisterAssetsFrom(employee);
+
+            MarkDirty(
+                leanMasculine,
+                broadMasculine,
+                burgundyCrewneck,
+                mustardOvershirt,
+                slateEmployeeShirt,
+                sidePart,
+                buzzCut,
+                tousledCrop,
+                customer,
+                employee,
+                catalog);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Selection.activeObject = catalog;
+            EditorGUIUtility.PingObject(catalog);
+
+            Debug.Log(
+                "Masculine style pack installed: two body types, three " +
+                "hairstyles, two customer outfits, and one employee " +
+                "uniform were added to the Men appearance pools. Women " +
+                "appearance pools were preserved unchanged.");
         }
 
 
@@ -407,6 +630,177 @@ namespace BigRetail.Characters.Editor
             }
 
             return choices;
+        }
+
+
+        private static NpcPopulationAppearancePool ExpandAppearancePool(
+            NpcPopulationAppearancePool source,
+            IReadOnlyList<NpcBodySilhouette> addedBodies,
+            IReadOnlyList<NpcOutfitSet> addedOutfits,
+            IReadOnlyList<NpcHairSet> addedHair)
+        {
+            source ??= new NpcPopulationAppearancePool();
+
+            NpcPopulationAppearancePool expanded =
+                new NpcPopulationAppearancePool();
+
+            expanded.Configure(
+                AppendBodyChoices(source.Bodies, addedBodies),
+                source.Skins,
+                AppendOutfitChoices(source.Outfits, addedOutfits),
+                AppendHairChoices(source.Hair, addedHair));
+
+            return expanded;
+        }
+
+
+        private static List<NpcWeightedBodyChoice> AppendBodyChoices(
+            IReadOnlyList<NpcWeightedBodyChoice> source,
+            IReadOnlyList<NpcBodySilhouette> additions)
+        {
+            List<NpcWeightedBodyChoice> choices =
+                new List<NpcWeightedBodyChoice>();
+
+            if (source != null)
+            {
+                for (int index = 0; index < source.Count; index++)
+                {
+                    choices.Add(source[index]);
+                }
+            }
+
+            if (additions == null)
+            {
+                return choices;
+            }
+
+            for (int index = 0; index < additions.Count; index++)
+            {
+                NpcBodySilhouette asset = additions[index];
+
+                if (asset != null && !ContainsBody(choices, asset))
+                {
+                    choices.Add(new NpcWeightedBodyChoice(asset));
+                }
+            }
+
+            return choices;
+        }
+
+
+        private static List<NpcWeightedOutfitChoice> AppendOutfitChoices(
+            IReadOnlyList<NpcWeightedOutfitChoice> source,
+            IReadOnlyList<NpcOutfitSet> additions)
+        {
+            List<NpcWeightedOutfitChoice> choices =
+                new List<NpcWeightedOutfitChoice>();
+
+            if (source != null)
+            {
+                for (int index = 0; index < source.Count; index++)
+                {
+                    choices.Add(source[index]);
+                }
+            }
+
+            if (additions == null)
+            {
+                return choices;
+            }
+
+            for (int index = 0; index < additions.Count; index++)
+            {
+                NpcOutfitSet asset = additions[index];
+
+                if (asset != null && !ContainsOutfit(choices, asset))
+                {
+                    choices.Add(new NpcWeightedOutfitChoice(asset));
+                }
+            }
+
+            return choices;
+        }
+
+
+        private static List<NpcWeightedHairChoice> AppendHairChoices(
+            IReadOnlyList<NpcWeightedHairChoice> source,
+            IReadOnlyList<NpcHairSet> additions)
+        {
+            List<NpcWeightedHairChoice> choices =
+                new List<NpcWeightedHairChoice>();
+
+            if (source != null)
+            {
+                for (int index = 0; index < source.Count; index++)
+                {
+                    choices.Add(source[index]);
+                }
+            }
+
+            if (additions == null)
+            {
+                return choices;
+            }
+
+            for (int index = 0; index < additions.Count; index++)
+            {
+                NpcHairSet asset = additions[index];
+
+                if (asset != null && !ContainsHair(choices, asset))
+                {
+                    choices.Add(new NpcWeightedHairChoice(asset));
+                }
+            }
+
+            return choices;
+        }
+
+
+        private static bool ContainsBody(
+            IReadOnlyList<NpcWeightedBodyChoice> choices,
+            NpcBodySilhouette asset)
+        {
+            for (int index = 0; index < choices.Count; index++)
+            {
+                if (choices[index]?.Asset == asset)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        private static bool ContainsOutfit(
+            IReadOnlyList<NpcWeightedOutfitChoice> choices,
+            NpcOutfitSet asset)
+        {
+            for (int index = 0; index < choices.Count; index++)
+            {
+                if (choices[index]?.Asset == asset)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        private static bool ContainsHair(
+            IReadOnlyList<NpcWeightedHairChoice> choices,
+            NpcHairSet asset)
+        {
+            for (int index = 0; index < choices.Count; index++)
+            {
+                if (choices[index]?.Asset == asset)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 
@@ -564,6 +958,128 @@ namespace BigRetail.Characters.Editor
         }
 
 
+        private static NpcBodySilhouette CreateMasculineBodyVariant(
+            string displayName,
+            string fileName,
+            IReadOnlyList<NpcAppearancePartShape> sourceShapes,
+            IReadOnlyList<NpcAppearanceBonePlacement> sourceBones,
+            float torsoWidth,
+            float pelvisWidth,
+            float armWidth,
+            float legWidth,
+            float shoulderSpacing,
+            float thighSpacing)
+        {
+            NpcBodySilhouette body =
+                LoadOrCreate<NpcBodySilhouette>(
+                    BodyFolder + "/" + fileName + ".asset");
+
+            body.Configure(
+                displayName,
+                NpcBodySilhouetteKind.Masculine,
+                CreateMasculineShapes(
+                    sourceShapes,
+                    torsoWidth,
+                    pelvisWidth,
+                    armWidth,
+                    legWidth),
+                CreateMasculineBones(
+                    sourceBones,
+                    shoulderSpacing,
+                    thighSpacing));
+
+            EditorUtility.SetDirty(body);
+            return body;
+        }
+
+
+        private static List<NpcAppearancePartShape>
+            CreateMasculineShapes(
+                IReadOnlyList<NpcAppearancePartShape> source,
+                float torsoWidth,
+                float pelvisWidth,
+                float armWidth,
+                float legWidth)
+        {
+            List<NpcAppearancePartShape> shapes =
+                new List<NpcAppearancePartShape>(source.Count);
+
+            for (int index = 0; index < source.Count; index++)
+            {
+                NpcAppearancePartShape shape = source[index];
+                Vector2 size = shape.Size;
+
+                switch (shape.Id)
+                {
+                    case NpcRigPartId.Torso:
+                        size.x *= torsoWidth;
+                        break;
+
+                    case NpcRigPartId.Pelvis:
+                        size.x *= pelvisWidth;
+                        break;
+
+                    case NpcRigPartId.UpperArmSourceCameraLeft:
+                    case NpcRigPartId.UpperArmSourceCameraRight:
+                    case NpcRigPartId.ForearmSourceCameraLeft:
+                    case NpcRigPartId.ForearmSourceCameraRight:
+                    case NpcRigPartId.HandSourceCameraLeft:
+                    case NpcRigPartId.HandSourceCameraRight:
+                        size.x *= armWidth;
+                        break;
+
+                    case NpcRigPartId.ThighSourceCameraLeft:
+                    case NpcRigPartId.ThighSourceCameraRight:
+                    case NpcRigPartId.ShinSourceCameraLeft:
+                    case NpcRigPartId.ShinSourceCameraRight:
+                        size.x *= legWidth;
+                        break;
+                }
+
+                shapes.Add(shape.WithSize(size));
+            }
+
+            return shapes;
+        }
+
+
+        private static List<NpcAppearanceBonePlacement>
+            CreateMasculineBones(
+                IReadOnlyList<NpcAppearanceBonePlacement> source,
+                float shoulderSpacing,
+                float thighSpacing)
+        {
+            List<NpcAppearanceBonePlacement> placements =
+                new List<NpcAppearanceBonePlacement>(source.Count);
+
+            for (int index = 0; index < source.Count; index++)
+            {
+                NpcAppearanceBonePlacement placement = source[index];
+                Vector3 position = placement.LocalPosition;
+
+                switch (placement.Id)
+                {
+                    case NpcRigBoneId.ShoulderSourceCameraLeft:
+                    case NpcRigBoneId.ShoulderSourceCameraRight:
+                        position.x *= shoulderSpacing;
+                        break;
+
+                    case NpcRigBoneId.ThighSourceCameraLeft:
+                    case NpcRigBoneId.ThighSourceCameraRight:
+                        position.x *= thighSpacing;
+                        break;
+                }
+
+                placements.Add(
+                    new NpcAppearanceBonePlacement(
+                        placement.Id,
+                        position));
+            }
+
+            return placements;
+        }
+
+
         private static NpcSkinPalette CreateSkinPalette(
             string displayName,
             Color color,
@@ -588,7 +1104,9 @@ namespace BigRetail.Characters.Editor
             Color footwear,
             Color accent,
             bool showBadge,
-            bool exposeForearms)
+            bool exposeForearms,
+            NpcGenderCompatibility supportedGenders =
+                NpcGenderCompatibility.Everyone)
         {
             List<NpcOutfitPartStyle> styles =
                 new List<NpcOutfitPartStyle>();
@@ -631,6 +1149,7 @@ namespace BigRetail.Characters.Editor
                 footwear,
                 accent,
                 showBadge,
+                supportedGenders,
                 styles);
 
             EditorUtility.SetDirty(outfit);
@@ -685,7 +1204,12 @@ namespace BigRetail.Characters.Editor
             float rearHeightMultiplier,
             float rearYOffset,
             float frontHeightMultiplier,
-            float frontYOffset)
+            float frontYOffset,
+            float rearWidthMultiplier = 1f,
+            float frontWidthMultiplier = 1f,
+            NpcGenderCompatibility supportedGenders =
+                NpcGenderCompatibility.Everyone,
+            IEnumerable<NpcHairDetailLayer> detailLayers = null)
         {
             NpcAppearancePartShape rearBase = FindShape(
                 bodyShapes,
@@ -698,12 +1222,14 @@ namespace BigRetail.Characters.Editor
             NpcAppearancePartShape rearShape =
                 CreateHairShape(
                     rearBase,
+                    rearWidthMultiplier,
                     rearHeightMultiplier,
                     rearYOffset);
 
             NpcAppearancePartShape frontShape =
                 CreateHairShape(
                     frontBase,
+                    frontWidthMultiplier,
                     frontHeightMultiplier,
                     frontYOffset);
 
@@ -722,6 +1248,7 @@ namespace BigRetail.Characters.Editor
             hair.Configure(
                 displayName,
                 color,
+                supportedGenders,
                 new NpcOutfitPartStyle(
                     NpcRigPartId.HairRear,
                     NpcAppearanceColorRole.Preserve,
@@ -733,19 +1260,208 @@ namespace BigRetail.Characters.Editor
                     frontSprite,
                     frontSprite),
                 rearShape,
-                frontShape);
+                frontShape,
+                detailLayers);
 
             EditorUtility.SetDirty(hair);
             return hair;
         }
 
 
+        private static IEnumerable<NpcHairDetailLayer>
+            CreateSidePartLayers(
+                NpcCutoutRig rig)
+        {
+            Sprite sprite = GetPartSprite(
+                rig,
+                NpcRigPartId.HairFront);
+
+            return new[]
+            {
+                CreateHairLayer(
+                    "Side Sweep",
+                    NpcHairLayerDepth.Crown,
+                    1.08f,
+                    sprite,
+                    new Vector2(0.055f, 0.245f),
+                    new Vector2(0.25f, 0.10f),
+                    -10f,
+                    new Vector2(-0.055f, 0.245f),
+                    new Vector2(0.25f, 0.10f),
+                    10f),
+                CreateHairLayer(
+                    "Side Lock",
+                    NpcHairLayerDepth.Fringe,
+                    0.90f,
+                    sprite,
+                    new Vector2(0.18f, 0.105f),
+                    new Vector2(0.075f, 0.16f),
+                    -8f,
+                    new Vector2(-0.18f, 0.105f),
+                    new Vector2(0.075f, 0.16f),
+                    8f,
+                    true,
+                    false),
+                CreateHairLayer(
+                    "Part Line",
+                    NpcHairLayerDepth.Fringe,
+                    0.55f,
+                    sprite,
+                    new Vector2(-0.045f, 0.258f),
+                    new Vector2(0.14f, 0.022f),
+                    -7f,
+                    new Vector2(0.045f, 0.258f),
+                    new Vector2(0.14f, 0.022f),
+                    7f,
+                    true,
+                    false)
+            };
+        }
+
+
+        private static IEnumerable<NpcHairDetailLayer>
+            CreateBuzzCutLayers(
+                NpcCutoutRig rig)
+        {
+            Sprite sprite = GetPartSprite(
+                rig,
+                NpcRigPartId.HairRear);
+
+            return new[]
+            {
+                CreateHairLayer(
+                    "Camera Left Taper",
+                    NpcHairLayerDepth.BehindHead,
+                    0.72f,
+                    sprite,
+                    new Vector2(-0.185f, 0.085f),
+                    new Vector2(0.055f, 0.15f),
+                    0f,
+                    new Vector2(-0.185f, 0.085f),
+                    new Vector2(0.055f, 0.15f),
+                    0f),
+                CreateHairLayer(
+                    "Camera Right Taper",
+                    NpcHairLayerDepth.BehindHead,
+                    0.82f,
+                    sprite,
+                    new Vector2(0.185f, 0.085f),
+                    new Vector2(0.055f, 0.15f),
+                    0f,
+                    new Vector2(0.185f, 0.085f),
+                    new Vector2(0.055f, 0.15f),
+                    0f)
+            };
+        }
+
+
+        private static IEnumerable<NpcHairDetailLayer>
+            CreateTousledCropLayers(
+                NpcCutoutRig rig)
+        {
+            Sprite sprite = GetPartSprite(
+                rig,
+                NpcRigPartId.HairFront);
+
+            return new[]
+            {
+                CreateHairLayer(
+                    "Left Crown Tuft",
+                    NpcHairLayerDepth.Crown,
+                    0.94f,
+                    sprite,
+                    new Vector2(-0.12f, 0.255f),
+                    new Vector2(0.13f, 0.075f),
+                    24f,
+                    new Vector2(-0.12f, 0.255f),
+                    new Vector2(0.13f, 0.075f),
+                    24f),
+                CreateHairLayer(
+                    "Center Crown Tuft",
+                    NpcHairLayerDepth.Crown,
+                    1.08f,
+                    sprite,
+                    new Vector2(0f, 0.275f),
+                    new Vector2(0.14f, 0.085f),
+                    2f,
+                    new Vector2(0f, 0.275f),
+                    new Vector2(0.14f, 0.085f),
+                    -2f),
+                CreateHairLayer(
+                    "Right Crown Tuft",
+                    NpcHairLayerDepth.Crown,
+                    0.88f,
+                    sprite,
+                    new Vector2(0.12f, 0.25f),
+                    new Vector2(0.13f, 0.075f),
+                    -24f,
+                    new Vector2(0.12f, 0.25f),
+                    new Vector2(0.13f, 0.075f),
+                    -24f),
+                CreateHairLayer(
+                    "Loose Fringe",
+                    NpcHairLayerDepth.Fringe,
+                    0.98f,
+                    sprite,
+                    new Vector2(0.14f, 0.16f),
+                    new Vector2(0.075f, 0.14f),
+                    -17f,
+                    new Vector2(-0.14f, 0.16f),
+                    new Vector2(0.075f, 0.14f),
+                    17f,
+                    true,
+                    false)
+            };
+        }
+
+
+        private static NpcHairDetailLayer CreateHairLayer(
+            string displayName,
+            NpcHairLayerDepth depth,
+            float shadeMultiplier,
+            Sprite sprite,
+            Vector2 southEastPosition,
+            Vector2 southEastSize,
+            float southEastAngle,
+            Vector2 northEastPosition,
+            Vector2 northEastSize,
+            float northEastAngle,
+            bool southEastVisible = true,
+            bool northEastVisible = true)
+        {
+            return new NpcHairDetailLayer(
+                displayName,
+                depth,
+                shadeMultiplier,
+                sprite,
+                sprite,
+                new NpcHairLayerPose(
+                    new Vector3(
+                        southEastPosition.x,
+                        southEastPosition.y,
+                        0f),
+                    new Vector3(0f, 0f, southEastAngle),
+                    southEastSize,
+                    southEastVisible),
+                new NpcHairLayerPose(
+                    new Vector3(
+                        northEastPosition.x,
+                        northEastPosition.y,
+                        0f),
+                    new Vector3(0f, 0f, northEastAngle),
+                    northEastSize,
+                    northEastVisible));
+        }
+
+
         private static NpcAppearancePartShape CreateHairShape(
             NpcAppearancePartShape source,
+            float widthMultiplier,
             float heightMultiplier,
             float yOffset)
         {
             Vector2 size = source.Size;
+            size.x *= widthMultiplier;
             size.y *= heightMultiplier;
 
             Vector3 position = source.LocalPosition;
