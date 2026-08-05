@@ -169,6 +169,77 @@ namespace BigRetail.Map.View.Tests
         }
 
 
+        [Test]
+        public void WallsUp_AlwaysUsesFullStructuralWall()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.WallsUp,
+                    wallOccludesFoundation: true);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Full));
+        }
+
+
+        [Test]
+        public void WallsDown_AlwaysUsesLowStructuralWall()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.WallsDown,
+                    wallOccludesFoundation: false);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Low));
+        }
+
+
+        [Test]
+        public void Cutaway_LowersWallThatOccludesFoundation()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    wallOccludesFoundation: true);
+
+            Assert.That(height, Is.EqualTo(WallPresentationHeight.Low));
+        }
+
+
+        [Test]
+        public void Cutaway_KeepsWallThatDoesNotOccludeFoundationFull()
+        {
+            WallPresentationHeight height =
+                WallPresentationHeightResolver.Resolve(
+                    WallDisplayMode.Cutaway,
+                    wallOccludesFoundation: false);
+
+            Assert.That(
+                height,
+                Is.EqualTo(WallPresentationHeight.Full));
+        }
+
+
+        [Test]
+        public void WallDisplayModeCycle_VisitsAllModesAndWraps()
+        {
+            WallDisplayMode cutaway =
+                WallDisplayModeCycle.Next(
+                    WallDisplayMode.WallsUp);
+
+            WallDisplayMode wallsDown =
+                WallDisplayModeCycle.Next(
+                    cutaway);
+
+            WallDisplayMode wallsUp =
+                WallDisplayModeCycle.Next(
+                    wallsDown);
+
+            Assert.That(cutaway, Is.EqualTo(WallDisplayMode.Cutaway));
+            Assert.That(wallsDown, Is.EqualTo(WallDisplayMode.WallsDown));
+            Assert.That(wallsUp, Is.EqualTo(WallDisplayMode.WallsUp));
+        }
+
+
         private static IsometricViewProjection CreateProjection(
             IsometricViewOrientation orientation)
         {

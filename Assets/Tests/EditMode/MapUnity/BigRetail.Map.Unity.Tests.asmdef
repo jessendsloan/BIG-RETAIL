@@ -4,7 +4,10 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "BigRetail.Map.Construction",
         "BigRetail.Map.Domain",
+        "BigRetail.Map.Foundations",
+        "BigRetail.Map.Floors",
         "BigRetail.Map.View",
         "BigRetail.Map.Walls",
         "BigRetail.Map.Unity"

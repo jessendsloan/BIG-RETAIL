@@ -20,7 +20,8 @@ namespace BigRetail.Construction.Unity.Walls
         private enum SegmentPreviewStatus
         {
             AlreadyEmpty = 0,
-            Removable = 1
+            Removable = 1,
+            ProtectedByDoor = 2
         }
 
 
@@ -63,6 +64,14 @@ namespace BigRetail.Construction.Unity.Walls
                 0.55f,
                 0.65f);
 
+        [SerializeField]
+        private Color protectedByDoorColor =
+            new Color(
+                1f,
+                0.2f,
+                0.2f,
+                0.95f);
+
         [Tooltip(
             "Optional world-space adjustment applied to every demolition "
             + "pylon after its grid-vertex position has been calculated.")]
@@ -87,6 +96,8 @@ namespace BigRetail.Construction.Unity.Walls
         public int RemovableSegmentCount { get; private set; }
 
         public int AlreadyEmptySegmentCount { get; private set; }
+
+        public int ProtectedByDoorSegmentCount { get; private set; }
 
 
         private void Awake()
@@ -131,6 +142,7 @@ namespace BigRetail.Construction.Unity.Walls
             VisibleSegmentCount = 0;
             RemovableSegmentCount = 0;
             AlreadyEmptySegmentCount = 0;
+            ProtectedByDoorSegmentCount = 0;
             IsPlanValid = false;
             IsVisible = true;
         }
@@ -155,6 +167,7 @@ namespace BigRetail.Construction.Unity.Walls
 
             RemovableSegmentCount = 0;
             AlreadyEmptySegmentCount = 0;
+            ProtectedByDoorSegmentCount = 0;
 
             for (int index = 0;
                  index < plan.SegmentCount;
@@ -201,7 +214,8 @@ namespace BigRetail.Construction.Unity.Walls
             VisibleSegmentCount =
                 plan.SegmentCount;
 
-            IsPlanValid = true;
+            IsPlanValid =
+                ProtectedByDoorSegmentCount == 0;
             IsVisible = VisibleVertexCount > 0;
         }
 
@@ -219,6 +233,7 @@ namespace BigRetail.Construction.Unity.Walls
             VisibleSegmentCount = 0;
             RemovableSegmentCount = 0;
             AlreadyEmptySegmentCount = 0;
+            ProtectedByDoorSegmentCount = 0;
             IsPlanValid = false;
             IsVisible = false;
         }
@@ -227,6 +242,15 @@ namespace BigRetail.Construction.Unity.Walls
         private SegmentPreviewStatus EvaluateSegment(
             CellEdge edge)
         {
+            if (mapHost.DoorAssemblies != null
+                && mapHost.DoorAssemblies.TryGetAssemblyAtEdge(
+                    edge,
+                    out _))
+            {
+                ProtectedByDoorSegmentCount++;
+                return SegmentPreviewStatus.ProtectedByDoor;
+            }
+
             if (mapHost.WallConstruction.HasWall(edge))
             {
                 RemovableSegmentCount++;
@@ -274,6 +298,9 @@ namespace BigRetail.Construction.Unity.Walls
 
                 case SegmentPreviewStatus.AlreadyEmpty:
                     return alreadyEmptyColor;
+
+                case SegmentPreviewStatus.ProtectedByDoor:
+                    return protectedByDoorColor;
 
                 default:
                     return alreadyEmptyColor;

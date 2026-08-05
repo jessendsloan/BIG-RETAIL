@@ -15,4 +15,6 @@ MonoBehaviour:
   finishId: default
   risingLeft: {fileID: 21300000, guid: 18292fd0f5032a94b8c73e1bf96e4d29, type: 3}
   risingRight: {fileID: 21300000, guid: bb2c8142d67c3b54d8f1664c8f697390, type: 3}
-  catalogIcon: {fileID: 21300000, guid: 231bae8c0371d354a8733f37c6467ab4, type: 3}
+  lowRisingLeft: {fileID: 21300000, guid: 3678274920aa8e54bbfbf43c6cb3b31f, type: 3}
+  lowRisingRight: {fileID: 21300000, guid: 83801740b8c5f2d4f9a48fa22f8cb7ce, type: 3}
+  catalogIcon: {fileID: 21300000, guid: 6c29c629762c48dba8cffd904f0a00e0, type: 3}

@@ -59,7 +59,8 @@ namespace BigRetail.Map.Walls.Tests
                 new WallConstructionService(
                     map,
                     constructionArea,
-                    wallState);
+                    wallState,
+                    UnrestrictedFoundationSupportQuery.Instance);
         }
 
 

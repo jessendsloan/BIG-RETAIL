@@ -46,7 +46,8 @@ namespace BigRetail.Map.Floors.Tests
                 new FloorConstructionService(
                     map,
                     area,
-                    floorState);
+                    floorState,
+                    UnrestrictedFoundationSupportQuery.Instance);
         }
 
 

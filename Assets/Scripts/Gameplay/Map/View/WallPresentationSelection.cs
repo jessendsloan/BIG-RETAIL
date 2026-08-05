@@ -38,6 +38,92 @@ namespace BigRetail.Map.View
 
 
     /// <summary>
+    /// Controls how structural walls are presented without changing the
+    /// authoritative wall model.
+    /// </summary>
+    public enum WallDisplayMode
+    {
+        WallsUp = 0,
+        Cutaway = 1,
+        WallsDown = 2
+    }
+
+
+    /// <summary>
+    /// Selects which authored height variant is used to draw a wall. Both
+    /// variants represent the same structural wall and remain rendered.
+    /// </summary>
+    public enum WallPresentationHeight
+    {
+        Full = 0,
+        Low = 1
+    }
+
+
+    /// <summary>
+    /// Defines the conventional three-state wall-view cycle used by the UI.
+    /// </summary>
+    public static class WallDisplayModeCycle
+    {
+        public static WallDisplayMode Next(
+            WallDisplayMode currentMode)
+        {
+            switch (currentMode)
+            {
+                case WallDisplayMode.WallsUp:
+                    return WallDisplayMode.Cutaway;
+
+                case WallDisplayMode.Cutaway:
+                    return WallDisplayMode.WallsDown;
+
+                case WallDisplayMode.WallsDown:
+                    return WallDisplayMode.WallsUp;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(currentMode),
+                        currentMode,
+                        "Unknown wall display mode.");
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Resolves which authored height variant should represent a structural
+    /// wall. The caller supplies the current foundation-occlusion result so
+    /// display-mode selection remains separate from footprint analysis.
+    /// </summary>
+    public static class WallPresentationHeightResolver
+    {
+        public static WallPresentationHeight Resolve(
+            WallDisplayMode displayMode,
+            bool wallOccludesFoundation)
+        {
+            switch (displayMode)
+            {
+                case WallDisplayMode.WallsUp:
+                    return WallPresentationHeight.Full;
+
+                case WallDisplayMode.WallsDown:
+                    return WallPresentationHeight.Low;
+
+                case WallDisplayMode.Cutaway:
+                    return wallOccludesFoundation
+                            ? WallPresentationHeight.Low
+                            : WallPresentationHeight.Full;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(displayMode),
+                        displayMode,
+                        "Unknown wall display mode.");
+            }
+        }
+    }
+
+
+    /// <summary>
     /// Converts the mathematical isometric projection into the small wall
     /// presentation contract consumed by Unity rendering.
     /// </summary>

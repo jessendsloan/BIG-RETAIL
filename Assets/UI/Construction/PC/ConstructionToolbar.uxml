@@ -7,20 +7,226 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="department-picker"
+            class="department-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Departments"
+                class="department-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="department-picker-items"
+                class="department-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="foundation-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Foundations"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="finish-picker__items"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="foundation-default-button"
+                    class="finish-picker__button"
+                    tooltip="Foundation">
+                    <ui:VisualElement
+                        class="finish-picker__icon foundation-picker__icon--default"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="wall-finish-picker"
-            class="wall-finish-picker"
+            class="finish-picker"
             picking-mode="Position">
 
             <ui:Label
                 text="Wall finishes"
-                class="wall-finish-picker__title"
+                class="finish-picker__title"
                 picking-mode="Ignore" />
 
             <ui:VisualElement
                 name="wall-finish-picker-items"
-                class="wall-finish-picker__items"
+                class="finish-picker__items"
                 picking-mode="Position" />
         </ui:VisualElement>
+
+        <ui:VisualElement
+            name="floor-finish-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Floor finishes"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="floor-finish-picker-items"
+                class="finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="door-definition-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Doors"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="door-definition-picker-items"
+                class="finish-picker__items"
+                picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="demolition-picker"
+            class="demolition-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Demolish"
+                class="demolition-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="demolition-picker__items"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="demolish-foundations-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish foundations">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--foundations"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-floors-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish floors">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--floors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-walls-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish walls">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--walls"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="view-controls"
+            class="view-controls"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                name="camera-rotation-controls"
+                class="camera-rotation-controls"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="camera-view-west-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the west.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--west"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="camera-view-north-button"
+                    class="camera-rotation-controls__button is-selected"
+                    tooltip="View from the north.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--north"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="camera-view-south-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the south.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--south"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="camera-view-east-button"
+                    class="camera-rotation-controls__button"
+                    tooltip="View from the east.">
+                    <ui:VisualElement
+                        class="camera-rotation-controls__icon camera-rotation-controls__icon--east"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                name="wall-view-controls"
+                class="wall-view-controls"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="wall-view-down-button"
+                    class="wall-view-controls__button"
+                    tooltip="Walls down: show every wall at base height.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--down"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="wall-view-cutaway-button"
+                    class="wall-view-controls__button"
+                    tooltip="Cutaway: lower walls that block constructed foundation.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--cutaway"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="wall-view-up-button"
+                    class="wall-view-controls__button is-selected"
+                    tooltip="Walls up: show every wall at full height.">
+                    <ui:VisualElement
+                        class="wall-view-controls__icon wall-view-controls__icon--up"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Button
+            name="departments-button"
+            class="construction-toolbar__button departments-button"
+            tooltip="Departments">
+            <ui:VisualElement
+                class="construction-toolbar__icon construction-toolbar__icon--departments"
+                picking-mode="Ignore" />
+        </ui:Button>
 
         <ui:VisualElement
             name="construction-toolbar"
@@ -32,11 +238,11 @@
                 class="construction-toolbar__group">
 
                 <ui:Button
-                    name="walls-button"
+                    name="foundations-button"
                     class="construction-toolbar__button"
-                    tooltip="Walls">
+                    tooltip="Foundations">
                     <ui:VisualElement
-                        class="construction-toolbar__icon construction-toolbar__icon--walls"
+                        class="construction-toolbar__icon construction-toolbar__icon--foundations"
                         picking-mode="Ignore" />
                 </ui:Button>
 
@@ -46,6 +252,24 @@
                     tooltip="Floors">
                     <ui:VisualElement
                         class="construction-toolbar__icon construction-toolbar__icon--floors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="walls-button"
+                    class="construction-toolbar__button"
+                    tooltip="Walls">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--walls"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="doors-button"
+                    class="construction-toolbar__button"
+                    tooltip="Doors">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--doors"
                         picking-mode="Ignore" />
                 </ui:Button>
 

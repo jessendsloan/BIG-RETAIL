@@ -1,12 +1,12 @@
 .construction-toolbar-screen {
     flex-grow: 1;
-    justify-content: flex-end;
-    align-items: stretch;
+    position: relative;
 }
 
-.wall-finish-picker {
+.finish-picker {
     display: none;
-    align-self: center;
+    position: absolute;
+    left: 104px;
     min-width: 304px;
     flex-direction: column;
     align-items: center;
@@ -26,7 +26,25 @@
     border-top-right-radius: 10px;
 }
 
-.wall-finish-picker__title {
+.department-picker {
+    display: none;
+    position: absolute;
+    top: 24px;
+    left: 104px;
+    min-width: 296px;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: rgb(244, 240, 230);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.department-picker__title {
     height: 20px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
@@ -35,12 +53,156 @@
     -unity-text-align: middle-center;
 }
 
-.wall-finish-picker__items {
+.department-picker__items {
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
+.department-picker__button {
+    width: 82px;
+    height: 92px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding: 3px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.46);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0.16);
+    border-radius: 8px;
+}
+
+.department-picker__button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.department-picker__button:active,
+.department-picker__button.is-selected {
+    background-color: rgba(54, 63, 69, 0.20);
+}
+
+.department-picker__button.is-selected {
+    border-width: 3px;
+    border-color: rgb(35, 43, 50);
+}
+
+.department-picker__icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.department-picker__label {
+    height: 24px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    color: rgb(35, 43, 50);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+#foundation-picker {
+    top: 100px;
+}
+
+#floor-finish-picker {
+    top: 172px;
+}
+
+#wall-finish-picker {
+    top: 244px;
+}
+
+#door-definition-picker {
+    top: 316px;
+}
+
+.demolition-picker {
+    display: none;
+    position: absolute;
+    top: 388px;
+    left: 104px;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: rgb(244, 240, 230);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.demolition-picker__title {
+    height: 20px;
+    margin-bottom: 5px;
+    color: rgb(35, 43, 50);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.demolition-picker__items {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.demolition-picker__button {
+    width: 56px;
+    height: 56px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.46);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0.16);
+    border-radius: 8px;
+}
+
+.demolition-picker__button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.demolition-picker__button:active,
+.demolition-picker__button.is-selected {
+    background-color: rgba(54, 63, 69, 0.20);
+}
+
+.demolition-picker__button.is-selected {
+    border-width: 3px;
+    border-color: rgb(35, 43, 50);
+}
+
+.demolition-picker__icon {
+    width: 40px;
+    height: 40px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.finish-picker__title {
+    height: 20px;
+    margin-bottom: 5px;
+    color: rgb(35, 43, 50);
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.finish-picker__items {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.finish-picker__button,
 .wall-finish-picker__button {
     width: 64px;
     height: 72px;
@@ -64,14 +226,17 @@
     border-bottom-left-radius: 8px;
 }
 
+.finish-picker__button:hover,
 .wall-finish-picker__button:hover {
     background-color: rgba(54, 63, 69, 0.12);
 }
 
+.finish-picker__button:active,
 .wall-finish-picker__button:active {
     background-color: rgba(54, 63, 69, 0.20);
 }
 
+.finish-picker__button:focus,
 .wall-finish-picker__button:focus {
     border-top-color: rgba(35, 43, 50, 0.64);
     border-right-color: rgba(35, 43, 50, 0.64);
@@ -79,6 +244,7 @@
     border-left-color: rgba(35, 43, 50, 0.64);
 }
 
+.finish-picker__button.is-selected,
 .wall-finish-picker__button.is-selected {
     background-color: rgba(54, 63, 69, 0.18);
     border-top-width: 3px;
@@ -91,6 +257,7 @@
     border-left-color: rgb(35, 43, 50);
 }
 
+.finish-picker__icon,
 .wall-finish-picker__icon {
     width: 50px;
     height: 62px;
@@ -98,29 +265,38 @@
 }
 
 .construction-toolbar {
-    height: 68px;
-    flex-direction: row;
-    justify-content: center;
+    position: absolute;
+    top: 116px;
+    left: 24px;
+    flex-direction: column;
     align-items: center;
-    padding-top: 2px;
-    padding-right: 24px;
-    padding-bottom: 2px;
-    padding-left: 24px;
-    background-color: rgb(244, 240, 230);
-    border-top-width: 1px;
-    border-top-color: rgba(35, 43, 50, 0.22);
+    padding: 4px;
+    background-color: rgba(244, 240, 230, 0.94);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.departments-button {
+    position: absolute;
+    top: 28px;
+    left: 29px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
 }
 
 .construction-toolbar__group {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
 }
 
 .construction-toolbar__button {
-    width: 72px;
+    width: 64px;
     height: 64px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
     padding: 0;
     justify-content: center;
     align-items: center;
@@ -171,10 +347,10 @@
 }
 
 .construction-toolbar__separator {
-    width: 1px;
-    height: 46px;
-    margin-left: 12px;
-    margin-right: 12px;
+    width: 46px;
+    height: 1px;
+    margin-top: 12px;
+    margin-bottom: 12px;
     background-color: rgba(35, 43, 50, 0.20);
 }
 
@@ -184,8 +360,114 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
+.view-controls {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.camera-rotation-controls,
+.wall-view-controls {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+    background-color: rgba(244, 240, 230, 0.94);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.24);
+    border-radius: 10px;
+}
+
+.camera-rotation-controls {
+    margin-right: 12px;
+}
+
+.camera-rotation-controls__button,
+.wall-view-controls__button {
+    width: 56px;
+    height: 56px;
+    margin-left: 3px;
+    margin-right: 3px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0);
+    border-radius: 8px;
+}
+
+.camera-rotation-controls__button:hover,
+.wall-view-controls__button:hover {
+    background-color: rgba(54, 63, 69, 0.08);
+}
+
+.camera-rotation-controls__button:active,
+.wall-view-controls__button:active {
+    background-color: rgba(54, 63, 69, 0.16);
+}
+
+.camera-rotation-controls__button:focus,
+.wall-view-controls__button:focus {
+    border-color: rgba(35, 43, 50, 0.48);
+}
+
+.camera-rotation-controls__button.is-selected,
+.wall-view-controls__button.is-selected {
+    background-color: rgba(54, 63, 69, 0.18);
+    border-color: rgba(35, 43, 50, 0.48);
+}
+
+.camera-rotation-controls__icon,
+.wall-view-controls__icon {
+    width: 44px;
+    height: 44px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.camera-rotation-controls__icon--north {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewNorth.png");
+}
+
+.camera-rotation-controls__icon--east {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewEast.png");
+}
+
+.camera-rotation-controls__icon--south {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewSouth.png");
+}
+
+.camera-rotation-controls__icon--west {
+    background-image: url("project://database/Assets/Art/UI/Camera/Icons/Camera_ViewWest.png");
+}
+
+.wall-view-controls__icon--up {
+    background-image: url("project://database/Assets/Art/UI/WallView/Icons/WallView_WallsUp.png");
+}
+
+.wall-view-controls__icon--cutaway {
+    background-image: url("project://database/Assets/Art/UI/WallView/Icons/WallView_Cutaway.png");
+}
+
+.wall-view-controls__icon--down {
+    background-image: url("project://database/Assets/Art/UI/WallView/Icons/WallView_WallsDown.png");
+}
+
 .construction-toolbar__icon--walls {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
+}
+
+.foundation-picker__icon--default {
+    background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation.png");
+}
+
+.construction-toolbar__icon--doors {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Doors.png");
+}
+
+.construction-toolbar__icon--foundations {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
 }
 
 .construction-toolbar__icon--floors {
@@ -202,4 +484,20 @@
 
 .construction-toolbar__icon--redo {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Redo.png");
+}
+
+.construction-toolbar__icon--departments {
+    background-image: url("project://database/Assets/Art/UI/Departments/Icons/Icon_Departments.png");
+}
+
+.demolition-picker__icon--foundations {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
+}
+
+.demolition-picker__icon--floors {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Floors.png");
+}
+
+.demolition-picker__icon--walls {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }

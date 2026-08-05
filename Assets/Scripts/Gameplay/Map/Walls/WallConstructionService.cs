@@ -16,12 +16,14 @@ namespace BigRetail.Map.Walls
         private readonly GridMapDefinition mapDefinition;
         private readonly ConstructionAreaDefinition constructionArea;
         private readonly WallState wallState;
+        private readonly IFoundationSupportQuery foundationSupport;
 
 
         public WallConstructionService(
             GridMapDefinition mapDefinition,
             ConstructionAreaDefinition constructionArea,
-            WallState wallState)
+            WallState wallState,
+            IFoundationSupportQuery foundationSupport)
         {
             this.mapDefinition =
                 mapDefinition
@@ -37,6 +39,11 @@ namespace BigRetail.Map.Walls
                 wallState
                 ?? throw new ArgumentNullException(
                     nameof(wallState));
+
+            this.foundationSupport =
+                foundationSupport
+                ?? throw new ArgumentNullException(
+                    nameof(foundationSupport));
         }
 
 
@@ -69,6 +76,13 @@ namespace BigRetail.Map.Walls
                 return WallChangeResult.Rejected(
                     edge,
                     WallChangeFailure.AlreadyExists);
+            }
+
+            if (!HasFoundationSupport(edge))
+            {
+                return WallChangeResult.Rejected(
+                    edge,
+                    WallChangeFailure.MissingFoundation);
             }
 
             return WallChangeResult.Success(edge);
@@ -208,6 +222,7 @@ namespace BigRetail.Map.Walls
             int alreadyExistingCount = 0;
             int skippedOutsideMapCount = 0;
             int skippedOutsideConstructionAreaCount = 0;
+            int skippedMissingFoundationCount = 0;
 
             for (int index = 0;
                  index < edges.Count;
@@ -239,6 +254,12 @@ namespace BigRetail.Map.Walls
                     continue;
                 }
 
+                if (!HasFoundationSupport(edge))
+                {
+                    skippedMissingFoundationCount++;
+                    continue;
+                }
+
                 missingLegalEdges.Add(edge);
             }
 
@@ -259,7 +280,8 @@ namespace BigRetail.Map.Walls
                 missingLegalEdges,
                 alreadyExistingCount,
                 skippedOutsideMapCount,
-                skippedOutsideConstructionAreaCount);
+                skippedOutsideConstructionAreaCount,
+                skippedMissingFoundationCount);
         }
 
 
@@ -350,6 +372,7 @@ namespace BigRetail.Map.Walls
         /// Unlike ordinary construction, history replay does not check
         /// the current construction-area mask. This allows undo to
         /// restore scenario-authored or legacy walls exactly.
+        /// Added walls must still have current Foundation support.
         ///
         /// The operation remains strict: every requested state change
         /// must still match the current wall state.
@@ -393,6 +416,14 @@ namespace BigRetail.Map.Walls
                         edit.Count,
                         edge,
                         WallChangeFailure.AlreadyExists);
+                }
+
+                if (!HasFoundationSupport(edge))
+                {
+                    return WallBatchChangeResult.Rejected(
+                        edit.Count,
+                        edge,
+                        WallChangeFailure.MissingFoundation);
                 }
             }
 
@@ -457,6 +488,16 @@ namespace BigRetail.Map.Walls
             return constructionArea.IsEligible(
                        edge.FirstCell)
                 || constructionArea.IsEligible(
+                       edge.SecondCell);
+        }
+
+
+        private bool HasFoundationSupport(
+            CellEdge edge)
+        {
+            return foundationSupport.HasFoundation(
+                       edge.FirstCell)
+                || foundationSupport.HasFoundation(
                        edge.SecondCell);
         }
     }

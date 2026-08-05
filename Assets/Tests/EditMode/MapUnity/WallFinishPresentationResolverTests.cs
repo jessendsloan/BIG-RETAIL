@@ -184,6 +184,56 @@ namespace BigRetail.Map.Unity.Walls.Tests
 
 
         [Test]
+        public void GetSprite_LowHeight_UsesLowDirectionalSprite()
+        {
+            Sprite lowRisingLeft =
+                CreateSprite();
+
+            Sprite lowRisingRight =
+                CreateSprite();
+
+            SetPrivateField(
+                brickAsset,
+                "lowRisingLeft",
+                lowRisingLeft);
+
+            SetPrivateField(
+                brickAsset,
+                "lowRisingRight",
+                lowRisingRight);
+
+            Assert.That(
+                brickAsset.GetSprite(
+                    WallDisplaySlope.RisingLeft,
+                    WallPresentationHeight.Low),
+                Is.SameAs(lowRisingLeft));
+
+            Assert.That(
+                brickAsset.GetSprite(
+                    WallDisplaySlope.RisingRight,
+                    WallPresentationHeight.Low),
+                Is.SameAs(lowRisingRight));
+        }
+
+
+        [Test]
+        public void GetSprite_MissingLowSprite_FallsBackToFullWall()
+        {
+            Assert.That(
+                brickAsset.GetSprite(
+                    WallDisplaySlope.RisingLeft,
+                    WallPresentationHeight.Low),
+                Is.SameAs(brickRisingLeft));
+
+            Assert.That(
+                brickAsset.GetSprite(
+                    WallDisplaySlope.RisingRight,
+                    WallPresentationHeight.Low),
+                Is.SameAs(brickRisingRight));
+        }
+
+
+        [Test]
         public void GetAsset_UnknownFinishId_Throws()
         {
             Assert.That(

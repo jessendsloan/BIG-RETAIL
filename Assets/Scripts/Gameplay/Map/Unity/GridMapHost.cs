@@ -1,7 +1,9 @@
 using System;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.Doors;
 using BigRetail.Map.Unity.Walls;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Walls;
 using UnityEngine;
 
@@ -26,6 +28,12 @@ namespace BigRetail.Map.Unity
 
         [SerializeField]
         private WallFinishAssetCatalog wallFinishAssets;
+
+        [SerializeField]
+        private DoorDefinitionAssetCatalog doorDefinitionAssets;
+
+        [SerializeField]
+        private FoundationRuntimeHost foundationRuntimeHost;
 
 
         [Header("Diagnostics")]
@@ -85,6 +93,27 @@ namespace BigRetail.Map.Unity
         public WallFinishAssetCatalog WallFinishAssets =>
             wallFinishAssets;
 
+        public DoorDefinitionCatalog DoorDefinitions
+        {
+            get;
+            private set;
+        }
+
+        public DoorAssemblyState DoorAssemblies
+        {
+            get;
+            private set;
+        }
+
+        public DoorConstructionService DoorConstruction
+        {
+            get;
+            private set;
+        }
+
+        public DoorDefinitionAssetCatalog DoorDefinitionAssets =>
+            doorDefinitionAssets;
+
         public bool IsInitialized
         {
             get;
@@ -106,6 +135,8 @@ namespace BigRetail.Map.Unity
 
         private void OnDestroy()
         {
+            DoorConstruction?.Dispose();
+            DoorConstruction = null;
             WallAppearanceStrokes = null;
             WallFinishes?.Dispose();
             WallFinishes = null;
@@ -145,6 +176,26 @@ namespace BigRetail.Map.Unity
                 return;
             }
 
+            if (doorDefinitionAssets == null)
+            {
+                Debug.LogError(
+                    "GridMapHost has no DoorDefinitionAssetCatalog assigned.",
+                    this);
+
+                enabled = false;
+                return;
+            }
+
+            if (foundationRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "GridMapHost has no FoundationRuntimeHost assigned.",
+                    this);
+
+                enabled = false;
+                return;
+            }
+
             try
             {
                 MapDefinition =
@@ -164,7 +215,8 @@ namespace BigRetail.Map.Unity
                     new WallConstructionService(
                         MapDefinition,
                         ConstructionArea,
-                        WallState);
+                        WallState,
+                        foundationRuntimeHost);
 
                 WallFinishCatalog =
                     wallFinishAssets.CreateDomainCatalog();
@@ -184,6 +236,18 @@ namespace BigRetail.Map.Unity
                         WallFinishes,
                         WallFinishCatalog);
 
+                DoorDefinitions =
+                    doorDefinitionAssets.CreateDomainCatalog();
+
+                DoorAssemblies =
+                    new DoorAssemblyState();
+
+                DoorConstruction =
+                    new DoorConstructionService(
+                        DoorDefinitions,
+                        DoorAssemblies,
+                        WallState);
+
                 IsInitialized = true;
 
                 mapAuthoring.ApplyRuntimeVisibility();
@@ -197,6 +261,10 @@ namespace BigRetail.Map.Unity
             }
             catch (Exception exception)
             {
+                DoorConstruction?.Dispose();
+                DoorConstruction = null;
+                DoorAssemblies = null;
+                DoorDefinitions = null;
                 WallAppearanceStrokes = null;
                 WallFinishes?.Dispose();
                 WallFinishes = null;
@@ -219,7 +287,8 @@ namespace BigRetail.Map.Unity
                 + $"Construction-eligible cells: "
                 + $"{ConstructionArea.EligibleCellCount}. "
                 + $"Initial walls: {WallState.WallCount}. "
-                + $"Wall finishes: {WallFinishCatalog.Count}.",
+                + $"Wall finishes: {WallFinishCatalog.Count}. "
+                + $"Door definitions: {DoorDefinitionAssets.Count}.",
                 this);
         }
     }

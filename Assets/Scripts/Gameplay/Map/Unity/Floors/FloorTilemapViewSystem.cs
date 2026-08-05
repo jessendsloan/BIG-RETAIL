@@ -54,6 +54,7 @@ namespace BigRetail.Map.Unity.Floors
                 new HashSet<GridPosition>();
 
         private FloorState subscribedFloorState;
+        private FloorFinishService subscribedFloorFinishes;
 
 
         public int VisibleFloorCount =>
@@ -174,6 +175,15 @@ namespace BigRetail.Map.Unity.Floors
             subscribedFloorState.FloorRemoved +=
                 HandleFloorRemoved;
 
+            subscribedFloorFinishes =
+                floorRuntimeHost.FloorFinishes;
+
+            if (subscribedFloorFinishes != null)
+            {
+                subscribedFloorFinishes.EffectiveFinishChanged +=
+                    HandleEffectiveFinishChanged;
+            }
+
             RebuildAllViews();
         }
 
@@ -193,6 +203,15 @@ namespace BigRetail.Map.Unity.Floors
 
             subscribedFloorState =
                 null;
+
+            if (subscribedFloorFinishes != null)
+            {
+                subscribedFloorFinishes.EffectiveFinishChanged -=
+                    HandleEffectiveFinishChanged;
+            }
+
+            subscribedFloorFinishes =
+                null;
         }
 
 
@@ -207,6 +226,19 @@ namespace BigRetail.Map.Unity.Floors
             GridPosition cell)
         {
             HideFloor(cell);
+        }
+
+
+        private void HandleEffectiveFinishChanged(
+            GridPosition cell,
+            FloorFinishId finishId)
+        {
+            if (visibleFloors.Contains(cell))
+            {
+                SetFloorTile(
+                    cell,
+                    finishId);
+            }
         }
 
 
@@ -240,11 +272,40 @@ namespace BigRetail.Map.Unity.Floors
             Vector3Int unityCell =
                 ToUnityCell(cell);
 
-            floorTilemap.SetTile(
-                unityCell,
-                floorTile);
+            FloorFinishId finishId =
+                floorRuntimeHost.FloorFinishes != null
+                    ? floorRuntimeHost.FloorFinishes
+                        .GetEffectiveFinish(cell)
+                    : default;
+
+            SetFloorTile(
+                cell,
+                finishId);
 
             visibleFloors.Add(cell);
+        }
+
+
+        private void SetFloorTile(
+            GridPosition cell,
+            FloorFinishId finishId)
+        {
+            TileBase resolvedTile =
+                floorTile;
+
+            if (finishId.IsValid
+                && floorRuntimeHost.FloorFinishAssets != null
+                && floorRuntimeHost.FloorFinishAssets.TryGetAsset(
+                    finishId,
+                    out FloorFinishAsset finishAsset))
+            {
+                resolvedTile =
+                    finishAsset.FloorTile;
+            }
+
+            floorTilemap.SetTile(
+                ToUnityCell(cell),
+                resolvedTile);
         }
 
 

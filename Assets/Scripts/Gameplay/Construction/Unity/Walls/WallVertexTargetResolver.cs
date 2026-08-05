@@ -1,4 +1,5 @@
 using BigRetail.Construction.Unity.Input;
+using BigRetail.Construction.Unity.UI.PC;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
@@ -24,6 +25,9 @@ namespace BigRetail.Construction.Unity.Walls
         [SerializeField]
         private ConstructionPointerController
             pointerController;
+
+        [SerializeField]
+        private ConstructionUiInputGate uiInputGate;
 
 
         [Header("World Mapping")]
@@ -93,6 +97,13 @@ namespace BigRetail.Construction.Unity.Walls
 
         private void ResolveTarget()
         {
+            if (uiInputGate != null
+                && uiInputGate.IsPointerOverConstructionUi)
+            {
+                ClearTarget();
+                return;
+            }
+
             if (!TryConvertScreenToWorld(
                     pointerController.ScreenPosition,
                     out Vector3 pointerWorldPosition))

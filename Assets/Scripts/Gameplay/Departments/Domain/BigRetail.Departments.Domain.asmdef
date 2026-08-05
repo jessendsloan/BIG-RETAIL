@@ -1,0 +1,17 @@
+{
+    "name": "BigRetail.Departments.Domain",
+    "rootNamespace": "BigRetail.Departments",
+    "references": [
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

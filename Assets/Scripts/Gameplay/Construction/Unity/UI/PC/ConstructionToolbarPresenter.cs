@@ -1,15 +1,18 @@
+using BigRetail.CameraControl;
 using BigRetail.Construction.Unity.Tools;
+using BigRetail.Map.Unity.Walls;
+using BigRetail.Map.View;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
-    /// Connects PC toolbar intent to authoritative construction services.
-    /// This first vertical slice activates wall construction and mirrors
-    /// tool-mode changes back into the toolbar selection state.
+    /// Connects PC construction-rail intent to authoritative construction and
+    /// wall-presentation services, then mirrors their state back into the UI.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
+    [RequireComponent(typeof(ConstructionUiInputGate))]
     [DefaultExecutionOrder(350)]
     public sealed class ConstructionToolbarPresenter : MonoBehaviour
     {
@@ -25,8 +28,19 @@ namespace BigRetail.Construction.Unity.UI.PC
         private ConstructionToolCoordinator toolCoordinator;
 
 
+        [Header("View Services")]
+
+        [SerializeField]
+        private WallViewSystem wallViewSystem;
+
+        [SerializeField]
+        private IsometricViewRotationController viewRotationController;
+
+
         private ConstructionToolbarView boundView;
+        private ConstructionUiInputGate uiInputGate;
         private bool referencesAreValid;
+        private bool isDemolitionPickerRequested;
 
 
         private void Reset()
@@ -44,6 +58,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                     GetComponent<ConstructionToolbarDocumentHost>();
             }
 
+            uiInputGate =
+                GetComponent<ConstructionUiInputGate>();
+
             referencesAreValid =
                 ValidateReferences();
         }
@@ -59,8 +76,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             documentHost.ViewReady +=
                 HandleViewReady;
 
+            uiInputGate.CancelRequested +=
+                HandleCancelRequested;
+
             toolCoordinator.ModeChanged +=
                 HandleModeChanged;
+
+            wallViewSystem.DisplayModeChanged +=
+                HandleWallDisplayModeChanged;
+
+            viewRotationController.ViewOrientationChanged +=
+                HandleCameraViewOrientationChanged;
 
             if (documentHost.HasView)
             {
@@ -84,6 +110,24 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandleModeChanged;
             }
 
+            if (uiInputGate != null)
+            {
+                uiInputGate.CancelRequested -=
+                    HandleCancelRequested;
+            }
+
+            if (wallViewSystem != null)
+            {
+                wallViewSystem.DisplayModeChanged -=
+                    HandleWallDisplayModeChanged;
+            }
+
+            if (viewRotationController != null)
+            {
+                viewRotationController.ViewOrientationChanged -=
+                    HandleCameraViewOrientationChanged;
+            }
+
             UnbindView();
         }
 
@@ -99,22 +143,163 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleSectionRequested(
             ConstructionToolbarSection section)
         {
-            if (section
-                != ConstructionToolbarSection.Walls)
+            ConstructionToolMode requestedMode;
+
+            switch (section)
+            {
+                case ConstructionToolbarSection.Walls:
+                    requestedMode =
+                        ConstructionToolMode.BuildWalls;
+                    break;
+
+                case ConstructionToolbarSection.Foundations:
+                    requestedMode =
+                        ConstructionToolMode.BuildFoundations;
+                    break;
+
+                case ConstructionToolbarSection.Floors:
+                    requestedMode =
+                        ConstructionToolMode.BuildFloors;
+                    break;
+
+                case ConstructionToolbarSection.Doors:
+                    requestedMode =
+                        ConstructionToolMode.BuildDoors;
+                    break;
+
+                default:
+                    return;
+            }
+
+            isDemolitionPickerRequested = false;
+
+            toolCoordinator.SetMode(
+                requestedMode);
+        }
+
+
+        private void HandleDemolitionPickerRequested()
+        {
+            // Demolition is a category choice, not a default destructive tool.
+            // Clearing the active build mode closes its contextual picker before
+            // this drawer asks the player to choose a demolition layer.
+            toolCoordinator.SetMode(
+                ConstructionToolMode.None);
+
+            isDemolitionPickerRequested = true;
+
+            RefreshDemolitionPicker(
+                toolCoordinator.CurrentMode);
+        }
+
+        private void HandleDepartmentsRequested()
+        {
+            // Department Planning is a separate rail section. It must close
+            // the last construction drawer even when the coordinator is
+            // already in None and therefore does not publish ModeChanged.
+            isDemolitionPickerRequested = false;
+            toolCoordinator.SetMode(ConstructionToolMode.None);
+            RefreshDemolitionPicker(toolCoordinator.CurrentMode);
+        }
+
+
+        private void HandleDemolitionTargetRequested(
+            ConstructionToolbarDemolitionTarget target)
+        {
+            ConstructionToolMode requestedMode = target switch
+            {
+                ConstructionToolbarDemolitionTarget.Foundations =>
+                    ConstructionToolMode.DemolishFoundations,
+
+                ConstructionToolbarDemolitionTarget.Floors =>
+                    ConstructionToolMode.DemolishFloors,
+
+                ConstructionToolbarDemolitionTarget.Walls =>
+                    ConstructionToolMode.DemolishWalls,
+
+                _ => ConstructionToolMode.None
+            };
+
+            if (requestedMode == ConstructionToolMode.None)
             {
                 return;
             }
 
-            toolCoordinator.SetMode(
-                ConstructionToolMode.BuildWalls);
+            isDemolitionPickerRequested = true;
+            toolCoordinator.SetMode(requestedMode);
         }
 
 
         private void HandleModeChanged(
             ConstructionToolMode mode)
         {
+            if (!IsDemolitionMode(mode))
+            {
+                isDemolitionPickerRequested = false;
+            }
+
             RefreshSelection(
                 mode);
+
+            RefreshDemolitionPicker(mode);
+        }
+
+
+        private void HandleCancelRequested()
+        {
+            ConstructionToolMode currentMode =
+                toolCoordinator.CurrentMode;
+
+            if (!isDemolitionPickerRequested
+                && !IsDemolitionMode(currentMode))
+            {
+                return;
+            }
+
+            isDemolitionPickerRequested = false;
+
+            if (currentMode != ConstructionToolMode.None)
+            {
+                toolCoordinator.SetMode(
+                    ConstructionToolMode.None);
+
+                return;
+            }
+
+            RefreshDemolitionPicker(currentMode);
+        }
+
+
+        private void HandleWallDisplayModeRequested(
+            WallDisplayMode displayMode)
+        {
+            wallViewSystem.TrySetDisplayMode(
+                displayMode);
+        }
+
+
+        private void HandleWallDisplayModeChanged(
+            WallDisplayMode previousMode,
+            WallDisplayMode currentMode)
+        {
+            RefreshWallDisplayMode(
+                currentMode);
+        }
+
+
+        private void HandleCameraViewOrientationRequested(
+            IsometricViewOrientation orientation)
+        {
+            viewRotationController.SetViewOrientation(
+                orientation);
+        }
+
+
+        private void HandleCameraViewOrientationChanged(
+            IsometricViewOrientation orientation)
+        {
+            RefreshCameraViewOrientation(
+                orientation);
         }
 
 
@@ -133,8 +318,32 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SectionRequested +=
                 HandleSectionRequested;
 
+            boundView.DepartmentsRequested +=
+                HandleDepartmentsRequested;
+
+            boundView.DemolitionPickerRequested +=
+                HandleDemolitionPickerRequested;
+
+            boundView.DemolitionTargetRequested +=
+                HandleDemolitionTargetRequested;
+
+            boundView.WallDisplayModeRequested +=
+                HandleWallDisplayModeRequested;
+
+            boundView.CameraViewOrientationRequested +=
+                HandleCameraViewOrientationRequested;
+
             RefreshSelection(
                 toolCoordinator.CurrentMode);
+
+            RefreshDemolitionPicker(
+                toolCoordinator.CurrentMode);
+
+            RefreshWallDisplayMode(
+                wallViewSystem.CurrentDisplayMode);
+
+            RefreshCameraViewOrientation(
+                viewRotationController.CurrentOrientation);
         }
 
 
@@ -147,6 +356,21 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.SectionRequested -=
                 HandleSectionRequested;
+
+            boundView.DepartmentsRequested -=
+                HandleDepartmentsRequested;
+
+            boundView.DemolitionPickerRequested -=
+                HandleDemolitionPickerRequested;
+
+            boundView.DemolitionTargetRequested -=
+                HandleDemolitionTargetRequested;
+
+            boundView.WallDisplayModeRequested -=
+                HandleWallDisplayModeRequested;
+
+            boundView.CameraViewOrientationRequested -=
+                HandleCameraViewOrientationRequested;
 
             boundView = null;
         }
@@ -163,6 +387,76 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SetSelectedSection(
                 ConstructionToolbarModeMapper.ToSection(
                     mode));
+        }
+
+
+        private void RefreshDemolitionPicker(
+            ConstructionToolMode mode)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            bool isDemolitionMode = IsDemolitionMode(mode);
+            boundView.SetDemolitionPickerVisible(
+                isDemolitionMode || isDemolitionPickerRequested);
+            boundView.SetSelectedDemolitionTarget(
+                ToDemolitionTarget(mode));
+        }
+
+
+        private void RefreshWallDisplayMode(
+            WallDisplayMode displayMode)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            boundView.SetWallDisplayMode(
+                displayMode);
+        }
+
+
+        private void RefreshCameraViewOrientation(
+            IsometricViewOrientation orientation)
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            boundView.SetCameraViewOrientation(
+                orientation);
+        }
+
+
+        private static bool IsDemolitionMode(
+            ConstructionToolMode mode)
+        {
+            return mode == ConstructionToolMode.DemolishFoundations
+                || mode == ConstructionToolMode.DemolishFloors
+                || mode == ConstructionToolMode.DemolishWalls;
+        }
+
+
+        private static ConstructionToolbarDemolitionTarget?
+            ToDemolitionTarget(ConstructionToolMode mode)
+        {
+            return mode switch
+            {
+                ConstructionToolMode.DemolishFoundations =>
+                    ConstructionToolbarDemolitionTarget.Foundations,
+
+                ConstructionToolMode.DemolishFloors =>
+                    ConstructionToolbarDemolitionTarget.Floors,
+
+                ConstructionToolMode.DemolishWalls =>
+                    ConstructionToolbarDemolitionTarget.Walls,
+
+                _ => null
+            };
         }
 
 
@@ -185,6 +479,36 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "ConstructionToolCoordinator assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (uiInputGate == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "ConstructionUiInputGate assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (wallViewSystem == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "WallViewSystem assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (viewRotationController == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "IsometricViewRotationController assigned.",
                     this);
 
                 isValid = false;

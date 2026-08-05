@@ -10,6 +10,7 @@ namespace BigRetail.Map.Floors.Tests
     {
         private FloorState floorState;
         private FloorConstructionService service;
+        private MutableFoundationSupport foundationSupport;
 
 
         [SetUp]
@@ -54,11 +55,16 @@ namespace BigRetail.Map.Floors.Tests
             floorState =
                 new FloorState();
 
+            foundationSupport =
+                new MutableFoundationSupport(
+                    eligibleCells);
+
             service =
                 new FloorConstructionService(
                     map,
                     area,
-                    floorState);
+                    floorState,
+                    foundationSupport);
         }
 
 
@@ -85,6 +91,79 @@ namespace BigRetail.Map.Floors.Tests
             Assert.That(
                 floorState.FloorCount,
                 Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void EvaluatePlacement_CellWithoutFoundation_IsRejected()
+        {
+            GridPosition cell =
+                CreateCell(
+                    2,
+                    2);
+
+            foundationSupport.Remove(cell);
+
+            FloorChangeResult result =
+                service.EvaluatePlacement(cell);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FloorChangeFailure.MissingFoundation));
+            Assert.That(floorState.HasFloor(cell), Is.False);
+        }
+
+
+        [Test]
+        public void TryEnsureFloors_MissingFoundation_IsSkipped()
+        {
+            GridPosition supported =
+                CreateCell(1, 1);
+
+            GridPosition unsupported =
+                CreateCell(2, 1);
+
+            foundationSupport.Remove(unsupported);
+
+            FloorEnsureResult result =
+                service.TryEnsureFloors(
+                    new[]
+                    {
+                        supported,
+                        unsupported
+                    });
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(result.ChangedCount, Is.EqualTo(1));
+            Assert.That(
+                result.SkippedMissingFoundationCount,
+                Is.EqualTo(1));
+            Assert.That(floorState.HasFloor(supported), Is.True);
+            Assert.That(floorState.HasFloor(unsupported), Is.False);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_AddWithoutFoundation_IsRejected()
+        {
+            GridPosition cell =
+                CreateCell(2, 2);
+
+            foundationSupport.Remove(cell);
+
+            FloorBatchChangeResult result =
+                service.TryApplyEdit(
+                    FloorEdit.AddFloors(
+                        new[] { cell }));
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    FloorChangeFailure.MissingFoundation));
+            Assert.That(floorState.HasFloor(cell), Is.False);
         }
 
 
@@ -669,6 +748,8 @@ namespace BigRetail.Map.Floors.Tests
                     20,
                     20);
 
+            foundationSupport.Add(outsideCurrentMap);
+
             Assert.That(
                 service.TryApplyEdit(
                     FloorEdit.AddFloors(
@@ -866,6 +947,8 @@ namespace BigRetail.Map.Floors.Tests
                     20,
                     20);
 
+            foundationSupport.Add(outsideCurrentMap);
+
             FloorBatchChangeResult result =
                 service.TryApplyEdit(
                     FloorEdit.AddFloors(
@@ -889,6 +972,42 @@ namespace BigRetail.Map.Floors.Tests
                 x,
                 y,
                 0);
+        }
+
+
+        private sealed class MutableFoundationSupport :
+            IFoundationSupportQuery
+        {
+            private readonly HashSet<GridPosition> supportedCells;
+
+
+            public MutableFoundationSupport(
+                IEnumerable<GridPosition> cells)
+            {
+                supportedCells =
+                    new HashSet<GridPosition>(cells);
+            }
+
+
+            public bool HasFoundation(
+                GridPosition cell)
+            {
+                return supportedCells.Contains(cell);
+            }
+
+
+            public void Remove(
+                GridPosition cell)
+            {
+                supportedCells.Remove(cell);
+            }
+
+
+            public void Add(
+                GridPosition cell)
+            {
+                supportedCells.Add(cell);
+            }
         }
     }
 }

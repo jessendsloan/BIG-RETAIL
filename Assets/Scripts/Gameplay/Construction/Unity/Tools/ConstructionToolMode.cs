@@ -6,10 +6,13 @@ namespace BigRetail.Construction.Unity.Tools
     /// </summary>
     public enum ConstructionToolMode
     {
-        None,
-        BuildWalls,
-        DemolishWalls,
-        BuildFloors,
-        DemolishFloors
+        None = 0,
+        BuildWalls = 1,
+        DemolishWalls = 2,
+        BuildFloors = 3,
+        DemolishFloors = 4,
+        BuildFoundations = 5,
+        DemolishFoundations = 6,
+        BuildDoors = 7
     }
 }

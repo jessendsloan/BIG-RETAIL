@@ -1,0 +1,21 @@
+{
+    "name": "BigRetail.Departments.Unity",
+    "rootNamespace": "BigRetail.Departments.Unity",
+    "references": [
+        "BigRetail.Departments.Domain",
+        "GUID:2adc117b32cbf824880b2318c05f811f",
+        "GUID:3e0085d755156984c9206a564893fbf3",
+        "GUID:032f8cb8faf4e844390ea2e390960679",
+        "GUID:c9c44a018e8457d42b603bc0ef17c3da",
+        "GUID:df3f51ddb0d3e2d4cab40d041e2881a5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
