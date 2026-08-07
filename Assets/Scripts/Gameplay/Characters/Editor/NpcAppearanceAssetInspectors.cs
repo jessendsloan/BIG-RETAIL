@@ -132,8 +132,9 @@ namespace BigRetail.Characters.Editor
                 "fabric colors trousers; footwear colors shoes; accent " +
                 "colors the badge. Its compatibility determines whether " +
                 "it may be generated for men, women, or everyone. Each " +
-                "Part Style may optionally swap " +
-                "in SouthEast and NorthEast sprites for painted clothing.",
+                "Part Style may optionally swap in SouthEast and " +
+                "NorthEast sprites and a shared material for painted " +
+                "clothing.",
                 MessageType.Info);
 
             DrawDefaultInspector();

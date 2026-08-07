@@ -112,6 +112,126 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
+        public void OutfitPart_AppliesOptionalGarmentMaterial()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            GameObject torsoObject = new GameObject("Textured Torso");
+            NpcOutfitSet texturedOutfit = null;
+            NpcAppearanceProfile texturedProfile = null;
+
+            try
+            {
+                Material garmentMaterial = AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/Art/Characters/Appearance/Materials/" +
+                    "CharacterGarmentTextureLit.mat");
+
+                Assert.That(garmentMaterial, Is.Not.Null);
+                Assert.That(
+                    garmentMaterial.shader.name,
+                    Is.EqualTo(
+                        "Big Retail/Characters/Textured Garment Lit"));
+
+                texturedOutfit = ScriptableObject
+                    .CreateInstance<NpcOutfitSet>();
+                texturedOutfit.Configure(
+                    "Textured Outfit",
+                    fixture.ShirtColor,
+                    Color.gray,
+                    Color.black,
+                    Color.white,
+                    false,
+                    new[]
+                    {
+                        new NpcOutfitPartStyle(
+                            NpcRigPartId.Torso,
+                            NpcAppearanceColorRole.PrimaryFabric,
+                            fixture.Sprite,
+                            fixture.Sprite,
+                            garmentMaterial)
+                    });
+
+                texturedProfile = ScriptableObject
+                    .CreateInstance<NpcAppearanceProfile>();
+                texturedProfile.Configure(
+                    "Textured Person",
+                    fixture.Body,
+                    fixture.Skin,
+                    texturedOutfit,
+                    fixture.Hair);
+
+                SpriteRenderer renderer =
+                    torsoObject.AddComponent<SpriteRenderer>();
+                renderer.sprite = fixture.Sprite;
+
+                texturedProfile.ApplyPart(
+                    NpcRigPartId.Torso,
+                    renderer,
+                    NpcAuthoredDirection.SouthEast);
+
+                Assert.That(
+                    renderer.sharedMaterial,
+                    Is.SameAs(garmentMaterial));
+            }
+            finally
+            {
+                Object.DestroyImmediate(texturedProfile);
+                Object.DestroyImmediate(texturedOutfit);
+                Object.DestroyImmediate(torsoObject);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void PartBinding_RestoresPrefabMaterialBeforeNextAppearance()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            GameObject torsoObject = new GameObject("Reusable Torso");
+
+            try
+            {
+                Material fallbackMaterial =
+                    AssetDatabase.LoadAssetAtPath<Material>(
+                        "Assets/Art/Characters/Appearance/Materials/" +
+                        "CharacterChestPlain.mat");
+                Material garmentMaterial =
+                    AssetDatabase.LoadAssetAtPath<Material>(
+                        "Assets/Art/Characters/Appearance/Materials/" +
+                        "CharacterGarmentTextureLit.mat");
+
+                Assert.That(fallbackMaterial, Is.Not.Null);
+                Assert.That(garmentMaterial, Is.Not.Null);
+                Assert.That(
+                    fallbackMaterial.shader.name,
+                    Is.EqualTo(
+                        "Big Retail/Characters/Plain Chest Lit"));
+
+                SpriteRenderer renderer =
+                    torsoObject.AddComponent<SpriteRenderer>();
+                renderer.sharedMaterial = fallbackMaterial;
+
+                NpcRigPartBinding binding = new NpcRigPartBinding(
+                    NpcRigPartId.Torso,
+                    renderer,
+                    fixture.Sprite);
+
+                binding.Apply(NpcAuthoredDirection.SouthEast);
+                renderer.sharedMaterial = garmentMaterial;
+                binding.Apply(NpcAuthoredDirection.SouthEast);
+
+                Assert.That(
+                    renderer.sharedMaterial,
+                    Is.SameAs(fallbackMaterial));
+            }
+            finally
+            {
+                Object.DestroyImmediate(torsoObject);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
         public void MissingRecipeMember_IsRejected()
         {
             AppearanceFixture fixture = new AppearanceFixture();
@@ -805,6 +925,159 @@ namespace BigRetail.Characters.Rigging.Tests
                 DestroyObjects(variants);
                 Object.DestroyImmediate(definition);
                 fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void PersonIdentity_SamePopulationAndSeedProducesSameAppearance()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcPopulationDefinition definition = null;
+            GameObject firstPerson = new GameObject("First Person");
+            GameObject secondPerson = new GameObject("Second Person");
+
+            try
+            {
+                definition = CreateDefinition(
+                    fixture,
+                    "Customers",
+                    NpcCharacterRole.Customer);
+
+                NpcPersonIdentity firstIdentity =
+                    firstPerson.AddComponent<NpcPersonIdentity>();
+                NpcPersonIdentity secondIdentity =
+                    secondPerson.AddComponent<NpcPersonIdentity>();
+
+                Assert.That(
+                    firstIdentity.TryInitialize(
+                        definition,
+                        4817,
+                        string.Empty,
+                        out string firstFailure),
+                    Is.True,
+                    firstFailure);
+
+                Assert.That(
+                    secondIdentity.TryInitialize(
+                        definition,
+                        4817,
+                        string.Empty,
+                        out string secondFailure),
+                    Is.True,
+                    secondFailure);
+
+                NpcAppearanceSelection first =
+                    firstIdentity.CurrentAppearance;
+                NpcAppearanceSelection second =
+                    secondIdentity.CurrentAppearance;
+
+                Assert.That(second.Gender, Is.EqualTo(first.Gender));
+                Assert.That(
+                    second.BodySilhouette,
+                    Is.SameAs(first.BodySilhouette));
+                Assert.That(
+                    second.SkinPalette,
+                    Is.SameAs(first.SkinPalette));
+                Assert.That(
+                    second.OutfitSet,
+                    Is.SameAs(first.OutfitSet));
+                Assert.That(
+                    second.HairSet,
+                    Is.SameAs(first.HairSet));
+            }
+            finally
+            {
+                Object.DestroyImmediate(firstPerson);
+                Object.DestroyImmediate(secondPerson);
+                Object.DestroyImmediate(definition);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void PersonIdentity_FailedReinitializationPreservesExistingPerson()
+        {
+            AppearanceFixture fixture = new AppearanceFixture();
+            NpcPopulationDefinition definition = null;
+            GameObject person = new GameObject("Persistent Employee");
+
+            try
+            {
+                definition = CreateDefinition(
+                    fixture,
+                    "Employees",
+                    NpcCharacterRole.Employee);
+
+                NpcPersonIdentity identity =
+                    person.AddComponent<NpcPersonIdentity>();
+
+                Assert.That(
+                    identity.TryInitialize(
+                        definition,
+                        912,
+                        "employee-42",
+                        out string initialFailure),
+                    Is.True,
+                    initialFailure);
+
+                NpcAppearanceSelection original =
+                    identity.CurrentAppearance;
+
+                Assert.That(
+                    identity.TryInitialize(
+                        null,
+                        999,
+                        "replacement",
+                        out string failureReason),
+                    Is.False);
+
+                Assert.That(failureReason, Is.Not.Empty);
+                Assert.That(identity.AppearanceSeed, Is.EqualTo(912));
+                Assert.That(
+                    identity.PersistentId,
+                    Is.EqualTo("employee-42"));
+                Assert.That(
+                    identity.PopulationDefinition,
+                    Is.SameAs(definition));
+                Assert.That(
+                    identity.CurrentAppearance.BodySilhouette,
+                    Is.SameAs(original.BodySilhouette));
+            }
+            finally
+            {
+                Object.DestroyImmediate(person);
+                Object.DestroyImmediate(definition);
+                fixture.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void PersonPrefab_HasDormantRuntimeIdentityBridge()
+        {
+            const string PersonPrefabPath =
+                "Assets/Prefabs/Characters/Core/Person.prefab";
+
+            GameObject prefabRoot =
+                PrefabUtility.LoadPrefabContents(PersonPrefabPath);
+
+            try
+            {
+                NpcPersonIdentity identity =
+                    prefabRoot.GetComponent<NpcPersonIdentity>();
+
+                Assert.That(identity, Is.Not.Null);
+                Assert.That(identity.InitializeOnAwake, Is.False);
+                Assert.That(identity.PopulationDefinition, Is.Null);
+                Assert.That(
+                    prefabRoot.GetComponent<NpcCutoutRig>(),
+                    Is.Not.Null);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(prefabRoot);
             }
         }
 

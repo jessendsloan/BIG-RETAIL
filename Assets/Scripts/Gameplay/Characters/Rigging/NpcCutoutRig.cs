@@ -109,6 +109,12 @@ namespace BigRetail.Characters.Rigging
         [SerializeField, HideInInspector]
         private Sprite placeholderSprite;
 
+        [Tooltip(
+            "The presentation material restored before an appearance " +
+            "applies an optional material override.")]
+        [SerializeField, HideInInspector]
+        private Material defaultMaterial;
+
 
         public NpcRigPartId Id => id;
 
@@ -129,6 +135,10 @@ namespace BigRetail.Characters.Rigging
             this.placeholderSprite = placeholderSprite;
             southEastSprite = null;
             northEastSprite = null;
+            defaultMaterial =
+                spriteRenderer != null
+                    ? spriteRenderer.sharedMaterial
+                    : null;
         }
 
 
@@ -139,6 +149,18 @@ namespace BigRetail.Characters.Rigging
             {
                 return;
             }
+
+            // Older serialized rigs may not have this field yet. Capture it
+            // once while the renderer is still using its prefab material.
+            if (defaultMaterial == null)
+            {
+                defaultMaterial = spriteRenderer.sharedMaterial;
+            }
+
+            // Appearance previews and runtime population changes reuse the
+            // same rig. Always return to the prefab's presentation material
+            // before the selected outfit applies an optional override.
+            spriteRenderer.sharedMaterial = defaultMaterial;
 
             Sprite authoredSprite =
                 direction == NpcAuthoredDirection.SouthEast
@@ -185,6 +207,9 @@ namespace BigRetail.Characters.Rigging
 
         [NonSerialized]
         private NpcAppearanceProfile appearancePreview;
+
+        [NonSerialized]
+        private NpcAppearanceSelection runtimeAppearance;
 
         [Tooltip(
             "Presentation details that belong on the front of the " +
@@ -233,6 +258,9 @@ namespace BigRetail.Characters.Rigging
         public NpcAppearanceProfile AppearanceProfile =>
             appearanceProfile;
 
+        public NpcAppearanceSelection RuntimeAppearance =>
+            runtimeAppearance?.Copy();
+
         public int BoneCount => bones.Count;
 
         public int PartCount => parts.Count;
@@ -266,6 +294,46 @@ namespace BigRetail.Characters.Rigging
             NpcAppearanceProfile newAppearanceProfile)
         {
             appearanceProfile = newAppearanceProfile;
+            appearancePreview = null;
+            runtimeAppearance = null;
+            ApplyFacing();
+        }
+
+        /// <summary>
+        /// Applies one exact runtime-generated appearance without creating a
+        /// ScriptableObject or replacing the shared rig and Animator.
+        /// </summary>
+        public bool TrySetAppearanceSelection(
+            NpcAppearanceSelection selection,
+            out string failureReason)
+        {
+            if (selection == null)
+            {
+                failureReason = "No appearance selection was supplied.";
+                return false;
+            }
+
+            NpcAppearanceSelection validatedSelection = selection.Copy();
+
+            if (!validatedSelection.TryValidate(out failureReason))
+            {
+                return false;
+            }
+
+            runtimeAppearance = validatedSelection;
+            appearancePreview = null;
+            ApplyFacing();
+            failureReason = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Clears the generated runtime appearance and returns to the saved
+        /// prefab profile, when one is assigned.
+        /// </summary>
+        public void ClearAppearanceSelection()
+        {
+            runtimeAppearance = null;
             appearancePreview = null;
             ApplyFacing();
         }
@@ -481,10 +549,8 @@ namespace BigRetail.Characters.Rigging
                 NpcFacingUtility.GetAuthoredDirection(
                     facing);
 
-            NpcAppearanceProfile effectiveAppearance =
-                appearancePreview != null
-                    ? appearancePreview
-                    : appearanceProfile;
+            NpcAppearanceSelection effectiveAppearance =
+                GetEffectiveAppearance();
 
             ResetAppearanceBonePositions();
 
@@ -496,7 +562,8 @@ namespace BigRetail.Characters.Rigging
 
                 if (binding != null)
                 {
-                    effectiveAppearance?.ApplyPart(
+                    NpcAppearanceApplicator.ApplyPart(
+                        effectiveAppearance,
                         binding.Id,
                         binding.SpriteRenderer,
                         authoredDirection);
@@ -504,7 +571,9 @@ namespace BigRetail.Characters.Rigging
             }
 
             ApplyAuthoredBonePose(authoredDirection);
-            effectiveAppearance?.ApplyBonePlacements(this);
+            NpcAppearanceApplicator.ApplyBonePlacements(
+                effectiveAppearance,
+                this);
 
             ApplyHairDetails(
                 effectiveAppearance?.HairSet,
@@ -540,6 +609,24 @@ namespace BigRetail.Characters.Rigging
             ApplyDirectionalDetailVisibility(
                 authoredDirection,
                 effectiveAppearance);
+        }
+
+
+        private NpcAppearanceSelection GetEffectiveAppearance()
+        {
+            if (appearancePreview != null)
+            {
+                return appearancePreview.CreateSelection();
+            }
+
+            if (runtimeAppearance != null)
+            {
+                return runtimeAppearance;
+            }
+
+            return appearanceProfile != null
+                ? appearanceProfile.CreateSelection()
+                : null;
         }
 
 
@@ -626,7 +713,7 @@ namespace BigRetail.Characters.Rigging
 
         private void ApplyDirectionalDetailVisibility(
             NpcAuthoredDirection authoredDirection,
-            NpcAppearanceProfile effectiveAppearance)
+            NpcAppearanceSelection effectiveAppearance)
         {
             if (northHiddenDetails == null)
             {

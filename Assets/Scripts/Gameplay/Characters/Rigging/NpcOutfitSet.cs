@@ -19,6 +19,13 @@ namespace BigRetail.Characters.Rigging
         [SerializeField]
         private Sprite northEastSprite;
 
+        [Tooltip(
+            "Optional shared material for this body piece. Use the " +
+            "texture-driven garment material for painted clothing; leave " +
+            "empty to use the Person prefab's plain fallback material.")]
+        [SerializeField]
+        private Material materialOverride;
+
         [SerializeField]
         private bool visible = true;
 
@@ -28,6 +35,8 @@ namespace BigRetail.Characters.Rigging
         public NpcAppearanceColorRole ColorRole => colorRole;
 
         public bool Visible => visible;
+
+        public Material MaterialOverride => materialOverride;
 
 
         public NpcOutfitPartStyle(
@@ -41,6 +50,23 @@ namespace BigRetail.Characters.Rigging
             this.colorRole = colorRole;
             this.southEastSprite = southEastSprite;
             this.northEastSprite = northEastSprite;
+            this.visible = visible;
+        }
+
+
+        public NpcOutfitPartStyle(
+            NpcRigPartId id,
+            NpcAppearanceColorRole colorRole,
+            Sprite southEastSprite,
+            Sprite northEastSprite,
+            Material materialOverride,
+            bool visible = true)
+        {
+            this.id = id;
+            this.colorRole = colorRole;
+            this.southEastSprite = southEastSprite;
+            this.northEastSprite = northEastSprite;
+            this.materialOverride = materialOverride;
             this.visible = visible;
         }
 

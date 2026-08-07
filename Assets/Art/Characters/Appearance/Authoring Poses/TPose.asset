@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c3764831d646c6af8dbafeed4f0f06, type: 3}
+  m_Name: TPose
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAuthoringPose
+  displayName: T Pose
+  boneAngles:
+  - boneId: 7
+    angle: -46.7
+  - boneId: 8
+    angle: -31.9
+  - boneId: 9
+    angle: -37.1
+  - boneId: 11
+    angle: 86.7
+  - boneId: 12
+    angle: -30.4
+  - boneId: 14
+    angle: 6.6
+  - boneId: 15
+    angle: -8.1
+  - boneId: 16
+    angle: 13.3
+  - boneId: 17
+    angle: -6.7

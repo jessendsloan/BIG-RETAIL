@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using BigRetail.Characters.Rigging;
 using UnityEditor;
 using UnityEngine;
@@ -40,6 +41,16 @@ namespace BigRetail.Characters.Editor
 
         private const string AppearanceRoot =
             "Assets/Art/Characters/Appearance";
+
+        private const string StandardGarmentMaterialPath =
+            AppearanceRoot +
+            "/Materials/CharacterGarmentTextureLit.mat";
+
+        private const string AuthoringPoseRoot =
+            AppearanceRoot + "/Authoring Poses";
+
+        private const string StarterTPosePath =
+            AuthoringPoseRoot + "/TPose.asset";
 
         private static readonly string[] CategoryLabels =
         {
@@ -147,6 +158,10 @@ namespace BigRetail.Characters.Editor
             NpcRigOverlayFocus.SourceCameraLeftArm;
         private readonly Dictionary<NpcRigBoneId, float> testPoseAngles =
             new Dictionary<NpcRigBoneId, float>();
+        private readonly List<NpcAuthoringPose> authoringPoses =
+            new List<NpcAuthoringPose>();
+        private NpcAuthoringPose selectedAuthoringPose;
+        private bool authoringPoseModified;
         private Vector2 scrollPosition;
         private string loadedJson;
         private string statusMessage;
@@ -169,6 +184,7 @@ namespace BigRetail.Characters.Editor
         {
             previewCanvas = new NpcPersonPreviewCanvas();
             FindLibraries();
+            RefreshAuthoringPoses();
             LoadFirstAsset();
         }
 
@@ -486,7 +502,7 @@ namespace BigRetail.Characters.Editor
         private void DrawPreview()
         {
             if (category == NpcAppearanceAssetCategory.Body
-                && bodyAuthoringMode == NpcBodyAuthoringMode.PoseTest)
+                && testPoseAngles.Count > 0)
             {
                 previewCanvas?.SetTestPose(testPoseAngles);
             }
@@ -613,6 +629,104 @@ namespace BigRetail.Characters.Editor
             EditorGUILayout.LabelField(
                 "Shape  >  Fit Skeleton  >  Align Artwork  >  Test Pose  >  Save",
                 EditorStyles.centeredGreyMiniLabel);
+
+            DrawAuthoringPoseControls();
+        }
+
+
+        private void DrawAuthoringPoseControls()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(
+                "Authoring Pose",
+                EditorStyles.miniBoldLabel);
+
+            string[] poseNames = new string[authoringPoses.Count + 1];
+            poseNames[0] = "Neutral / Bind Pose";
+            int currentIndex = 0;
+
+            for (int index = 0; index < authoringPoses.Count; index++)
+            {
+                NpcAuthoringPose pose = authoringPoses[index];
+                poseNames[index + 1] = pose != null
+                    ? pose.DisplayName
+                    : "Missing Pose";
+
+                if (pose == selectedAuthoringPose)
+                {
+                    currentIndex = index + 1;
+                }
+            }
+
+            int nextIndex = EditorGUILayout.Popup(
+                "Active Pose",
+                currentIndex,
+                poseNames);
+
+            if (nextIndex != currentIndex)
+            {
+                if (nextIndex == 0)
+                {
+                    ActivateNeutralPose();
+                }
+                else
+                {
+                    ActivateAuthoringPose(
+                        authoringPoses[nextIndex - 1]);
+                }
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("T-Pose"))
+                {
+                    ActivateStarterTPose();
+                }
+
+                if (GUILayout.Button("Neutral"))
+                {
+                    ActivateNeutralPose();
+                }
+
+                using (new EditorGUI.DisabledScope(
+                           selectedAuthoringPose == null))
+                {
+                    if (GUILayout.Button("Show Pose Asset"))
+                    {
+                        Selection.activeObject = selectedAuthoringPose;
+                        EditorGUIUtility.PingObject(
+                            selectedAuthoringPose);
+                    }
+                }
+            }
+
+            if (testPoseAngles.Count > 0)
+            {
+                string poseName = selectedAuthoringPose != null
+                    ? selectedAuthoringPose.DisplayName
+                    : "Custom / Unsaved";
+
+                if (authoringPoseModified
+                    && selectedAuthoringPose != null)
+                {
+                    poseName += " (Modified)";
+                }
+
+                EditorGUILayout.HelpBox(
+                    poseName + " is active in every Body tab. It is " +
+                    "preview-only and does not alter the Body asset, " +
+                    "Person prefab, or animation clips.",
+                    MessageType.Info);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(
+                    "Neutral bind pose is active.",
+                    EditorStyles.wordWrappedMiniLabel);
+            }
+
+            EditorGUILayout.EndVertical();
         }
 
 
@@ -627,44 +741,36 @@ namespace BigRetail.Characters.Editor
                 "placement.",
                 MessageType.Info);
 
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField(
-                "Overall Stance",
-                EditorStyles.miniBoldLabel);
-            DrawSkeletonStanceControls();
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField(
                 "Head and Body",
                 EditorStyles.boldLabel);
 
             DrawPartSize(
                 "Head",
-                0.25f,
+                0.18f,
                 0.75f,
-                0.24f,
+                0.18f,
                 0.70f,
                 NpcRigPartId.Head);
             DrawPartSize(
                 "Neck",
-                0.06f,
+                0.04f,
                 0.28f,
-                0.06f,
+                0.04f,
                 0.32f,
                 NpcRigPartId.Neck);
             DrawPartSize(
                 "Torso",
-                0.25f,
+                0.16f,
                 0.85f,
-                0.30f,
+                0.22f,
                 0.95f,
                 NpcRigPartId.Torso);
             DrawPartSize(
                 "Pelvis / Hips",
-                0.18f,
+                0.12f,
                 0.65f,
-                0.10f,
+                0.08f,
                 0.45f,
                 NpcRigPartId.Pelvis);
 
@@ -675,25 +781,25 @@ namespace BigRetail.Characters.Editor
 
             DrawPartSize(
                 "Upper Arms",
-                0.08f,
+                0.05f,
                 0.35f,
-                0.16f,
+                0.10f,
                 0.55f,
                 NpcRigPartId.UpperArmSourceCameraLeft,
                 NpcRigPartId.UpperArmSourceCameraRight);
             DrawPartSize(
                 "Forearms",
-                0.07f,
+                0.045f,
                 0.32f,
-                0.14f,
+                0.09f,
                 0.55f,
                 NpcRigPartId.ForearmSourceCameraLeft,
                 NpcRigPartId.ForearmSourceCameraRight);
             DrawPartSize(
                 "Hands",
-                0.06f,
+                0.04f,
                 0.28f,
-                0.07f,
+                0.045f,
                 0.32f,
                 NpcRigPartId.HandSourceCameraLeft,
                 NpcRigPartId.HandSourceCameraRight);
@@ -705,25 +811,25 @@ namespace BigRetail.Characters.Editor
 
             DrawPartSize(
                 "Thighs / Upper Legs",
-                0.08f,
+                0.05f,
                 0.42f,
-                0.20f,
+                0.14f,
                 0.70f,
                 NpcRigPartId.ThighSourceCameraLeft,
                 NpcRigPartId.ThighSourceCameraRight);
             DrawPartSize(
                 "Shins / Lower Legs",
-                0.07f,
+                0.045f,
                 0.38f,
-                0.20f,
+                0.14f,
                 0.70f,
                 NpcRigPartId.ShinSourceCameraLeft,
                 NpcRigPartId.ShinSourceCameraRight);
             DrawPartSize(
                 "Feet",
-                0.10f,
-                0.48f,
                 0.06f,
+                0.48f,
+                0.04f,
                 0.34f,
                 NpcRigPartId.FootSourceCameraLeft,
                 NpcRigPartId.FootSourceCameraRight);
@@ -740,6 +846,19 @@ namespace BigRetail.Characters.Editor
                 "align one visible body piece at a time. These alignment " +
                 "values are saved in the Body asset.",
                 MessageType.Info);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(
+                "Overall Stance",
+                EditorStyles.miniBoldLabel);
+            DrawSkeletonStanceControls();
+            EditorGUILayout.LabelField(
+                "Set the skeleton's overall camera-side spacing and depth " +
+                "before fitting its joints and artwork.",
+                EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.Space(6f);
 
             if (GUILayout.Button(
                     "START HERE - Fit Entire Skeleton",
@@ -802,12 +921,6 @@ namespace BigRetail.Characters.Editor
             }
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField(
-                "Skeleton Spacing & Height",
-                EditorStyles.miniBoldLabel);
-            DrawSkeletonStanceControls();
-
-            EditorGUILayout.Space(5f);
             EditorGUILayout.LabelField(
                 "Ground and Core Joint Placement",
                 EditorStyles.miniBoldLabel);
@@ -944,13 +1057,16 @@ namespace BigRetail.Characters.Editor
 
             EditorGUILayout.HelpBox(
                 "Bend the real preview skeleton to expose weak joints. " +
-                "Pose Test is temporary: no pose angle is saved into the " +
-                "Body asset or animation clips.",
+                "The pose remains active when you return to Shape or Rig " +
+                "Alignment. It never becomes part of the Body asset or " +
+                "animation clips.",
                 MessageType.Info);
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             DrawPoseTestControls();
             EditorGUILayout.EndVertical();
+
+            DrawAuthoringPoseSaveControls();
         }
 
 
@@ -1141,14 +1257,13 @@ namespace BigRetail.Characters.Editor
                         testPoseAngles.Remove(selectedBones[index]);
                     }
 
+                    authoringPoseModified = true;
                     Repaint();
                 }
 
                 if (GUILayout.Button("Reset Entire Pose"))
                 {
-                    testPoseAngles.Clear();
-                    previewCanvas?.ResetTestPose();
-                    Repaint();
+                    ActivateNeutralPose();
                 }
             }
 
@@ -1191,8 +1306,238 @@ namespace BigRetail.Characters.Editor
                 testPoseAngles[boneId] = next;
             }
 
+            authoringPoseModified = true;
             showRigAnatomy = true;
             rigOverlayFocus = poseTestChain;
+        }
+
+
+        private void DrawAuthoringPoseSaveControls()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(
+                "Reusable Authoring Pose",
+                EditorStyles.miniBoldLabel);
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(
+                           testPoseAngles.Count == 0))
+                {
+                    if (GUILayout.Button("Save Current Pose as New..."))
+                    {
+                        SaveCurrentAuthoringPoseAsNew();
+                    }
+                }
+
+                using (new EditorGUI.DisabledScope(
+                           selectedAuthoringPose == null
+                           || !authoringPoseModified))
+                {
+                    if (GUILayout.Button("Update Selected Pose"))
+                    {
+                        UpdateSelectedAuthoringPose();
+                    }
+                }
+            }
+
+            EditorGUILayout.LabelField(
+                "Saved authoring poses are reusable inspection stances. " +
+                "They are separate from gameplay animation clips.",
+                EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.EndVertical();
+        }
+
+
+        private void ActivateNeutralPose()
+        {
+            selectedAuthoringPose = null;
+            authoringPoseModified = false;
+            testPoseAngles.Clear();
+            previewCanvas?.ResetTestPose();
+            Repaint();
+        }
+
+
+        private void ActivateAuthoringPose(
+            NpcAuthoringPose pose)
+        {
+            if (pose == null)
+            {
+                ActivateNeutralPose();
+                return;
+            }
+
+            selectedAuthoringPose = pose;
+            authoringPoseModified = false;
+            pose.CopyAnglesTo(testPoseAngles);
+            previewCanvas?.SetTestPose(testPoseAngles);
+            Repaint();
+        }
+
+
+        private void ActivateStarterTPose()
+        {
+            NpcAuthoringPose pose =
+                AssetDatabase.LoadAssetAtPath<NpcAuthoringPose>(
+                    StarterTPosePath);
+
+            if (pose == null)
+            {
+                RefreshAuthoringPoses();
+                pose = AssetDatabase.LoadAssetAtPath<NpcAuthoringPose>(
+                    StarterTPosePath);
+            }
+
+            ActivateAuthoringPose(pose);
+        }
+
+
+        private void SaveCurrentAuthoringPoseAsNew()
+        {
+            EnsureAuthoringPoseFolder();
+
+            string suggestedName = selectedAuthoringPose != null
+                ? selectedAuthoringPose.DisplayName + " Copy"
+                : "Custom Authoring Pose";
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Save Authoring Pose",
+                CreateSafeFileName(suggestedName),
+                "asset",
+                "Choose where to save this reusable authoring pose.",
+                AuthoringPoseRoot);
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            NpcAuthoringPose pose =
+                CreateInstance<NpcAuthoringPose>();
+            string displayName = ObjectNames.NicifyVariableName(
+                Path.GetFileNameWithoutExtension(path));
+            pose.Configure(displayName, testPoseAngles);
+            pose.name = CreateSafeFileName(displayName);
+            AssetDatabase.CreateAsset(pose, path);
+            Undo.RegisterCreatedObjectUndo(
+                pose,
+                "Create Authoring Pose");
+            AssetDatabase.SaveAssets();
+
+            RefreshAuthoringPoseList();
+            selectedAuthoringPose = pose;
+            authoringPoseModified = false;
+            Selection.activeObject = pose;
+            EditorGUIUtility.PingObject(pose);
+            SetStatus(
+                pose.DisplayName + " authoring pose saved.",
+                MessageType.Info);
+        }
+
+
+        private void UpdateSelectedAuthoringPose()
+        {
+            if (selectedAuthoringPose == null)
+            {
+                return;
+            }
+
+            Undo.RecordObject(
+                selectedAuthoringPose,
+                "Update Authoring Pose");
+            selectedAuthoringPose.Configure(
+                selectedAuthoringPose.DisplayName,
+                testPoseAngles);
+            EditorUtility.SetDirty(selectedAuthoringPose);
+            AssetDatabase.SaveAssets();
+            authoringPoseModified = false;
+            SetStatus(
+                selectedAuthoringPose.DisplayName +
+                " authoring pose updated.",
+                MessageType.Info);
+        }
+
+
+        private void RefreshAuthoringPoses()
+        {
+            EnsureAuthoringPoseFolder();
+            EnsureStarterTPose();
+            RefreshAuthoringPoseList();
+        }
+
+
+        private void RefreshAuthoringPoseList()
+        {
+            authoringPoses.Clear();
+
+            if (!AssetDatabase.IsValidFolder(AuthoringPoseRoot))
+            {
+                return;
+            }
+
+            string[] guids = AssetDatabase.FindAssets(
+                "t:NpcAuthoringPose",
+                new[] { AuthoringPoseRoot });
+
+            for (int index = 0; index < guids.Length; index++)
+            {
+                NpcAuthoringPose pose =
+                    AssetDatabase.LoadAssetAtPath<NpcAuthoringPose>(
+                        AssetDatabase.GUIDToAssetPath(guids[index]));
+
+                if (pose != null && !authoringPoses.Contains(pose))
+                {
+                    authoringPoses.Add(pose);
+                }
+            }
+
+            authoringPoses.Sort(
+                (left, right) => string.Compare(
+                    left.DisplayName,
+                    right.DisplayName,
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
+
+        private static void EnsureAuthoringPoseFolder()
+        {
+            if (!AssetDatabase.IsValidFolder(AuthoringPoseRoot))
+            {
+                AssetDatabase.CreateFolder(
+                    AppearanceRoot,
+                    "Authoring Poses");
+            }
+        }
+
+
+        private static void EnsureStarterTPose()
+        {
+            if (AssetDatabase.LoadAssetAtPath<NpcAuthoringPose>(
+                    StarterTPosePath) != null)
+            {
+                return;
+            }
+
+            NpcAuthoringPose pose =
+                CreateInstance<NpcAuthoringPose>();
+            Dictionary<NpcRigBoneId, float> angles =
+                new Dictionary<NpcRigBoneId, float>
+                {
+                    {
+                        NpcRigBoneId.UpperArmSourceCameraLeft,
+                        -90f
+                    },
+                    {
+                        NpcRigBoneId.UpperArmSourceCameraRight,
+                        90f
+                    }
+                };
+
+            pose.Configure("T-Pose", angles);
+            pose.name = "TPose";
+            AssetDatabase.CreateAsset(pose, StarterTPosePath);
+            AssetDatabase.SaveAssets();
         }
 
 
@@ -1330,10 +1675,68 @@ namespace BigRetail.Characters.Editor
 
             DrawSleeveStyle();
 
+            EditorGUILayout.Space(8f);
+            DrawTorsoGarmentArtwork();
+
             EditorGUILayout.HelpBox(
                 "SouthWest mirrors SouthEast; NorthWest mirrors NorthEast. " +
                 "The underlying outfit still retains its optional authored " +
                 "sprite overrides.",
+                MessageType.Info);
+        }
+
+
+        private void DrawTorsoGarmentArtwork()
+        {
+            SerializedProperty torsoStyle =
+                FindOutfitPartStyle(NpcRigPartId.Torso);
+
+            if (torsoStyle == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "This outfit is missing its Torso part rule.",
+                    MessageType.Error);
+                return;
+            }
+
+            EditorGUILayout.LabelField(
+                "Torso Garment Artwork",
+                EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(
+                torsoStyle.FindPropertyRelative("southEastSprite"),
+                new GUIContent(
+                    "South / Front PNG",
+                    "Used for SouthEast and mirrored for SouthWest."));
+            EditorGUILayout.PropertyField(
+                torsoStyle.FindPropertyRelative("northEastSprite"),
+                new GUIContent(
+                    "North / Back PNG",
+                    "Used for NorthEast and mirrored for NorthWest."));
+            SerializedProperty materialOverride =
+                torsoStyle.FindPropertyRelative("materialOverride");
+
+            EditorGUILayout.PropertyField(
+                materialOverride,
+                new GUIContent(
+                    "Garment Material",
+                    "Assign CharacterGarmentTextureLit for painted PNG " +
+                    "clothing. Leave empty to use the plain body material."));
+
+            using (new EditorGUI.DisabledScope(
+                       materialOverride.objectReferenceValue != null))
+            {
+                if (GUILayout.Button("Use Standard PNG Garment Material"))
+                {
+                    materialOverride.objectReferenceValue =
+                        AssetDatabase.LoadAssetAtPath<Material>(
+                            StandardGarmentMaterialPath);
+                }
+            }
+
+            EditorGUILayout.HelpBox(
+                "The PNG supplies the clothing art. The material supplies " +
+                "lighting, tint behavior, and subtle cleanup. One material " +
+                "works with both authored directions.",
                 MessageType.Info);
         }
 
@@ -1918,7 +2321,16 @@ namespace BigRetail.Characters.Editor
             float scale = value > 0.0001f
                 ? next / value
                 : 1f;
-            bool refitCore = false;
+            bool preserveCoreConnections = vertical
+                && ContainsCoreBodyPart(shapes);
+            float previousChestTarget = 0f;
+            float previousNeckTarget = 0f;
+            float previousHeadTarget = 0f;
+            bool hasPreviousCoreTargets = preserveCoreConnections
+                && TryCalculateCoreConnectionTargets(
+                    out previousChestTarget,
+                    out previousNeckTarget,
+                    out previousHeadTarget);
 
             for (int index = 0; index < shapes.Count; index++)
             {
@@ -1945,8 +2357,6 @@ namespace BigRetail.Characters.Editor
                     .FindPropertyRelative("id")
                     .enumValueIndex;
 
-                refitCore |= IsCoreBodyPart(partId);
-
                 KeepVisualAnchorFixed(
                     shape,
                     partId,
@@ -1969,17 +2379,44 @@ namespace BigRetail.Characters.Editor
                         shape.FindPropertyRelative("localEulerAngles")
                             .vector3Value.z);
 
-                    SetBonePlacementScale(
+                    AdjustBonePlacementLength(
                         distalBone,
+                        oldSize.y / definition.PlaceholderSize.y,
                         newSize.y / definition.PlaceholderSize.y,
                         angle);
                 }
             }
 
-            if (vertical && refitCore)
+            if (hasPreviousCoreTargets
+                && TryCalculateCoreConnectionTargets(
+                    out float nextChestTarget,
+                    out float nextNeckTarget,
+                    out float nextHeadTarget))
             {
-                FitCoreConnections();
+                ShiftCoreConnectionTargets(
+                    nextChestTarget - previousChestTarget,
+                    nextNeckTarget - previousNeckTarget,
+                    nextHeadTarget - previousHeadTarget);
             }
+        }
+
+
+        private static bool ContainsCoreBodyPart(
+            List<SerializedProperty> shapes)
+        {
+            for (int index = 0; index < shapes.Count; index++)
+            {
+                NpcRigPartId partId = (NpcRigPartId)shapes[index]
+                    .FindPropertyRelative("id")
+                    .enumValueIndex;
+
+                if (IsCoreBodyPart(partId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
 
@@ -2119,6 +2556,95 @@ namespace BigRetail.Characters.Editor
             float headBottom = headCenter.y - headSize.y * 0.5f;
             headPosition.y = neckTop - seamOverlap - headBottom;
             head.vector3Value = headPosition;
+        }
+
+
+        private bool TryCalculateCoreConnectionTargets(
+            out float chestTarget,
+            out float neckTarget,
+            out float headTarget)
+        {
+            const float seamOverlap = 0.015f;
+
+            if (!TryGetShapeGeometry(
+                    NpcRigPartId.Pelvis,
+                    out Vector2 pelvisCenter,
+                    out Vector2 pelvisSize)
+                || !TryGetShapeGeometry(
+                    NpcRigPartId.Torso,
+                    out Vector2 torsoCenter,
+                    out Vector2 torsoSize)
+                || !TryGetShapeGeometry(
+                    NpcRigPartId.Neck,
+                    out Vector2 neckCenter,
+                    out Vector2 neckSize)
+                || !TryGetShapeGeometry(
+                    NpcRigPartId.Head,
+                    out Vector2 headCenter,
+                    out Vector2 headSize))
+            {
+                chestTarget = default;
+                neckTarget = default;
+                headTarget = default;
+                return false;
+            }
+
+            SerializedProperty spine = FindBonePlacementPosition(
+                NpcRigBoneId.SpineLower);
+            float spineHeight = spine != null
+                ? spine.vector3Value.y
+                : 0f;
+
+            float pelvisTop = pelvisCenter.y + pelvisSize.y * 0.5f;
+            float torsoBottom = torsoCenter.y - torsoSize.y * 0.5f;
+            chestTarget = pelvisTop
+                          - seamOverlap
+                          - spineHeight
+                          - torsoBottom;
+
+            float torsoTop = torsoCenter.y + torsoSize.y * 0.5f;
+            float neckBottom = neckCenter.y - neckSize.y * 0.5f;
+            neckTarget = torsoTop - seamOverlap - neckBottom;
+
+            float neckTop = neckCenter.y + neckSize.y * 0.5f;
+            float headBottom = headCenter.y - headSize.y * 0.5f;
+            headTarget = neckTop - seamOverlap - headBottom;
+            return true;
+        }
+
+
+        private void ShiftCoreConnectionTargets(
+            float chestDelta,
+            float neckDelta,
+            float headDelta)
+        {
+            ShiftBonePlacementHeight(
+                NpcRigBoneId.Chest,
+                chestDelta);
+            ShiftBonePlacementHeight(
+                NpcRigBoneId.Neck,
+                neckDelta);
+            ShiftBonePlacementHeight(
+                NpcRigBoneId.Head,
+                headDelta);
+        }
+
+
+        private void ShiftBonePlacementHeight(
+            NpcRigBoneId boneId,
+            float delta)
+        {
+            SerializedProperty position =
+                FindBonePlacementPosition(boneId);
+
+            if (position == null || Mathf.Approximately(delta, 0f))
+            {
+                return;
+            }
+
+            Vector3 value = position.vector3Value;
+            value.y += delta;
+            position.vector3Value = value;
         }
 
 
@@ -2382,6 +2908,30 @@ namespace BigRetail.Characters.Editor
         }
 
 
+        private void AdjustBonePlacementLength(
+            NpcRigBoneId boneId,
+            float previousScale,
+            float nextScale,
+            float fallbackAngle)
+        {
+            SerializedProperty position =
+                FindBonePlacementPosition(boneId);
+
+            if (position != null && previousScale > 0.0001f)
+            {
+                position.vector3Value *= nextScale / previousScale;
+                return;
+            }
+
+            // An unconfigured body has no authored direction to preserve.
+            // In that case only, initialize it from the canonical rig.
+            SetBonePlacementScale(
+                boneId,
+                nextScale,
+                fallbackAngle);
+        }
+
+
         private void DrawBonePlacement2D(
             string label,
             string horizontalLabel,
@@ -2489,6 +3039,17 @@ namespace BigRetail.Characters.Editor
                 NpcRigBoneId.ShoulderSourceCameraLeft,
                 NpcRigBoneId.ShoulderSourceCameraRight);
 
+            DrawBonePairVerticalSpread(
+                "Shoulder Depth Offset",
+                "Separates the shoulder pivots vertically for isometric " +
+                "depth. Positive raises the camera-right shoulder and " +
+                "lowers the camera-left shoulder; negative reverses them. " +
+                "Their shared height stays unchanged.",
+                -0.2f,
+                0.2f,
+                NpcRigBoneId.ShoulderSourceCameraLeft,
+                NpcRigBoneId.ShoulderSourceCameraRight);
+
             EditorGUILayout.Space(3f);
 
             DrawBoneSpacing(
@@ -2504,6 +3065,17 @@ namespace BigRetail.Characters.Editor
                 "pelvis. The complete leg chains follow them.",
                 -0.35f,
                 0.3f,
+                NpcRigBoneId.ThighSourceCameraLeft,
+                NpcRigBoneId.ThighSourceCameraRight);
+
+            DrawBonePairVerticalSpread(
+                "Hip Depth Offset",
+                "Separates the hip/thigh pivots vertically for isometric " +
+                "depth. Positive raises the camera-right hip and lowers " +
+                "the camera-left hip; negative reverses them. Their shared " +
+                "height stays unchanged.",
+                -0.2f,
+                0.2f,
                 NpcRigBoneId.ThighSourceCameraLeft,
                 NpcRigBoneId.ThighSourceCameraRight);
         }
@@ -2547,6 +3119,48 @@ namespace BigRetail.Characters.Editor
             float delta = next - value;
             leftPosition.y += delta;
             rightPosition.y += delta;
+            left.vector3Value = leftPosition;
+            right.vector3Value = rightPosition;
+        }
+
+
+        private void DrawBonePairVerticalSpread(
+            string label,
+            string tooltip,
+            float minimum,
+            float maximum,
+            NpcRigBoneId leftId,
+            NpcRigBoneId rightId)
+        {
+            SerializedProperty left =
+                FindBonePlacementPosition(leftId);
+            SerializedProperty right =
+                FindBonePlacementPosition(rightId);
+
+            if (left == null || right == null)
+            {
+                return;
+            }
+
+            Vector3 leftPosition = left.vector3Value;
+            Vector3 rightPosition = right.vector3Value;
+            float center = (leftPosition.y + rightPosition.y) * 0.5f;
+            float value = (rightPosition.y - leftPosition.y) * 0.5f;
+            float next = EditorGUILayout.Slider(
+                new GUIContent(label, tooltip),
+                value,
+                minimum,
+                maximum);
+
+            if (Mathf.Approximately(next, value))
+            {
+                return;
+            }
+
+            // Change the signed near/far separation without moving the
+            // pair's shared height. Horizontal shoulder spacing is untouched.
+            leftPosition.y = center - next;
+            rightPosition.y = center + next;
             left.vector3Value = leftPosition;
             right.vector3Value = rightPosition;
         }
@@ -3086,6 +3700,16 @@ namespace BigRetail.Characters.Editor
         private SerializedProperty FindOutfitColorRole(
             NpcRigPartId requestedId)
         {
+            SerializedProperty style =
+                FindOutfitPartStyle(requestedId);
+
+            return style?.FindPropertyRelative("colorRole");
+        }
+
+
+        private SerializedProperty FindOutfitPartStyle(
+            NpcRigPartId requestedId)
+        {
             SerializedProperty styles =
                 serializedWorkingAsset.FindProperty("partStyles");
 
@@ -3097,7 +3721,7 @@ namespace BigRetail.Characters.Editor
                 if (style.FindPropertyRelative("id").enumValueIndex
                     == (int)requestedId)
                 {
-                    return style.FindPropertyRelative("colorRole");
+                    return style;
                 }
             }
 

@@ -88,22 +88,7 @@ namespace BigRetail.Characters.Rigging
 
             partTransform.localPosition = localPosition;
             partTransform.localEulerAngles = localEulerAngles;
-            Sprite sprite = renderer.sprite;
-
-            if (sprite == null)
-            {
-                partTransform.localScale =
-                    new Vector3(size.x, size.y, 1f);
-                return;
-            }
-
-            Vector2 spriteSize = sprite.bounds.size;
-
-            partTransform.localScale =
-                new Vector3(
-                    size.x / Mathf.Max(spriteSize.x, 0.0001f),
-                    size.y / Mathf.Max(spriteSize.y, 0.0001f),
-                    1f);
+            NpcAppearanceUtility.ApplySpriteSize(renderer, size);
         }
     }
 
@@ -241,7 +226,9 @@ namespace BigRetail.Characters.Rigging
         public void ApplyBonePlacements(
             NpcCutoutRig rig)
         {
-            bodySilhouette?.ApplyBonePlacements(rig);
+            NpcAppearanceApplicator.ApplyBonePlacements(
+                CreateSelection(),
+                rig);
         }
 
 
@@ -250,84 +237,11 @@ namespace BigRetail.Characters.Rigging
             SpriteRenderer renderer,
             NpcAuthoredDirection direction)
         {
-            if (renderer == null)
-            {
-                return;
-            }
-
-            NpcAppearancePartShape shape = null;
-
-            bodySilhouette?.TryGetPartShape(
+            NpcAppearanceApplicator.ApplyPart(
+                CreateSelection(),
                 partId,
-                out shape);
-
-            bool finalVisible = shape == null || shape.Visible;
-
-            NpcOutfitPartStyle hairSpriteStyle = null;
-            NpcAppearancePartShape hairShape = null;
-
-            bool isHair = hairSet != null
-                && hairSet.TryGetStyle(
-                    partId,
-                    out hairSpriteStyle,
-                    out hairShape);
-
-            if (isHair)
-            {
-                Sprite hairSprite =
-                    hairSpriteStyle?.GetSprite(direction);
-
-                if (hairSprite != null)
-                {
-                    renderer.sprite = hairSprite;
-                }
-
-                if (hairShape != null)
-                {
-                    shape = hairShape;
-                }
-
-                renderer.color = hairSet.HairColor;
-                finalVisible &=
-                    hairSpriteStyle == null
-                    || hairSpriteStyle.Visible;
-            }
-            else if (NpcAppearanceUtility.IsAlwaysSkin(partId))
-            {
-                renderer.color = skinPalette != null
-                    ? skinPalette.GetColor(
-                        NpcAppearanceUtility
-                            .IsSourceCameraLeftPart(partId))
-                    : renderer.color;
-            }
-            else if (outfitSet != null
-                     && outfitSet.TryGetPartStyle(
-                         partId,
-                         out NpcOutfitPartStyle outfitStyle))
-            {
-                Sprite outfitSprite =
-                    outfitStyle.GetSprite(direction);
-
-                if (outfitSprite != null)
-                {
-                    renderer.sprite = outfitSprite;
-                }
-
-                if (outfitStyle.ColorRole
-                    != NpcAppearanceColorRole.Preserve)
-                {
-                    renderer.color = outfitSet.GetColor(
-                        outfitStyle.ColorRole,
-                        skinPalette,
-                        NpcAppearanceUtility
-                            .IsSourceCameraLeftPart(partId));
-                }
-
-                finalVisible &= outfitStyle.Visible;
-            }
-
-            shape?.Apply(renderer);
-            renderer.enabled = finalVisible;
+                renderer,
+                direction);
         }
 
 
@@ -340,6 +254,49 @@ namespace BigRetail.Characters.Rigging
 
     public static class NpcAppearanceUtility
     {
+        public static void ApplySpriteSize(
+            SpriteRenderer renderer,
+            Vector2 size)
+        {
+            if (renderer == null)
+            {
+                return;
+            }
+
+            Transform partTransform = renderer.transform;
+            Sprite sprite = renderer.sprite;
+
+            if (sprite == null)
+            {
+                renderer.drawMode = SpriteDrawMode.Simple;
+                partTransform.localScale =
+                    new Vector3(size.x, size.y, 1f);
+                return;
+            }
+
+            // Bordered sprites are the scalable building blocks for the
+            // cutout person. Resize their sliced geometry instead of
+            // stretching the Transform so corners and drawn edges retain
+            // their intended thickness at different body proportions.
+            if (sprite.border.sqrMagnitude > 0.0001f)
+            {
+                renderer.drawMode = SpriteDrawMode.Sliced;
+                renderer.size = size;
+                partTransform.localScale = Vector3.one;
+                return;
+            }
+
+            Vector2 spriteSize = sprite.bounds.size;
+
+            renderer.drawMode = SpriteDrawMode.Simple;
+            partTransform.localScale =
+                new Vector3(
+                    size.x / Mathf.Max(spriteSize.x, 0.0001f),
+                    size.y / Mathf.Max(spriteSize.y, 0.0001f),
+                    1f);
+        }
+
+
         public static bool IsAlwaysSkin(
             NpcRigPartId partId)
         {

@@ -82,23 +82,7 @@ namespace BigRetail.Characters.Rigging
             layerTransform.localPosition = localPosition;
             layerTransform.localEulerAngles = localEulerAngles;
 
-            Sprite sprite = renderer.sprite;
-
-            if (sprite == null)
-            {
-                layerTransform.localScale =
-                    new Vector3(size.x, size.y, 1f);
-            }
-            else
-            {
-                Vector2 spriteSize = sprite.bounds.size;
-
-                layerTransform.localScale =
-                    new Vector3(
-                        size.x / Mathf.Max(spriteSize.x, 0.0001f),
-                        size.y / Mathf.Max(spriteSize.y, 0.0001f),
-                        1f);
-            }
+            NpcAppearanceUtility.ApplySpriteSize(renderer, size);
 
             renderer.enabled = visible;
         }
