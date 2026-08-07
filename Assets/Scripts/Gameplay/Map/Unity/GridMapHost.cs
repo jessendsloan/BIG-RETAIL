@@ -1,6 +1,7 @@
 using System;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Foundations;
 using BigRetail.Map.Unity.Doors;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.Unity.Foundations;
@@ -113,6 +114,11 @@ namespace BigRetail.Map.Unity
 
         public DoorDefinitionAssetCatalog DoorDefinitionAssets =>
             doorDefinitionAssets;
+
+        public FoundationState FoundationState =>
+            foundationRuntimeHost != null
+                ? foundationRuntimeHost.FoundationState
+                : null;
 
         public bool IsInitialized
         {

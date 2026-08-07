@@ -254,8 +254,9 @@ namespace BigRetail.Construction.Unity.Doors
             WallVertexRunPlanResult plan,
             DoorDefinitionAsset definitionAsset)
         {
-            if (plan.SegmentCount
-                != DoorAssemblyView.RequiredPanelCount)
+            if (!IsPresentationCompatible(
+                    plan.SegmentCount,
+                    definitionAsset))
             {
                 if (assemblyPreview != null)
                 {
@@ -270,7 +271,7 @@ namespace BigRetail.Construction.Unity.Doors
                 Vector3.zero;
 
             Vector3[] panelWorldPositions =
-                new Vector3[DoorAssemblyView.RequiredPanelCount];
+                new Vector3[plan.SegmentCount];
 
             WallDisplaySlope displaySlope =
                 default;
@@ -320,27 +321,13 @@ namespace BigRetail.Construction.Unity.Doors
                             worldPose.DisplayEdge));
             }
 
-            if (!definitionAsset.TryGetAssemblySprites(
-                    displaySlope,
-                    out DoorAssemblySprites sprites))
-            {
-                if (assemblyPreview != null)
-                {
-                    assemblyPreview.gameObject.SetActive(
-                        false);
-                }
-
-                return;
-            }
-
             EnsureAssemblyPreview();
 
             assemblyPreview.gameObject.SetActive(
                 true);
 
-            Array.Sort(
-                panelWorldPositions,
-                ComparePanelWorldPositions);
+            assemblyPreview.SetOpenProgressImmediately(
+                0f);
 
             int assemblySortingOrder =
                 sortingOrder
@@ -355,17 +342,170 @@ namespace BigRetail.Construction.Unity.Doors
                 assemblySortingOrder
                 + PreviewAssemblySortingOrderOffset;
 
-            assemblyPreview.ApplyPresentation(
-                sprites,
-                panelWorldPositions,
-                worldPosition / plan.SegmentCount,
-                sortingLayerId: 0,
-                sortingOrder: assemblySortingOrder,
-                rendererPriority: rendererPriority + 1,
-                sharedMaterial: null,
-                tint: IsPlanValid
+            Color tint =
+                IsPlanValid
                     ? new Color(1f, 1f, 1f, validColor.a)
-                    : invalidColor);
+                    : invalidColor;
+
+            switch (definitionAsset.PresentationStyle)
+            {
+                case DoorPresentationStyle.SlidingFourPanel:
+                    if (!definitionAsset.TryGetAssemblySprites(
+                            displaySlope,
+                            out DoorAssemblySprites sprites))
+                    {
+                        assemblyPreview.gameObject.SetActive(
+                            false);
+                        return;
+                    }
+
+                    Array.Sort(
+                        panelWorldPositions,
+                        ComparePanelWorldPositions);
+
+                    DoorViewerSide viewerSide =
+                        mapHost.FoundationState == null
+                            ? DoorViewerSide.Outside
+                            : DoorViewerSideResolver.Resolve(
+                                plan.Edges[0],
+                                targetResolver.ViewProjection,
+                                mapHost.FoundationState);
+
+                    assemblyPreview.ApplyPresentation(
+                        sprites,
+                        displaySlope,
+                        viewerSide,
+                        panelWorldPositions,
+                        worldPosition / plan.SegmentCount,
+                        sortingLayerId: 0,
+                        sortingOrder: assemblySortingOrder,
+                        rendererPriority: rendererPriority + 1,
+                        sharedMaterial: null,
+                        tint: tint);
+                    break;
+
+                case DoorPresentationStyle.HingedSinglePanel:
+                    if (!definitionAsset.TryGetHingedSprites(
+                            displaySlope,
+                            out HingedDoorSprites hingedSprites))
+                    {
+                        assemblyPreview.gameObject.SetActive(
+                            false);
+                        return;
+                    }
+
+                    CellEdgeWorldPose closedPose =
+                        CellEdgeWorldPose.Calculate(
+                            plan.Edges[0],
+                            targetResolver.CoordinateTilemap,
+                            targetResolver.LogicalLevel,
+                            targetResolver.UnityCellZ,
+                            targetResolver.ViewProjection);
+
+                    CellEdge openLogicalEdge =
+                        HingedDoorSwingResolver
+                            .ResolveOpenLogicalEdge(
+                                plan.Edges[0]);
+
+                    CellEdgeWorldPose openPose =
+                        CellEdgeWorldPose.Calculate(
+                            openLogicalEdge,
+                            targetResolver.CoordinateTilemap,
+                            targetResolver.LogicalLevel,
+                            targetResolver.UnityCellZ,
+                            targetResolver.ViewProjection);
+
+                    if (!definitionAsset.TryGetHingedSprites(
+                            openPose.DisplaySlope,
+                            out HingedDoorSprites openSprites))
+                    {
+                        assemblyPreview.gameObject.SetActive(
+                            false);
+                        return;
+                    }
+
+                    Vector3 previewWorldOffset =
+                        panelWorldPositions[0]
+                        - closedPose.Position;
+
+                    Vector3 openPanelWorldPosition =
+                        openPose.Position
+                        + previewWorldOffset;
+
+                    int openSortingOrder =
+                        WallRenderOrderResolver.ResolveWall(
+                            openPose.DisplayEdge)
+                        + DoorAssemblyView
+                            .SortingOrderOffsetFromSupportingWall;
+
+                    int openRendererPriority =
+                        WallRenderOrderResolver.ResolveWallPriority(
+                            openPose.DisplayEdge)
+                        + 1;
+
+                    assemblyPreview.ApplyHingedPresentation(
+                        hingedSprites,
+                        openSprites.Door,
+                        panelWorldPositions[0],
+                        openPanelWorldPosition,
+                        sortingLayerId: 0,
+                        closedSortingOrder: assemblySortingOrder,
+                        openSortingOrder: openSortingOrder,
+                        closedRendererPriority: rendererPriority + 1,
+                        openRendererPriority: openRendererPriority,
+                        sharedMaterial: null,
+                        tint: tint);
+                    break;
+
+                case DoorPresentationStyle.StaticDoorway:
+                    if (!definitionAsset.TryGetDoorwaySprites(
+                            displaySlope,
+                            out DoorwaySprites doorwaySprites))
+                    {
+                        assemblyPreview.gameObject.SetActive(
+                            false);
+                        return;
+                    }
+
+                    assemblyPreview.ApplyDoorwayPresentation(
+                        doorwaySprites.Frame,
+                        worldPosition / plan.SegmentCount,
+                        sortingLayerId: 0,
+                        sortingOrder: assemblySortingOrder,
+                        rendererPriority: rendererPriority + 1,
+                        sharedMaterial: null,
+                        tint: tint);
+                    break;
+
+                default:
+                    assemblyPreview.gameObject.SetActive(
+                        false);
+                    break;
+            }
+        }
+
+
+        private static bool IsPresentationCompatible(
+            int segmentCount,
+            DoorDefinitionAsset definitionAsset)
+        {
+            return definitionAsset.HasCompleteVisuals
+                && definitionAsset.PresentationStyle switch
+                {
+                    DoorPresentationStyle.SlidingFourPanel =>
+                        segmentCount
+                        == DoorAssemblyView.RequiredPanelCount,
+
+                    DoorPresentationStyle.HingedSinglePanel =>
+                        segmentCount
+                        == DoorAssemblyView.RequiredHingedPanelCount,
+
+                    DoorPresentationStyle.StaticDoorway =>
+                        segmentCount
+                        == definitionAsset.SegmentCount,
+
+                    _ => false
+                };
         }
 
 

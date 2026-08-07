@@ -91,5 +91,43 @@ namespace BigRetail.Map.Unity.Doors
                 displaySlope,
                 out sprites);
         }
+
+
+        public bool TryResolveHingedSprites(
+            DoorAssembly assembly,
+            WallDisplaySlope displaySlope,
+            out HingedDoorSprites sprites)
+        {
+            if (!TryResolveDefinitionAsset(
+                    assembly,
+                    out DoorDefinitionAsset definitionAsset))
+            {
+                sprites = default;
+                return false;
+            }
+
+            return definitionAsset.TryGetHingedSprites(
+                displaySlope,
+                out sprites);
+        }
+
+
+        public bool TryResolveDoorwaySprites(
+            DoorAssembly assembly,
+            WallDisplaySlope displaySlope,
+            out DoorwaySprites sprites)
+        {
+            if (!TryResolveDefinitionAsset(
+                    assembly,
+                    out DoorDefinitionAsset definitionAsset))
+            {
+                sprites = default;
+                return false;
+            }
+
+            return definitionAsset.TryGetDoorwaySprites(
+                displaySlope,
+                out sprites);
+        }
     }
 }

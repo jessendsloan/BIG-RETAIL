@@ -85,6 +85,8 @@ namespace BigRetail.Map.Unity.Walls
         private DoorPresentationResolver doorResolver;
         private SpriteMask apertureMask;
         private SortingGroup sortingGroup;
+        private Vector3 apertureAssemblyWorldPosition;
+        private bool hasApertureAssemblyWorldPosition;
 
 
         /// <summary>
@@ -169,6 +171,29 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        /// <summary>
+        /// Aligns this wall's private mask copy with the complete door
+        /// assembly artwork. The mask remains inside this wall's SortingGroup,
+        /// so its wider silhouette can only cut this supporting wall.
+        /// </summary>
+        public void AlignDoorAperture(
+            Vector3 assemblyWorldPosition)
+        {
+            apertureAssemblyWorldPosition =
+                assemblyWorldPosition;
+
+            hasApertureAssemblyWorldPosition =
+                true;
+
+            if (apertureMask != null
+                && apertureMask.enabled)
+            {
+                apertureMask.transform.position =
+                    apertureAssemblyWorldPosition;
+            }
+        }
+
+
         private void ApplyWorldPose(
             CellEdgeWorldPose worldPose,
             WallPresentationHeight presentationHeight)
@@ -234,9 +259,8 @@ namespace BigRetail.Map.Unity.Walls
                     : -1;
 
             bool usesLayeredDoorArt =
-                presentationHeight == WallPresentationHeight.Full
-                && IsDoorPanel
-                && doorDefinitionAsset.HasCompleteAssemblyVisuals;
+                IsDoorPanel
+                && doorDefinitionAsset.HasCompleteVisuals;
 
             Sprite apertureSprite =
                 ResolveDoorApertureSprite(
@@ -279,18 +303,17 @@ namespace BigRetail.Map.Unity.Walls
             WallDisplaySlope displaySlope)
         {
             if (!usesLayeredDoorArt
-                || !definitionAsset.TryGetAssemblySprites(
+                || !definitionAsset.TryGetApertureSprite(
                     displaySlope,
-                    out DoorAssemblySprites sprites))
+                    out Sprite apertureSprite))
             {
                 return null;
             }
 
-            // The authored sliding panel already has the exact isometric
-            // slope, pivot, and opening silhouette needed by one wall panel.
-            // Scaling a full wall sprite vertically changes its slope and
-            // creates triangular over-cutting at door corners.
-            return sprites.LeftDoor;
+            // The authored aperture shares the frame's complete canvas,
+            // pivot, slope, and opening silhouette. Each supporting wall owns
+            // a private aligned mask copy, preventing seams between panels.
+            return apertureSprite;
         }
 
 
@@ -309,6 +332,9 @@ namespace BigRetail.Map.Unity.Walls
                     apertureMask.enabled =
                         false;
                 }
+
+                hasApertureAssemblyWorldPosition =
+                    false;
 
                 return;
             }
@@ -336,8 +362,10 @@ namespace BigRetail.Map.Unity.Walls
             apertureMask.backSortingOrder =
                 spriteRenderer.sortingOrder - 1;
 
-            apertureMask.transform.localPosition =
-                Vector3.zero;
+            apertureMask.transform.position =
+                hasApertureAssemblyWorldPosition
+                    ? apertureAssemblyWorldPosition
+                    : transform.position;
 
             apertureMask.transform.localRotation =
                 Quaternion.identity;
