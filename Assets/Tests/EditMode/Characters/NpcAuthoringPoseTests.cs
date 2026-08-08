@@ -38,11 +38,11 @@ namespace BigRetail.Characters.Rigging.Tests
                 {
                     { NpcRigBoneId.Chest, 0f },
                     {
-                        NpcRigBoneId.UpperArmSourceCameraLeft,
+                        NpcRigBoneId.UpperArmNear,
                         -90f
                     },
                     {
-                        NpcRigBoneId.UpperArmSourceCameraRight,
+                        NpcRigBoneId.UpperArmFar,
                         90f
                     }
                 };
@@ -63,10 +63,10 @@ namespace BigRetail.Characters.Rigging.Tests
                     destination.ContainsKey(NpcRigBoneId.Head),
                     Is.False);
                 Assert.That(
-                    destination[NpcRigBoneId.UpperArmSourceCameraLeft],
+                    destination[NpcRigBoneId.UpperArmNear],
                     Is.EqualTo(-90f));
                 Assert.That(
-                    destination[NpcRigBoneId.UpperArmSourceCameraRight],
+                    destination[NpcRigBoneId.UpperArmFar],
                     Is.EqualTo(90f));
             }
             finally

@@ -79,7 +79,7 @@ namespace BigRetail.Characters.Rigging
                 renderer.color = skinPalette != null
                     ? skinPalette.GetColor(
                         NpcAppearanceUtility
-                            .IsSourceCameraLeftPart(partId))
+                            .IsFarPart(partId))
                     : renderer.color;
             }
             else if (outfitSet != null
@@ -108,7 +108,7 @@ namespace BigRetail.Characters.Rigging
                         outfitStyle.ColorRole,
                         skinPalette,
                         NpcAppearanceUtility
-                            .IsSourceCameraLeftPart(partId));
+                            .IsFarPart(partId));
                 }
 
                 finalVisible &= outfitStyle.Visible;

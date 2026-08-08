@@ -32,6 +32,24 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
         [Test]
+        public void NearFarMigration_PreservesSerializedEnumValues()
+        {
+            Assert.That((int)NpcRigBoneId.ShoulderNear, Is.EqualTo(6));
+            Assert.That((int)NpcRigBoneId.HandNear, Is.EqualTo(9));
+            Assert.That((int)NpcRigBoneId.ShoulderFar, Is.EqualTo(10));
+            Assert.That((int)NpcRigBoneId.HandFar, Is.EqualTo(13));
+            Assert.That((int)NpcRigBoneId.ThighNear, Is.EqualTo(14));
+            Assert.That((int)NpcRigBoneId.FootNear, Is.EqualTo(16));
+            Assert.That((int)NpcRigBoneId.ThighFar, Is.EqualTo(17));
+            Assert.That((int)NpcRigBoneId.FootFar, Is.EqualTo(19));
+
+            Assert.That((int)NpcRigPartId.UpperArmNear, Is.EqualTo(1));
+            Assert.That((int)NpcRigPartId.FootNear, Is.EqualTo(6));
+            Assert.That((int)NpcRigPartId.ThighFar, Is.EqualTo(12));
+            Assert.That((int)NpcRigPartId.HandFar, Is.EqualTo(17));
+        }
+
+        [Test]
         public void CanonicalRig_HasOneRootAndValidParentOrder()
         {
             HashSet<NpcRigBoneId> createdBones =
@@ -157,7 +175,7 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
         [Test]
-        public void FacingRules_ResolveCameraForegroundAndBackground()
+        public void FacingRules_PreserveNearFarDepthWhenMirrored()
         {
             Assert.That(
                 NpcFacingUtility.GetForegroundCameraSide(
@@ -170,27 +188,37 @@ namespace BigRetail.Characters.Rigging.Tests
                 Is.EqualTo(NpcCameraSide.CameraRight));
 
             Assert.That(
+                NpcFacingUtility.GetForegroundCameraSide(
+                    NpcFacing.NorthEast),
+                Is.EqualTo(NpcCameraSide.CameraLeft));
+
+            Assert.That(
+                NpcFacingUtility.GetForegroundCameraSide(
+                    NpcFacing.NorthWest),
+                Is.EqualTo(NpcCameraSide.CameraRight));
+
+            Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.SouthEast,
-                    NpcRigPartId.UpperArmSourceCameraLeft),
+                    NpcRigPartId.UpperArmNear),
                 Is.EqualTo(15));
 
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.SouthEast,
-                    NpcRigPartId.UpperArmSourceCameraRight),
+                    NpcRigPartId.UpperArmFar),
                 Is.EqualTo(1));
 
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.SouthWest,
-                    NpcRigPartId.UpperArmSourceCameraLeft),
+                    NpcRigPartId.UpperArmNear),
                 Is.EqualTo(15));
 
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.SouthWest,
-                    NpcRigPartId.UpperArmSourceCameraRight),
+                    NpcRigPartId.UpperArmFar),
                 Is.EqualTo(1));
 
             Assert.That(
@@ -208,26 +236,56 @@ namespace BigRetail.Characters.Rigging.Tests
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.SouthEast,
-                    NpcRigPartId.FootSourceCameraLeft),
+                    NpcRigPartId.FootNear),
                 Is.EqualTo(14));
 
             Assert.That(
                 NpcFacingUtility.GetPresentationSortingOrder(
                     NpcFacing.NorthEast,
-                    NpcRigPartId.FootSourceCameraRight),
+                    NpcRigPartId.FootFar),
+                Is.EqualTo(4));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.ShinFar),
+                Is.EqualTo(6));
+
+            Assert.That(
+                NpcFacingUtility.GetPresentationSortingOrder(
+                    NpcFacing.NorthEast,
+                    NpcRigPartId.FootNear),
                 Is.EqualTo(12));
 
-            Assert.That(
-                NpcFacingUtility.GetPresentationSortingOrder(
-                    NpcFacing.NorthEast,
-                    NpcRigPartId.ShinSourceCameraRight),
-                Is.EqualTo(14));
+            foreach (NpcFacing facing in
+                     new[]
+                     {
+                         NpcFacing.SouthEast,
+                         NpcFacing.SouthWest,
+                         NpcFacing.NorthEast,
+                         NpcFacing.NorthWest
+                     })
+            {
+                Assert.That(
+                    NpcFacingUtility.GetPresentationSortingOrder(
+                        facing,
+                        NpcRigPartId.UpperArmNear),
+                    Is.GreaterThan(
+                        NpcFacingUtility.GetPresentationSortingOrder(
+                            facing,
+                            NpcRigPartId.UpperArmFar)),
+                    $"Near arm must remain foreground for {facing}.");
 
-            Assert.That(
-                NpcFacingUtility.GetPresentationSortingOrder(
-                    NpcFacing.NorthEast,
-                    NpcRigPartId.FootSourceCameraLeft),
-                Is.EqualTo(4));
+                Assert.That(
+                    NpcFacingUtility.GetPresentationSortingOrder(
+                        facing,
+                        NpcRigPartId.ThighNear),
+                    Is.GreaterThan(
+                        NpcFacingUtility.GetPresentationSortingOrder(
+                            facing,
+                            NpcRigPartId.ThighFar)),
+                    $"Near leg must remain foreground for {facing}.");
+            }
         }
 
         [Test]

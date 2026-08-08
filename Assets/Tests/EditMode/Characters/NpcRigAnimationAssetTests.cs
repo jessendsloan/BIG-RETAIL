@@ -58,6 +58,29 @@ namespace BigRetail.Characters.Rigging.Tests
                     animator.runtimeAnimatorController),
                 Is.EqualTo(
                     ControllerPath));
+
+            string[] requiredDepthChains =
+            {
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear",
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar",
+                "Directional Visual/Root/Pelvis/ThighNear",
+                "Directional Visual/Root/Pelvis/ThighFar"
+            };
+
+            foreach (string path in requiredDepthChains)
+            {
+                Assert.That(
+                    prefab.transform.Find(path),
+                    Is.Not.Null,
+                    $"Person prefab is missing the stable depth chain: {path}");
+            }
+
+            Assert.That(
+                prefab.GetComponentsInChildren<Transform>(true).Any(
+                    child => child.name.Contains("SourceCamera")),
+                Is.False,
+                "The active Person prefab must not retain legacy "
+                + "screen-side hierarchy names.");
         }
 
 
@@ -100,18 +123,43 @@ namespace BigRetail.Characters.Rigging.Tests
                     walkClip).Length,
                 Is.GreaterThanOrEqualTo(12));
 
+            EditorCurveBinding[] bindings =
+                AnimationUtility.GetCurveBindings(walkClip);
+
             Assert.That(
-                AnimationUtility.GetCurveBindings(
-                        walkClip)
-                    .Any(
-                        binding =>
-                            binding.path.Contains(
-                                "FootSourceCamera")
-                            && binding.propertyName.Contains(
-                                "Euler")),
+                bindings.Any(
+                    binding => binding.path.Contains("Near")),
+                Is.True,
+                "The walk clip must target the migrated Near chain.");
+
+            Assert.That(
+                bindings.Any(
+                    binding => binding.path.Contains("Far")),
+                Is.True,
+                "The walk clip must target the migrated Far chain.");
+
+            Assert.That(
+                bindings.Any(
+                    binding => binding.path.Contains("SourceCamera")),
                 Is.False,
-                "The shared walk clip must not override directional "
-                + "foot rotations authored by NpcCutoutRig.");
+                "The active walk clip must not retain legacy screen-side "
+                + "binding paths.");
+
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+
+            foreach (EditorCurveBinding binding in bindings)
+            {
+                if (string.IsNullOrEmpty(binding.path))
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    prefab.transform.Find(binding.path),
+                    Is.Not.Null,
+                    $"Walk binding path does not resolve: {binding.path}");
+            }
         }
 
 

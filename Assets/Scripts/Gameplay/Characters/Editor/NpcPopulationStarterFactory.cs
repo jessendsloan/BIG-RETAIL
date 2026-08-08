@@ -136,7 +136,7 @@ namespace BigRetail.Characters.Editor
                     new Color(0.26f, 0.20f, 0.16f, 1f)),
                 GetPartColor(
                     baseRig,
-                    NpcRigPartId.FootSourceCameraRight,
+                    NpcRigPartId.FootFar,
                     new Color(0.10f, 0.07f, 0.05f, 1f)),
                 new Color(0.92f, 0.84f, 0.59f, 1f),
                 true,
@@ -852,10 +852,10 @@ namespace BigRetail.Characters.Editor
         {
             NpcRigBoneId[] widthBones =
             {
-                NpcRigBoneId.ShoulderSourceCameraLeft,
-                NpcRigBoneId.ShoulderSourceCameraRight,
-                NpcRigBoneId.ThighSourceCameraLeft,
-                NpcRigBoneId.ThighSourceCameraRight
+                NpcRigBoneId.ShoulderNear,
+                NpcRigBoneId.ShoulderFar,
+                NpcRigBoneId.ThighNear,
+                NpcRigBoneId.ThighFar
             };
 
             List<NpcAppearanceBonePlacement> placements =
@@ -899,19 +899,19 @@ namespace BigRetail.Characters.Editor
                         size.x *= 0.90f;
                         break;
 
-                    case NpcRigPartId.UpperArmSourceCameraLeft:
-                    case NpcRigPartId.UpperArmSourceCameraRight:
-                    case NpcRigPartId.ForearmSourceCameraLeft:
-                    case NpcRigPartId.ForearmSourceCameraRight:
-                    case NpcRigPartId.HandSourceCameraLeft:
-                    case NpcRigPartId.HandSourceCameraRight:
+                    case NpcRigPartId.UpperArmNear:
+                    case NpcRigPartId.UpperArmFar:
+                    case NpcRigPartId.ForearmNear:
+                    case NpcRigPartId.ForearmFar:
+                    case NpcRigPartId.HandNear:
+                    case NpcRigPartId.HandFar:
                         size.x *= 0.88f;
                         break;
 
-                    case NpcRigPartId.ThighSourceCameraLeft:
-                    case NpcRigPartId.ThighSourceCameraRight:
-                    case NpcRigPartId.ShinSourceCameraLeft:
-                    case NpcRigPartId.ShinSourceCameraRight:
+                    case NpcRigPartId.ThighNear:
+                    case NpcRigPartId.ThighFar:
+                    case NpcRigPartId.ShinNear:
+                    case NpcRigPartId.ShinFar:
                         size.x *= 0.92f;
                         break;
                 }
@@ -937,13 +937,13 @@ namespace BigRetail.Characters.Editor
 
                 switch (placement.Id)
                 {
-                    case NpcRigBoneId.ShoulderSourceCameraLeft:
-                    case NpcRigBoneId.ShoulderSourceCameraRight:
+                    case NpcRigBoneId.ShoulderNear:
+                    case NpcRigBoneId.ShoulderFar:
                         position.x *= 0.80f;
                         break;
 
-                    case NpcRigBoneId.ThighSourceCameraLeft:
-                    case NpcRigBoneId.ThighSourceCameraRight:
+                    case NpcRigBoneId.ThighNear:
+                    case NpcRigBoneId.ThighFar:
                         position.x *= 0.88f;
                         break;
                 }
@@ -1019,19 +1019,19 @@ namespace BigRetail.Characters.Editor
                         size.x *= pelvisWidth;
                         break;
 
-                    case NpcRigPartId.UpperArmSourceCameraLeft:
-                    case NpcRigPartId.UpperArmSourceCameraRight:
-                    case NpcRigPartId.ForearmSourceCameraLeft:
-                    case NpcRigPartId.ForearmSourceCameraRight:
-                    case NpcRigPartId.HandSourceCameraLeft:
-                    case NpcRigPartId.HandSourceCameraRight:
+                    case NpcRigPartId.UpperArmNear:
+                    case NpcRigPartId.UpperArmFar:
+                    case NpcRigPartId.ForearmNear:
+                    case NpcRigPartId.ForearmFar:
+                    case NpcRigPartId.HandNear:
+                    case NpcRigPartId.HandFar:
                         size.x *= armWidth;
                         break;
 
-                    case NpcRigPartId.ThighSourceCameraLeft:
-                    case NpcRigPartId.ThighSourceCameraRight:
-                    case NpcRigPartId.ShinSourceCameraLeft:
-                    case NpcRigPartId.ShinSourceCameraRight:
+                    case NpcRigPartId.ThighNear:
+                    case NpcRigPartId.ThighFar:
+                    case NpcRigPartId.ShinNear:
+                    case NpcRigPartId.ShinFar:
                         size.x *= legWidth;
                         break;
                 }
@@ -1059,13 +1059,13 @@ namespace BigRetail.Characters.Editor
 
                 switch (placement.Id)
                 {
-                    case NpcRigBoneId.ShoulderSourceCameraLeft:
-                    case NpcRigBoneId.ShoulderSourceCameraRight:
+                    case NpcRigBoneId.ShoulderNear:
+                    case NpcRigBoneId.ShoulderFar:
                         position.x *= shoulderSpacing;
                         break;
 
-                    case NpcRigBoneId.ThighSourceCameraLeft:
-                    case NpcRigBoneId.ThighSourceCameraRight:
+                    case NpcRigBoneId.ThighNear:
+                    case NpcRigBoneId.ThighFar:
                         position.x *= thighSpacing;
                         break;
                 }
@@ -1163,30 +1163,30 @@ namespace BigRetail.Characters.Editor
         {
             switch (id)
             {
-                case NpcRigPartId.HandSourceCameraLeft:
-                case NpcRigPartId.HandSourceCameraRight:
+                case NpcRigPartId.HandNear:
+                case NpcRigPartId.HandFar:
                     return NpcAppearanceColorRole.Skin;
 
-                case NpcRigPartId.ForearmSourceCameraLeft:
-                case NpcRigPartId.ForearmSourceCameraRight:
+                case NpcRigPartId.ForearmNear:
+                case NpcRigPartId.ForearmFar:
                     return exposeForearms
                         ? NpcAppearanceColorRole.Skin
                         : NpcAppearanceColorRole.PrimaryFabric;
 
                 case NpcRigPartId.Torso:
-                case NpcRigPartId.UpperArmSourceCameraLeft:
-                case NpcRigPartId.UpperArmSourceCameraRight:
+                case NpcRigPartId.UpperArmNear:
+                case NpcRigPartId.UpperArmFar:
                     return NpcAppearanceColorRole.PrimaryFabric;
 
                 case NpcRigPartId.Pelvis:
-                case NpcRigPartId.ThighSourceCameraLeft:
-                case NpcRigPartId.ThighSourceCameraRight:
-                case NpcRigPartId.ShinSourceCameraLeft:
-                case NpcRigPartId.ShinSourceCameraRight:
+                case NpcRigPartId.ThighNear:
+                case NpcRigPartId.ThighFar:
+                case NpcRigPartId.ShinNear:
+                case NpcRigPartId.ShinFar:
                     return NpcAppearanceColorRole.SecondaryFabric;
 
-                case NpcRigPartId.FootSourceCameraLeft:
-                case NpcRigPartId.FootSourceCameraRight:
+                case NpcRigPartId.FootNear:
+                case NpcRigPartId.FootFar:
                     return NpcAppearanceColorRole.Footwear;
 
                 default:

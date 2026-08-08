@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BigRetail.Characters.Rigging
 {
@@ -15,7 +16,9 @@ namespace BigRetail.Characters.Rigging
 
         [Range(0.5f, 1f)]
         [SerializeField]
-        private float sourceCameraLeftShade = 0.82f;
+        [FormerlySerializedAs("sourceCameraLeftShade")]
+        [FormerlySerializedAs("nearShade")]
+        private float farSideShade = 0.82f;
 
 
         public string DisplayName => displayName;
@@ -26,14 +29,14 @@ namespace BigRetail.Characters.Rigging
         public void Configure(
             string newDisplayName,
             Color newSkinColor,
-            float newSourceCameraLeftShade = 0.82f)
+            float newFarSideShade = 0.82f)
         {
             displayName = string.IsNullOrWhiteSpace(newDisplayName)
                 ? name
                 : newDisplayName;
             skinColor = newSkinColor;
-            sourceCameraLeftShade = Mathf.Clamp(
-                newSourceCameraLeftShade,
+            farSideShade = Mathf.Clamp(
+                newFarSideShade,
                 0.5f,
                 1f);
         }
@@ -45,7 +48,7 @@ namespace BigRetail.Characters.Rigging
             return shadeForDepth
                 ? NpcAppearanceUtility.Shade(
                     skinColor,
-                    sourceCameraLeftShade)
+                    farSideShade)
                 : skinColor;
         }
     }

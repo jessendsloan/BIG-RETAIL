@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcSkinPalette
   displayName: Light Warm
   skinColor: {r: 0.86, g: 0.68, b: 0.54, a: 1}
-  sourceCameraLeftShade: 0.82
+  farSideShade: 0.82

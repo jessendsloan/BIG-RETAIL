@@ -101,7 +101,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -189,7 +189,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -277,7 +277,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -365,7 +365,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -453,7 +453,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -541,7 +541,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -629,7 +629,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -717,7 +717,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1157,7 +1157,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1245,7 +1245,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1333,7 +1333,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1421,7 +1421,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1509,7 +1509,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -1597,7 +1597,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -2096,7 +2096,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2189,7 +2189,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2282,7 +2282,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2375,7 +2375,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2468,7 +2468,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2561,7 +2561,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2591,7 +2591,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2621,7 +2621,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2714,7 +2714,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2807,7 +2807,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2900,7 +2900,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -2993,7 +2993,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3086,7 +3086,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3179,7 +3179,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3272,7 +3272,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3365,7 +3365,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3458,7 +3458,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3551,7 +3551,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3644,7 +3644,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3737,7 +3737,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3830,7 +3830,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -3923,7 +3923,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -4016,7 +4016,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -4109,7 +4109,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -5597,7 +5597,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -5690,7 +5690,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -5783,7 +5783,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -5876,7 +5876,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -5969,7 +5969,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6062,7 +6062,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6155,7 +6155,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6248,7 +6248,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6341,7 +6341,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6434,7 +6434,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6527,7 +6527,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6620,7 +6620,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6713,7 +6713,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6806,7 +6806,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6899,7 +6899,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -6992,7 +6992,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -7085,7 +7085,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -7178,7 +7178,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 16
@@ -7470,7 +7470,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7482,7 +7482,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7494,7 +7494,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7578,7 +7578,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7590,7 +7590,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7602,7 +7602,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7614,7 +7614,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7626,7 +7626,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7638,7 +7638,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7650,7 +7650,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7662,7 +7662,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7674,7 +7674,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraLeft/UpperArmSourceCameraLeft/ForearmSourceCameraLeft/HandSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderNear/UpperArmNear/ForearmNear/HandNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7686,7 +7686,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7698,7 +7698,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7710,7 +7710,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderSourceCameraRight/UpperArmSourceCameraRight/ForearmSourceCameraRight/HandSourceCameraRight
+    path: Directional Visual/Root/Pelvis/SpineLower/Chest/ShoulderFar/UpperArmFar/ForearmFar/HandFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7722,7 +7722,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7734,7 +7734,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7746,7 +7746,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraLeft/ShinSourceCameraLeft/FootSourceCameraLeft
+    path: Directional Visual/Root/Pelvis/ThighNear/ShinNear/FootNear
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7758,7 +7758,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7770,7 +7770,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7782,7 +7782,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight/FootSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar/FootFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7794,7 +7794,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7806,7 +7806,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -7818,7 +7818,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: Directional Visual/Root/Pelvis/ThighSourceCameraRight/ShinSourceCameraRight
+    path: Directional Visual/Root/Pelvis/ThighFar/ShinFar
     classID: 4
     script: {fileID: 0}
     flags: 0

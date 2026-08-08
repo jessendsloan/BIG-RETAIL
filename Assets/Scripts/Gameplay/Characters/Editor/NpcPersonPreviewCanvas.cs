@@ -18,10 +18,10 @@ namespace BigRetail.Characters.Editor
     {
         FullSkeleton = 0,
         BodyAndHead = 1,
-        SourceCameraLeftArm = 2,
-        SourceCameraRightArm = 3,
-        SourceCameraLeftLeg = 4,
-        SourceCameraRightLeg = 5
+        NearArm = 2,
+        FarArm = 3,
+        NearLeg = 4,
+        FarLeg = 5
     }
 
 
@@ -584,42 +584,42 @@ namespace BigRetail.Characters.Editor
                         NpcRigBoneId.Head);
                     break;
 
-                case NpcRigOverlayFocus.SourceCameraLeftArm:
+                case NpcRigOverlayFocus.NearArm:
                     AddBones(
                         result,
                         NpcRigBoneId.Chest,
-                        NpcRigBoneId.ShoulderSourceCameraLeft,
-                        NpcRigBoneId.UpperArmSourceCameraLeft,
-                        NpcRigBoneId.ForearmSourceCameraLeft,
-                        NpcRigBoneId.HandSourceCameraLeft);
+                        NpcRigBoneId.ShoulderNear,
+                        NpcRigBoneId.UpperArmNear,
+                        NpcRigBoneId.ForearmNear,
+                        NpcRigBoneId.HandNear);
                     break;
 
-                case NpcRigOverlayFocus.SourceCameraRightArm:
+                case NpcRigOverlayFocus.FarArm:
                     AddBones(
                         result,
                         NpcRigBoneId.Chest,
-                        NpcRigBoneId.ShoulderSourceCameraRight,
-                        NpcRigBoneId.UpperArmSourceCameraRight,
-                        NpcRigBoneId.ForearmSourceCameraRight,
-                        NpcRigBoneId.HandSourceCameraRight);
+                        NpcRigBoneId.ShoulderFar,
+                        NpcRigBoneId.UpperArmFar,
+                        NpcRigBoneId.ForearmFar,
+                        NpcRigBoneId.HandFar);
                     break;
 
-                case NpcRigOverlayFocus.SourceCameraLeftLeg:
+                case NpcRigOverlayFocus.NearLeg:
                     AddBones(
                         result,
                         NpcRigBoneId.Pelvis,
-                        NpcRigBoneId.ThighSourceCameraLeft,
-                        NpcRigBoneId.ShinSourceCameraLeft,
-                        NpcRigBoneId.FootSourceCameraLeft);
+                        NpcRigBoneId.ThighNear,
+                        NpcRigBoneId.ShinNear,
+                        NpcRigBoneId.FootNear);
                     break;
 
-                case NpcRigOverlayFocus.SourceCameraRightLeg:
+                case NpcRigOverlayFocus.FarLeg:
                     AddBones(
                         result,
                         NpcRigBoneId.Pelvis,
-                        NpcRigBoneId.ThighSourceCameraRight,
-                        NpcRigBoneId.ShinSourceCameraRight,
-                        NpcRigBoneId.FootSourceCameraRight);
+                        NpcRigBoneId.ThighFar,
+                        NpcRigBoneId.ShinFar,
+                        NpcRigBoneId.FootFar);
                     break;
 
                 default:
@@ -673,47 +673,47 @@ namespace BigRetail.Characters.Editor
                 case NpcRigBoneId.Head:
                     return "Head / Head Pivot";
 
-                case NpcRigBoneId.ShoulderSourceCameraLeft:
-                    return "Camera-Left Shoulder Spacing Anchor";
+                case NpcRigBoneId.ShoulderNear:
+                    return "Foreground Shoulder Spacing Anchor";
 
-                case NpcRigBoneId.UpperArmSourceCameraLeft:
-                    return "Camera-Left Shoulder / Upper-Arm Pivot";
+                case NpcRigBoneId.UpperArmNear:
+                    return "Foreground Shoulder / Upper-Arm Pivot";
 
-                case NpcRigBoneId.ForearmSourceCameraLeft:
-                    return "Camera-Left Elbow / Forearm Pivot";
+                case NpcRigBoneId.ForearmNear:
+                    return "Foreground Elbow / Forearm Pivot";
 
-                case NpcRigBoneId.HandSourceCameraLeft:
-                    return "Camera-Left Wrist / Hand Pivot";
+                case NpcRigBoneId.HandNear:
+                    return "Foreground Wrist / Hand Pivot";
 
-                case NpcRigBoneId.ShoulderSourceCameraRight:
-                    return "Camera-Right Shoulder Spacing Anchor";
+                case NpcRigBoneId.ShoulderFar:
+                    return "Background Shoulder Spacing Anchor";
 
-                case NpcRigBoneId.UpperArmSourceCameraRight:
-                    return "Camera-Right Shoulder / Upper-Arm Pivot";
+                case NpcRigBoneId.UpperArmFar:
+                    return "Background Shoulder / Upper-Arm Pivot";
 
-                case NpcRigBoneId.ForearmSourceCameraRight:
-                    return "Camera-Right Elbow / Forearm Pivot";
+                case NpcRigBoneId.ForearmFar:
+                    return "Background Elbow / Forearm Pivot";
 
-                case NpcRigBoneId.HandSourceCameraRight:
-                    return "Camera-Right Wrist / Hand Pivot";
+                case NpcRigBoneId.HandFar:
+                    return "Background Wrist / Hand Pivot";
 
-                case NpcRigBoneId.ThighSourceCameraLeft:
-                    return "Camera-Left Hip / Thigh Pivot";
+                case NpcRigBoneId.ThighNear:
+                    return "Foreground Hip / Thigh Pivot";
 
-                case NpcRigBoneId.ShinSourceCameraLeft:
-                    return "Camera-Left Knee / Shin Pivot";
+                case NpcRigBoneId.ShinNear:
+                    return "Foreground Knee / Shin Pivot";
 
-                case NpcRigBoneId.FootSourceCameraLeft:
-                    return "Camera-Left Ankle / Foot Pivot";
+                case NpcRigBoneId.FootNear:
+                    return "Foreground Ankle / Foot Pivot";
 
-                case NpcRigBoneId.ThighSourceCameraRight:
-                    return "Camera-Right Hip / Thigh Pivot";
+                case NpcRigBoneId.ThighFar:
+                    return "Background Hip / Thigh Pivot";
 
-                case NpcRigBoneId.ShinSourceCameraRight:
-                    return "Camera-Right Knee / Shin Pivot";
+                case NpcRigBoneId.ShinFar:
+                    return "Background Knee / Shin Pivot";
 
-                case NpcRigBoneId.FootSourceCameraRight:
-                    return "Camera-Right Ankle / Foot Pivot";
+                case NpcRigBoneId.FootFar:
+                    return "Background Ankle / Foot Pivot";
 
                 default:
                     return id.ToString();
@@ -741,12 +741,12 @@ namespace BigRetail.Characters.Editor
                     NpcRigPartId.HairRear,
                     NpcRigPartId.HairFront,
                     NpcRigPartId.Torso,
-                    NpcRigPartId.UpperArmSourceCameraLeft,
-                    NpcRigPartId.UpperArmSourceCameraRight,
-                    NpcRigPartId.ForearmSourceCameraLeft,
-                    NpcRigPartId.ForearmSourceCameraRight,
-                    NpcRigPartId.HandSourceCameraLeft,
-                    NpcRigPartId.HandSourceCameraRight);
+                    NpcRigPartId.UpperArmNear,
+                    NpcRigPartId.UpperArmFar,
+                    NpcRigPartId.ForearmNear,
+                    NpcRigPartId.ForearmFar,
+                    NpcRigPartId.HandNear,
+                    NpcRigPartId.HandFar);
             }
 
             Renderer[] renderers =

@@ -304,8 +304,8 @@ namespace BigRetail.Characters.Rigging
             {
                 case NpcRigPartId.Head:
                 case NpcRigPartId.Neck:
-                case NpcRigPartId.HandSourceCameraLeft:
-                case NpcRigPartId.HandSourceCameraRight:
+                case NpcRigPartId.HandNear:
+                case NpcRigPartId.HandFar:
                     return true;
 
                 default:
@@ -314,22 +314,17 @@ namespace BigRetail.Characters.Rigging
         }
 
 
-        public static bool IsSourceCameraLeftPart(
+        public static bool IsNearPart(
             NpcRigPartId partId)
         {
-            switch (partId)
-            {
-                case NpcRigPartId.UpperArmSourceCameraLeft:
-                case NpcRigPartId.ForearmSourceCameraLeft:
-                case NpcRigPartId.HandSourceCameraLeft:
-                case NpcRigPartId.ThighSourceCameraLeft:
-                case NpcRigPartId.ShinSourceCameraLeft:
-                case NpcRigPartId.FootSourceCameraLeft:
-                    return true;
+            return NpcFacingUtility.IsNearPart(partId);
+        }
 
-                default:
-                    return false;
-            }
+
+        public static bool IsFarPart(
+            NpcRigPartId partId)
+        {
+            return NpcFacingUtility.IsFarPart(partId);
         }
 
 

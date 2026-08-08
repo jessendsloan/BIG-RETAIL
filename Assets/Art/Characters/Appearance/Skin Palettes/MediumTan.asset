@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcSkinPalette
   displayName: Medium Tan
   skinColor: {r: 0.66, g: 0.42, b: 0.27, a: 1}
-  sourceCameraLeftShade: 0.82
+  farSideShade: 0.82

@@ -691,18 +691,18 @@ namespace BigRetail.Characters.Rigging
                 case NpcRigBoneId.Chest:
                 case NpcRigBoneId.Neck:
                 case NpcRigBoneId.Head:
-                case NpcRigBoneId.ShoulderSourceCameraLeft:
-                case NpcRigBoneId.ForearmSourceCameraLeft:
-                case NpcRigBoneId.HandSourceCameraLeft:
-                case NpcRigBoneId.ShoulderSourceCameraRight:
-                case NpcRigBoneId.ForearmSourceCameraRight:
-                case NpcRigBoneId.HandSourceCameraRight:
-                case NpcRigBoneId.ThighSourceCameraLeft:
-                case NpcRigBoneId.ShinSourceCameraLeft:
-                case NpcRigBoneId.FootSourceCameraLeft:
-                case NpcRigBoneId.ThighSourceCameraRight:
-                case NpcRigBoneId.ShinSourceCameraRight:
-                case NpcRigBoneId.FootSourceCameraRight:
+                case NpcRigBoneId.ShoulderNear:
+                case NpcRigBoneId.ForearmNear:
+                case NpcRigBoneId.HandNear:
+                case NpcRigBoneId.ShoulderFar:
+                case NpcRigBoneId.ForearmFar:
+                case NpcRigBoneId.HandFar:
+                case NpcRigBoneId.ThighNear:
+                case NpcRigBoneId.ShinNear:
+                case NpcRigBoneId.FootNear:
+                case NpcRigBoneId.ThighFar:
+                case NpcRigBoneId.ShinFar:
+                case NpcRigBoneId.FootFar:
                     return true;
 
                 default:
