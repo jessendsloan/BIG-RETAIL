@@ -203,7 +203,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8083632074012694180e098a59e44635, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionToolbarDocumentHost
   panelRenderer: {fileID: 87599326}
 --- !u!1931382934 &87599326
@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7210aaa308e9044448cffc87dd18c542, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.ConstructionToolbarPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46e80f82a2953bf45a21edb4de4cf9e1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.WallFinishPickerPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
@@ -310,21 +310,6 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   finishSelectionHost: {fileID: 456371216}
---- !u!114 &87599334
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 87599323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6666b69171e54c4fbaf49cec2bceb835, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.DoorDefinitionPickerPresenter
-  documentHost: {fileID: 87599325}
-  toolCoordinator: {fileID: 1508060588}
-  definitionSelectionHost: {fileID: 2112000003}
 --- !u!114 &87599330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,6 +340,8 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   pointerController: {fileID: 933909791}
   toolCoordinator: {fileID: 1508060588}
+  constructionActionMapName: Construction
+  cancelActionName: Cancel
 --- !u!114 &87599332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,7 +352,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ff13ddd80d61c34482895b9a85dd125, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.DepartmentPickerPresenter
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
@@ -380,9 +367,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e4a8b9d20d194142ba074b955c41e8e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BigRetail.Departments.Unity::BigRetail.Departments.Unity.UI.DepartmentDefinitionSelectionHost
   definitionCatalog: {fileID: 11400000, guid: 7328d542737990343a15e549bdea3389, type: 2}
+--- !u!114 &87599334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6666b69171e54c4fbaf49cec2bceb835, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.DoorDefinitionPickerPresenter
+  documentHost: {fileID: 87599325}
+  toolCoordinator: {fileID: 1508060588}
+  definitionSelectionHost: {fileID: 2112000003}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -298742,11 +298744,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1692407380663755149, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9996596
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1692407380663755149, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.026089692
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1692407380663755149, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -298816,6 +298818,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 13
       objectReference: {fileID: 0}
+    - target: {fileID: 6944290314700192601, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: populationDefinition
+      value: 
+      objectReference: {fileID: 11400000, guid: 23b213dcafaab2f44bf6a3de44a9f220, type: 2}
     - target: {fileID: 7168765048202128305, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_SortingOrder
       value: 17
@@ -298831,6 +298837,10 @@ PrefabInstance:
     - target: {fileID: 7947943296734313180, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_Name
       value: Person
+      objectReference: {fileID: 0}
+    - target: {fileID: 8414545004651364718, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.05120171
       objectReference: {fileID: 0}
     - target: {fileID: 8461683637775266574, guid: 7333c00b46baf2b4c984a54e103c3359, type: 3}
       propertyPath: m_SortingOrder
@@ -392956,7 +392966,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d6b88a39e3bb114fad338bd84b690f5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BigRetail.Departments.Unity::BigRetail.Departments.Unity.DepartmentRuntimeHost
   mapHost: {fileID: 1863031834}
   foundationRuntimeHost: {fileID: 447959067}
@@ -393005,7 +393015,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85f335a1f4d546b5acd466d2e69ad592, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorConstructionToolController
   playerInput: {fileID: 933909789}
   constructionActionMapName: Construction
@@ -393029,7 +393039,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: acbaf8af78544b668ceea465382bb122, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorDefinitionSelectionHost
   mapHost: {fileID: 1863031834}
   startingDefinition: {fileID: 11400000, guid: 35d30cd7ad89474480fabc487ab81afb, type: 2}
@@ -393076,7 +393086,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d88dd68b88bd4f7c906b892432445142, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.DoorRunPreviewView
   mapHost: {fileID: 1863031834}
   targetResolver: {fileID: 2082405065}

@@ -1955,7 +1955,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6ef7594b3ea9391b77acc47b78301a08, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcCutoutRig
   facing: 0
   mirrorRoot: {fileID: 8746946351184265142}
@@ -2158,12 +2158,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca2c31e74a574091a13e3f2f70fa5f1e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcPersonIdentity
   rig: {fileID: 320848398843883590}
   populationDefinition: {fileID: 0}
   appearanceSeed: 0
-  persistentId:
+  persistentId: 
   initializeOnAwake: 0
 --- !u!1 &8197821834959260941
 GameObject:

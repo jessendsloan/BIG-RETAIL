@@ -15,15 +15,17 @@ MonoBehaviour:
   displayName: T Pose
   boneAngles:
   - boneId: 7
-    angle: -46.7
+    angle: -80.7
   - boneId: 8
-    angle: -31.9
+    angle: -10.4
   - boneId: 9
-    angle: -37.1
+    angle: -13.3
   - boneId: 11
-    angle: 86.7
+    angle: 77.8
   - boneId: 12
-    angle: -30.4
+    angle: 2.9
+  - boneId: 13
+    angle: 7.6
   - boneId: 14
     angle: 6.6
   - boneId: 15
