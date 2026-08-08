@@ -7,6 +7,74 @@ namespace BigRetail.Characters.Rigging.Tests
 {
     public sealed class NpcAppearanceProfileTests
     {
+        [Test]
+        public void AppearanceCreator_RepeatedSavesPreserveAssetName()
+        {
+            const string testAssetPath =
+                "Assets/Tests/EditMode/Characters/" +
+                "AppearanceCreatorNameRegression.asset";
+
+            AssetDatabase.DeleteAsset(testAssetPath);
+
+            NpcHairSet savedAsset =
+                ScriptableObject.CreateInstance<NpcHairSet>();
+            ScriptableObject workingCopy = null;
+
+            try
+            {
+                savedAsset.name = "Original Internal Name";
+                AssetDatabase.CreateAsset(
+                    savedAsset,
+                    testAssetPath);
+
+                System.Type windowType = System.Type.GetType(
+                    "BigRetail.Characters.Editor." +
+                    "NpcAppearanceCreatorWindow, " +
+                    "BigRetail.Characters.Editor");
+
+                Assert.That(windowType, Is.Not.Null);
+
+                System.Reflection.MethodInfo saveMethod =
+                    windowType.GetMethod(
+                        "CopyWorkingAssetToSelectedAsset",
+                        System.Reflection.BindingFlags.Static |
+                        System.Reflection.BindingFlags.NonPublic);
+
+                Assert.That(saveMethod, Is.Not.Null);
+
+                workingCopy = Object.Instantiate(savedAsset);
+
+                for (int saveIndex = 0; saveIndex < 3; saveIndex++)
+                {
+                    workingCopy.name =
+                        savedAsset.name + " Working Copy";
+
+                    saveMethod.Invoke(
+                        null,
+                        new object[]
+                        {
+                            workingCopy,
+                            savedAsset
+                        });
+
+                    Assert.That(
+                        savedAsset.name,
+                        Is.EqualTo(
+                            "AppearanceCreatorNameRegression"));
+                }
+            }
+            finally
+            {
+                if (workingCopy != null)
+                {
+                    Object.DestroyImmediate(workingCopy);
+                }
+
+                AssetDatabase.DeleteAsset(testAssetPath);
+            }
+        }
+
+
         [TestCase(typeof(NpcBodySilhouette), "NpcBodySilhouette")]
         [TestCase(typeof(NpcSkinPalette), "NpcSkinPalette")]
         [TestCase(typeof(NpcOutfitSet), "NpcOutfitSet")]

@@ -3321,7 +3321,8 @@ namespace BigRetail.Characters.Editor
             }
 
             workingAsset = Instantiate(asset);
-            workingAsset.name = asset.name + " Working Copy";
+            workingAsset.name =
+                GetPersistentAssetName(asset) + " Working Copy";
             // HideAndDontSave includes NotEditable. DontSave keeps this
             // temporary working copy out of assets while allowing the
             // serialized controls in this window to edit it.
@@ -3359,7 +3360,9 @@ namespace BigRetail.Characters.Editor
             Undo.RecordObject(
                 selectedAsset,
                 "Edit " + GetCategoryLabel());
-            EditorUtility.CopySerialized(workingAsset, selectedAsset);
+            CopyWorkingAssetToSelectedAsset(
+                workingAsset,
+                selectedAsset);
             EditorUtility.SetDirty(selectedAsset);
             AssetDatabase.SaveAssets();
 
@@ -3406,6 +3409,56 @@ namespace BigRetail.Characters.Editor
                 MessageType.Info);
             Selection.activeObject = asset;
             EditorGUIUtility.PingObject(asset);
+        }
+
+
+        internal static void CopyWorkingAssetToSelectedAsset(
+            ScriptableObject source,
+            ScriptableObject destination)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (destination == null)
+            {
+                throw new ArgumentNullException(nameof(destination));
+            }
+
+            string persistentName =
+                GetPersistentAssetName(destination);
+
+            EditorUtility.CopySerialized(source, destination);
+            destination.name = persistentName;
+        }
+
+
+        private static string GetPersistentAssetName(
+            Object asset)
+        {
+            string path = AssetDatabase.GetAssetPath(asset);
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                return Path.GetFileNameWithoutExtension(path);
+            }
+
+            const string suffix = " Working Copy";
+            string assetName = asset != null
+                ? asset.name
+                : string.Empty;
+
+            while (assetName.EndsWith(
+                       suffix,
+                       StringComparison.Ordinal))
+            {
+                assetName = assetName.Substring(
+                    0,
+                    assetName.Length - suffix.Length);
+            }
+
+            return assetName;
         }
 
 

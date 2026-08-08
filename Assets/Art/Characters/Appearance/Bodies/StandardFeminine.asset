@@ -10,14 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8b5f21c2cdb4e6baa16e43f80136d17, type: 3}
-  m_Name: StandardFeminine Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy Working Copy Working Copy Working Copy Working Copy Working Copy Working
-    Copy
+  m_Name: StandardFeminine
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcBodySilhouette
   displayName: Standard Feminine
   kind: 1
@@ -28,14 +21,14 @@ MonoBehaviour:
     size: {x: 0.39, y: 0.34}
     visible: 1
   - id: 1
-    localPosition: {x: -0.07058205, y: -0.07547203, z: 0}
+    localPosition: {x: -0.06047105, y: -0.065218866, z: 0}
     localEulerAngles: {x: -0, y: 0, z: -44.6}
-    size: {x: 0.05, y: 0.251}
+    size: {x: 0.05, y: 0.215}
     visible: 1
   - id: 2
-    localPosition: {x: -0.013700182, y: -0.06399204, z: 0}
+    localPosition: {x: -0.012783712, y: -0.060022376, z: 0}
     localEulerAngles: {x: -0, y: 0, z: -13}
-    size: {x: 0.045, y: 0.18600002}
+    size: {x: 0.045, y: 0.176}
     visible: 1
   - id: 3
     localPosition: {x: 0.008871601, y: -0.014239082, z: 0}
@@ -58,19 +51,19 @@ MonoBehaviour:
     size: {x: 0.11399999, y: 0.0679}
     visible: 1
   - id: 7
-    localPosition: {x: -0.0061, y: -0.0029571392, z: 0}
+    localPosition: {x: -0.0061, y: 0.0020428598, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.16, y: 0.156}
+    size: {x: 0.16, y: 0.121}
     visible: 1
   - id: 8
-    localPosition: {x: 0, y: -0.13290909, z: 0}
+    localPosition: {x: 0, y: -0.12200001, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.16, y: 0.37}
+    size: {x: 0.16, y: 0.33}
     visible: 1
   - id: 9
-    localPosition: {x: -0.0007393386, y: 0.02362611, z: 0}
+    localPosition: {x: -0.00070982636, y: 0.024208693, z: 0}
     localEulerAngles: {x: -0, y: 0, z: -2.9}
-    size: {x: 0.0545, y: 0.11490001}
+    size: {x: 0.0545, y: 0.116399996}
     visible: 1
   - id: 10
     localPosition: {x: 0, y: 0.0071578957, z: 0}
@@ -98,14 +91,14 @@ MonoBehaviour:
     size: {x: 0.11399999, y: 0.0679}
     visible: 1
   - id: 15
-    localPosition: {x: 0.0049434043, y: -0.1031614, z: 0}
+    localPosition: {x: 0.004541333, y: -0.08876702, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 1.6}
-    size: {x: 0.05, y: 0.251}
+    size: {x: 0.05, y: 0.215}
     visible: 1
   - id: 16
-    localPosition: {x: 0.031844888, y: -0.052198622, z: 0}
+    localPosition: {x: 0.029602185, y: -0.048797384, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 33.4}
-    size: {x: 0.045, y: 0.18600002}
+    size: {x: 0.045, y: 0.176}
     visible: 1
   - id: 17
     localPosition: {x: 0.0072292816, y: -0.013499701, z: 0}
@@ -122,17 +115,17 @@ MonoBehaviour:
   - id: 17
     localPosition: {x: 0.0383, y: 0.026, z: 0}
   - id: 8
-    localPosition: {x: -0.15006667, y: -0.15159391, z: 0}
+    localPosition: {x: -0.12854318, y: -0.12985134, z: 0}
   - id: 12
-    localPosition: {x: 0.01594094, y: -0.22268067, z: 0}
+    localPosition: {x: 0.01365459, y: -0.19074245, z: 0}
   - id: 9
-    localPosition: {x: -0.036135968, y: -0.1486284, z: 0}
+    localPosition: {x: -0.03419317, y: -0.14063762, z: 0}
   - id: 16
     localPosition: {x: 0.010877602, y: -0.21204786, z: 0}
   - id: 19
     localPosition: {x: 0.033983313, y: -0.24520819, z: -0.006378941}
   - id: 13
-    localPosition: {x: 0.08703843, y: -0.12709337, z: 0}
+    localPosition: {x: 0.08235894, y: -0.12026039, z: 0}
   - id: 15
     localPosition: {x: -0.03962922, y: -0.2756952, z: 0}
   - id: 18
@@ -142,8 +135,8 @@ MonoBehaviour:
   - id: 2
     localPosition: {x: 0, y: 0.057, z: 0}
   - id: 3
-    localPosition: {x: 0, y: 0.289, z: 0}
+    localPosition: {x: 0, y: 0.24559093, z: 0}
   - id: 4
-    localPosition: {x: 0, y: 0.029, z: 0}
+    localPosition: {x: 0, y: 0.020076498, z: 0}
   - id: 5
-    localPosition: {x: 0, y: 0.112, z: 0}
+    localPosition: {x: 0, y: 0.113332585, z: 0}

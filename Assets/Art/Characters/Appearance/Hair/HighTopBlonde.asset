@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e72a5d90fc3e45aba831cf43d615b27c, type: 3}
-  m_Name: HighTopBlonde Working Copy
+  m_Name: HighTopBlonde
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcHairSet
   displayName: High Top / Blonde
   hairColor: {r: 0.5686275, g: 0.4509804, b: 0.07058824, a: 1}

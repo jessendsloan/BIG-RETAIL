@@ -19,7 +19,7 @@ MonoBehaviour:
   - boneId: 8
     angle: -10.4
   - boneId: 9
-    angle: -13.3
+    angle: -12.8
   - boneId: 11
     angle: 77.8
   - boneId: 12
@@ -27,10 +27,10 @@ MonoBehaviour:
   - boneId: 13
     angle: 7.6
   - boneId: 14
-    angle: 6.6
+    angle: 2.9
   - boneId: 15
-    angle: -8.1
+    angle: -5.2
   - boneId: 16
     angle: 13.3
   - boneId: 17
-    angle: -6.7
+    angle: -3
