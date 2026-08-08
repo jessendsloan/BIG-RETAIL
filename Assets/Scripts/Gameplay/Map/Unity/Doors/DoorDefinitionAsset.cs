@@ -7,8 +7,8 @@ namespace BigRetail.Map.Unity.Doors
 {
     /// <summary>
     /// Unity authoring data for one door model. Topology creates the
-    /// engine-free definition; optional generic assembly visuals layer over
-    /// any wall finish when the complete ten-sprite set is available.
+    /// engine-free definition; optional presentation artwork layers over any
+    /// wall finish when the selected visual set is complete.
     /// </summary>
     [CreateAssetMenu(
         menuName = "Big Retail/Doors/Door Definition",
@@ -39,12 +39,34 @@ namespace BigRetail.Map.Unity.Doors
         private Sprite catalogIcon;
 
         [Tooltip(
-            "Optional generic frame, fixed-glass, and movable-door artwork. "
-            + "All ten "
-            + "sprites must be present before layered rendering is enabled.")]
+            "Selects the visual and animation model used for this door.")]
+        [SerializeField]
+        private DoorPresentationStyle presentationStyle =
+            DoorPresentationStyle.SlidingFourPanel;
+
+        [Tooltip(
+            "Optional generic frame, aperture, fixed-glass, and movable-door "
+            + "artwork. All twelve sprites must be present before layered "
+            + "rendering is enabled.")]
         [SerializeField]
         private DoorAssemblySpriteSet assemblyVisuals =
             new DoorAssemblySpriteSet();
+
+        [Tooltip(
+            "Optional frame and movable panel artwork for a one-wall hinged "
+            + "door. All four directional sprites must be present before "
+            + "hinged rendering is enabled.")]
+        [SerializeField]
+        private HingedDoorSpriteSet hingedVisuals =
+            new HingedDoorSpriteSet();
+
+        [Tooltip(
+            "Optional static frame and assembly-wide aperture artwork for an "
+            + "always-open doorway. All four directional sprites must be "
+            + "present before doorway rendering is enabled.")]
+        [SerializeField]
+        private DoorwaySpriteSet doorwayVisuals =
+            new DoorwaySpriteSet();
 
         [Range(0f, 1f)]
         [Tooltip(
@@ -75,9 +97,35 @@ namespace BigRetail.Map.Unity.Doors
         public Sprite CatalogIcon =>
             catalogIcon;
 
+        public DoorPresentationStyle PresentationStyle =>
+            presentationStyle;
+
         public bool HasCompleteAssemblyVisuals =>
             assemblyVisuals != null
             && assemblyVisuals.IsComplete;
+
+        public bool HasCompleteHingedVisuals =>
+            hingedVisuals != null
+            && hingedVisuals.IsComplete;
+
+        public bool HasCompleteDoorwayVisuals =>
+            doorwayVisuals != null
+            && doorwayVisuals.IsComplete;
+
+        public bool HasCompleteVisuals =>
+            presentationStyle switch
+            {
+                DoorPresentationStyle.SlidingFourPanel =>
+                    HasCompleteAssemblyVisuals,
+
+                DoorPresentationStyle.HingedSinglePanel =>
+                    HasCompleteHingedVisuals,
+
+                DoorPresentationStyle.StaticDoorway =>
+                    HasCompleteDoorwayVisuals,
+
+                _ => false
+            };
 
         public float ApertureBottomNormalized =>
             apertureBottomNormalized;
@@ -122,6 +170,87 @@ namespace BigRetail.Map.Unity.Doors
         }
 
 
+        public bool TryGetHingedSprites(
+            WallDisplaySlope displaySlope,
+            out HingedDoorSprites sprites)
+        {
+            if (presentationStyle
+                    != DoorPresentationStyle.HingedSinglePanel
+                || hingedVisuals == null)
+            {
+                sprites = default;
+                return false;
+            }
+
+            return hingedVisuals.TryGetSprites(
+                displaySlope,
+                out sprites);
+        }
+
+
+        public bool TryGetDoorwaySprites(
+            WallDisplaySlope displaySlope,
+            out DoorwaySprites sprites)
+        {
+            if (presentationStyle
+                    != DoorPresentationStyle.StaticDoorway
+                || doorwayVisuals == null)
+            {
+                sprites = default;
+                return false;
+            }
+
+            return doorwayVisuals.TryGetSprites(
+                displaySlope,
+                out sprites);
+        }
+
+
+        public bool TryGetApertureSprite(
+            WallDisplaySlope displaySlope,
+            out Sprite sprite)
+        {
+            switch (presentationStyle)
+            {
+                case DoorPresentationStyle.SlidingFourPanel:
+                    if (TryGetAssemblySprites(
+                            displaySlope,
+                            out DoorAssemblySprites assemblySprites))
+                    {
+                        sprite = assemblySprites.Aperture;
+                        return true;
+                    }
+
+                    break;
+
+                case DoorPresentationStyle.HingedSinglePanel:
+                    if (TryGetHingedSprites(
+                            displaySlope,
+                            out HingedDoorSprites hingedSprites))
+                    {
+                        sprite = hingedSprites.Door;
+                        return true;
+                    }
+
+                    break;
+
+                case DoorPresentationStyle.StaticDoorway:
+                    if (TryGetDoorwaySprites(
+                            displaySlope,
+                            out DoorwaySprites doorwaySprites))
+                    {
+                        sprite = doorwaySprites.Aperture;
+                        return true;
+                    }
+
+                    break;
+            }
+
+            sprite = null;
+            return false;
+        }
+
+
         public void ValidateConfiguration()
         {
             _ = new DoorDefinition(
@@ -129,13 +258,24 @@ namespace BigRetail.Map.Unity.Doors
                 segmentCount,
                 passageSegmentIndices);
 
-            if (HasCompleteAssemblyVisuals
-                && segmentCount
-                    != LayeredPanelCount)
+            if (presentationStyle
+                    == DoorPresentationStyle.SlidingFourPanel
+                && HasCompleteAssemblyVisuals
+                && segmentCount != LayeredPanelCount)
             {
                 throw new InvalidOperationException(
                     $"Layered door definition '{Id}' requires exactly "
                     + $"{LayeredPanelCount} wall panels.");
+            }
+
+            if (presentationStyle
+                    == DoorPresentationStyle.HingedSinglePanel
+                && HasCompleteHingedVisuals
+                && segmentCount != 1)
+            {
+                throw new InvalidOperationException(
+                    $"Hinged door definition '{Id}' requires exactly one "
+                    + "wall panel.");
             }
 
             if (apertureBottomNormalized < 0f

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba65ec1c17d44009a07d3071a4e89bbc, type: 3}
+  m_Name: DoubleOpenDoorway
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Doors.DoorDefinitionAsset
+  definitionId: double-open-doorway
+  displayName: Double Doorway
+  segmentCount: 2
+  passageSegmentIndices:
+  - 0
+  - 1
+  catalogIcon: {fileID: 21300000, guid: a0ba74bf3b9b463897ebcaad4c609b29, type: 3}
+  presentationStyle: 2
+  assemblyVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftLeftGlass: {fileID: 0}
+    risingLeftLeftDoor: {fileID: 0}
+    risingLeftRightDoor: {fileID: 0}
+    risingLeftRightGlass: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightLeftGlass: {fileID: 0}
+    risingRightLeftDoor: {fileID: 0}
+    risingRightRightDoor: {fileID: 0}
+    risingRightRightGlass: {fileID: 0}
+  hingedVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftDoor: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightDoor: {fileID: 0}
+  doorwayVisuals:
+    risingLeftFrame: {fileID: 21300000, guid: c4d75753aba548a4b3b7590bf8689baf, type: 3}
+    risingLeftAperture: {fileID: 21300000, guid: a3c9e6f4b1524d8cae703194cbf526d3, type: 3}
+    risingRightFrame: {fileID: 21300000, guid: a9284501f28d470c95a61ee224b33181, type: 3}
+    risingRightAperture: {fileID: 21300000, guid: b4daf705c2634e9dbf8142a5dc0637e4, type: 3}
+  apertureBottomNormalized: 0
+  apertureHeightNormalized: 0.82

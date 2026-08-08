@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba65ec1c17d44009a07d3071a4e89bbc, type: 3}
+  m_Name: SingleHingedDoor
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Doors.DoorDefinitionAsset
+  definitionId: single-hinged-door
+  displayName: Single Door
+  segmentCount: 1
+  passageSegmentIndices:
+  - 0
+  catalogIcon: {fileID: 21300000, guid: c1d2e3f4051647bc8516f70112233445, type: 3}
+  presentationStyle: 1
+  assemblyVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftLeftGlass: {fileID: 0}
+    risingLeftLeftDoor: {fileID: 0}
+    risingLeftRightDoor: {fileID: 0}
+    risingLeftRightGlass: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightLeftGlass: {fileID: 0}
+    risingRightLeftDoor: {fileID: 0}
+    risingRightRightDoor: {fileID: 0}
+    risingRightRightGlass: {fileID: 0}
+  hingedVisuals:
+    risingLeftFrame: {fileID: 21300000, guid: b1c2d3e4f50647a89102b3c4d5e6f701, type: 3}
+    risingLeftDoor: {fileID: 21300000, guid: b2c3d4e5f60748a99203c4d5e6f70112, type: 3}
+    risingRightFrame: {fileID: 21300000, guid: b3c4d5e6f70849aa0304d5e6f7011223, type: 3}
+    risingRightDoor: {fileID: 21300000, guid: b4c5d6e7f8094abb1405e6f701122334, type: 3}
+  doorwayVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftAperture: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightAperture: {fileID: 0}
+  apertureBottomNormalized: 0
+  apertureHeightNormalized: 0.82

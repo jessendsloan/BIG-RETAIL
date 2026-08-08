@@ -6,8 +6,9 @@ namespace BigRetail.Map.Unity.Doors
 {
     /// <summary>
     /// Generic, layered artwork for one four-panel door model: a static outer
-    /// frame, two fixed glass panels, and two independently movable doors.
-    /// The artwork is intentionally unrelated to wall finishes.
+    /// frame, one assembly-wide aperture mask, two fixed glass panels, and
+    /// two independently movable doors. The artwork is intentionally
+    /// unrelated to wall finishes.
     /// </summary>
     [Serializable]
     public sealed class DoorAssemblySpriteSet
@@ -16,6 +17,9 @@ namespace BigRetail.Map.Unity.Doors
 
         [SerializeField]
         private Sprite risingLeftFrame;
+
+        [SerializeField]
+        private Sprite risingLeftAperture;
 
         [SerializeField]
         private Sprite risingLeftLeftGlass;
@@ -36,6 +40,9 @@ namespace BigRetail.Map.Unity.Doors
         private Sprite risingRightFrame;
 
         [SerializeField]
+        private Sprite risingRightAperture;
+
+        [SerializeField]
         private Sprite risingRightLeftGlass;
 
         [SerializeField]
@@ -50,11 +57,13 @@ namespace BigRetail.Map.Unity.Doors
 
         public bool IsComplete =>
             risingLeftFrame != null
+            && risingLeftAperture != null
             && risingLeftLeftGlass != null
             && risingLeftLeftDoor != null
             && risingLeftRightDoor != null
             && risingLeftRightGlass != null
             && risingRightFrame != null
+            && risingRightAperture != null
             && risingRightLeftGlass != null
             && risingRightLeftDoor != null
             && risingRightRightDoor != null
@@ -76,6 +85,7 @@ namespace BigRetail.Map.Unity.Doors
                 WallDisplaySlope.RisingLeft =>
                     new DoorAssemblySprites(
                         risingLeftFrame,
+                        risingLeftAperture,
                         risingLeftLeftGlass,
                         risingLeftLeftDoor,
                         risingLeftRightDoor,
@@ -84,6 +94,7 @@ namespace BigRetail.Map.Unity.Doors
                 WallDisplaySlope.RisingRight =>
                     new DoorAssemblySprites(
                         risingRightFrame,
+                        risingRightAperture,
                         risingRightLeftGlass,
                         risingRightLeftDoor,
                         risingRightRightDoor,
@@ -109,6 +120,8 @@ namespace BigRetail.Map.Unity.Doors
     {
         public Sprite Frame { get; }
 
+        public Sprite Aperture { get; }
+
         public Sprite LeftGlass { get; }
 
         public Sprite LeftDoor { get; }
@@ -120,6 +133,7 @@ namespace BigRetail.Map.Unity.Doors
 
         public DoorAssemblySprites(
             Sprite frame,
+            Sprite aperture,
             Sprite leftGlass,
             Sprite leftDoor,
             Sprite rightDoor,
@@ -129,6 +143,11 @@ namespace BigRetail.Map.Unity.Doors
                 frame
                 ?? throw new ArgumentNullException(
                     nameof(frame));
+
+            Aperture =
+                aperture
+                ?? throw new ArgumentNullException(
+                    nameof(aperture));
 
             LeftGlass =
                 leftGlass

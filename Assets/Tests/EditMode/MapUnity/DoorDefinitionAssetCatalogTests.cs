@@ -64,6 +64,37 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void CreateDomainCatalog_PreservesSinglePanelTopology()
+        {
+            DoorDefinitionAsset asset =
+                CreateDefinitionAsset(
+                    "single-hinged-door",
+                    1,
+                    new[] { 0 });
+
+            SetPrivateField(
+                asset,
+                "presentationStyle",
+                DoorPresentationStyle.HingedSinglePanel);
+
+            DoorDefinitionAssetCatalog assetCatalog =
+                CreateCatalog(asset);
+
+            DoorDefinitionCatalog catalog =
+                assetCatalog.CreateDomainCatalog();
+
+            Assert.That(
+                catalog.TryGetDefinition(
+                    asset.Id,
+                    out DoorDefinition definition),
+                Is.True);
+
+            Assert.That(definition.SegmentCount, Is.EqualTo(1));
+            Assert.That(definition.IsPassageSegment(0), Is.True);
+        }
+
+
+        [Test]
         public void TryGetAssemblySprites_CompleteSet_ResolvesExactLayers()
         {
             DoorDefinitionAsset asset =
@@ -79,6 +110,11 @@ namespace BigRetail.Map.Unity.Tests
                 GetPrivateField<Sprite>(
                     visuals,
                     "risingRightFrame");
+
+            Sprite expectedAperture =
+                GetPrivateField<Sprite>(
+                    visuals,
+                    "risingRightAperture");
 
             Sprite expectedLeftGlass =
                 GetPrivateField<Sprite>(
@@ -114,6 +150,7 @@ namespace BigRetail.Map.Unity.Tests
 
             Assert.That(resolved, Is.True);
             Assert.That(sprites.Frame, Is.SameAs(expectedFrame));
+            Assert.That(sprites.Aperture, Is.SameAs(expectedAperture));
             Assert.That(sprites.LeftGlass, Is.SameAs(expectedLeftGlass));
             Assert.That(sprites.LeftDoor, Is.SameAs(expectedLeftDoor));
             Assert.That(sprites.RightDoor, Is.SameAs(expectedRightDoor));
@@ -154,6 +191,96 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void TryGetHingedSprites_CompleteSet_ResolvesExactLayers()
+        {
+            DoorDefinitionAsset asset =
+                CreateDefinitionAsset(
+                    "single-hinged-door",
+                    1,
+                    new[] { 0 });
+
+            HingedDoorSpriteSet visuals =
+                CreateCompleteHingedVisuals();
+
+            Sprite expectedFrame =
+                GetPrivateField<Sprite>(
+                    visuals,
+                    "risingLeftFrame");
+
+            Sprite expectedDoor =
+                GetPrivateField<Sprite>(
+                    visuals,
+                    "risingLeftDoor");
+
+            SetPrivateField(
+                asset,
+                "presentationStyle",
+                DoorPresentationStyle.HingedSinglePanel);
+
+            SetPrivateField(
+                asset,
+                "hingedVisuals",
+                visuals);
+
+            asset.ValidateConfiguration();
+
+            bool resolved =
+                asset.TryGetHingedSprites(
+                    WallDisplaySlope.RisingLeft,
+                    out HingedDoorSprites sprites);
+
+            Assert.That(resolved, Is.True);
+            Assert.That(sprites.Frame, Is.SameAs(expectedFrame));
+            Assert.That(sprites.Door, Is.SameAs(expectedDoor));
+        }
+
+
+        [Test]
+        public void TryGetDoorwaySprites_CompleteSet_ResolvesFrameAndAperture()
+        {
+            DoorDefinitionAsset asset =
+                CreateDefinitionAsset(
+                    "double-open-doorway",
+                    2,
+                    new[] { 0, 1 });
+
+            DoorwaySpriteSet visuals =
+                CreateCompleteDoorwayVisuals();
+
+            Sprite expectedFrame =
+                GetPrivateField<Sprite>(
+                    visuals,
+                    "risingRightFrame");
+
+            Sprite expectedAperture =
+                GetPrivateField<Sprite>(
+                    visuals,
+                    "risingRightAperture");
+
+            SetPrivateField(
+                asset,
+                "presentationStyle",
+                DoorPresentationStyle.StaticDoorway);
+
+            SetPrivateField(
+                asset,
+                "doorwayVisuals",
+                visuals);
+
+            asset.ValidateConfiguration();
+
+            bool resolved =
+                asset.TryGetDoorwaySprites(
+                    WallDisplaySlope.RisingRight,
+                    out DoorwaySprites sprites);
+
+            Assert.That(resolved, Is.True);
+            Assert.That(sprites.Frame, Is.SameAs(expectedFrame));
+            Assert.That(sprites.Aperture, Is.SameAs(expectedAperture));
+        }
+
+
+        [Test]
         public void ValidateConfiguration_DuplicateNormalizedId_Throws()
         {
             DoorDefinitionAsset first =
@@ -176,6 +303,81 @@ namespace BigRetail.Map.Unity.Tests
             Assert.That(
                 catalog.ValidateConfiguration,
                 Throws.TypeOf<InvalidOperationException>());
+        }
+
+
+        [Test]
+        public void AuthoredCatalog_ContainsOnePanelHingedDoor()
+        {
+            DoorDefinitionAssetCatalog catalog =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<
+                    DoorDefinitionAssetCatalog>(
+                    "Assets/Design/Doors/DoorDefinitionCatalog.asset");
+
+            Assert.That(
+                catalog,
+                Is.Not.Null);
+
+            Assert.That(
+                catalog.TryGetAsset(
+                    new DoorDefinitionId("single-hinged-door"),
+                    out DoorDefinitionAsset asset),
+                Is.True);
+
+            Assert.That(asset.SegmentCount, Is.EqualTo(1));
+            Assert.That(
+                asset.PresentationStyle,
+                Is.EqualTo(
+                    DoorPresentationStyle.HingedSinglePanel));
+            Assert.That(asset.HasCompleteHingedVisuals, Is.True);
+        }
+
+
+        [TestCase("single-open-doorway", 1)]
+        [TestCase("double-open-doorway", 2)]
+        public void AuthoredCatalog_ContainsStaticOpenDoorway(
+            string definitionId,
+            int expectedSegmentCount)
+        {
+            DoorDefinitionAssetCatalog catalog =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<
+                    DoorDefinitionAssetCatalog>(
+                    "Assets/Design/Doors/DoorDefinitionCatalog.asset");
+
+            Assert.That(
+                catalog,
+                Is.Not.Null);
+
+            Assert.That(
+                catalog.TryGetAsset(
+                    new DoorDefinitionId(definitionId),
+                    out DoorDefinitionAsset asset),
+                Is.True);
+
+            Assert.That(
+                asset.SegmentCount,
+                Is.EqualTo(expectedSegmentCount));
+
+            Assert.That(
+                asset.PresentationStyle,
+                Is.EqualTo(
+                    DoorPresentationStyle.StaticDoorway));
+
+            Assert.That(
+                asset.HasCompleteDoorwayVisuals,
+                Is.True);
+
+            DoorDefinition definition =
+                asset.CreateDomainDefinition();
+
+            for (int index = 0;
+                 index < expectedSegmentCount;
+                 index++)
+            {
+                Assert.That(
+                    definition.IsPassageSegment(index),
+                    Is.True);
+            }
         }
 
 
@@ -245,6 +447,11 @@ namespace BigRetail.Map.Unity.Tests
 
             SetPrivateField(
                 visuals,
+                "risingLeftAperture",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
                 "risingLeftLeftGlass",
                 CreateSprite());
 
@@ -270,6 +477,11 @@ namespace BigRetail.Map.Unity.Tests
 
             SetPrivateField(
                 visuals,
+                "risingRightAperture",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
                 "risingRightLeftGlass",
                 CreateSprite());
 
@@ -286,6 +498,64 @@ namespace BigRetail.Map.Unity.Tests
             SetPrivateField(
                 visuals,
                 "risingRightRightGlass",
+                CreateSprite());
+
+            return visuals;
+        }
+
+
+        private HingedDoorSpriteSet CreateCompleteHingedVisuals()
+        {
+            HingedDoorSpriteSet visuals =
+                new HingedDoorSpriteSet();
+
+            SetPrivateField(
+                visuals,
+                "risingLeftFrame",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingLeftDoor",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingRightFrame",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingRightDoor",
+                CreateSprite());
+
+            return visuals;
+        }
+
+
+        private DoorwaySpriteSet CreateCompleteDoorwayVisuals()
+        {
+            DoorwaySpriteSet visuals =
+                new DoorwaySpriteSet();
+
+            SetPrivateField(
+                visuals,
+                "risingLeftFrame",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingLeftAperture",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingRightFrame",
+                CreateSprite());
+
+            SetPrivateField(
+                visuals,
+                "risingRightAperture",
                 CreateSprite());
 
             return visuals;

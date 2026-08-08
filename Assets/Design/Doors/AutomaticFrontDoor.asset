@@ -19,16 +19,29 @@ MonoBehaviour:
   - 1
   - 2
   catalogIcon: {fileID: 21300000, guid: 22fa98d9d0094e5fbc2e6c30d38ba390, type: 3}
+  presentationStyle: 0
   assemblyVisuals:
     risingLeftFrame: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a101, type: 3}
+    risingLeftAperture: {fileID: 21300000, guid: e1a7c4d2f9304b6a8c5e1f72a9d304b1, type: 3}
     risingLeftLeftGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a107, type: 3}
     risingLeftLeftDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a102, type: 3}
     risingLeftRightDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a103, type: 3}
     risingLeftRightGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a108, type: 3}
     risingRightFrame: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a104, type: 3}
+    risingRightAperture: {fileID: 21300000, guid: f2b8d5e3a0414c7b9d6f2083bae415c2, type: 3}
     risingRightLeftGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a109, type: 3}
     risingRightLeftDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a105, type: 3}
     risingRightRightDoor: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a106, type: 3}
     risingRightRightGlass: {fileID: 21300000, guid: 8f69c9b5a88e4e39925330dc01b1a10a, type: 3}
+  hingedVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftDoor: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightDoor: {fileID: 0}
+  doorwayVisuals:
+    risingLeftFrame: {fileID: 0}
+    risingLeftAperture: {fileID: 0}
+    risingRightFrame: {fileID: 0}
+    risingRightAperture: {fileID: 0}
   apertureBottomNormalized: 0
   apertureHeightNormalized: 0.82
