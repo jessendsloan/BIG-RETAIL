@@ -10,7 +10,8 @@
         "BigRetail.Map.Floors",
         "BigRetail.Map.View",
         "BigRetail.Map.Walls",
-        "BigRetail.Map.Unity"
+        "BigRetail.Map.Unity",
+        "BigRetail.Map.Fixtures"
     ],
     "includePlatforms": [
         "Editor"

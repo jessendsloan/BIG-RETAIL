@@ -11,6 +11,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         Foundations,
         Floors,
         Doors,
+        Fixtures,
         Demolition
     }
 }

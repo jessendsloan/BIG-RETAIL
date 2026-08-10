@@ -1,4 +1,5 @@
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
 using NUnit.Framework;
 
 namespace BigRetail.Map.Unity.Walls.Tests
@@ -14,7 +15,8 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.WallBaseOrder - 12));
+                    WallRenderOrderResolver.WallBaseOrder
+                    - 25));
         }
 
 
@@ -67,7 +69,79 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.WallBaseOrder + 9));
+                    WallRenderOrderResolver.WallBaseOrder
+                    + 17));
+        }
+
+
+        [Test]
+        public void ResolveCell_RendersBetweenItsFrontAndBackWalls()
+        {
+            GridPosition cell =
+                new GridPosition(4, 7);
+
+            CellEdge frontWall =
+                new CellEdge(
+                    new GridPosition(3, 7),
+                    CellEdgeDirection.NorthEast);
+
+            CellEdge backWall =
+                new CellEdge(
+                    cell,
+                    CellEdgeDirection.NorthEast);
+
+            int fixtureOrder =
+                WallRenderOrderResolver.ResolveCell(cell);
+
+            Assert.That(
+                WallRenderOrderResolver.ResolveWall(frontWall),
+                Is.GreaterThan(fixtureOrder));
+
+            Assert.That(
+                fixtureOrder,
+                Is.GreaterThan(
+                    WallRenderOrderResolver.ResolveWall(backWall)));
+        }
+
+
+        [Test]
+        public void ResolveWall_LowCutawayRetainsStructuralDepth()
+        {
+            CellEdge wall =
+                new CellEdge(
+                    new GridPosition(3, 7),
+                    CellEdgeDirection.NorthEast);
+
+            int structuralOrder =
+                WallRenderOrderResolver.ResolveWall(wall);
+
+            int lowWallOrder =
+                WallRenderOrderResolver.ResolveWall(
+                    wall,
+                    WallPresentationHeight.Low);
+
+            Assert.That(
+                lowWallOrder,
+                Is.EqualTo(structuralOrder));
+        }
+
+
+        [Test]
+        public void ResolveWall_FullHeightRetainsStructuralOcclusion()
+        {
+            CellEdge frontWall =
+                new CellEdge(
+                    new GridPosition(3, 7),
+                    CellEdgeDirection.NorthEast);
+
+            int structuralOrder =
+                WallRenderOrderResolver.ResolveWall(frontWall);
+
+            Assert.That(
+                WallRenderOrderResolver.ResolveWall(
+                    frontWall,
+                    WallPresentationHeight.Full),
+                Is.EqualTo(structuralOrder));
         }
 
 
@@ -121,15 +195,15 @@ namespace BigRetail.Map.Unity.Walls.Tests
             Assert.That(
                 order,
                 Is.EqualTo(
-                    WallRenderOrderResolver.PylonBaseOrder - 13));
+                    WallRenderOrderResolver.PylonBaseOrder - 25));
         }
 
 
-        [Test]
-        public void ResolvePylon_RemainsAboveWallAtSameDepth()
+        [TestCase(17)]
+        [TestCase(-375)]
+        public void ResolvePylon_RemainsAboveWallAtSameDepth(
+            int displayDepth)
         {
-            const int displayDepth = 17;
-
             int wallOrder =
                 WallRenderOrderResolver.ResolveWallDepth(
                     displayDepth);
@@ -142,7 +216,8 @@ namespace BigRetail.Map.Unity.Walls.Tests
                 pylonOrder - wallOrder,
                 Is.EqualTo(
                     WallRenderOrderResolver.PylonBaseOrder
-                    - WallRenderOrderResolver.WallBaseOrder));
+                    - WallRenderOrderResolver.WallBaseOrder
+                    + 1));
         }
     }
 }

@@ -12,6 +12,7 @@ namespace BigRetail.Construction.Unity.UI.PC
     {
         public const string WallsButtonName = "walls-button";
         public const string DoorsButtonName = "doors-button";
+        public const string FixturesButtonName = "fixtures-button";
         public const string FoundationsButtonName = "foundations-button";
         public const string FoundationPickerName = "foundation-picker";
         public const string FoundationDefaultButtonName =
@@ -24,6 +25,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             "demolish-floors-button";
         public const string DemolishWallsButtonName =
             "demolish-walls-button";
+        public const string DemolishFixturesButtonName =
+            "demolish-fixtures-button";
         public const string DemolitionPickerName = "demolition-picker";
         public const string WallViewUpButtonName =
             "wall-view-up-button";
@@ -45,6 +48,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private readonly Button wallsButton;
         private readonly Button doorsButton;
+        private readonly Button fixturesButton;
         private readonly Button departmentsButton;
         private readonly Button foundationsButton;
         private readonly VisualElement foundationPicker;
@@ -54,6 +58,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button demolishFoundationsButton;
         private readonly Button demolishFloorsButton;
         private readonly Button demolishWallsButton;
+        private readonly Button demolishFixturesButton;
         private readonly VisualElement demolitionPicker;
         private readonly Button wallViewUpButton;
         private readonly Button wallViewCutawayButton;
@@ -76,6 +81,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             wallsButton = RequireButton(root, WallsButtonName);
             doorsButton = RequireButton(root, DoorsButtonName);
+            fixturesButton = RequireButton(root, FixturesButtonName);
             departmentsButton =
                 RequireButton(root, DepartmentPickerView.DepartmentsButtonName);
             foundationsButton =
@@ -92,6 +98,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, DemolishFloorsButtonName);
             demolishWallsButton =
                 RequireButton(root, DemolishWallsButtonName);
+            demolishFixturesButton =
+                RequireButton(root, DemolishFixturesButtonName);
             demolitionPicker = RequireElement(root, DemolitionPickerName);
             wallViewUpButton =
                 RequireButton(root, WallViewUpButtonName);
@@ -112,6 +120,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             wallsButton.clicked += HandleWallsRequested;
             doorsButton.clicked += HandleDoorsRequested;
+            fixturesButton.clicked += HandleFixturesRequested;
             departmentsButton.clicked += HandleDepartmentsRequested;
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
@@ -123,6 +132,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleDemolishFoundationsRequested;
             demolishFloorsButton.clicked += HandleDemolishFloorsRequested;
             demolishWallsButton.clicked += HandleDemolishWallsRequested;
+            demolishFixturesButton.clicked +=
+                HandleDemolishFixturesRequested;
             wallViewUpButton.clicked += HandleWallViewUpRequested;
             wallViewCutawayButton.clicked +=
                 HandleWallViewCutawayRequested;
@@ -153,6 +164,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
             SetSelected(doorsButton, section == ConstructionToolbarSection.Doors);
+            SetSelected(
+                fixturesButton,
+                section == ConstructionToolbarSection.Fixtures);
             SetSelected(
                 foundationsButton,
                 isFoundationSelected);
@@ -191,6 +205,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             SetSelected(
                 demolishWallsButton,
                 target == ConstructionToolbarDemolitionTarget.Walls);
+            SetSelected(
+                demolishFixturesButton,
+                target == ConstructionToolbarDemolitionTarget.Fixtures);
         }
 
         public void SetWallDisplayMode(
@@ -264,6 +281,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             wallsButton.clicked -= HandleWallsRequested;
             doorsButton.clicked -= HandleDoorsRequested;
+            fixturesButton.clicked -= HandleFixturesRequested;
             departmentsButton.clicked -= HandleDepartmentsRequested;
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
@@ -275,6 +293,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleDemolishFoundationsRequested;
             demolishFloorsButton.clicked -= HandleDemolishFloorsRequested;
             demolishWallsButton.clicked -= HandleDemolishWallsRequested;
+            demolishFixturesButton.clicked -=
+                HandleDemolishFixturesRequested;
             wallViewUpButton.clicked -= HandleWallViewUpRequested;
             wallViewCutawayButton.clicked -=
                 HandleWallViewCutawayRequested;
@@ -297,6 +317,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleDoorsRequested()
         {
             SectionRequested?.Invoke(ConstructionToolbarSection.Doors);
+        }
+
+        private void HandleFixturesRequested()
+        {
+            SectionRequested?.Invoke(ConstructionToolbarSection.Fixtures);
         }
 
         private void HandleFoundationsRequested()
@@ -336,6 +361,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             DemolitionTargetRequested?.Invoke(
                 ConstructionToolbarDemolitionTarget.Walls);
+        }
+
+        private void HandleDemolishFixturesRequested()
+        {
+            DemolitionTargetRequested?.Invoke(
+                ConstructionToolbarDemolitionTarget.Fixtures);
         }
 
         private void HandleWallViewUpRequested()

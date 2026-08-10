@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3ab3a7886145f19f0ac81bdf4b381b, type: 3}
+  m_Name: HalfShelf
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureDefinitionAsset
+  definitionId: HALF_SHELF
+  displayName: Half Shelf
+  widthInCells: 2
+  depthInCells: 1
+  catalogIcon: {fileID: 21300000, guid: 0477ecd8dac0461ea52317cd595f87e2, type: 3}
+  northSprite: {fileID: 21300000, guid: 797a1d47ef4141fba4ad4f3ef3576322, type: 3}
+  eastSprite: {fileID: 21300000, guid: efb633aaed734a30bf47b5635bd3aff5, type: 3}
+  southSprite: {fileID: 21300000, guid: 59969253a87645b7babc1cd0cf8b1cbe, type: 3}
+  westSprite: {fileID: 21300000, guid: fe742f3115c84ca585173a575f2e0d6e, type: 3}
+  northSpriteAnchorCorner: 1
+  eastSpriteAnchorCorner: 0
+  southSpriteAnchorCorner: 0
+  westSpriteAnchorCorner: 2
+  repeatSpritePerOccupiedCell: 0
+  worldPositionOffset: {x: 0, y: 0, z: 0}
+  northAccess: 0
+  eastAccess: 0
+  southAccess: 3
+  westAccess: 0

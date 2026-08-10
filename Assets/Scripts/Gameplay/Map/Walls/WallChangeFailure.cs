@@ -35,6 +35,11 @@ namespace BigRetail.Map.Walls
         MissingFoundation,
 
         /// <summary>
+        /// A fixture interaction face owns the requested edge.
+        /// </summary>
+        BlocksFixtureAccess,
+
+        /// <summary>
         /// A wall already occupies the requested edge.
         /// </summary>
         AlreadyExists,

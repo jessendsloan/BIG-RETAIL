@@ -71,6 +71,12 @@ namespace BigRetail.Map.Unity.Walls
                 ? sortingGroup.sortingOrder
                 : spriteRenderer.sortingOrder;
 
+        /// <summary>
+        /// Structural wall depth used by full-height door assemblies even
+        /// when the supporting wall is currently drawn as a low cutaway.
+        /// </summary>
+        public int StructuralSortingOrder { get; private set; }
+
         public int RendererPriority =>
             spriteRenderer.rendererPriority;
 
@@ -198,9 +204,14 @@ namespace BigRetail.Map.Unity.Walls
             CellEdgeWorldPose worldPose,
             WallPresentationHeight presentationHeight)
         {
-            spriteRenderer.sortingOrder =
+            StructuralSortingOrder =
                 WallRenderOrderResolver.ResolveWall(
                     worldPose.DisplayEdge);
+
+            spriteRenderer.sortingOrder =
+                WallRenderOrderResolver.ResolveWall(
+                    worldPose.DisplayEdge,
+                    presentationHeight);
 
             sortingGroup.sortingLayerID =
                 spriteRenderer.sortingLayerID;

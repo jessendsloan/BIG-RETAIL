@@ -16,6 +16,7 @@ namespace BigRetail.Map.Walls.Tests
         private WallState wallState;
         private WallConstructionService wallService;
         private MutableFoundationSupport foundationSupport;
+        private MutableWallPlacementConstraint placementConstraint;
 
         [SetUp]
         public void SetUp()
@@ -63,6 +64,12 @@ namespace BigRetail.Map.Walls.Tests
                     constructionArea,
                     wallState,
                     foundationSupport);
+
+            placementConstraint =
+                new MutableWallPlacementConstraint();
+
+            wallService.RegisterPlacementConstraint(
+                placementConstraint);
         }
 
         [Test]
@@ -97,6 +104,28 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(result.Succeeded, Is.True);
             Assert.That(wallState.HasWall(edge), Is.False);
             Assert.That(wallState.WallCount, Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void EvaluatePlacement_FixtureFaceBoundary_IsRejected()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(0, 0),
+                    CellEdgeDirection.NorthEast);
+
+            placementConstraint.Block(edge);
+
+            WallChangeResult result =
+                wallService.EvaluatePlacement(edge);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    WallChangeFailure.BlocksFixtureAccess));
+            Assert.That(wallState.HasWall(edge), Is.False);
         }
 
 
@@ -161,6 +190,30 @@ namespace BigRetail.Map.Walls.Tests
                 result.Failure,
                 Is.EqualTo(
                     WallChangeFailure.MissingFoundation));
+            Assert.That(wallState.HasWall(edge), Is.False);
+        }
+
+
+        [Test]
+        public void TryApplyEdit_AddAcrossFixtureFace_IsRejected()
+        {
+            CellEdge edge =
+                new CellEdge(
+                    new GridPosition(0, 0),
+                    CellEdgeDirection.NorthEast);
+
+            placementConstraint.Block(edge);
+
+            WallBatchChangeResult result =
+                wallService.TryApplyEdit(
+                    WallEdit.AddWalls(
+                        new[] { edge }));
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(
+                    WallChangeFailure.BlocksFixtureAccess));
             Assert.That(wallState.HasWall(edge), Is.False);
         }
 
@@ -416,6 +469,29 @@ namespace BigRetail.Map.Walls.Tests
                 GridPosition cell)
             {
                 supportedCells.Remove(cell);
+            }
+        }
+
+
+        private sealed class MutableWallPlacementConstraint :
+            IWallPlacementConstraint
+        {
+            private readonly HashSet<CellEdge> blockedEdges =
+                new HashSet<CellEdge>();
+
+
+            public WallChangeFailure EvaluateWallPlacement(
+                CellEdge edge)
+            {
+                return blockedEdges.Contains(edge)
+                    ? WallChangeFailure.BlocksFixtureAccess
+                    : WallChangeFailure.None;
+            }
+
+
+            public void Block(CellEdge edge)
+            {
+                blockedEdges.Add(edge);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using BigRetail.Construction.Unity.Doors;
 using BigRetail.Construction.Unity.Floors;
+using BigRetail.Construction.Unity.Fixtures;
 using BigRetail.Construction.Unity.Foundations;
 using BigRetail.Construction.Unity.Walls;
 using UnityEngine;
@@ -54,6 +55,17 @@ namespace BigRetail.Construction.Unity.Tools
         [SerializeField]
         private FloorDemolitionToolController
             floorDemolitionTool;
+
+
+        [Header("Fixture Tools")]
+
+        [SerializeField]
+        private FixtureConstructionToolController
+            fixtureConstructionTool;
+
+        [SerializeField]
+        private FixtureDemolitionToolController
+            fixtureDemolitionTool;
 
 
         [Header("Starting State")]
@@ -127,6 +139,18 @@ namespace BigRetail.Construction.Unity.Tools
                 floorDemolitionTool.ToolActiveChanged +=
                     HandleFloorDemolitionActivityChanged;
             }
+
+            if (fixtureConstructionTool != null)
+            {
+                fixtureConstructionTool.ToolActiveChanged +=
+                    HandleFixtureConstructionActivityChanged;
+            }
+
+            if (fixtureDemolitionTool != null)
+            {
+                fixtureDemolitionTool.ToolActiveChanged +=
+                    HandleFixtureDemolitionActivityChanged;
+            }
         }
 
 
@@ -194,6 +218,16 @@ namespace BigRetail.Construction.Unity.Tools
 
                 case ConstructionToolMode.DemolishFloors:
                     floorDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.BuildFixtures:
+                    fixtureConstructionTool
+                        .ClearPlacementPreview();
+                    break;
+
+                case ConstructionToolMode.DemolishFixtures:
+                    fixtureDemolitionTool
                         .CancelCurrentGesture();
                     break;
             }
@@ -276,6 +310,28 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        [ContextMenu("Activate Fixture Construction")]
+        public void ActivateFixtureConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildFixtures);
+            }
+        }
+
+
+        [ContextMenu("Activate Fixture Demolition")]
+        public void ActivateFixtureDemolition()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.DemolishFixtures);
+            }
+        }
+
+
         [ContextMenu("Deactivate Construction Tools")]
         public void DeactivateConstructionTools()
         {
@@ -336,6 +392,14 @@ namespace BigRetail.Construction.Unity.Tools
                 SetFloorDemolitionActive(
                     mode
                     == ConstructionToolMode.DemolishFloors);
+
+                SetFixtureConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildFixtures);
+
+                SetFixtureDemolitionActive(
+                    mode
+                    == ConstructionToolMode.DemolishFixtures);
 
                 CurrentMode = mode;
             }
@@ -451,6 +515,34 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 floorDemolitionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetFixtureConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                fixtureConstructionTool.ActivateTool();
+            }
+            else
+            {
+                fixtureConstructionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetFixtureDemolitionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                fixtureDemolitionTool.ActivateTool();
+            }
+            else
+            {
+                fixtureDemolitionTool.DeactivateTool();
             }
         }
 
@@ -649,6 +741,62 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleFixtureConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildFixtures,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildFixtures)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
+        private void HandleFixtureDemolitionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.DemolishFixtures,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.DemolishFixtures)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private bool ValidateReferences()
         {
             bool isValid = true;
@@ -723,6 +871,26 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (fixtureConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no "
+                    + "FixtureConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (fixtureDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no "
+                    + "FixtureDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             return isValid;
         }
 
@@ -785,6 +953,18 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 floorDemolitionTool.ToolActiveChanged -=
                     HandleFloorDemolitionActivityChanged;
+            }
+
+            if (fixtureConstructionTool != null)
+            {
+                fixtureConstructionTool.ToolActiveChanged -=
+                    HandleFixtureConstructionActivityChanged;
+            }
+
+            if (fixtureDemolitionTool != null)
+            {
+                fixtureDemolitionTool.ToolActiveChanged -=
+                    HandleFixtureDemolitionActivityChanged;
             }
         }
     }

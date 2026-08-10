@@ -168,6 +168,52 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void BuildFixtures_MapsToFixturesToolbarSection()
+        {
+            Type mapperType = RequireType(MapperTypeName);
+            Type modeType = RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public | BindingFlags.Static);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(modeType, "BuildFixtures")
+                    });
+
+            Assert.That(section.ToString(), Is.EqualTo("Fixtures"));
+        }
+
+
+        [Test]
+        public void DemolishFixtures_MapsToDemolitionToolbarSection()
+        {
+            Type mapperType = RequireType(MapperTypeName);
+            Type modeType = RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public | BindingFlags.Static);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(modeType, "DemolishFixtures")
+                    });
+
+            Assert.That(section.ToString(), Is.EqualTo("Demolition"));
+        }
+
+
+        [Test]
         public void DoorDefinitionPicker_BuildsAndSelectsCatalogButton()
         {
             Type viewType =
@@ -562,12 +608,14 @@ namespace BigRetail.Map.Unity.Tests
             root.Add(foundationPicker);
             root.Add(CreateButton("walls-button"));
             root.Add(CreateButton("doors-button"));
+            root.Add(CreateButton("fixtures-button"));
             root.Add(CreateButton("foundations-button"));
             root.Add(CreateButton("floors-button"));
             root.Add(CreateButton("demolition-button"));
             root.Add(CreateButton("demolish-foundations-button"));
             root.Add(CreateButton("demolish-floors-button"));
             root.Add(CreateButton("demolish-walls-button"));
+            root.Add(CreateButton("demolish-fixtures-button"));
             root.Add(
                 new VisualElement
                 {

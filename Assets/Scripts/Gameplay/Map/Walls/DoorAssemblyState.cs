@@ -18,6 +18,10 @@ namespace BigRetail.Map.Walls
             edgeAssignments =
                 new Dictionary<CellEdge, DoorAssemblyId>();
 
+        private readonly Dictionary<GridPosition, int>
+            passageCellReservations =
+                new Dictionary<GridPosition, int>();
+
         private bool isPublishingChanges;
 
 
@@ -26,6 +30,9 @@ namespace BigRetail.Map.Walls
 
         public int OccupiedEdgeCount =>
             edgeAssignments.Count;
+
+        public int ReservedPassageCellCount =>
+            passageCellReservations.Count;
 
 
         public event Action<DoorAssembly> AssemblyAdded;
@@ -67,6 +74,17 @@ namespace BigRetail.Map.Walls
             }
         }
 
+        /// <summary>
+        /// Returns true when a placed door's passable opening serves this
+        /// cell. Both cells touching each passage edge are reserved so
+        /// fixtures cannot block either side of an entrance.
+        /// </summary>
+        public bool IsPassageCellReserved(
+            GridPosition cell)
+        {
+            return passageCellReservations.ContainsKey(cell);
+        }
+
 
         internal bool TryAddAssembly(
             DoorAssembly assembly)
@@ -102,6 +120,8 @@ namespace BigRetail.Map.Walls
                     assembly.Id);
             }
 
+            ReservePassageCells(assembly);
+
             PublishAssemblyAdded(assembly);
             return true;
         }
@@ -129,8 +149,83 @@ namespace BigRetail.Map.Walls
                     removedAssembly.GetEdge(index));
             }
 
+            ReleasePassageCells(removedAssembly);
+
             PublishAssemblyRemoved(removedAssembly);
             return true;
+        }
+
+
+        private void ReservePassageCells(
+            DoorAssembly assembly)
+        {
+            for (int index = 0;
+                 index < assembly.SegmentCount;
+                 index++)
+            {
+                if (!assembly.Definition.IsPassageSegment(index))
+                {
+                    continue;
+                }
+
+                CellEdge edge = assembly.GetEdge(index);
+
+                AddPassageCellReservation(edge.FirstCell);
+                AddPassageCellReservation(edge.SecondCell);
+            }
+        }
+
+
+        private void ReleasePassageCells(
+            DoorAssembly assembly)
+        {
+            for (int index = 0;
+                 index < assembly.SegmentCount;
+                 index++)
+            {
+                if (!assembly.Definition.IsPassageSegment(index))
+                {
+                    continue;
+                }
+
+                CellEdge edge = assembly.GetEdge(index);
+
+                RemovePassageCellReservation(edge.FirstCell);
+                RemovePassageCellReservation(edge.SecondCell);
+            }
+        }
+
+
+        private void AddPassageCellReservation(
+            GridPosition cell)
+        {
+            passageCellReservations.TryGetValue(
+                cell,
+                out int reservationCount);
+
+            passageCellReservations[cell] =
+                reservationCount + 1;
+        }
+
+
+        private void RemovePassageCellReservation(
+            GridPosition cell)
+        {
+            if (!passageCellReservations.TryGetValue(
+                    cell,
+                    out int reservationCount))
+            {
+                return;
+            }
+
+            if (reservationCount <= 1)
+            {
+                passageCellReservations.Remove(cell);
+                return;
+            }
+
+            passageCellReservations[cell] =
+                reservationCount - 1;
         }
 
 

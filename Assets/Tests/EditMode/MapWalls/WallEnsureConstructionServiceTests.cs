@@ -12,6 +12,7 @@ namespace BigRetail.Map.Walls.Tests
         private ConstructionAreaDefinition constructionArea;
         private WallState wallState;
         private WallConstructionService service;
+        private MutableWallPlacementConstraint placementConstraint;
 
 
         [SetUp]
@@ -61,6 +62,12 @@ namespace BigRetail.Map.Walls.Tests
                     constructionArea,
                     wallState,
                     UnrestrictedFoundationSupportQuery.Instance);
+
+            placementConstraint =
+                new MutableWallPlacementConstraint();
+
+            service.RegisterPlacementConstraint(
+                placementConstraint);
         }
 
 
@@ -160,6 +167,32 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(wallState.HasWall(validStart), Is.True);
             Assert.That(wallState.HasWall(validEnd), Is.True);
             Assert.That(wallState.WallCount, Is.EqualTo(2));
+        }
+
+
+        [Test]
+        public void TryEnsureWalls_FixtureFaceEdgeIsSkipped()
+        {
+            CellEdge[] edges =
+                CreateNorthEastRun(
+                    2,
+                    1,
+                    3);
+
+            placementConstraint.Block(edges[1]);
+
+            WallEnsureResult result =
+                service.TryEnsureWalls(edges);
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(result.ChangedCount, Is.EqualTo(2));
+            Assert.That(
+                result.SkippedPlacementConstraintCount,
+                Is.EqualTo(1));
+            Assert.That(result.SkippedCount, Is.EqualTo(1));
+            Assert.That(wallState.HasWall(edges[0]), Is.True);
+            Assert.That(wallState.HasWall(edges[1]), Is.False);
+            Assert.That(wallState.HasWall(edges[2]), Is.True);
         }
 
 
@@ -365,6 +398,29 @@ namespace BigRetail.Map.Walls.Tests
                     y,
                     0),
                 direction);
+        }
+
+
+        private sealed class MutableWallPlacementConstraint :
+            IWallPlacementConstraint
+        {
+            private readonly HashSet<CellEdge> blockedEdges =
+                new HashSet<CellEdge>();
+
+
+            public WallChangeFailure EvaluateWallPlacement(
+                CellEdge edge)
+            {
+                return blockedEdges.Contains(edge)
+                    ? WallChangeFailure.BlocksFixtureAccess
+                    : WallChangeFailure.None;
+            }
+
+
+            public void Block(CellEdge edge)
+            {
+                blockedEdges.Add(edge);
+            }
         }
     }
 }
