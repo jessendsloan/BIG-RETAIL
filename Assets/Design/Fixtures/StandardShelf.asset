@@ -21,8 +21,35 @@ MonoBehaviour:
   eastSprite: {fileID: 21300000, guid: d0498d4444538c044986d9f5b3e5b355, type: 3}
   southSprite: {fileID: 21300000, guid: 0ed4651f15e42ae41beae3f92d73769a, type: 3}
   westSprite: {fileID: 21300000, guid: d0498d4444538c044986d9f5b3e5b355, type: 3}
+  northSpriteAnchorCorner: 0
+  eastSpriteAnchorCorner: 0
+  southSpriteAnchorCorner: 0
+  westSpriteAnchorCorner: 0
   repeatSpritePerOccupiedCell: 0
   worldPositionOffset: {x: 0, y: 0, z: 0}
+  merchandisingMaskSets:
+  - localDisplaySide: 0
+    northShelfMasks: []
+    eastShelfMasks:
+    - {fileID: 21300000, guid: bc314f19e5ee40645b30f7795a70c7f8, type: 3}
+    - {fileID: 21300000, guid: 2e5e2168a57827f4192d16304962e9cd, type: 3}
+    - {fileID: 21300000, guid: 4df049b2645c5e446bef9056da62201f, type: 3}
+    southShelfMasks:
+    - {fileID: 21300000, guid: 0d65aaedbbec55141942fb42777ae5b7, type: 3}
+    - {fileID: 21300000, guid: b72f3a1707391d342aae354e573a907e, type: 3}
+    - {fileID: 21300000, guid: 22ec4b7cb91450b418e9658a407a029e, type: 3}
+    westShelfMasks: []
+  - localDisplaySide: 2
+    northShelfMasks:
+    - {fileID: 21300000, guid: 0d65aaedbbec55141942fb42777ae5b7, type: 3}
+    - {fileID: 21300000, guid: b72f3a1707391d342aae354e573a907e, type: 3}
+    - {fileID: 21300000, guid: 22ec4b7cb91450b418e9658a407a029e, type: 3}
+    eastShelfMasks: []
+    southShelfMasks: []
+    westShelfMasks:
+    - {fileID: 21300000, guid: bc314f19e5ee40645b30f7795a70c7f8, type: 3}
+    - {fileID: 21300000, guid: 2e5e2168a57827f4192d16304962e9cd, type: 3}
+    - {fileID: 21300000, guid: 4df049b2645c5e446bef9056da62201f, type: 3}
   northAccess: 3
   eastAccess: 0
   southAccess: 3

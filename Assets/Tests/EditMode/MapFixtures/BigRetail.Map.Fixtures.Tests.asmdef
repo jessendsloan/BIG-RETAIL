@@ -2,9 +2,11 @@
     "name": "BigRetail.Map.Fixtures.Tests",
     "rootNamespace": "",
     "references": [
+        "BigRetail.Inventory.Domain",
         "BigRetail.Map.Construction",
         "BigRetail.Map.Domain",
-        "BigRetail.Map.Fixtures"
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Merchandise.Domain"
     ],
     "includePlatforms": [
         "Editor"

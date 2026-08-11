@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Map.View;
 using NUnit.Framework;
 using UnityEngine;
@@ -36,6 +37,10 @@ namespace BigRetail.Map.Unity.Tests
         private const string DoorDefinitionPickerItemTypeName =
             "BigRetail.Construction.Unity.UI.PC." +
             "DoorDefinitionPickerItem, Assembly-CSharp";
+
+        private const string MerchandisingInputControllerTypeName =
+            "BigRetail.Construction.Unity.Fixtures." +
+            "FixtureMerchandisingInputController, Assembly-CSharp";
 
 
         [Test]
@@ -453,6 +458,108 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void MerchandiseTool_ReflectsItsActiveState()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                MethodInfo setMerchandiseToolActive =
+                    viewType.GetMethod(
+                        "SetMerchandiseToolActive",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(setMerchandiseToolActive, Is.Not.Null);
+
+                setMerchandiseToolActive.Invoke(
+                    view,
+                    new object[] { true });
+
+                Assert.That(
+                    root.Q<Button>("merchandise-tool-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                setMerchandiseToolActive.Invoke(
+                    view,
+                    new object[] { false });
+
+                Assert.That(
+                    root.Q<Button>("merchandise-tool-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void MerchandiseInput_RepairsMissingHoverOutlineReference()
+        {
+            Type controllerType =
+                RequireType(MerchandisingInputControllerTypeName);
+
+            GameObject mapObject =
+                new GameObject("Merchandising Map Test");
+            GameObject inputObject =
+                new GameObject("Merchandising Input Test");
+
+            try
+            {
+                FixtureViewSystem fixtureViewSystem =
+                    mapObject.AddComponent<FixtureViewSystem>();
+
+                Component controller =
+                    inputObject.AddComponent(controllerType);
+
+                FieldInfo fixtureViewSystemField =
+                    controllerType.GetField(
+                        "fixtureViewSystem",
+                        BindingFlags.NonPublic
+                        | BindingFlags.Instance);
+
+                MethodInfo resolveRuntimeReferences =
+                    controllerType.GetMethod(
+                        "ResolveRuntimeReferences",
+                        BindingFlags.NonPublic
+                        | BindingFlags.Instance);
+
+                Assert.That(fixtureViewSystemField, Is.Not.Null);
+                Assert.That(resolveRuntimeReferences, Is.Not.Null);
+
+                fixtureViewSystemField.SetValue(
+                    controller,
+                    fixtureViewSystem);
+
+                resolveRuntimeReferences.Invoke(controller, null);
+
+                Assert.That(
+                    mapObject.GetComponent<
+                        FixtureMerchandisingHoverOutlineView>(),
+                    Is.Not.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(inputObject);
+                UnityEngine.Object.DestroyImmediate(mapObject);
+            }
+        }
+
+
+        [Test]
         public void WallDisplayMode_SelectsOnlyRequestedModeButton()
         {
             Type viewType =
@@ -598,6 +705,7 @@ namespace BigRetail.Map.Unity.Tests
                 new VisualElement();
 
             root.Add(CreateButton("departments-button"));
+            root.Add(CreateButton("merchandise-tool-button"));
             VisualElement foundationPicker =
                 new VisualElement
                 {

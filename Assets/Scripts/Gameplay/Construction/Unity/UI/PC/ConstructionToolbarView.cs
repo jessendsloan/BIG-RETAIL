@@ -44,12 +44,15 @@ namespace BigRetail.Construction.Unity.UI.PC
             "camera-view-west-button";
         public const string UndoButtonName = "undo-button";
         public const string RedoButtonName = "redo-button";
+        public const string MerchandiseToolButtonName =
+            "merchandise-tool-button";
         public const string SelectedClassName = "is-selected";
 
         private readonly Button wallsButton;
         private readonly Button doorsButton;
         private readonly Button fixturesButton;
         private readonly Button departmentsButton;
+        private readonly Button merchandiseToolButton;
         private readonly Button foundationsButton;
         private readonly VisualElement foundationPicker;
         private readonly Button foundationDefaultButton;
@@ -84,6 +87,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             fixturesButton = RequireButton(root, FixturesButtonName);
             departmentsButton =
                 RequireButton(root, DepartmentPickerView.DepartmentsButtonName);
+            merchandiseToolButton =
+                RequireButton(root, MerchandiseToolButtonName);
             foundationsButton =
                 RequireButton(root, FoundationsButtonName);
             foundationPicker =
@@ -122,6 +127,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             doorsButton.clicked += HandleDoorsRequested;
             fixturesButton.clicked += HandleFixturesRequested;
             departmentsButton.clicked += HandleDepartmentsRequested;
+            merchandiseToolButton.clicked +=
+                HandleMerchandiseToolRequested;
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
             foundationDefaultButton.clicked +=
@@ -148,6 +155,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public event Action<ConstructionToolbarSection> SectionRequested;
         public event Action DepartmentsRequested;
+        public event Action MerchandiseToolRequested;
         public event Action DemolitionPickerRequested;
         public event Action<ConstructionToolbarDemolitionTarget>
             DemolitionTargetRequested;
@@ -184,6 +192,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetUndoEnabled(bool isEnabled)
         {
             undoButton.SetEnabled(isEnabled);
+        }
+
+        public void SetMerchandiseToolActive(bool isActive)
+        {
+            SetSelected(merchandiseToolButton, isActive);
         }
 
         public void SetDemolitionPickerVisible(bool isVisible)
@@ -283,6 +296,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             doorsButton.clicked -= HandleDoorsRequested;
             fixturesButton.clicked -= HandleFixturesRequested;
             departmentsButton.clicked -= HandleDepartmentsRequested;
+            merchandiseToolButton.clicked -=
+                HandleMerchandiseToolRequested;
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
             foundationDefaultButton.clicked -=
@@ -343,6 +358,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleDepartmentsRequested()
         {
             DepartmentsRequested?.Invoke();
+        }
+
+        private void HandleMerchandiseToolRequested()
+        {
+            MerchandiseToolRequested?.Invoke();
         }
 
         private void HandleDemolishFoundationsRequested()

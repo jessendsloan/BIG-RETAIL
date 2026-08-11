@@ -15,6 +15,7 @@ namespace BigRetail.Construction.Unity.Tools
         DemolishFoundations = 6,
         BuildDoors = 7,
         BuildFixtures = 8,
-        DemolishFixtures = 9
+        DemolishFixtures = 9,
+        MerchandiseFixtures = 10
     }
 }

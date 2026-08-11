@@ -18,6 +18,9 @@ namespace BigRetail.Map.Unity.Fixtures
     [DefaultExecutionOrder(-45)]
     public sealed class FixtureViewSystem : MonoBehaviour
     {
+        private const float UnfocusedFixtureAlphaMultiplier = 0.28f;
+        private const int MerchandisingFocusSortingOrderOffset = 1000;
+
         [SerializeField]
         private FixtureRuntimeHost runtimeHost;
 
@@ -41,9 +44,167 @@ namespace BigRetail.Map.Unity.Fixtures
             views = new Dictionary<FixtureInstanceId, FixtureView>();
 
         private FixtureState subscribedState;
+        private bool hasMerchandisingFocus;
+        private FixtureInstanceId merchandisingFocusFixtureId;
 
 
         public int VisibleFixtureCount => views.Count;
+
+        public bool HasMerchandisingFocus => hasMerchandisingFocus;
+
+        public FixtureInstanceId MerchandisingFocusFixtureId =>
+            merchandisingFocusFixtureId;
+
+        public event Action<FixtureInstance, SpriteRenderer>
+            FixtureViewShown;
+
+        public event Action<FixtureInstanceId> FixtureViewHidden;
+
+
+        public bool TryGetPrimaryRenderer(
+            FixtureInstanceId fixtureId,
+            out SpriteRenderer renderer)
+        {
+            if (views.TryGetValue(
+                    fixtureId,
+                    out FixtureView view)
+                && view.Renderers.Count > 0)
+            {
+                renderer = view.Renderers[0];
+                return renderer != null;
+            }
+
+            renderer = null;
+            return false;
+        }
+
+        public bool TryGetRenderers(
+            FixtureInstanceId fixtureId,
+            out IReadOnlyList<SpriteRenderer> renderers)
+        {
+            if (views.TryGetValue(
+                    fixtureId,
+                    out FixtureView view)
+                && view.Renderers.Count > 0)
+            {
+                renderers = view.Renderers;
+                return true;
+            }
+
+            renderers = null;
+            return false;
+        }
+
+        public bool TryGetFixtureAtWorldPosition(
+            Vector2 worldPosition,
+            out FixtureInstance fixture)
+        {
+            FixtureView bestView = null;
+            int bestSortingLayerValue = int.MinValue;
+            int bestSortingOrder = int.MinValue;
+
+            foreach (FixtureView view in views.Values)
+            {
+                for (int index = 0;
+                     index < view.Renderers.Count;
+                     index++)
+                {
+                    SpriteRenderer renderer = view.Renderers[index];
+
+                    if (renderer == null
+                        || renderer.sprite == null
+                        || !renderer.bounds.Contains(worldPosition))
+                    {
+                        continue;
+                    }
+
+                    int sortingLayerValue =
+                        SortingLayer.GetLayerValueFromID(
+                            renderer.sortingLayerID);
+
+                    if (bestView != null
+                        && sortingLayerValue < bestSortingLayerValue)
+                    {
+                        continue;
+                    }
+
+                    if (bestView != null
+                        && sortingLayerValue == bestSortingLayerValue
+                        && renderer.sortingOrder <= bestSortingOrder)
+                    {
+                        continue;
+                    }
+
+                    bestView = view;
+                    bestSortingLayerValue = sortingLayerValue;
+                    bestSortingOrder = renderer.sortingOrder;
+                }
+            }
+
+            if (bestView != null)
+            {
+                fixture = bestView.Fixture;
+                return true;
+            }
+
+            fixture = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Raises the fixture being merchandised above the surrounding scene
+        /// and softens other fixtures so shelf controls remain readable.
+        /// The logical id is retained while camera rotation rebuilds views.
+        /// </summary>
+        public void SetMerchandisingFocus(FixtureInstanceId fixtureId)
+        {
+            if (hasMerchandisingFocus
+                && merchandisingFocusFixtureId == fixtureId)
+            {
+                return;
+            }
+
+            hasMerchandisingFocus = true;
+            merchandisingFocusFixtureId = fixtureId;
+            ApplyMerchandisingFocus();
+        }
+
+        public void ClearMerchandisingFocus()
+        {
+            if (!hasMerchandisingFocus)
+            {
+                return;
+            }
+
+            hasMerchandisingFocus = false;
+            merchandisingFocusFixtureId = default;
+            ApplyMerchandisingFocus();
+        }
+
+        public static Color ResolveMerchandisingFocusColor(
+            Color baseColor,
+            bool focusIsActive,
+            bool isFocusedFixture)
+        {
+            if (!focusIsActive || isFocusedFixture)
+            {
+                return baseColor;
+            }
+
+            baseColor.a *= UnfocusedFixtureAlphaMultiplier;
+            return baseColor;
+        }
+
+        public static int ResolveMerchandisingFocusSortingOrder(
+            int baseSortingOrder,
+            bool focusIsActive,
+            bool isFocusedFixture)
+        {
+            return baseSortingOrder
+                + (focusIsActive && isFocusedFixture
+                    ? MerchandisingFocusSortingOrderOffset
+                    : 0);
+        }
 
 
         private void Awake()
@@ -239,7 +400,21 @@ namespace BigRetail.Map.Unity.Fixtures
                 renderers.Add(renderer);
             }
 
-            views.Add(fixture.Id, new FixtureView(root, renderers));
+            views.Add(
+                fixture.Id,
+                new FixtureView(
+                    fixture,
+                    root,
+                    renderers));
+
+            ApplyMerchandisingFocusToView(views[fixture.Id]);
+
+            if (renderers.Count > 0)
+            {
+                FixtureViewShown?.Invoke(
+                    fixture,
+                    renderers[0]);
+            }
         }
 
 
@@ -299,18 +474,66 @@ namespace BigRetail.Map.Unity.Fixtures
             }
 
             views.Remove(fixtureId);
+            FixtureViewHidden?.Invoke(fixtureId);
             Destroy(view.Root);
         }
 
 
         private void ClearViews()
         {
+            List<FixtureInstanceId> fixtureIds =
+                new List<FixtureInstanceId>(views.Keys);
+
+            for (int index = 0;
+                 index < fixtureIds.Count;
+                 index++)
+            {
+                HideFixture(fixtureIds[index]);
+            }
+        }
+
+
+        private void ApplyMerchandisingFocus()
+        {
             foreach (FixtureView view in views.Values)
             {
-                Destroy(view.Root);
+                ApplyMerchandisingFocusToView(view);
             }
+        }
 
-            views.Clear();
+
+        private void ApplyMerchandisingFocusToView(FixtureView view)
+        {
+            bool isFocusedFixture =
+                hasMerchandisingFocus
+                && view.Fixture.Id == merchandisingFocusFixtureId;
+
+            for (int index = 0;
+                 index < view.Renderers.Count;
+                 index++)
+            {
+                SpriteRenderer renderer = view.Renderers[index];
+
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                Color baseColor = view.GetBaseColor(index);
+                int baseSortingOrder = view.GetBaseSortingOrder(index);
+
+                renderer.color =
+                    ResolveMerchandisingFocusColor(
+                        baseColor,
+                        hasMerchandisingFocus,
+                        isFocusedFixture);
+
+                renderer.sortingOrder =
+                    ResolveMerchandisingFocusSortingOrder(
+                        baseSortingOrder,
+                        hasMerchandisingFocus,
+                        isFocusedFixture);
+            }
         }
 
 
@@ -342,15 +565,47 @@ namespace BigRetail.Map.Unity.Fixtures
 
         private sealed class FixtureView
         {
-            public FixtureView(GameObject root, IReadOnlyList<SpriteRenderer> renderers)
+            private readonly Color[] baseColors;
+            private readonly int[] baseSortingOrders;
+
+            public FixtureView(
+                FixtureInstance fixture,
+                GameObject root,
+                IReadOnlyList<SpriteRenderer> renderers)
             {
+                Fixture = fixture;
                 Root = root;
                 Renderers = renderers;
+                baseColors = new Color[renderers.Count];
+                baseSortingOrders = new int[renderers.Count];
+
+                for (int index = 0;
+                     index < renderers.Count;
+                     index++)
+                {
+                    SpriteRenderer renderer = renderers[index];
+                    baseColors[index] =
+                        renderer != null
+                            ? renderer.color
+                            : Color.white;
+                    baseSortingOrders[index] =
+                        renderer != null
+                            ? renderer.sortingOrder
+                            : 0;
+                }
             }
+
+            public FixtureInstance Fixture { get; }
 
             public GameObject Root { get; }
 
             public IReadOnlyList<SpriteRenderer> Renderers { get; }
+
+            public Color GetBaseColor(int rendererIndex) =>
+                baseColors[rendererIndex];
+
+            public int GetBaseSortingOrder(int rendererIndex) =>
+                baseSortingOrders[rendererIndex];
         }
     }
 }

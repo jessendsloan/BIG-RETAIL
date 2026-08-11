@@ -172,6 +172,7 @@ GameObject:
   - component: {fileID: 87599333}
   - component: {fileID: 87599332}
   - component: {fileID: 87599335}
+  - component: {fileID: 87599336}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -401,6 +402,22 @@ MonoBehaviour:
   documentHost: {fileID: 87599325}
   toolCoordinator: {fileID: 1508060588}
   definitionSelectionHost: {fileID: 1508060590}
+--- !u!114 &87599336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8c9861618b448d79282d744533e463a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.FixtureMerchandisingInspectorPresenter
+  documentHost: {fileID: 87599325}
+  fixtureRuntimeHost: {fileID: 2111000006}
+  planogramRuntimeHost: {fileID: 2111000008}
+  selectionHost: {fileID: 1508060594}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -299188,6 +299205,8 @@ GameObject:
   - component: {fileID: 1508060589}
   - component: {fileID: 1508060593}
   - component: {fileID: 1508060592}
+  - component: {fileID: 1508060594}
+  - component: {fileID: 1508060595}
   m_Layer: 0
   m_Name: ConstructionToolCoordinator
   m_TagString: Untagged
@@ -299248,6 +299267,7 @@ MonoBehaviour:
   constructionActionMapName: Construction
   confirmActionName: Confirm
   cancelActionName: Cancel
+  rotateActionName: RotateFixture
   targetResolver: {fileID: 1234881117}
   previewView: {fileID: 1508060591}
   runtimeHost: {fileID: 2111000006}
@@ -299331,6 +299351,42 @@ MonoBehaviour:
   previewParent: {fileID: 0}
   demolitionColor: {r: 1, g: 0.2, b: 0.16, a: 0.82}
   sortingLayerName: Default
+--- !u!114 &1508060594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508060586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154192554246426791d0d98de892ccdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureMerchandisingSelectionHost
+  fixtureRuntimeHost: {fileID: 2111000006}
+--- !u!114 &1508060595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508060586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4340f98d0bb344d78368c81d8ae486d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Fixtures.FixtureMerchandisingInputController
+  playerInput: {fileID: 933909789}
+  targetResolver: {fileID: 1234881117}
+  uiInputGate: {fileID: 87599331}
+  toolCoordinator: {fileID: 1508060588}
+  fixtureRuntimeHost: {fileID: 2111000006}
+  selectionHost: {fileID: 1508060594}
+  overlayViewSystem: {fileID: 2111000007}
+  fixtureViewSystem: {fileID: 2111000005}
+  hoverOutlineView: {fileID: 2111000009}
+  constructionActionMapName: Construction
+  confirmActionName: Confirm
 --- !u!1 &1588797416
 GameObject:
   m_ObjectHideFlags: 0
@@ -392166,6 +392222,9 @@ GameObject:
   - component: {fileID: 2111000004}
   - component: {fileID: 2111000006}
   - component: {fileID: 2111000005}
+  - component: {fileID: 2111000008}
+  - component: {fileID: 2111000007}
+  - component: {fileID: 2111000009}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -392880,6 +392939,54 @@ MonoBehaviour:
   mapHost: {fileID: 1863031834}
   floorRuntimeHost: {fileID: 336439091}
   definitionAssets: {fileID: 11400000, guid: 9dc550b6c6693f14e8aca0d6e0fbc151, type: 2}
+--- !u!114 &2111000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2f19f2bfb6842328c609639991c61de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureMerchandisingOverlayViewSystem
+  fixtureRuntimeHost: {fileID: 2111000006}
+  planogramRuntimeHost: {fileID: 2111000008}
+  fixtureViewSystem: {fileID: 2111000005}
+  selectionHost: {fileID: 1508060594}
+  viewHost: {fileID: 2111000001}
+  frontageMarkerSprite: {fileID: 21300000, guid: 7bcb5c80b64e4697acc14c708dd0b783, type: 3}
+  sortingLayerName: Default
+--- !u!114 &2111000008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3978d949e1e14022bf03ef000cab2f11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixturePlanogramRuntimeHost
+  fixtureRuntimeHost: {fileID: 2111000006}
+  productCatalogAsset: {fileID: 11400000, guid: 595c7a97dd9f6bc4dbc8b8c1a1aaa9d6, type: 2}
+--- !u!114 &2111000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74ea46c3e4e548ec8ed952e5b8d56b1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureMerchandisingHoverOutlineView
+  fixtureViewSystem: {fileID: 2111000005}
+  outlineColor: {r: 1, g: 0.72, b: 0.16, a: 0.96}
+  outlineThickness: 0.032
 --- !u!1 &2112000000
 GameObject:
   m_ObjectHideFlags: 0
