@@ -22,6 +22,7 @@ namespace BigRetail.Map.Fixtures
         private readonly StockTransferService transfers;
         private readonly StockRemovalService removals;
         private readonly StorageLocationId backstockLocationId;
+        private readonly FixtureBackstockService backstockService;
 
         private bool isDisposed;
 
@@ -32,6 +33,39 @@ namespace BigRetail.Map.Fixtures
             ProductCatalog productCatalog,
             InventoryState inventory,
             StorageLocationId backstockLocationId)
+            : this(
+                fixtureState,
+                planogramState,
+                productCatalog,
+                inventory,
+                backstockLocationId,
+                null)
+        {
+        }
+
+        public FixtureDisplayInventoryService(
+            FixtureState fixtureState,
+            FixturePlanogramState planogramState,
+            ProductCatalog productCatalog,
+            InventoryState inventory,
+            FixtureBackstockService backstockService)
+            : this(
+                fixtureState,
+                planogramState,
+                productCatalog,
+                inventory,
+                RequireBackstockService(backstockService).LocationId,
+                backstockService)
+        {
+        }
+
+        private FixtureDisplayInventoryService(
+            FixtureState fixtureState,
+            FixturePlanogramState planogramState,
+            ProductCatalog productCatalog,
+            InventoryState inventory,
+            StorageLocationId backstockLocationId,
+            FixtureBackstockService backstockService)
         {
             this.fixtureState =
                 fixtureState
@@ -57,6 +91,7 @@ namespace BigRetail.Map.Fixtures
             }
 
             this.backstockLocationId = backstockLocationId;
+            this.backstockService = backstockService;
             transfers = new StockTransferService(inventory);
             removals = new StockRemovalService(inventory);
 
@@ -114,9 +149,7 @@ namespace BigRetail.Map.Fixtures
                             entry.Key),
                         entry.Value);
                 relevantBackstockUnitCount +=
-                    inventory.GetQuantity(
-                        backstockLocationId,
-                        entry.Key);
+                    GetAvailableBackstockQuantity(entry.Key);
             }
 
             snapshot =
@@ -266,9 +299,7 @@ namespace BigRetail.Map.Fixtures
                 }
 
                 int availableBackstock =
-                    inventory.GetQuantity(
-                        backstockLocationId,
-                        entry.Key);
+                    GetAvailableBackstockQuantity(entry.Key);
 
                 int transferQuantity =
                     Math.Min(shortfall, availableBackstock);
@@ -614,6 +645,24 @@ namespace BigRetail.Map.Fixtures
             }
 
             return result;
+        }
+
+        private int GetAvailableBackstockQuantity(
+            ProductId productId)
+        {
+            return backstockService != null
+                ? backstockService.GetAvailableQuantity(productId)
+                : inventory.GetQuantity(
+                    backstockLocationId,
+                    productId);
+        }
+
+        private static FixtureBackstockService RequireBackstockService(
+            FixtureBackstockService backstockService)
+        {
+            return backstockService
+                ?? throw new ArgumentNullException(
+                    nameof(backstockService));
         }
     }
 

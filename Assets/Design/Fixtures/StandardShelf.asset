@@ -54,3 +54,5 @@ MonoBehaviour:
   eastAccess: 0
   southAccess: 3
   westAccess: 0
+  accessClearancePolicy: 0
+  backstockCapacityUnits: 0

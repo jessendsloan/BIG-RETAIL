@@ -181,6 +181,87 @@
             </ui:VisualElement>
 
             <ui:VisualElement
+                name="fixture-storage-overview"
+                class="fixture-merchandising-inspector__storage-overview"
+                picking-mode="Position">
+
+                <ui:Label
+                    text="Shared store backstock"
+                    class="fixture-merchandising-inspector__subtitle"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="PHYSICAL STORAGE ACTIVE  -  BOXES / WORKERS NOT CONNECTED"
+                    class="fixture-merchandising-inspector__preview-badge"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="Products share one store backstock pool. This rack adds space; it does not have a planogram or product assignment."
+                    class="fixture-merchandising-inspector__storage-note"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__summary"
+                    picking-mode="Ignore">
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="This rack adds"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-rack-capacity-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="Store capacity"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-total-capacity-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Stored"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-stored-value"
+                            text="0 / 0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Free space"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-free-space-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Storage status"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-status-value"
+                            text="Unavailable"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement
                 name="fixture-merchandising-editing"
                 class="fixture-merchandising-inspector__editing"
                 picking-mode="Position">

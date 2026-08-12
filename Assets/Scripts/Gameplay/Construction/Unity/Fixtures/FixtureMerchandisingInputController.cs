@@ -238,7 +238,9 @@ namespace BigRetail.Construction.Unity.Fixtures
                     out fixture);
 
             if (foundFixture
-                && fixture.Definition.MerchandisingProfile.HasDisplayFaces)
+                && (fixture.Definition.MerchandisingProfile.HasDisplayFaces
+                    || fixture.Definition.StorageProfile
+                        .ProvidesBackstockStorage))
             {
                 return true;
             }

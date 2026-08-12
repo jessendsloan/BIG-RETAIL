@@ -29,6 +29,8 @@ namespace BigRetail.Editor.Fixtures
             FixturesFolder + "/StandardShelf.asset";
         private const string HalfShelfPath =
             FixturesFolder + "/HalfShelf.asset";
+        private const string BackstockShelfPath =
+            FixturesFolder + "/BackstockShelf.asset";
         private const string CatalogPath =
             FixturesFolder + "/FixtureDefinitionCatalog.asset";
         private const string PlaceholderSpritePath =
@@ -37,6 +39,8 @@ namespace BigRetail.Editor.Fixtures
             "Assets/Art/Fixtures/StandardShelf";
         private const string HalfShelfArtFolder =
             "Assets/Art/Fixtures/HalfShelf";
+        private const string BackstockShelfArtFolder =
+            "Assets/Art/Fixtures/BackstockShelf";
         private const string StandardShelfIconPath =
             FixtureArtFolder
             + "/Fixture_2x1_StandardShelf01_Icon.png";
@@ -101,6 +105,15 @@ namespace BigRetail.Editor.Fixtures
         private const string HalfShelfRisingRightMaskBottomPath =
             HalfShelfMasksFolder
             + "/Fixture_2x1_HalfShelf01_RisingRight_ShelfMask03_Bottom.png";
+        private const string BackstockShelfIconPath =
+            BackstockShelfArtFolder
+            + "/Fixture_2x1_BackstockShelf01_Icon.png";
+        private const string BackstockShelfRisingLeftPath =
+            BackstockShelfArtFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft.png";
+        private const string BackstockShelfRisingRightPath =
+            BackstockShelfArtFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight.png";
         private const string MerchandiseFolder =
             "Assets/Design/Merchandise";
         private const string GrayboxCerealPath =
@@ -151,10 +164,13 @@ namespace BigRetail.Editor.Fixtures
                 GetOrCreateStandardShelf(placeholder);
             FixtureDefinitionAsset halfShelf =
                 GetOrCreateHalfShelf(placeholder);
+            FixtureDefinitionAsset backstockShelf =
+                GetOrCreateBackstockShelf(placeholder);
             FixtureDefinitionAssetCatalog catalog =
                 GetOrCreateCatalog(
                     standardShelf,
-                    halfShelf);
+                    halfShelf,
+                    backstockShelf);
 
             ProductDefinitionAsset cereal =
                 GetOrCreateProduct(
@@ -372,8 +388,8 @@ namespace BigRetail.Editor.Fixtures
                 "Installed initial shelf placement, demolition, and the "
                 + "fixture merchandising graybox. Save "
                 + "Gameplay, then enter Play Mode and choose Fixtures. The "
-                + "prepared Standard Shelf and Half Shelf directional art "
-                + "is used when present; otherwise the safe pylon or front-"
+                + "prepared Standard Shelf, Half Shelf, and Backstock Shelf "
+                + "directional art is used when present; otherwise the safe pylon or front-"
                 + "view fallback remains active. Choose the Merchandise "
                 + "button, hover a shelf, "
                 + "and click it to open its merchandising inspector.",
@@ -430,6 +446,13 @@ namespace BigRetail.Editor.Fixtures
                 AssetDatabase.CreateFolder(
                     "Assets/Art/Fixtures",
                     "HalfShelf");
+            }
+
+            if (!AssetDatabase.IsValidFolder(BackstockShelfArtFolder))
+            {
+                AssetDatabase.CreateFolder(
+                    "Assets/Art/Fixtures",
+                    "BackstockShelf");
             }
         }
 
@@ -547,6 +570,10 @@ namespace BigRetail.Editor.Fixtures
                 (int)salesFloorAccess;
             serialized.FindProperty("westAccess").intValue =
                 (int)FixtureAccessMode.None;
+            serialized.FindProperty("accessClearancePolicy").intValue =
+                (int)FixtureAccessClearancePolicy
+                    .AllAuthoredAccessPoints;
+            serialized.FindProperty("backstockCapacityUnits").intValue = 0;
             ConfigureStandardShelfMerchandisingMasks(
                 serialized,
                 risingRightShelfMasks,
@@ -734,10 +761,133 @@ namespace BigRetail.Editor.Fixtures
                 (int)salesFloorAccess;
             serialized.FindProperty("westAccess").intValue =
                 (int)FixtureAccessMode.None;
+            serialized.FindProperty("accessClearancePolicy").intValue =
+                (int)FixtureAccessClearancePolicy
+                    .AllAuthoredAccessPoints;
+            serialized.FindProperty("backstockCapacityUnits").intValue = 0;
             ConfigureHalfShelfMerchandisingMasks(
                 serialized,
                 risingRightShelfMasks,
                 risingLeftShelfMasks);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+
+        private static FixtureDefinitionAsset GetOrCreateBackstockShelf(
+            Sprite placeholder)
+        {
+            Sprite realIcon =
+                LoadPreparedSprite(BackstockShelfIconPath);
+            Sprite realRisingLeft =
+                LoadPreparedSprite(BackstockShelfRisingLeftPath);
+            Sprite realRisingRight =
+                LoadPreparedSprite(BackstockShelfRisingRightPath);
+
+            bool hasPreparedBackstockArt =
+                realRisingLeft != null
+                && realRisingRight != null;
+
+            Sprite north;
+            Sprite east;
+            Sprite south;
+            Sprite west;
+            bool hasWholeFixtureArt;
+
+            if (hasPreparedBackstockArt)
+            {
+                // The open rack is visually identical from both long sides.
+                // Reuse each rising direction for the opposite camera view.
+                north = realRisingRight;
+                east = realRisingLeft;
+                south = realRisingRight;
+                west = realRisingLeft;
+                hasWholeFixtureArt = true;
+            }
+            else
+            {
+                realIcon = realIcon
+                    ?? LoadPreparedSprite(HalfShelfIconPath);
+                north =
+                    LoadPreparedSprite(HalfShelfRisingRightPath)
+                    ?? placeholder;
+                east =
+                    LoadPreparedSprite(HalfShelfBackRisingLeftPath)
+                    ?? placeholder;
+                south =
+                    LoadPreparedSprite(HalfShelfBackRisingRightPath)
+                    ?? north;
+                west =
+                    LoadPreparedSprite(HalfShelfRisingLeftPath)
+                    ?? placeholder;
+                hasWholeFixtureArt =
+                    north != placeholder
+                    && east != placeholder
+                    && south != placeholder
+                    && west != placeholder;
+            }
+
+            Sprite catalogIcon =
+                realIcon != null
+                    ? realIcon
+                    : north != null
+                        ? north
+                        : placeholder;
+
+            FixtureDefinitionAsset definition =
+                AssetDatabase.LoadAssetAtPath<FixtureDefinitionAsset>(
+                    BackstockShelfPath);
+
+            if (definition == null)
+            {
+                definition =
+                    ScriptableObject.CreateInstance<FixtureDefinitionAsset>();
+                AssetDatabase.CreateAsset(
+                    definition,
+                    BackstockShelfPath);
+            }
+
+            SerializedObject serialized = new SerializedObject(definition);
+            serialized.FindProperty("definitionId").stringValue =
+                "BACKSTOCK_SHELF";
+            serialized.FindProperty("displayName").stringValue =
+                "Backstock Shelf";
+            serialized.FindProperty("widthInCells").intValue = 2;
+            serialized.FindProperty("depthInCells").intValue = 1;
+            serialized.FindProperty("catalogIcon").objectReferenceValue =
+                catalogIcon;
+            serialized.FindProperty("northSprite").objectReferenceValue =
+                north;
+            serialized.FindProperty("eastSprite").objectReferenceValue =
+                east;
+            serialized.FindProperty("southSprite").objectReferenceValue =
+                south;
+            serialized.FindProperty("westSprite").objectReferenceValue =
+                west;
+            serialized.FindProperty("northSpriteAnchorCorner").intValue =
+                (int)FixtureSpriteAnchorCorner.ViewerNearest;
+            serialized.FindProperty("eastSpriteAnchorCorner").intValue =
+                (int)FixtureSpriteAnchorCorner.ViewerNearest;
+            serialized.FindProperty("southSpriteAnchorCorner").intValue =
+                (int)FixtureSpriteAnchorCorner.ViewerNearest;
+            serialized.FindProperty("westSpriteAnchorCorner").intValue =
+                (int)FixtureSpriteAnchorCorner.ViewerNearest;
+            serialized.FindProperty("repeatSpritePerOccupiedCell").boolValue =
+                !hasWholeFixtureArt;
+            serialized.FindProperty("merchandisingMaskSets").arraySize = 0;
+            serialized.FindProperty("northAccess").intValue =
+                (int)FixtureAccessMode.EmployeeStock;
+            serialized.FindProperty("eastAccess").intValue =
+                (int)FixtureAccessMode.None;
+            serialized.FindProperty("southAccess").intValue =
+                (int)FixtureAccessMode.EmployeeStock;
+            serialized.FindProperty("westAccess").intValue =
+                (int)FixtureAccessMode.None;
+            serialized.FindProperty("accessClearancePolicy").intValue =
+                (int)FixtureAccessClearancePolicy
+                    .AtLeastOneCompleteSide;
+            serialized.FindProperty("backstockCapacityUnits").intValue = 480;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
@@ -909,7 +1059,8 @@ namespace BigRetail.Editor.Fixtures
 
         private static FixtureDefinitionAssetCatalog GetOrCreateCatalog(
             FixtureDefinitionAsset standardShelf,
-            FixtureDefinitionAsset halfShelf)
+            FixtureDefinitionAsset halfShelf,
+            FixtureDefinitionAsset backstockShelf)
         {
             FixtureDefinitionAssetCatalog catalog =
                 AssetDatabase.LoadAssetAtPath<FixtureDefinitionAssetCatalog>(
@@ -928,6 +1079,9 @@ namespace BigRetail.Editor.Fixtures
             EnsureAdditionalDefinition(
                 serialized.FindProperty("additionalDefinitions"),
                 halfShelf);
+            EnsureAdditionalDefinition(
+                serialized.FindProperty("additionalDefinitions"),
+                backstockShelf);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
             return catalog;

@@ -25,6 +25,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label shelfLabel;
         private readonly Label widthLabel;
         private readonly VisualElement overviewControls;
+        private readonly VisualElement storageOverview;
         private readonly VisualElement editingControls;
         private readonly VisualElement frontageControls;
         private readonly VisualElement productContainer;
@@ -37,6 +38,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button widthDecreaseButton;
         private readonly Button widthIncreaseButton;
         private readonly Button clearButton;
+        private readonly Label storageRackCapacityValueLabel;
+        private readonly Label storageTotalCapacityValueLabel;
+        private readonly Label storageStoredValueLabel;
+        private readonly Label storageFreeSpaceValueLabel;
+        private readonly Label storageStatusValueLabel;
         private readonly List<ProductButtonBinding> productBindings =
             new List<ProductButtonBinding>();
 
@@ -73,6 +79,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             overviewControls = Require<VisualElement>(
                 root,
                 "fixture-merchandising-overview");
+            storageOverview = Require<VisualElement>(
+                root,
+                "fixture-storage-overview");
             editingControls = Require<VisualElement>(root, "fixture-merchandising-editing");
             frontageControls = Require<VisualElement>(root, "fixture-merchandising-frontage-controls");
             productContainer = Require<VisualElement>(root, "fixture-merchandising-products");
@@ -91,6 +100,21 @@ namespace BigRetail.Construction.Unity.UI.PC
             widthDecreaseButton = Require<Button>(root, "fixture-merchandising-width-decrease");
             widthIncreaseButton = Require<Button>(root, "fixture-merchandising-width-increase");
             clearButton = Require<Button>(root, "fixture-merchandising-clear-button");
+            storageRackCapacityValueLabel = Require<Label>(
+                root,
+                "fixture-storage-rack-capacity-value");
+            storageTotalCapacityValueLabel = Require<Label>(
+                root,
+                "fixture-storage-total-capacity-value");
+            storageStoredValueLabel = Require<Label>(
+                root,
+                "fixture-storage-stored-value");
+            storageFreeSpaceValueLabel = Require<Label>(
+                root,
+                "fixture-storage-free-space-value");
+            storageStatusValueLabel = Require<Label>(
+                root,
+                "fixture-storage-status-value");
 
             // Automation still advertises a future worker-job hookup. Manual
             // restocking is connected to physical display inventory.
@@ -138,6 +162,54 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetFixtureTitle(string fixtureName)
         {
             titleLabel.text = fixtureName ?? "Fixture";
+        }
+
+        public void SetStorageMode(bool isStorageFixture)
+        {
+            storageOverview.style.display =
+                isStorageFixture
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+
+            if (!isStorageFixture)
+            {
+                return;
+            }
+
+            overviewControls.style.display = DisplayStyle.None;
+            editingControls.style.display = DisplayStyle.None;
+            frontageControls.style.display = DisplayStyle.None;
+            statusLabel.style.display = DisplayStyle.None;
+        }
+
+        public void SetStorageSummary(
+            int rackCapacityUnitCount,
+            int totalCapacityUnitCount,
+            int storedUnitCount,
+            int freeSpaceUnitCount,
+            string status,
+            bool isWarning)
+        {
+            storageRackCapacityValueLabel.text =
+                $"{rackCapacityUnitCount} units";
+
+            storageTotalCapacityValueLabel.text =
+                $"{totalCapacityUnitCount} units";
+
+            storageStoredValueLabel.text =
+                $"{storedUnitCount} / {totalCapacityUnitCount} units";
+
+            storageFreeSpaceValueLabel.text =
+                $"{freeSpaceUnitCount} units";
+
+            storageStatusValueLabel.text =
+                string.IsNullOrWhiteSpace(status)
+                    ? "Unavailable"
+                    : status;
+
+            storageStatusValueLabel.EnableInClassList(
+                "fixture-merchandising-inspector__storage-status--warning",
+                isWarning);
         }
 
         public void SetPlanogramSummary(

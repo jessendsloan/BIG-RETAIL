@@ -31,6 +31,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private FixtureMerchandisingInspectorView boundView;
         private FixturePlanogramState subscribedPlanogramState;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
+        private FixtureBackstockService subscribedBackstock;
         private bool productsAreBound;
 
 
@@ -62,6 +63,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             AttachToPlanogramState();
             AttachToDisplayInventory();
+            AttachToBackstock();
 
             if (documentHost.HasFixtureMerchandisingInspectorView)
             {
@@ -94,6 +96,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             DetachFromPlanogramState();
             DetachFromDisplayInventory();
+            DetachFromBackstock();
             UnbindView();
         }
 
@@ -114,6 +117,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             AttachToPlanogramState();
             AttachToDisplayInventory();
+            AttachToBackstock();
             productsAreBound = false;
             RefreshView();
         }
@@ -131,7 +135,16 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureInstanceId fixtureId)
         {
             if (selectionHost.HasSelectedFixture
-                && fixtureId == selectionHost.SelectedFixtureId)
+                && (fixtureId == selectionHost.SelectedFixtureId
+                    || IsSelectedStorageFixture()))
+            {
+                RefreshView();
+            }
+        }
+
+        private void HandleBackstockCapacityChanged()
+        {
+            if (IsSelectedStorageFixture())
             {
                 RefreshView();
             }
@@ -418,8 +431,17 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            EnsureProductsAreBound();
             boundView.SetFixtureTitle(fixture.Definition.DisplayName);
+
+            if (fixture.Definition.StorageProfile.ProvidesBackstockStorage)
+            {
+                boundView.SetStorageMode(true);
+                RefreshStorageSummary(fixture);
+                return;
+            }
+
+            boundView.SetStorageMode(false);
+            EnsureProductsAreBound();
             RefreshPlanogramSummary(fixture);
             RefreshInventorySummary(fixture);
             boundView.SetEditing(selectionHost.IsEditing);
@@ -595,6 +617,64 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SetRestockStatus(status);
         }
 
+        private void RefreshStorageSummary(FixtureInstance fixture)
+        {
+            FixtureStorageProfile storageProfile =
+                fixture.Definition.StorageProfile;
+
+            FixtureBackstockService backstock =
+                planogramRuntimeHost.Backstock;
+
+            if (backstock == null)
+            {
+                boundView.SetStorageSummary(
+                    storageProfile.BackstockCapacityUnits,
+                    0,
+                    0,
+                    0,
+                    "Storage unavailable",
+                    isWarning: true);
+                return;
+            }
+
+            int storedUnitCount = backstock.StoredUnitCount;
+            int totalCapacityUnitCount = backstock.CapacityUnitCount;
+
+            string status;
+            bool isWarning;
+
+            if (backstock.IsOverCapacity)
+            {
+                status =
+                    $"Over capacity by "
+                    + $"{storedUnitCount - totalCapacityUnitCount} units";
+                isWarning = true;
+            }
+            else if (!backstock.IsOperational)
+            {
+                status = "No physical storage";
+                isWarning = true;
+            }
+            else if (backstock.AvailableCapacityUnitCount == 0)
+            {
+                status = "Full";
+                isWarning = false;
+            }
+            else
+            {
+                status = "Operational";
+                isWarning = false;
+            }
+
+            boundView.SetStorageSummary(
+                storageProfile.BackstockCapacityUnits,
+                totalCapacityUnitCount,
+                storedUnitCount,
+                backstock.AvailableCapacityUnitCount,
+                status,
+                isWarning);
+        }
+
         private void CountAssignedFrontage(
             FixtureShelfRunKey shelfRun,
             int frontageUnitCount,
@@ -688,6 +768,49 @@ namespace BigRetail.Construction.Unity.UI.PC
             subscribedDisplayInventory.FixtureStockChanged -=
                 HandleFixtureStockChanged;
             subscribedDisplayInventory = null;
+        }
+
+        private void AttachToBackstock()
+        {
+            FixtureBackstockService nextService =
+                planogramRuntimeHost.Backstock;
+
+            if (subscribedBackstock == nextService)
+            {
+                return;
+            }
+
+            DetachFromBackstock();
+            subscribedBackstock = nextService;
+
+            if (subscribedBackstock != null)
+            {
+                subscribedBackstock.CapacityChanged +=
+                    HandleBackstockCapacityChanged;
+            }
+        }
+
+        private void DetachFromBackstock()
+        {
+            if (subscribedBackstock == null)
+            {
+                return;
+            }
+
+            subscribedBackstock.CapacityChanged -=
+                HandleBackstockCapacityChanged;
+            subscribedBackstock = null;
+        }
+
+        private bool IsSelectedStorageFixture()
+        {
+            return selectionHost.HasSelectedFixture
+                && fixtureRuntimeHost.FixtureState != null
+                && fixtureRuntimeHost.FixtureState.TryGetFixture(
+                    selectionHost.SelectedFixtureId,
+                    out FixtureInstance fixture)
+                && fixture.Definition.StorageProfile
+                    .ProvidesBackstockStorage;
         }
 
         private bool TryGetSelectedFrontage(

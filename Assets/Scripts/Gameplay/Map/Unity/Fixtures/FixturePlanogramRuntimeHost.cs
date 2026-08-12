@@ -35,6 +35,8 @@ namespace BigRetail.Map.Unity.Fixtures
 
         public InventoryState Inventory { get; private set; }
 
+        public FixtureBackstockService Backstock { get; private set; }
+
         public FixtureDisplayInventoryService DisplayInventory { get; private set; }
 
         public StorageLocationId BackstockLocationId =>
@@ -78,6 +80,9 @@ namespace BigRetail.Map.Unity.Fixtures
 
             DisplayInventory?.Dispose();
             DisplayInventory = null;
+
+            Backstock?.Dispose();
+            Backstock = null;
 
             Planograms?.Dispose();
             Planograms = null;
@@ -143,19 +148,26 @@ namespace BigRetail.Map.Unity.Fixtures
                     fixtureRuntimeHost.FixtureState,
                     Products);
 
+            Backstock =
+                new FixtureBackstockService(
+                    fixtureRuntimeHost.FixtureState,
+                    Products,
+                    Inventory,
+                    GrayboxBackstockLocationId);
+
             DisplayInventory =
                 new FixtureDisplayInventoryService(
                     fixtureRuntimeHost.FixtureState,
                     Planograms.State,
                     Products,
                     Inventory,
-                    GrayboxBackstockLocationId);
+                    Backstock);
 
             IsInitialized = true;
             Initialized?.Invoke(this);
 
             Debug.Log(
-                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s) and {GrayboxBackstockUnitsPerProduct} backstock unit(s) per product.",
+                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {GrayboxBackstockUnitsPerProduct} backstock unit(s) per product, and {Backstock.CapacityUnitCount} physical backstock capacity.",
                 this);
 
             return true;

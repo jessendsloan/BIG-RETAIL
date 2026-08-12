@@ -87,6 +87,11 @@
     flex-direction: column;
 }
 
+.fixture-merchandising-inspector__storage-overview {
+    display: none;
+    flex-direction: column;
+}
+
 .fixture-merchandising-inspector__subtitle {
     margin-bottom: 10px;
     padding-top: 8px;
@@ -114,6 +119,28 @@
     border-width: 1px;
     border-color: rgba(143, 103, 31, 0.28);
     border-radius: 5px;
+}
+
+.fixture-merchandising-inspector__storage-note {
+    min-height: 58px;
+    margin-bottom: 13px;
+    padding-top: 10px;
+    padding-right: 12px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    color: rgb(64, 70, 74);
+    font-size: 13px;
+    white-space: normal;
+    background-color: rgba(255, 255, 255, 0.62);
+    border-width: 1px;
+    border-left-width: 5px;
+    border-color: rgba(73, 103, 113, 0.24);
+    border-left-color: rgb(81, 116, 126);
+    border-radius: 7px;
+}
+
+.fixture-merchandising-inspector__storage-status--warning {
+    color: rgb(164, 42, 36);
 }
 
 .fixture-merchandising-inspector__summary {

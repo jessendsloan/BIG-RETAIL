@@ -16,6 +16,12 @@ namespace BigRetail.Map.Fixtures.Tests
         private static readonly FixtureInstanceId ShelfInstanceId =
             new FixtureInstanceId("SHELF-ONE");
 
+        private static readonly FixtureDefinitionId BackstockDefinitionId =
+            new FixtureDefinitionId("BACKSTOCK-SHELF");
+
+        private static readonly FixtureInstanceId BackstockInstanceId =
+            new FixtureInstanceId("BACKSTOCK-ONE");
+
         private static readonly ProductId CerealProductId =
             new ProductId("CEREAL");
 
@@ -253,6 +259,64 @@ namespace BigRetail.Map.Fixtures.Tests
             }
         }
 
+        [Test]
+        public void RestockFixture_PhysicalBackstockRequiresPlacedStorage()
+        {
+            TestContext context =
+                CreateContext(
+                    100,
+                    100,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 2);
+
+                Assert.That(context.Backstock.IsOperational, Is.False);
+                Assert.That(context.Backstock.StoredUnitCount, Is.EqualTo(200));
+                Assert.That(context.Backstock.CapacityUnitCount, Is.Zero);
+
+                FixtureRestockResult unavailable =
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId);
+
+                Assert.That(
+                    unavailable.Outcome,
+                    Is.EqualTo(
+                        FixtureRestockOutcome.BackstockUnavailable));
+
+                FixturePlacementResult placement =
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North);
+
+                Assert.That(
+                    placement.Succeeded,
+                    Is.True,
+                    placement.Failure.ToString());
+                Assert.That(context.Backstock.IsOperational, Is.True);
+                Assert.That(
+                    context.Backstock.CapacityUnitCount,
+                    Is.EqualTo(480));
+                Assert.That(
+                    context.Backstock.AvailableCapacityUnitCount,
+                    Is.EqualTo(280));
+
+                FixtureRestockResult restocked =
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId);
+
+                Assert.That(restocked.Succeeded, Is.True);
+                Assert.That(restocked.MovedUnitCount, Is.EqualTo(12));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
 
         private static void AssignCereal(
             TestContext context,
@@ -279,7 +343,8 @@ namespace BigRetail.Map.Fixtures.Tests
 
         private static TestContext CreateContext(
             int cerealBackstock,
-            int soupBackstock)
+            int soupBackstock,
+            bool usePhysicalBackstock = false)
         {
             HashSet<GridPosition> cells =
                 new HashSet<GridPosition>();
@@ -309,13 +374,32 @@ namespace BigRetail.Map.Fixtures.Tests
                         FixtureAccessMode.CustomerBrowse,
                         FixtureAccessMode.None));
 
+            FixtureDefinition backstockDefinition =
+                new FixtureDefinition(
+                    BackstockDefinitionId,
+                    "Backstock Shelf",
+                    2,
+                    1,
+                    new FixtureAccessProfile(
+                        FixtureAccessMode.None,
+                        FixtureAccessMode.None,
+                        FixtureAccessMode.EmployeeStock,
+                        FixtureAccessMode.None),
+                    storageProfile:
+                        new FixtureStorageProfile(480));
+
             FixtureState fixtureState = new FixtureState();
 
             FixturePlacementService placement =
                 new FixturePlacementService(
                     map,
                     new ConstructionAreaDefinition(map, cells),
-                    new FixtureDefinitionCatalog(new[] { definition }),
+                    new FixtureDefinitionCatalog(
+                        new[]
+                        {
+                            definition,
+                            backstockDefinition
+                        }),
                     fixtureState,
                     new TestSurfaceQuery(cells));
 
@@ -366,18 +450,35 @@ namespace BigRetail.Map.Fixtures.Tests
                             soupBackstock)
                     });
 
+            FixtureBackstockService backstock =
+                usePhysicalBackstock
+                    ? new FixtureBackstockService(
+                        fixtureState,
+                        products,
+                        inventory,
+                        BackstockLocationId)
+                    : null;
+
             FixtureDisplayInventoryService displayInventory =
-                new FixtureDisplayInventoryService(
-                    fixtureState,
-                    planograms.State,
-                    products,
-                    inventory,
-                    BackstockLocationId);
+                usePhysicalBackstock
+                    ? new FixtureDisplayInventoryService(
+                        fixtureState,
+                        planograms.State,
+                        products,
+                        inventory,
+                        backstock)
+                    : new FixtureDisplayInventoryService(
+                        fixtureState,
+                        planograms.State,
+                        products,
+                        inventory,
+                        BackstockLocationId);
 
             return new TestContext(
                 placement,
                 planograms,
                 inventory,
+                backstock,
                 displayInventory);
         }
 
@@ -430,11 +531,13 @@ namespace BigRetail.Map.Fixtures.Tests
                 FixturePlacementService placement,
                 FixturePlanogramService planograms,
                 InventoryState inventory,
+                FixtureBackstockService backstock,
                 FixtureDisplayInventoryService displayInventory)
             {
                 Placement = placement;
                 Planograms = planograms;
                 Inventory = inventory;
+                Backstock = backstock;
                 DisplayInventory = displayInventory;
             }
 
@@ -445,12 +548,15 @@ namespace BigRetail.Map.Fixtures.Tests
 
             public InventoryState Inventory { get; }
 
+            public FixtureBackstockService Backstock { get; }
+
             public FixtureDisplayInventoryService DisplayInventory { get; }
 
 
             public void Dispose()
             {
                 DisplayInventory.Dispose();
+                Backstock?.Dispose();
                 Planograms.Dispose();
             }
         }

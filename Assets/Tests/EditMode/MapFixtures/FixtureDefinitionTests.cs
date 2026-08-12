@@ -29,6 +29,41 @@ namespace BigRetail.Map.Fixtures.Tests
             Assert.That(definition.DepthInCells, Is.EqualTo(2));
             Assert.That(definition.OccupiedCellCount, Is.EqualTo(2));
             Assert.That(definition.AccessProfile.HasAnyAccess, Is.False);
+            Assert.That(
+                definition.StorageProfile.ProvidesBackstockStorage,
+                Is.False);
+        }
+
+
+        [Test]
+        public void Constructor_BackstockProfile_PreservesPhysicalCapacity()
+        {
+            FixtureStorageProfile storageProfile =
+                new FixtureStorageProfile(480);
+
+            FixtureDefinition definition =
+                new FixtureDefinition(
+                    new FixtureDefinitionId("backstock-shelf"),
+                    "Backstock Shelf",
+                    2,
+                    1,
+                    storageProfile: storageProfile);
+
+            Assert.That(
+                definition.StorageProfile,
+                Is.SameAs(storageProfile));
+            Assert.That(
+                definition.StorageProfile.BackstockCapacityUnits,
+                Is.EqualTo(480));
+        }
+
+
+        [Test]
+        public void StorageProfile_NegativeCapacity_IsRejected()
+        {
+            Assert.That(
+                () => new FixtureStorageProfile(-1),
+                Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
 

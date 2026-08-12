@@ -25,6 +25,8 @@ namespace BigRetail.Map.Fixtures
 
         public FixtureAccessMode West { get; }
 
+        public FixtureAccessClearancePolicy ClearancePolicy { get; }
+
         public bool HasAnyAccess =>
             North != FixtureAccessMode.None
             || East != FixtureAccessMode.None
@@ -36,17 +38,40 @@ namespace BigRetail.Map.Fixtures
             FixtureAccessMode north,
             FixtureAccessMode east,
             FixtureAccessMode south,
-            FixtureAccessMode west)
+            FixtureAccessMode west,
+            FixtureAccessClearancePolicy clearancePolicy =
+                FixtureAccessClearancePolicy.AllAuthoredAccessPoints)
         {
             ValidateMode(north, nameof(north));
             ValidateMode(east, nameof(east));
             ValidateMode(south, nameof(south));
             ValidateMode(west, nameof(west));
 
+            if (!Enum.IsDefined(
+                    typeof(FixtureAccessClearancePolicy),
+                    clearancePolicy))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(clearancePolicy),
+                    clearancePolicy,
+                    "The fixture access-clearance policy is not supported.");
+            }
+
             North = north;
             East = east;
             South = south;
             West = west;
+            ClearancePolicy = clearancePolicy;
+
+            if (clearancePolicy
+                    == FixtureAccessClearancePolicy.AtLeastOneCompleteSide
+                && !HasAnyAccess)
+            {
+                throw new ArgumentException(
+                    "A fixture requiring one complete access side must "
+                    + "author at least one access side.",
+                    nameof(clearancePolicy));
+            }
         }
 
 

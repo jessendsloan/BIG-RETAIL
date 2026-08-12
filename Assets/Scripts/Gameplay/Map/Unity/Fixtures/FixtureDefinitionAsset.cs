@@ -121,6 +121,22 @@ namespace BigRetail.Map.Unity.Fixtures
         [SerializeField]
         private FixtureAccessMode westAccess = FixtureAccessMode.None;
 
+        [Tooltip(
+            "All authored access points are normally required. Storage racks "
+            + "may instead require one complete usable side.")]
+        [SerializeField]
+        private FixtureAccessClearancePolicy accessClearancePolicy =
+            FixtureAccessClearancePolicy.AllAuthoredAccessPoints;
+
+        [Header("Backstock Storage")]
+
+        [Min(0)]
+        [Tooltip(
+            "Total shared backstock capacity contributed while this fixture "
+            + "is placed. Zero means the fixture is not backstock storage.")]
+        [SerializeField]
+        private int backstockCapacityUnits;
+
 
         public FixtureDefinitionId Id
         {
@@ -185,7 +201,11 @@ namespace BigRetail.Map.Unity.Fixtures
                     northAccess,
                     eastAccess,
                     southAccess,
-                    westAccess));
+                    westAccess,
+                    accessClearancePolicy),
+                storageProfile:
+                    new FixtureStorageProfile(
+                        backstockCapacityUnits));
         }
 
 
@@ -349,6 +369,20 @@ namespace BigRetail.Map.Unity.Fixtures
             {
                 throw new InvalidOperationException(
                     $"Fixture definition '{name}' contains an unsupported access mode.");
+            }
+
+            if (!Enum.IsDefined(
+                    typeof(FixtureAccessClearancePolicy),
+                    accessClearancePolicy))
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' contains an unsupported access-clearance policy.");
+            }
+
+            if (backstockCapacityUnits < 0)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' cannot have negative backstock capacity.");
             }
 
             ValidateMerchandisingMasks();

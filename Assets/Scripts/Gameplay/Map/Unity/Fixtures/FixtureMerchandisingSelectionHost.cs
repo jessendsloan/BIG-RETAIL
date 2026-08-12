@@ -65,7 +65,9 @@ namespace BigRetail.Map.Unity.Fixtures
                 || !fixtureRuntimeHost.FixtureState.TryGetFixture(
                     fixtureId,
                     out FixtureInstance fixture)
-                || !fixture.Definition.MerchandisingProfile.HasDisplayFaces)
+                || (!fixture.Definition.MerchandisingProfile.HasDisplayFaces
+                    && !fixture.Definition.StorageProfile
+                        .ProvidesBackstockStorage))
             {
                 return false;
             }
@@ -96,7 +98,8 @@ namespace BigRetail.Map.Unity.Fixtures
                 || fixtureRuntimeHost.FixtureState == null
                 || !fixtureRuntimeHost.FixtureState.TryGetFixture(
                     SelectedFixtureId,
-                    out _))
+                    out FixtureInstance fixture)
+                || !fixture.Definition.MerchandisingProfile.HasDisplayFaces)
             {
                 return false;
             }
