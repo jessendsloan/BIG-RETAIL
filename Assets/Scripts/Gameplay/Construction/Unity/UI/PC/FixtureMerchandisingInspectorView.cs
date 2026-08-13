@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using UnityEngine;
@@ -51,6 +52,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label storageStatusValueLabel;
         private readonly VisualElement purchasingProductContainer;
         private readonly Label purchasingPendingValueLabel;
+        private readonly Label purchasingCashValueLabel;
         private readonly Button receiveDeliveryButton;
         private readonly Label purchasingStatusLabel;
         private readonly List<ProductButtonBinding> productBindings =
@@ -142,6 +144,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             purchasingPendingValueLabel = Require<Label>(
                 root,
                 "fixture-purchasing-pending-value");
+            purchasingCashValueLabel = Require<Label>(
+                root,
+                "fixture-purchasing-cash-value");
             receiveDeliveryButton = Require<Button>(
                 root,
                 "fixture-purchasing-receive-button");
@@ -325,15 +330,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new Button
                     {
                         text = product.PendingUnitCount > 0
-                            ? $"Order {product.ProductName} +{product.CaseUnitCount} ({product.PendingUnitCount} pending)"
-                            : $"Order {product.ProductName} +{product.CaseUnitCount}",
+                            ? $"{product.ProductName} case · {FormatMoney(product.CaseCostCents)} ({product.PendingUnitCount} pending)"
+                            : $"{product.ProductName} case · {FormatMoney(product.CaseCostCents)}",
                         tooltip =
-                            $"Add one {product.CaseUnitCount}-unit case of {product.ProductName} to the pending delivery."
+                            $"Buy one {product.CaseUnitCount}-unit case of {product.ProductName} for {FormatMoney(product.CaseCostCents)}."
                     };
 
                 button.AddToClassList(
                     "fixture-merchandising-inspector__purchase-button");
                 button.style.borderLeftColor = product.Color;
+                button.SetEnabled(product.CanAfford);
 
                 ProductId productId = product.ProductId;
                 Action clickHandler =
@@ -347,9 +353,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         public void SetPurchasingSummary(
+            long cashBalanceCents,
             int pendingUnitCount,
             bool canReceive)
         {
+            purchasingCashValueLabel.text =
+                FormatMoney(cashBalanceCents);
             purchasingPendingValueLabel.text =
                 $"Pending delivery: {pendingUnitCount} units";
             receiveDeliveryButton.SetEnabled(canReceive);
@@ -651,6 +660,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             ReceiveDeliveryRequested?.Invoke();
         }
 
+        private static string FormatMoney(long amountCents)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "${0:N2}",
+                amountCents / 100m);
+        }
+
         private static T Require<T>(
             VisualElement root,
             string elementName)
@@ -727,13 +744,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             ProductId productId,
             string productName,
             int caseUnitCount,
+            long caseCostCents,
             int pendingUnitCount,
+            bool canAfford,
             UnityEngine.Color color)
         {
             ProductId = productId;
             ProductName = productName;
             CaseUnitCount = caseUnitCount;
+            CaseCostCents = caseCostCents;
             PendingUnitCount = pendingUnitCount;
+            CanAfford = canAfford;
             Color = color;
         }
 
@@ -744,7 +765,11 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public int CaseUnitCount { get; }
 
+        public long CaseCostCents { get; }
+
         public int PendingUnitCount { get; }
+
+        public bool CanAfford { get; }
 
         public UnityEngine.Color Color { get; }
     }

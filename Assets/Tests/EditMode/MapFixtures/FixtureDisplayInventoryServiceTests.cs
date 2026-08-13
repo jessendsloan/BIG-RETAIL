@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BigRetail.Economy.Domain;
 using BigRetail.Inventory.Domain;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
@@ -378,15 +379,18 @@ namespace BigRetail.Map.Fixtures.Tests
 
                 Assert.That(placement.Succeeded, Is.True);
 
+                StoreCashState cash = new StoreCashState(10000);
                 FixturePurchasingService purchasing =
                     new FixturePurchasingService(
                         context.Products,
                         context.Backstock,
+                        cash,
                         caseUnitCount: 24);
 
                 Assert.That(
                     purchasing.TryPlaceCaseOrder(CerealProductId),
                     Is.True);
+                Assert.That(cash.BalanceCents, Is.EqualTo(7500));
                 Assert.That(purchasing.PendingUnitCount, Is.EqualTo(24));
                 Assert.That(context.Backstock.StoredUnitCount, Is.Zero);
 
@@ -401,6 +405,44 @@ namespace BigRetail.Map.Fixtures.Tests
                         BackstockInstanceId),
                     Is.EqualTo(24));
                 Assert.That(context.Backstock.UnallocatedUnitCount, Is.Zero);
+                Assert.That(cash.BalanceCents, Is.EqualTo(7500));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void Purchasing_OrderCostsMoreThanAvailableCash_IsRejected()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                StoreCashState cash = new StoreCashState(2499);
+                FixturePurchasingService purchasing =
+                    new FixturePurchasingService(
+                        context.Products,
+                        context.Backstock,
+                        cash,
+                        caseUnitCount: 24);
+
+                bool succeeded =
+                    purchasing.TryPlaceCaseOrder(
+                        CerealProductId,
+                        out FixturePurchaseFailure failure);
+
+                Assert.That(succeeded, Is.False);
+                Assert.That(
+                    failure,
+                    Is.EqualTo(FixturePurchaseFailure.InsufficientFunds));
+                Assert.That(cash.BalanceCents, Is.EqualTo(2499));
+                Assert.That(purchasing.PendingUnitCount, Is.Zero);
             }
             finally
             {
@@ -423,6 +465,7 @@ namespace BigRetail.Map.Fixtures.Tests
                     new FixturePurchasingService(
                         context.Products,
                         context.Backstock,
+                        new StoreCashState(10000),
                         caseUnitCount: 24);
 
                 purchasing.TryPlaceCaseOrder(SoupProductId);
@@ -616,7 +659,8 @@ namespace BigRetail.Map.Fixtures.Tests
                 productId,
                 displayName,
                 new ProductCategoryId("GROCERY"),
-                StockUnit.Each);
+                StockUnit.Each,
+                wholesaleCaseCostCents: 2500);
         }
 
 

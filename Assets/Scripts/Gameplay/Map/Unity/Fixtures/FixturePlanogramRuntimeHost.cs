@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Economy.Domain;
 using BigRetail.Inventory.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Merchandise.Domain;
@@ -17,6 +18,7 @@ namespace BigRetail.Map.Unity.Fixtures
     {
         private const int GrayboxBackstockUnitsPerProduct = 144;
         private const int GrayboxPurchaseCaseUnitCount = 24;
+        private const long GrayboxOpeningCashCents = 250000;
 
         private static readonly StorageLocationId GrayboxBackstockLocationId =
             new StorageLocationId("GRAYBOX-BACKSTOCK");
@@ -39,6 +41,8 @@ namespace BigRetail.Map.Unity.Fixtures
         public FixtureBackstockService Backstock { get; private set; }
 
         public FixturePurchasingService Purchasing { get; private set; }
+
+        public StoreCashState Cash { get; private set; }
 
         public FixtureDisplayInventoryService DisplayInventory { get; private set; }
 
@@ -88,6 +92,7 @@ namespace BigRetail.Map.Unity.Fixtures
             Backstock = null;
 
             Purchasing = null;
+            Cash = null;
 
             Planograms?.Dispose();
             Planograms = null;
@@ -160,10 +165,14 @@ namespace BigRetail.Map.Unity.Fixtures
                     Inventory,
                     GrayboxBackstockLocationId);
 
+            Cash =
+                new StoreCashState(GrayboxOpeningCashCents);
+
             Purchasing =
                 new FixturePurchasingService(
                     Products,
                     Backstock,
+                    Cash,
                     GrayboxPurchaseCaseUnitCount);
 
             DisplayInventory =
@@ -178,7 +187,7 @@ namespace BigRetail.Map.Unity.Fixtures
             Initialized?.Invoke(this);
 
             Debug.Log(
-                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), and {Backstock.CapacityUnitCount} total rack capacity.",
+                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), {Backstock.CapacityUnitCount} total rack capacity, and {Cash.BalanceCents} cents opening cash.",
                 this);
 
             return true;

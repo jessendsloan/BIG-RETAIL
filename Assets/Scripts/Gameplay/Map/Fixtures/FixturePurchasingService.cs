@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Economy.Domain;
 using BigRetail.Inventory.Domain;
 using BigRetail.Merchandise.Domain;
 
@@ -8,12 +9,14 @@ namespace BigRetail.Map.Fixtures
     /// <summary>
     /// Owns the first playable purchasing contract: cases become pending
     /// orders, then a receiving action turns those orders into real stock.
-    /// Money, suppliers, lead times, and delivery labor remain later systems.
+    /// Orders spend store cash immediately. Suppliers, lead times, and
+    /// delivery labor remain later systems.
     /// </summary>
     public sealed class FixturePurchasingService
     {
         private readonly ProductCatalog productCatalog;
         private readonly FixtureBackstockService backstock;
+        private readonly StoreCashState cash;
         private readonly Dictionary<ProductId, int> pendingUnitCounts =
             new Dictionary<ProductId, int>();
 
@@ -43,10 +46,14 @@ namespace BigRetail.Map.Fixtures
         public bool HasPendingDelivery =>
             pendingUnitCounts.Count > 0;
 
+        public long CashBalanceCents =>
+            cash.BalanceCents;
+
 
         public FixturePurchasingService(
             ProductCatalog productCatalog,
             FixtureBackstockService backstock,
+            StoreCashState cash,
             int caseUnitCount)
         {
             this.productCatalog =
@@ -56,6 +63,10 @@ namespace BigRetail.Map.Fixtures
             this.backstock =
                 backstock
                 ?? throw new ArgumentNullException(nameof(backstock));
+
+            this.cash =
+                cash
+                ?? throw new ArgumentNullException(nameof(cash));
 
             if (caseUnitCount <= 0)
             {
@@ -83,8 +94,26 @@ namespace BigRetail.Map.Fixtures
 
         public bool TryPlaceCaseOrder(ProductId productId)
         {
-            if (!productCatalog.Contains(productId))
+            return TryPlaceCaseOrder(
+                productId,
+                out FixturePurchaseFailure _);
+        }
+
+        public bool TryPlaceCaseOrder(
+            ProductId productId,
+            out FixturePurchaseFailure failure)
+        {
+            if (!productCatalog.TryGet(
+                    productId,
+                    out ProductDefinition product))
             {
+                failure = FixturePurchaseFailure.UnknownProduct;
+                return false;
+            }
+
+            if (product.WholesaleCaseCostCents <= 0)
+            {
+                failure = FixturePurchaseFailure.InvalidCaseCost;
                 return false;
             }
 
@@ -92,11 +121,19 @@ namespace BigRetail.Map.Fixtures
 
             if (currentUnitCount > int.MaxValue - CaseUnitCount)
             {
+                failure = FixturePurchaseFailure.PendingCapacityExceeded;
+                return false;
+            }
+
+            if (!cash.TrySpend(product.WholesaleCaseCostCents))
+            {
+                failure = FixturePurchaseFailure.InsufficientFunds;
                 return false;
             }
 
             pendingUnitCounts[productId] =
                 currentUnitCount + CaseUnitCount;
+            failure = FixturePurchaseFailure.None;
             OrdersChanged?.Invoke();
             return true;
         }
@@ -145,6 +182,16 @@ namespace BigRetail.Map.Fixtures
                 receivedUnitCount,
                 failedUnitCount);
         }
+    }
+
+
+    public enum FixturePurchaseFailure
+    {
+        None = 0,
+        UnknownProduct = 1,
+        InvalidCaseCost = 2,
+        InsufficientFunds = 3,
+        PendingCapacityExceeded = 4
     }
 
 

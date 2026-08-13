@@ -2,6 +2,7 @@
     "name": "BigRetail.Map.Unity",
     "rootNamespace": "",
     "references": [
+        "BigRetail.Economy.Domain",
         "BigRetail.Inventory.Domain",
         "GUID:2adc117b32cbf824880b2318c05f811f",
         "GUID:3e0085d755156984c9206a564893fbf3",

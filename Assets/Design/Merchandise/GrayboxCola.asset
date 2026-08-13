@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Cola
   categoryId: GROCERY
   stockUnit: 0
+  wholesaleCaseCostCents: 3000

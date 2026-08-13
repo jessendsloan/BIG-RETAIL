@@ -30,6 +30,10 @@ namespace BigRetail.Merchandise.Unity
         private StockUnit stockUnit =
             StockUnit.Each;
 
+        [SerializeField]
+        [Min(0)]
+        private long wholesaleCaseCostCents;
+
 
         public bool TryCreateDefinition(
             out ProductDefinition definition,
@@ -42,7 +46,8 @@ namespace BigRetail.Merchandise.Unity
                         new ProductId(productId),
                         displayName,
                         new ProductCategoryId(categoryId),
-                        stockUnit);
+                        stockUnit,
+                        wholesaleCaseCostCents);
 
                 error = string.Empty;
                 return true;
@@ -71,6 +76,9 @@ namespace BigRetail.Merchandise.Unity
                 displayName == null
                     ? string.Empty
                     : displayName.Trim();
+
+            wholesaleCaseCostCents =
+                Math.Max(0, wholesaleCaseCostCents);
         }
 
 

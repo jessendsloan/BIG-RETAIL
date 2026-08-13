@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
@@ -395,17 +396,24 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            if (!purchasing.TryPlaceCaseOrder(productId))
+            if (!purchasing.TryPlaceCaseOrder(
+                    productId,
+                    out FixturePurchaseFailure failure))
             {
-                purchasingStatus = "That case could not be ordered.";
+                purchasingStatus =
+                    DescribePurchaseFailure(productId, failure);
                 boundView?.SetPurchasingStatus(purchasingStatus);
                 return;
             }
 
+            ProductDefinition product =
+                planogramRuntimeHost.Products.GetRequired(productId);
+
             purchasingStatus =
                 $"Added one {purchasing.CaseUnitCount}-unit "
                 + $"{ResolveProductName(productId)} case. "
-                + $"{purchasing.PendingUnitCount} units pending.";
+                + $"Spent {FormatMoney(product.WholesaleCaseCostCents)}; "
+                + $"{FormatMoney(purchasing.CashBalanceCents)} remains.";
 
             boundView?.SetPurchasingStatus(purchasingStatus);
         }
@@ -729,7 +737,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     isWarning: true);
                 boundView.SetStorageContents(null);
                 boundView.SetPurchasingProducts(null);
-                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingSummary(
+                    cashBalanceCents: 0,
+                    pendingUnitCount: 0,
+                    canReceive: false);
                 boundView.SetPurchasingStatus("Purchasing unavailable.");
                 return;
             }
@@ -815,7 +826,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (purchasing == null || products == null)
             {
                 boundView.SetPurchasingProducts(null);
-                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingSummary(
+                    cashBalanceCents: 0,
+                    pendingUnitCount: 0,
+                    canReceive: false);
                 boundView.SetPurchasingStatus("Purchasing unavailable.");
                 return;
             }
@@ -830,13 +844,18 @@ namespace BigRetail.Construction.Unity.UI.PC
                         product.Id,
                         product.DisplayName,
                         purchasing.CaseUnitCount,
+                        product.WholesaleCaseCostCents,
                         purchasing.GetPendingUnitCount(product.Id),
+                            product.WholesaleCaseCostCents > 0
+                                && purchasing.CashBalanceCents
+                                    >= product.WholesaleCaseCostCents,
                         FixtureMerchandisingGrayboxPalette
                             .ResolveProductColor(product.Id)));
             }
 
             boundView.SetPurchasingProducts(rows);
             boundView.SetPurchasingSummary(
+                purchasing.CashBalanceCents,
                 purchasing.PendingUnitCount,
                 purchasing.HasPendingDelivery);
             boundView.SetPurchasingStatus(purchasingStatus);
@@ -853,6 +872,47 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             return productId.Value;
+        }
+
+        private string DescribePurchaseFailure(
+            ProductId productId,
+            FixturePurchaseFailure failure)
+        {
+            switch (failure)
+            {
+                case FixturePurchaseFailure.InsufficientFunds:
+                    if (planogramRuntimeHost.Products != null
+                        && planogramRuntimeHost.Products.TryGet(
+                            productId,
+                            out ProductDefinition product))
+                    {
+                        return
+                            $"Not enough cash for a {product.DisplayName} case "
+                            + $"({FormatMoney(product.WholesaleCaseCostCents)}).";
+                    }
+
+                    return "There is not enough cash for that case.";
+
+                case FixturePurchaseFailure.InvalidCaseCost:
+                    return "That product does not have a valid case price.";
+
+                case FixturePurchaseFailure.PendingCapacityExceeded:
+                    return "The pending order is already at its supported limit.";
+
+                case FixturePurchaseFailure.UnknownProduct:
+                    return "That product is no longer in the store catalog.";
+
+                default:
+                    return "That case could not be ordered.";
+            }
+        }
+
+        private static string FormatMoney(long amountCents)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "${0:N2}",
+                amountCents / 100m);
         }
 
         private void CountAssignedFrontage(

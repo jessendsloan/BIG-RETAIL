@@ -255,6 +255,18 @@
     border-radius: 6px;
 }
 
+.fixture-merchandising-inspector__purchasing-summary--cash {
+    margin-bottom: 9px;
+    background-color: rgba(82, 113, 83, 0.11);
+    border-left-width: 5px;
+    border-left-color: rgb(73, 113, 75);
+}
+
+.fixture-merchandising-inspector__summary-value--cash {
+    color: rgb(49, 91, 53);
+    font-size: 15px;
+}
+
 .fixture-merchandising-inspector__receive-button {
     height: 44px;
     color: rgb(249, 247, 241);

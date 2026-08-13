@@ -16,7 +16,8 @@ namespace BigRetail.Merchandise.Domain.Tests
                     new ProductId("ROMA-TOMATO"),
                     "Roma Tomato",
                     new ProductCategoryId("produce"),
-                    StockUnit.Each);
+                    StockUnit.Each,
+                    wholesaleCaseCostCents: 4200);
 
             Assert.That(
                 definition.Id,
@@ -35,6 +36,10 @@ namespace BigRetail.Merchandise.Domain.Tests
             Assert.That(
                 definition.StockUnit,
                 Is.EqualTo(StockUnit.Each));
+
+            Assert.That(
+                definition.WholesaleCaseCostCents,
+                Is.EqualTo(4200));
         }
 
         [Test]

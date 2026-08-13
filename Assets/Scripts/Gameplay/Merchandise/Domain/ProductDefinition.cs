@@ -14,6 +14,7 @@ namespace BigRetail.Merchandise.Domain
         public string DisplayName { get; }
         public ProductCategoryId CategoryId { get; }
         public StockUnit StockUnit { get; }
+        public long WholesaleCaseCostCents { get; }
 
 
         public ProductDefinition(
@@ -21,6 +22,21 @@ namespace BigRetail.Merchandise.Domain
             string displayName,
             ProductCategoryId categoryId,
             StockUnit stockUnit)
+            : this(
+                id,
+                displayName,
+                categoryId,
+                stockUnit,
+                wholesaleCaseCostCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents)
         {
             if (!id.IsValid)
             {
@@ -53,10 +69,19 @@ namespace BigRetail.Merchandise.Domain
                     "The stock unit is not supported.");
             }
 
+            if (wholesaleCaseCostCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(wholesaleCaseCostCents),
+                    wholesaleCaseCostCents,
+                    "A wholesale case cost cannot be negative.");
+            }
+
             Id = id;
             DisplayName = displayName.Trim();
             CategoryId = categoryId;
             StockUnit = stockUnit;
+            WholesaleCaseCostCents = wholesaleCaseCostCents;
         }
     }
 }

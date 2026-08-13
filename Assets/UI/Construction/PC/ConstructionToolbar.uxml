@@ -297,14 +297,26 @@
                     picking-mode="Position">
 
                     <ui:Label
-                        text="Purchasing graybox"
+                        text="Case Purchasing"
                         class="fixture-merchandising-inspector__subtitle"
                         picking-mode="Ignore" />
 
                     <ui:Label
-                        text="Order a case now; receive the pending shipment when you are ready. Money, suppliers, lead times, and delivery workers come later."
+                        text="Case orders spend store cash immediately. Receive the pending shipment when you are ready; supplier timing and delivery workers come later."
                         class="fixture-merchandising-inspector__purchasing-note"
                         picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__purchasing-summary fixture-merchandising-inspector__purchasing-summary--cash"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Available cash"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-purchasing-cash-value"
+                            text="$0.00"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--cash" />
+                    </ui:VisualElement>
 
                     <ui:VisualElement
                         name="fixture-purchasing-products"
