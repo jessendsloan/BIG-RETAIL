@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9c40dc5f63b4cfda6dbf4c1a2d8f6b0, type: 3}
+  m_Name: ForestFlannelBlueDenim
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcOutfitSet
+  displayName: Forest Flannel / Blue Denim
+  primaryFabric: {r: 0.1, g: 0.32, b: 0.18, a: 1}
+  secondaryFabric: {r: 0.32, g: 0.45, b: 0.58, a: 1}
+  footwear: {r: 0.52, g: 0.34, b: 0.15, a: 1}
+  accent: {r: 0.22, g: 0.22, b: 0.24, a: 1}
+  showBadge: 0
+  supportedGenders: 1
+  partStyles:
+  - id: 1
+    colorRole: 2
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 2
+    colorRole: 1
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 3
+    colorRole: 1
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 4
+    colorRole: 3
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 5
+    colorRole: 3
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 6
+    colorRole: 4
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 7
+    colorRole: 3
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 8
+    colorRole: 2
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 12
+    colorRole: 3
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 13
+    colorRole: 3
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 14
+    colorRole: 4
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 15
+    colorRole: 2
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 16
+    colorRole: 1
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1
+  - id: 17
+    colorRole: 1
+    southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    visible: 1

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15c3764831d646c6af8dbafeed4f0f06, type: 3}
+  m_Name: NeutralNorth
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAuthoringPose
+  displayName: Neutral North
+  boneAngles:
+  - boneId: 7
+    angle: -17
+  - boneId: 8
+    angle: -1
+  - boneId: 9
+    angle: 18.7
+  - boneId: 11
+    angle: 65
+  - boneId: 12
+    angle: -25.9
+  - boneId: 13
+    angle: 9
+  - boneId: 14
+    angle: -8
+  - boneId: 15
+    angle: -7
+  - boneId: 16
+    angle: 5.7
+  - boneId: 17
+    angle: 4
+  - boneId: 18
+    angle: 10

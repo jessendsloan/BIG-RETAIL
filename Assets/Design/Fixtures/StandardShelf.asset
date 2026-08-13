@@ -21,6 +21,10 @@ MonoBehaviour:
   eastSprite: {fileID: 21300000, guid: d0498d4444538c044986d9f5b3e5b355, type: 3}
   southSprite: {fileID: 21300000, guid: 0ed4651f15e42ae41beae3f92d73769a, type: 3}
   westSprite: {fileID: 21300000, guid: d0498d4444538c044986d9f5b3e5b355, type: 3}
+  northSpriteAnchorCorner: 0
+  eastSpriteAnchorCorner: 0
+  southSpriteAnchorCorner: 0
+  westSpriteAnchorCorner: 0
   repeatSpritePerOccupiedCell: 0
   worldPositionOffset: {x: 0, y: 0, z: 0}
   northAccess: 3

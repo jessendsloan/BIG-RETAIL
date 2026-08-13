@@ -1,0 +1,31 @@
+{
+    "asset": "2aa5c6e366152c2428cb6110842c14ca",
+    "fileName": "019fb5c9-bb97-7c59-ba21-d3480feca98e.png",
+    "prompt": "A full body 2D concept illustration of a canonical retail employee for a management-sim character rig, matching the SouthEast employee's style and design. Three-quarter view facing NorthEast (facing away from the camera, showing the back of the head, hair rear, back/shoulders, and buttocks). Neutral standing bind pose. Ordinary employee wearing a muted blue short-sleeve work shirt, dark-grey trousers, and simple black shoes. Clean, readable isometric management-sim style, precise 1-pixel dark outline (#15181F), soft outline, and restrained flat shading. Sunny and warm color temperature, medium-low detail level, high silhouette clarity. No background, isolated on a solid white background.",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}
