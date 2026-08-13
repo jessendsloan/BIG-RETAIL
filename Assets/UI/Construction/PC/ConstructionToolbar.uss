@@ -89,7 +89,17 @@
 
 .fixture-merchandising-inspector__storage-overview {
     display: none;
+    flex-grow: 1;
+    flex-shrink: 1;
     flex-direction: column;
+    min-height: 0;
+}
+
+.fixture-merchandising-inspector__storage-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    padding-right: 5px;
 }
 
 .fixture-merchandising-inspector__subtitle {
@@ -141,6 +151,132 @@
 
 .fixture-merchandising-inspector__storage-status--warning {
     color: rgb(164, 42, 36);
+}
+
+.fixture-merchandising-inspector__storage-contents {
+    min-height: 48px;
+    margin-bottom: 2px;
+    padding-top: 7px;
+    padding-right: 10px;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.72);
+    border-width: 1px;
+    border-color: rgba(35, 43, 50, 0.18);
+    border-radius: 7px;
+}
+
+.fixture-merchandising-inspector__storage-content-row {
+    min-height: 28px;
+    padding-left: 9px;
+    padding-right: 9px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-left-width: 5px;
+    border-left-color: rgb(81, 116, 126);
+}
+
+.fixture-merchandising-inspector__storage-content-name {
+    color: rgb(64, 70, 74);
+    font-size: 13px;
+}
+
+.fixture-merchandising-inspector__storage-content-quantity {
+    color: rgb(51, 64, 69);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.fixture-merchandising-inspector__storage-empty {
+    min-height: 30px;
+    color: rgba(64, 70, 74, 0.68);
+    font-size: 13px;
+    -unity-text-align: middle-center;
+}
+
+.fixture-merchandising-inspector__purchasing {
+    margin-top: 12px;
+    padding-top: 10px;
+    padding-right: 11px;
+    padding-bottom: 11px;
+    padding-left: 11px;
+    flex-direction: column;
+    background-color: rgba(228, 191, 103, 0.10);
+    border-width: 1px;
+    border-color: rgba(143, 103, 31, 0.22);
+    border-radius: 9px;
+}
+
+.fixture-merchandising-inspector__purchasing-note {
+    min-height: 48px;
+    margin-bottom: 9px;
+    color: rgb(74, 72, 66);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.fixture-merchandising-inspector__purchasing-products {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-right: -6px;
+    margin-bottom: 4px;
+}
+
+.fixture-merchandising-inspector__purchase-button {
+    width: 216px;
+    height: 42px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    padding-left: 9px;
+    padding-right: 7px;
+    color: rgb(35, 43, 50);
+    font-size: 12px;
+    background-color: rgba(250, 249, 245, 0.96);
+    border-width: 1px;
+    border-left-width: 6px;
+    border-color: rgba(35, 43, 50, 0.18);
+    border-radius: 6px;
+}
+
+.fixture-merchandising-inspector__purchase-button:hover {
+    background-color: rgba(228, 191, 103, 0.26);
+}
+
+.fixture-merchandising-inspector__purchasing-summary {
+    min-height: 34px;
+    margin-bottom: 7px;
+    padding-left: 8px;
+    padding-right: 8px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.54);
+    border-radius: 6px;
+}
+
+.fixture-merchandising-inspector__receive-button {
+    height: 44px;
+    color: rgb(249, 247, 241);
+    font-size: 13px;
+    -unity-font-style: bold;
+    background-color: rgb(69, 84, 91);
+    border-width: 1px;
+    border-color: rgb(52, 64, 69);
+    border-radius: 6px;
+}
+
+.fixture-merchandising-inspector__receive-button:hover {
+    background-color: rgb(81, 98, 106);
+}
+
+.fixture-merchandising-inspector__purchasing-status {
+    min-height: 28px;
+    margin-top: 6px;
+    color: rgb(82, 86, 88);
+    font-size: 11px;
+    white-space: normal;
+    -unity-text-align: middle-center;
 }
 
 .fixture-merchandising-inspector__summary {

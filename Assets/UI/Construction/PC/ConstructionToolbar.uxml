@@ -185,18 +185,24 @@
                 class="fixture-merchandising-inspector__storage-overview"
                 picking-mode="Position">
 
+                <ui:ScrollView
+                    name="fixture-storage-scroll"
+                    class="fixture-merchandising-inspector__storage-scroll"
+                    horizontal-scroller-visibility="Hidden"
+                    vertical-scroller-visibility="Auto">
+
                 <ui:Label
-                    text="Shared store backstock"
+                    text="Physical backstock rack"
                     class="fixture-merchandising-inspector__subtitle"
                     picking-mode="Ignore" />
 
                 <ui:Label
-                    text="PHYSICAL STORAGE ACTIVE  -  BOXES / WORKERS NOT CONNECTED"
+                    text="RACK INVENTORY + RECEIVING ACTIVE  -  CASH / WORKERS NOT CONNECTED"
                     class="fixture-merchandising-inspector__preview-badge"
                     picking-mode="Ignore" />
 
                 <ui:Label
-                    text="Products share one store backstock pool. This rack adds space; it does not have a planogram or product assignment."
+                    text="Stock is assigned to this rack. Received cases are distributed automatically; excess waits in inbound / overflow."
                     class="fixture-merchandising-inspector__storage-note"
                     picking-mode="Ignore" />
 
@@ -207,11 +213,11 @@
                     <ui:VisualElement
                         class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
                         <ui:Label
-                            text="This rack adds"
+                            text="This rack"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-storage-rack-capacity-value"
-                            text="0 units"
+                            text="0 / 0 units"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
@@ -240,6 +246,17 @@
                     <ui:VisualElement
                         class="fixture-merchandising-inspector__summary-row">
                         <ui:Label
+                            text="Inbound / overflow"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-unallocated-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
                             text="Free space"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
@@ -259,6 +276,66 @@
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+
+                <ui:Label
+                    text="This rack contains"
+                    class="fixture-merchandising-inspector__subtitle"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    name="fixture-storage-contents"
+                    class="fixture-merchandising-inspector__storage-contents"
+                    picking-mode="Ignore">
+                    <ui:Label
+                        text="Empty"
+                        class="fixture-merchandising-inspector__storage-empty"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__purchasing"
+                    picking-mode="Position">
+
+                    <ui:Label
+                        text="Purchasing graybox"
+                        class="fixture-merchandising-inspector__subtitle"
+                        picking-mode="Ignore" />
+
+                    <ui:Label
+                        text="Order a case now; receive the pending shipment when you are ready. Money, suppliers, lead times, and delivery workers come later."
+                        class="fixture-merchandising-inspector__purchasing-note"
+                        picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        name="fixture-purchasing-products"
+                        class="fixture-merchandising-inspector__purchasing-products"
+                        picking-mode="Position" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__purchasing-summary"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Pending delivery"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-purchasing-pending-value"
+                            text="No cases ordered"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--pending" />
+                    </ui:VisualElement>
+
+                    <ui:Button
+                        name="fixture-purchasing-receive-button"
+                        text="Receive Pending Delivery"
+                        class="fixture-merchandising-inspector__receive-button"
+                        tooltip="Convert every pending case order into real inbound inventory." />
+
+                    <ui:Label
+                        name="fixture-purchasing-status"
+                        text="Place a case order to begin."
+                        class="fixture-merchandising-inspector__purchasing-status"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+                </ui:ScrollView>
             </ui:VisualElement>
 
             <ui:VisualElement

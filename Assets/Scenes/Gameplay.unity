@@ -392919,10 +392919,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureViewSystem
   runtimeHost: {fileID: 2111000006}
+  planogramRuntimeHost: {fileID: 2111000008}
   viewHost: {fileID: 2111000001}
   coordinateTilemap: {fileID: 463974780}
   viewParent: {fileID: 0}
   fixtureColor: {r: 1, g: 1, b: 1, a: 1}
+  frontageMarkerSprite: {fileID: 21300000, guid: 7bcb5c80b64e4697acc14c708dd0b783, type: 3}
   sortingLayerName: Default
 --- !u!114 &2111000006
 MonoBehaviour:

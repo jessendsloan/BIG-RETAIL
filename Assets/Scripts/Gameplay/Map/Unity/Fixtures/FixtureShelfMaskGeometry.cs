@@ -26,6 +26,9 @@ namespace BigRetail.Map.Unity.Fixtures
         public float MinorLength =>
             minorLength;
 
+        public float MajorAxisAngleDegrees =>
+            Mathf.Atan2(majorAxis.y, majorAxis.x) * Mathf.Rad2Deg;
+
 
         private FixtureShelfMaskGeometry(
             Vector2 majorAxis,

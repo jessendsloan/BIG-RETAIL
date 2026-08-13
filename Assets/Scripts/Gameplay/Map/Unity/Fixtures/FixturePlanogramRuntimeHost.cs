@@ -16,6 +16,7 @@ namespace BigRetail.Map.Unity.Fixtures
     public sealed class FixturePlanogramRuntimeHost : MonoBehaviour
     {
         private const int GrayboxBackstockUnitsPerProduct = 144;
+        private const int GrayboxPurchaseCaseUnitCount = 24;
 
         private static readonly StorageLocationId GrayboxBackstockLocationId =
             new StorageLocationId("GRAYBOX-BACKSTOCK");
@@ -36,6 +37,8 @@ namespace BigRetail.Map.Unity.Fixtures
         public InventoryState Inventory { get; private set; }
 
         public FixtureBackstockService Backstock { get; private set; }
+
+        public FixturePurchasingService Purchasing { get; private set; }
 
         public FixtureDisplayInventoryService DisplayInventory { get; private set; }
 
@@ -83,6 +86,8 @@ namespace BigRetail.Map.Unity.Fixtures
 
             Backstock?.Dispose();
             Backstock = null;
+
+            Purchasing = null;
 
             Planograms?.Dispose();
             Planograms = null;
@@ -155,6 +160,12 @@ namespace BigRetail.Map.Unity.Fixtures
                     Inventory,
                     GrayboxBackstockLocationId);
 
+            Purchasing =
+                new FixturePurchasingService(
+                    Products,
+                    Backstock,
+                    GrayboxPurchaseCaseUnitCount);
+
             DisplayInventory =
                 new FixtureDisplayInventoryService(
                     fixtureRuntimeHost.FixtureState,
@@ -167,7 +178,7 @@ namespace BigRetail.Map.Unity.Fixtures
             Initialized?.Invoke(this);
 
             Debug.Log(
-                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {GrayboxBackstockUnitsPerProduct} backstock unit(s) per product, and {Backstock.CapacityUnitCount} physical backstock capacity.",
+                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), and {Backstock.CapacityUnitCount} total rack capacity.",
                 this);
 
             return true;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -13,7 +14,10 @@ namespace BigRetail.Construction.Unity.UI.PC
     {
         public const string PanelName = "fixture-merchandising-inspector";
         private const string ProductSelectedClassName = "is-selected";
+        private const float PreferredStoragePanelHeight = 680f;
+        private const float StoragePanelVerticalMargin = 36f;
 
+        private readonly VisualElement root;
         private readonly VisualElement panel;
         private readonly Label titleLabel;
         private readonly Label statusLabel;
@@ -26,6 +30,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label widthLabel;
         private readonly VisualElement overviewControls;
         private readonly VisualElement storageOverview;
+        private readonly VisualElement storageContents;
         private readonly VisualElement editingControls;
         private readonly VisualElement frontageControls;
         private readonly VisualElement productContainer;
@@ -41,12 +46,21 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label storageRackCapacityValueLabel;
         private readonly Label storageTotalCapacityValueLabel;
         private readonly Label storageStoredValueLabel;
+        private readonly Label storageUnallocatedValueLabel;
         private readonly Label storageFreeSpaceValueLabel;
         private readonly Label storageStatusValueLabel;
+        private readonly VisualElement purchasingProductContainer;
+        private readonly Label purchasingPendingValueLabel;
+        private readonly Button receiveDeliveryButton;
+        private readonly Label purchasingStatusLabel;
         private readonly List<ProductButtonBinding> productBindings =
             new List<ProductButtonBinding>();
+        private readonly List<PurchaseButtonBinding> purchaseBindings =
+            new List<PurchaseButtonBinding>();
 
         private bool isDisposed;
+        private bool isStorageMode;
+        private float rootHeight;
 
 
         public FixtureMerchandisingInspectorView(VisualElement root)
@@ -56,6 +70,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 throw new ArgumentNullException(nameof(root));
             }
 
+            this.root = root;
             panel = Require<VisualElement>(root, PanelName);
             titleLabel = Require<Label>(root, "fixture-merchandising-title");
             statusLabel = Require<Label>(root, "fixture-merchandising-status");
@@ -82,6 +97,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             storageOverview = Require<VisualElement>(
                 root,
                 "fixture-storage-overview");
+            storageContents = Require<VisualElement>(
+                root,
+                "fixture-storage-contents");
             editingControls = Require<VisualElement>(root, "fixture-merchandising-editing");
             frontageControls = Require<VisualElement>(root, "fixture-merchandising-frontage-controls");
             productContainer = Require<VisualElement>(root, "fixture-merchandising-products");
@@ -109,12 +127,27 @@ namespace BigRetail.Construction.Unity.UI.PC
             storageStoredValueLabel = Require<Label>(
                 root,
                 "fixture-storage-stored-value");
+            storageUnallocatedValueLabel = Require<Label>(
+                root,
+                "fixture-storage-unallocated-value");
             storageFreeSpaceValueLabel = Require<Label>(
                 root,
                 "fixture-storage-free-space-value");
             storageStatusValueLabel = Require<Label>(
                 root,
                 "fixture-storage-status-value");
+            purchasingProductContainer = Require<VisualElement>(
+                root,
+                "fixture-purchasing-products");
+            purchasingPendingValueLabel = Require<Label>(
+                root,
+                "fixture-purchasing-pending-value");
+            receiveDeliveryButton = Require<Button>(
+                root,
+                "fixture-purchasing-receive-button");
+            purchasingStatusLabel = Require<Label>(
+                root,
+                "fixture-purchasing-status");
 
             // Automation still advertises a future worker-job hookup. Manual
             // restocking is connected to physical display inventory.
@@ -133,6 +166,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             widthDecreaseButton.clicked += HandleWidthDecreaseRequested;
             widthIncreaseButton.clicked += HandleWidthIncreaseRequested;
             clearButton.clicked += HandleClearRequested;
+            receiveDeliveryButton.clicked += HandleReceiveDeliveryRequested;
+            root.RegisterCallback<GeometryChangedEvent>(
+                HandleRootGeometryChanged);
         }
 
 
@@ -150,6 +186,10 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public event Action<ProductId> ProductRequested;
 
+        public event Action<ProductId> PurchaseCaseRequested;
+
+        public event Action ReceiveDeliveryRequested;
+
         public event Action ClearRequested;
 
 
@@ -157,6 +197,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             panel.style.display =
                 isVisible ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (isVisible)
+            {
+                RefreshPanelHeight();
+            }
         }
 
         public void SetFixtureTitle(string fixtureName)
@@ -166,10 +211,13 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public void SetStorageMode(bool isStorageFixture)
         {
+            isStorageMode = isStorageFixture;
             storageOverview.style.display =
                 isStorageFixture
                     ? DisplayStyle.Flex
                     : DisplayStyle.None;
+
+            RefreshPanelHeight();
 
             if (!isStorageFixture)
             {
@@ -184,20 +232,25 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public void SetStorageSummary(
             int rackCapacityUnitCount,
+            int rackStoredUnitCount,
             int totalCapacityUnitCount,
             int storedUnitCount,
+            int unallocatedUnitCount,
             int freeSpaceUnitCount,
             string status,
             bool isWarning)
         {
             storageRackCapacityValueLabel.text =
-                $"{rackCapacityUnitCount} units";
+                $"{rackStoredUnitCount} / {rackCapacityUnitCount} units";
 
             storageTotalCapacityValueLabel.text =
                 $"{totalCapacityUnitCount} units";
 
             storageStoredValueLabel.text =
                 $"{storedUnitCount} / {totalCapacityUnitCount} units";
+
+            storageUnallocatedValueLabel.text =
+                $"{unallocatedUnitCount} units";
 
             storageFreeSpaceValueLabel.text =
                 $"{freeSpaceUnitCount} units";
@@ -210,6 +263,104 @@ namespace BigRetail.Construction.Unity.UI.PC
             storageStatusValueLabel.EnableInClassList(
                 "fixture-merchandising-inspector__storage-status--warning",
                 isWarning);
+        }
+
+        public void SetStorageContents(
+            IEnumerable<StorageContentRow> contents)
+        {
+            storageContents.Clear();
+
+            bool hasContents = false;
+
+            if (contents != null)
+            {
+                foreach (StorageContentRow content in contents)
+                {
+                    hasContents = true;
+
+                    VisualElement row = new VisualElement();
+                    row.AddToClassList(
+                        "fixture-merchandising-inspector__storage-content-row");
+                    row.style.borderLeftColor = content.Color;
+
+                    Label name = new Label(content.ProductName);
+                    name.AddToClassList(
+                        "fixture-merchandising-inspector__storage-content-name");
+                    row.Add(name);
+
+                    Label quantity =
+                        new Label($"{content.Quantity} units");
+                    quantity.AddToClassList(
+                        "fixture-merchandising-inspector__storage-content-quantity");
+                    row.Add(quantity);
+
+                    storageContents.Add(row);
+                }
+            }
+
+            if (hasContents)
+            {
+                return;
+            }
+
+            Label empty = new Label("Empty");
+            empty.AddToClassList(
+                "fixture-merchandising-inspector__storage-empty");
+            storageContents.Add(empty);
+        }
+
+        public void SetPurchasingProducts(
+            IEnumerable<PurchaseProductRow> products)
+        {
+            ClearPurchaseButtons();
+
+            if (products == null)
+            {
+                return;
+            }
+
+            foreach (PurchaseProductRow product in products)
+            {
+                Button button =
+                    new Button
+                    {
+                        text = product.PendingUnitCount > 0
+                            ? $"Order {product.ProductName} +{product.CaseUnitCount} ({product.PendingUnitCount} pending)"
+                            : $"Order {product.ProductName} +{product.CaseUnitCount}",
+                        tooltip =
+                            $"Add one {product.CaseUnitCount}-unit case of {product.ProductName} to the pending delivery."
+                    };
+
+                button.AddToClassList(
+                    "fixture-merchandising-inspector__purchase-button");
+                button.style.borderLeftColor = product.Color;
+
+                ProductId productId = product.ProductId;
+                Action clickHandler =
+                    () => PurchaseCaseRequested?.Invoke(productId);
+
+                button.clicked += clickHandler;
+                purchasingProductContainer.Add(button);
+                purchaseBindings.Add(
+                    new PurchaseButtonBinding(button, clickHandler));
+            }
+        }
+
+        public void SetPurchasingSummary(
+            int pendingUnitCount,
+            bool canReceive)
+        {
+            purchasingPendingValueLabel.text =
+                $"Pending delivery: {pendingUnitCount} units";
+            receiveDeliveryButton.SetEnabled(canReceive);
+        }
+
+        public void SetPurchasingStatus(string status)
+        {
+            purchasingStatusLabel.text =
+                string.IsNullOrWhiteSpace(status)
+                    ? "Order cases, then receive them into rack inventory."
+                    : status;
         }
 
         public void SetPlanogramSummary(
@@ -350,8 +501,52 @@ namespace BigRetail.Construction.Unity.UI.PC
             widthDecreaseButton.clicked -= HandleWidthDecreaseRequested;
             widthIncreaseButton.clicked -= HandleWidthIncreaseRequested;
             clearButton.clicked -= HandleClearRequested;
+            receiveDeliveryButton.clicked -= HandleReceiveDeliveryRequested;
+            root.UnregisterCallback<GeometryChangedEvent>(
+                HandleRootGeometryChanged);
             ClearProductButtons();
+            ClearPurchaseButtons();
             isDisposed = true;
+        }
+
+
+        private void HandleRootGeometryChanged(
+            GeometryChangedEvent geometryChangedEvent)
+        {
+            rootHeight = geometryChangedEvent.newRect.height;
+            RefreshPanelHeight();
+        }
+
+
+        private void RefreshPanelHeight()
+        {
+            if (!isStorageMode)
+            {
+                panel.style.height = new StyleLength(StyleKeyword.Auto);
+                return;
+            }
+
+            float availableRootHeight =
+                rootHeight > 0f
+                    ? rootHeight
+                    : root.resolvedStyle.height;
+
+            if (float.IsNaN(availableRootHeight)
+                || availableRootHeight <= 0f)
+            {
+                panel.style.height = PreferredStoragePanelHeight;
+                return;
+            }
+
+            float availablePanelHeight =
+                Mathf.Max(
+                    0f,
+                    availableRootHeight - StoragePanelVerticalMargin);
+
+            panel.style.height =
+                Mathf.Min(
+                    PreferredStoragePanelHeight,
+                    availablePanelHeight);
         }
 
 
@@ -397,6 +592,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             productContainer.Clear();
         }
 
+        private void ClearPurchaseButtons()
+        {
+            for (int index = 0;
+                 index < purchaseBindings.Count;
+                 index++)
+            {
+                PurchaseButtonBinding binding = purchaseBindings[index];
+                binding.Button.clicked -= binding.ClickHandler;
+            }
+
+            purchaseBindings.Clear();
+            purchasingProductContainer.Clear();
+        }
+
         private void HandleEditRequested()
         {
             EditRequested?.Invoke();
@@ -437,6 +646,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             ClearRequested?.Invoke();
         }
 
+        private void HandleReceiveDeliveryRequested()
+        {
+            ReceiveDeliveryRequested?.Invoke();
+        }
+
         private static T Require<T>(
             VisualElement root,
             string elementName)
@@ -466,5 +680,72 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             public Action ClickHandler { get; }
         }
+
+
+        private sealed class PurchaseButtonBinding
+        {
+            public PurchaseButtonBinding(
+                Button button,
+                Action clickHandler)
+            {
+                Button = button;
+                ClickHandler = clickHandler;
+            }
+
+
+            public Button Button { get; }
+
+            public Action ClickHandler { get; }
+        }
+    }
+
+
+    public readonly struct StorageContentRow
+    {
+        public StorageContentRow(
+            string productName,
+            int quantity,
+            UnityEngine.Color color)
+        {
+            ProductName = productName;
+            Quantity = quantity;
+            Color = color;
+        }
+
+
+        public string ProductName { get; }
+
+        public int Quantity { get; }
+
+        public UnityEngine.Color Color { get; }
+    }
+
+
+    public readonly struct PurchaseProductRow
+    {
+        public PurchaseProductRow(
+            ProductId productId,
+            string productName,
+            int caseUnitCount,
+            int pendingUnitCount,
+            UnityEngine.Color color)
+        {
+            ProductId = productId;
+            ProductName = productName;
+            CaseUnitCount = caseUnitCount;
+            PendingUnitCount = pendingUnitCount;
+            Color = color;
+        }
+
+
+        public ProductId ProductId { get; }
+
+        public string ProductName { get; }
+
+        public int CaseUnitCount { get; }
+
+        public int PendingUnitCount { get; }
+
+        public UnityEngine.Color Color { get; }
     }
 }

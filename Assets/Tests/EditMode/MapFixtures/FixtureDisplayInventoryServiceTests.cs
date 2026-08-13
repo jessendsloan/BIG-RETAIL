@@ -273,7 +273,10 @@ namespace BigRetail.Map.Fixtures.Tests
                 AssignCereal(context, frontageUnitCount: 2);
 
                 Assert.That(context.Backstock.IsOperational, Is.False);
-                Assert.That(context.Backstock.StoredUnitCount, Is.EqualTo(200));
+                Assert.That(context.Backstock.StoredUnitCount, Is.Zero);
+                Assert.That(
+                    context.Backstock.UnallocatedUnitCount,
+                    Is.EqualTo(200));
                 Assert.That(context.Backstock.CapacityUnitCount, Is.Zero);
 
                 FixtureRestockResult unavailable =
@@ -303,6 +306,19 @@ namespace BigRetail.Map.Fixtures.Tests
                 Assert.That(
                     context.Backstock.AvailableCapacityUnitCount,
                     Is.EqualTo(280));
+                Assert.That(
+                    context.Backstock.UnallocatedUnitCount,
+                    Is.Zero);
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(200));
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        FixtureBackstockService.GetRackLocationId(
+                            BackstockInstanceId),
+                        CerealProductId),
+                    Is.EqualTo(100));
 
                 FixtureRestockResult restocked =
                     context.DisplayInventory.TryRestockFixture(
@@ -310,6 +326,115 @@ namespace BigRetail.Map.Fixtures.Tests
 
                 Assert.That(restocked.Succeeded, Is.True);
                 Assert.That(restocked.MovedUnitCount, Is.EqualTo(12));
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(188));
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        FixtureBackstockService.GetRackLocationId(
+                            BackstockInstanceId),
+                        CerealProductId),
+                    Is.EqualTo(88));
+
+                FixturePlacementResult removal =
+                    context.Placement.TryRemoveFixture(
+                        BackstockInstanceId);
+
+                Assert.That(removal.Succeeded, Is.True);
+                Assert.That(context.Backstock.StoredUnitCount, Is.Zero);
+                Assert.That(
+                    context.Backstock.UnallocatedUnitCount,
+                    Is.EqualTo(188));
+                Assert.That(
+                    context.Inventory.ContainsLocation(
+                        FixtureBackstockService.GetRackLocationId(
+                            BackstockInstanceId)),
+                    Is.False);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void Purchasing_OrderThenReceive_DistributesDeliveryToRack()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                FixturePlacementResult placement =
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North);
+
+                Assert.That(placement.Succeeded, Is.True);
+
+                FixturePurchasingService purchasing =
+                    new FixturePurchasingService(
+                        context.Products,
+                        context.Backstock,
+                        caseUnitCount: 24);
+
+                Assert.That(
+                    purchasing.TryPlaceCaseOrder(CerealProductId),
+                    Is.True);
+                Assert.That(purchasing.PendingUnitCount, Is.EqualTo(24));
+                Assert.That(context.Backstock.StoredUnitCount, Is.Zero);
+
+                FixtureDeliveryReceipt receipt =
+                    purchasing.ReceivePendingDelivery();
+
+                Assert.That(receipt.Succeeded, Is.True);
+                Assert.That(receipt.ReceivedUnitCount, Is.EqualTo(24));
+                Assert.That(purchasing.PendingUnitCount, Is.Zero);
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(24));
+                Assert.That(context.Backstock.UnallocatedUnitCount, Is.Zero);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void Purchasing_ReceiveWithoutRack_LeavesDeliveryInbound()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                FixturePurchasingService purchasing =
+                    new FixturePurchasingService(
+                        context.Products,
+                        context.Backstock,
+                        caseUnitCount: 24);
+
+                purchasing.TryPlaceCaseOrder(SoupProductId);
+
+                FixtureDeliveryReceipt receipt =
+                    purchasing.ReceivePendingDelivery();
+
+                Assert.That(receipt.Succeeded, Is.True);
+                Assert.That(context.Backstock.StoredUnitCount, Is.Zero);
+                Assert.That(
+                    context.Backstock.UnallocatedUnitCount,
+                    Is.EqualTo(24));
             }
             finally
             {
@@ -476,6 +601,7 @@ namespace BigRetail.Map.Fixtures.Tests
 
             return new TestContext(
                 placement,
+                products,
                 planograms,
                 inventory,
                 backstock,
@@ -529,12 +655,14 @@ namespace BigRetail.Map.Fixtures.Tests
         {
             public TestContext(
                 FixturePlacementService placement,
+                ProductCatalog products,
                 FixturePlanogramService planograms,
                 InventoryState inventory,
                 FixtureBackstockService backstock,
                 FixtureDisplayInventoryService displayInventory)
             {
                 Placement = placement;
+                Products = products;
                 Planograms = planograms;
                 Inventory = inventory;
                 Backstock = backstock;
@@ -543,6 +671,8 @@ namespace BigRetail.Map.Fixtures.Tests
 
 
             public FixturePlacementService Placement { get; }
+
+            public ProductCatalog Products { get; }
 
             public FixturePlanogramService Planograms { get; }
 

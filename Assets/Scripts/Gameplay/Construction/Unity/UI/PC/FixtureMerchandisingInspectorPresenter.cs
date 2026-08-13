@@ -8,7 +8,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 {
     /// <summary>
     /// Connects the fixture inspector to logical selection and planogram
-    /// services. UI does not mutate stock or fixture placement.
+    /// services. UI requests domain operations and never edits their state
+    /// directly.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ConstructionToolbarDocumentHost))]
@@ -32,7 +33,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         private FixturePlanogramState subscribedPlanogramState;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
         private FixtureBackstockService subscribedBackstock;
+        private FixturePurchasingService subscribedPurchasing;
         private bool productsAreBound;
+        private string purchasingStatus;
 
 
         private void Reset()
@@ -64,6 +67,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToPlanogramState();
             AttachToDisplayInventory();
             AttachToBackstock();
+            AttachToPurchasing();
 
             if (documentHost.HasFixtureMerchandisingInspectorView)
             {
@@ -97,6 +101,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             DetachFromPlanogramState();
             DetachFromDisplayInventory();
             DetachFromBackstock();
+            DetachFromPurchasing();
             UnbindView();
         }
 
@@ -109,6 +114,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void HandleSelectionChanged()
         {
+            purchasingStatus = null;
             RefreshView();
         }
 
@@ -118,6 +124,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToPlanogramState();
             AttachToDisplayInventory();
             AttachToBackstock();
+            AttachToPurchasing();
             productsAreBound = false;
             RefreshView();
         }
@@ -143,6 +150,14 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         private void HandleBackstockCapacityChanged()
+        {
+            if (IsSelectedStorageFixture())
+            {
+                RefreshView();
+            }
+        }
+
+        private void HandlePurchasingChanged()
         {
             if (IsSelectedStorageFixture())
             {
@@ -368,6 +383,75 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshView();
         }
 
+        private void HandlePurchaseCaseRequested(ProductId productId)
+        {
+            FixturePurchasingService purchasing =
+                planogramRuntimeHost.Purchasing;
+
+            if (purchasing == null)
+            {
+                purchasingStatus = "Purchasing unavailable.";
+                boundView?.SetPurchasingStatus(purchasingStatus);
+                return;
+            }
+
+            if (!purchasing.TryPlaceCaseOrder(productId))
+            {
+                purchasingStatus = "That case could not be ordered.";
+                boundView?.SetPurchasingStatus(purchasingStatus);
+                return;
+            }
+
+            purchasingStatus =
+                $"Added one {purchasing.CaseUnitCount}-unit "
+                + $"{ResolveProductName(productId)} case. "
+                + $"{purchasing.PendingUnitCount} units pending.";
+
+            boundView?.SetPurchasingStatus(purchasingStatus);
+        }
+
+        private void HandleReceiveDeliveryRequested()
+        {
+            FixturePurchasingService purchasing =
+                planogramRuntimeHost.Purchasing;
+
+            if (purchasing == null)
+            {
+                purchasingStatus = "Receiving unavailable.";
+                boundView?.SetPurchasingStatus(purchasingStatus);
+                return;
+            }
+
+            FixtureDeliveryReceipt receipt =
+                purchasing.ReceivePendingDelivery();
+
+            if (receipt.ReceivedUnitCount <= 0)
+            {
+                purchasingStatus = "There is no pending delivery to receive.";
+            }
+            else if (receipt.FailedUnitCount > 0)
+            {
+                purchasingStatus =
+                    $"Received {receipt.ReceivedUnitCount} units; "
+                    + $"{receipt.FailedUnitCount} units remain pending.";
+            }
+            else if (planogramRuntimeHost.Backstock != null
+                     && planogramRuntimeHost.Backstock.UnallocatedUnitCount > 0)
+            {
+                purchasingStatus =
+                    $"Received {receipt.ReceivedUnitCount} units. "
+                    + $"{planogramRuntimeHost.Backstock.UnallocatedUnitCount} "
+                    + "units await rack space.";
+            }
+            else
+            {
+                purchasingStatus =
+                    $"Received {receipt.ReceivedUnitCount} units into storage.";
+            }
+
+            boundView?.SetPurchasingStatus(purchasingStatus);
+        }
+
         private void BindView(FixtureMerchandisingInspectorView view)
         {
             UnbindView();
@@ -386,6 +470,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.ProductRequested += HandleProductRequested;
             boundView.WidthDeltaRequested += HandleWidthDeltaRequested;
             boundView.ClearRequested += HandleClearRequested;
+            boundView.PurchaseCaseRequested += HandlePurchaseCaseRequested;
+            boundView.ReceiveDeliveryRequested +=
+                HandleReceiveDeliveryRequested;
             productsAreBound = false;
             RefreshView();
         }
@@ -402,6 +489,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                 boundView.ProductRequested -= HandleProductRequested;
                 boundView.WidthDeltaRequested -= HandleWidthDeltaRequested;
                 boundView.ClearRequested -= HandleClearRequested;
+                boundView.PurchaseCaseRequested -=
+                    HandlePurchaseCaseRequested;
+                boundView.ReceiveDeliveryRequested -=
+                    HandleReceiveDeliveryRequested;
             }
 
             boundView = null;
@@ -632,13 +723,24 @@ namespace BigRetail.Construction.Unity.UI.PC
                     0,
                     0,
                     0,
+                    0,
+                    0,
                     "Storage unavailable",
                     isWarning: true);
+                boundView.SetStorageContents(null);
+                boundView.SetPurchasingProducts(null);
+                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingStatus("Purchasing unavailable.");
                 return;
             }
 
+            int rackCapacityUnitCount =
+                backstock.GetRackCapacityUnitCount(fixture.Id);
+            int rackStoredUnitCount =
+                backstock.GetRackStoredUnitCount(fixture.Id);
             int storedUnitCount = backstock.StoredUnitCount;
             int totalCapacityUnitCount = backstock.CapacityUnitCount;
+            int unallocatedUnitCount = backstock.UnallocatedUnitCount;
 
             string status;
             bool isWarning;
@@ -646,8 +748,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (backstock.IsOverCapacity)
             {
                 status =
-                    $"Over capacity by "
-                    + $"{storedUnitCount - totalCapacityUnitCount} units";
+                    $"{unallocatedUnitCount} units await storage";
                 isWarning = true;
             }
             else if (!backstock.IsOperational)
@@ -667,12 +768,91 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             boundView.SetStorageSummary(
-                storageProfile.BackstockCapacityUnits,
+                rackCapacityUnitCount,
+                rackStoredUnitCount,
                 totalCapacityUnitCount,
                 storedUnitCount,
+                unallocatedUnitCount,
                 backstock.AvailableCapacityUnitCount,
                 status,
                 isWarning);
+
+            List<StorageContentRow> contents =
+                new List<StorageContentRow>();
+
+            foreach (
+                FixtureBackstockProductSnapshot content
+                in backstock.EnumerateRackContents(fixture.Id))
+            {
+                string productName = content.ProductId.Value;
+
+                if (planogramRuntimeHost.Products != null
+                    && planogramRuntimeHost.Products.TryGet(
+                        content.ProductId,
+                        out ProductDefinition product))
+                {
+                    productName = product.DisplayName;
+                }
+
+                contents.Add(
+                    new StorageContentRow(
+                        productName,
+                        content.Quantity,
+                        FixtureMerchandisingGrayboxPalette
+                            .ResolveProductColor(content.ProductId)));
+            }
+
+            boundView.SetStorageContents(contents);
+            RefreshPurchasingSummary();
+        }
+
+        private void RefreshPurchasingSummary()
+        {
+            FixturePurchasingService purchasing =
+                planogramRuntimeHost.Purchasing;
+            ProductCatalog products = planogramRuntimeHost.Products;
+
+            if (purchasing == null || products == null)
+            {
+                boundView.SetPurchasingProducts(null);
+                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingStatus("Purchasing unavailable.");
+                return;
+            }
+
+            List<PurchaseProductRow> rows =
+                new List<PurchaseProductRow>();
+
+            foreach (ProductDefinition product in products.EnumerateDefinitions())
+            {
+                rows.Add(
+                    new PurchaseProductRow(
+                        product.Id,
+                        product.DisplayName,
+                        purchasing.CaseUnitCount,
+                        purchasing.GetPendingUnitCount(product.Id),
+                        FixtureMerchandisingGrayboxPalette
+                            .ResolveProductColor(product.Id)));
+            }
+
+            boundView.SetPurchasingProducts(rows);
+            boundView.SetPurchasingSummary(
+                purchasing.PendingUnitCount,
+                purchasing.HasPendingDelivery);
+            boundView.SetPurchasingStatus(purchasingStatus);
+        }
+
+        private string ResolveProductName(ProductId productId)
+        {
+            if (planogramRuntimeHost.Products != null
+                && planogramRuntimeHost.Products.TryGet(
+                    productId,
+                    out ProductDefinition product))
+            {
+                return product.DisplayName;
+            }
+
+            return productId.Value;
         }
 
         private void CountAssignedFrontage(
@@ -787,6 +967,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 subscribedBackstock.CapacityChanged +=
                     HandleBackstockCapacityChanged;
+                subscribedBackstock.ContentsChanged +=
+                    HandleBackstockCapacityChanged;
             }
         }
 
@@ -799,7 +981,41 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             subscribedBackstock.CapacityChanged -=
                 HandleBackstockCapacityChanged;
+            subscribedBackstock.ContentsChanged -=
+                HandleBackstockCapacityChanged;
             subscribedBackstock = null;
+        }
+
+        private void AttachToPurchasing()
+        {
+            FixturePurchasingService nextService =
+                planogramRuntimeHost.Purchasing;
+
+            if (subscribedPurchasing == nextService)
+            {
+                return;
+            }
+
+            DetachFromPurchasing();
+            subscribedPurchasing = nextService;
+
+            if (subscribedPurchasing != null)
+            {
+                subscribedPurchasing.OrdersChanged +=
+                    HandlePurchasingChanged;
+            }
+        }
+
+        private void DetachFromPurchasing()
+        {
+            if (subscribedPurchasing == null)
+            {
+                return;
+            }
+
+            subscribedPurchasing.OrdersChanged -=
+                HandlePurchasingChanged;
+            subscribedPurchasing = null;
         }
 
         private bool IsSelectedStorageFixture()

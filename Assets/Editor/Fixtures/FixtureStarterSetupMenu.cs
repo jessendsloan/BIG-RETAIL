@@ -114,6 +114,26 @@ namespace BigRetail.Editor.Fixtures
         private const string BackstockShelfRisingRightPath =
             BackstockShelfArtFolder
             + "/Fixture_2x1_BackstockShelf01_RisingRight.png";
+        private const string BackstockShelfMasksFolder =
+            BackstockShelfArtFolder + "/InventoryMasks";
+        private const string BackstockShelfRisingLeftMaskTopPath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_ShelfMask01_Top.png";
+        private const string BackstockShelfRisingLeftMaskMiddlePath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_ShelfMask02_Middle.png";
+        private const string BackstockShelfRisingLeftMaskBottomPath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_ShelfMask03_Bottom.png";
+        private const string BackstockShelfRisingRightMaskTopPath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_ShelfMask01_Top.png";
+        private const string BackstockShelfRisingRightMaskMiddlePath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_ShelfMask02_Middle.png";
+        private const string BackstockShelfRisingRightMaskBottomPath =
+            BackstockShelfMasksFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_ShelfMask03_Bottom.png";
         private const string MerchandiseFolder =
             "Assets/Design/Merchandise";
         private const string GrayboxCerealPath =
@@ -269,8 +289,10 @@ namespace BigRetail.Editor.Fixtures
             WireViewSystem(
                 viewSystem,
                 runtimeHost,
+                planogramRuntimeHost,
                 dependencies.ViewHost,
-                dependencies.CellTargetResolver);
+                dependencies.CellTargetResolver,
+                placeholder);
 
             WirePlanogramRuntimeHost(
                 planogramRuntimeHost,
@@ -784,6 +806,18 @@ namespace BigRetail.Editor.Fixtures
                 LoadPreparedSprite(BackstockShelfRisingLeftPath);
             Sprite realRisingRight =
                 LoadPreparedSprite(BackstockShelfRisingRightPath);
+            Sprite[] risingLeftShelfMasks =
+            {
+                LoadPreparedSprite(BackstockShelfRisingLeftMaskTopPath),
+                LoadPreparedSprite(BackstockShelfRisingLeftMaskMiddlePath),
+                LoadPreparedSprite(BackstockShelfRisingLeftMaskBottomPath)
+            };
+            Sprite[] risingRightShelfMasks =
+            {
+                LoadPreparedSprite(BackstockShelfRisingRightMaskTopPath),
+                LoadPreparedSprite(BackstockShelfRisingRightMaskMiddlePath),
+                LoadPreparedSprite(BackstockShelfRisingRightMaskBottomPath)
+            };
 
             bool hasPreparedBackstockArt =
                 realRisingLeft != null
@@ -888,9 +922,56 @@ namespace BigRetail.Editor.Fixtures
                 (int)FixtureAccessClearancePolicy
                     .AtLeastOneCompleteSide;
             serialized.FindProperty("backstockCapacityUnits").intValue = 480;
+            ConfigureBackstockShelfMasks(
+                serialized,
+                risingRightShelfMasks,
+                risingLeftShelfMasks);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
+        }
+
+
+        private static void ConfigureBackstockShelfMasks(
+            SerializedObject serializedDefinition,
+            Sprite[] risingRightShelfMasks,
+            Sprite[] risingLeftShelfMasks)
+        {
+            SerializedProperty storageMasks =
+                serializedDefinition.FindProperty("storageShelfMasks");
+
+            if (storageMasks == null)
+            {
+                Debug.LogError(
+                    "Could not find the fixture storage-shelf mask property.");
+                return;
+            }
+
+            bool hasCompleteMasks =
+                AreAllSpritesPrepared(risingRightShelfMasks)
+                && AreAllSpritesPrepared(risingLeftShelfMasks);
+
+            Sprite[] northAndSouthMasks =
+                hasCompleteMasks
+                    ? risingRightShelfMasks
+                    : System.Array.Empty<Sprite>();
+            Sprite[] eastAndWestMasks =
+                hasCompleteMasks
+                    ? risingLeftShelfMasks
+                    : System.Array.Empty<Sprite>();
+
+            SetSpriteArray(
+                storageMasks.FindPropertyRelative("northShelfMasks"),
+                northAndSouthMasks);
+            SetSpriteArray(
+                storageMasks.FindPropertyRelative("eastShelfMasks"),
+                eastAndWestMasks);
+            SetSpriteArray(
+                storageMasks.FindPropertyRelative("southShelfMasks"),
+                northAndSouthMasks);
+            SetSpriteArray(
+                storageMasks.FindPropertyRelative("westShelfMasks"),
+                eastAndWestMasks);
         }
 
 
@@ -1189,15 +1270,25 @@ namespace BigRetail.Editor.Fixtures
         private static void WireViewSystem(
             FixtureViewSystem viewSystem,
             FixtureRuntimeHost runtimeHost,
+            FixturePlanogramRuntimeHost planogramRuntimeHost,
             IsometricViewHost viewHost,
-            GridCellTargetResolver targetResolver)
+            GridCellTargetResolver targetResolver,
+            Sprite frontageMarkerSprite)
         {
             SetObjectReference(viewSystem, "runtimeHost", runtimeHost);
+            SetObjectReference(
+                viewSystem,
+                "planogramRuntimeHost",
+                planogramRuntimeHost);
             SetObjectReference(viewSystem, "viewHost", viewHost);
             SetObjectReference(
                 viewSystem,
                 "coordinateTilemap",
                 targetResolver.CoordinateTilemap);
+            SetObjectReference(
+                viewSystem,
+                "frontageMarkerSprite",
+                frontageMarkerSprite);
         }
 
 

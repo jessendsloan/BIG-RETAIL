@@ -306,20 +306,24 @@ namespace BigRetail.Map.Fixtures
 
                 if (transferQuantity > 0)
                 {
-                    StockTransferResult transfer =
-                        transfers.TryTransfer(
-                            backstockLocationId,
-                            displayLocationId,
-                            entry.Key,
-                            transferQuantity);
+                    int transferredUnitCount =
+                        backstockService != null
+                            ? backstockService.TransferToLocation(
+                                displayLocationId,
+                                entry.Key,
+                                transferQuantity)
+                            : TransferFromSharedBackstock(
+                                displayLocationId,
+                                entry.Key,
+                                transferQuantity);
 
-                    if (!transfer.Succeeded)
+                    if (transferredUnitCount != transferQuantity)
                     {
                         throw new InvalidOperationException(
-                            $"Calculated fixture restock failed: {transfer.Failure}.");
+                            "Calculated fixture restock did not move the expected stock quantity.");
                     }
 
-                    movedUnitCount += transfer.QuantityMoved;
+                    movedUnitCount += transferredUnitCount;
                 }
 
                 remainingShortfall += shortfall - transferQuantity;
@@ -549,17 +553,16 @@ namespace BigRetail.Map.Fixtures
                     continue;
                 }
 
-                StockTransferResult transfer =
-                    transfers.TryTransfer(
+                int returnedUnitCount =
+                    ReturnToBackstock(
                         displayLocationId,
-                        backstockLocationId,
                         product.Id,
                         excessQuantity);
 
-                if (!transfer.Succeeded)
+                if (returnedUnitCount != excessQuantity)
                 {
                     throw new InvalidOperationException(
-                        $"Calculated display reconciliation failed: {transfer.Failure}.");
+                        "Calculated display reconciliation did not return all excess stock.");
                 }
             }
         }
@@ -581,19 +584,68 @@ namespace BigRetail.Map.Fixtures
                     continue;
                 }
 
-                StockTransferResult transfer =
-                    transfers.TryTransfer(
+                int returnedUnitCount =
+                    ReturnToBackstock(
                         displayLocationId,
-                        backstockLocationId,
                         product.Id,
                         quantity);
 
-                if (!transfer.Succeeded)
+                if (returnedUnitCount != quantity)
                 {
                     throw new InvalidOperationException(
-                        $"Fixture stock return failed: {transfer.Failure}.");
+                        "Fixture stock return did not move all display stock.");
                 }
             }
+        }
+
+        private int TransferFromSharedBackstock(
+            StorageLocationId destinationLocationId,
+            ProductId productId,
+            int quantity)
+        {
+            StockTransferResult transfer =
+                transfers.TryTransfer(
+                    backstockLocationId,
+                    destinationLocationId,
+                    productId,
+                    quantity);
+
+            if (!transfer.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Calculated fixture restock failed: {transfer.Failure}.");
+            }
+
+            return transfer.QuantityMoved;
+        }
+
+        private int ReturnToBackstock(
+            StorageLocationId sourceLocationId,
+            ProductId productId,
+            int quantity)
+        {
+            if (backstockService != null)
+            {
+                return backstockService.StoreFromLocation(
+                    sourceLocationId,
+                    productId,
+                    quantity);
+            }
+
+            StockTransferResult transfer =
+                transfers.TryTransfer(
+                    sourceLocationId,
+                    backstockLocationId,
+                    productId,
+                    quantity);
+
+            if (!transfer.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture stock return failed: {transfer.Failure}.");
+            }
+
+            return transfer.QuantityMoved;
         }
 
         private Dictionary<ProductId, int> GetCapacityByProduct(

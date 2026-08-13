@@ -28,6 +28,23 @@ MonoBehaviour:
   repeatSpritePerOccupiedCell: 0
   worldPositionOffset: {x: 0, y: 0, z: 0}
   merchandisingMaskSets: []
+  storageShelfMasks:
+    northShelfMasks:
+    - {fileID: 21300000, guid: adff9561f0c34e00b355ded030b8a389, type: 3}
+    - {fileID: 21300000, guid: b279614f7fa747a49305f0c04d00a123, type: 3}
+    - {fileID: 21300000, guid: 1af946eaf073400092807eb01e70797d, type: 3}
+    eastShelfMasks:
+    - {fileID: 21300000, guid: 2105522167274702a98b721894ef5cb0, type: 3}
+    - {fileID: 21300000, guid: fecd13931c904cbcacf843db52964005, type: 3}
+    - {fileID: 21300000, guid: 5d34fde2e31c4690b0f9bbc7b91d11b0, type: 3}
+    southShelfMasks:
+    - {fileID: 21300000, guid: adff9561f0c34e00b355ded030b8a389, type: 3}
+    - {fileID: 21300000, guid: b279614f7fa747a49305f0c04d00a123, type: 3}
+    - {fileID: 21300000, guid: 1af946eaf073400092807eb01e70797d, type: 3}
+    westShelfMasks:
+    - {fileID: 21300000, guid: 2105522167274702a98b721894ef5cb0, type: 3}
+    - {fileID: 21300000, guid: fecd13931c904cbcacf843db52964005, type: 3}
+    - {fileID: 21300000, guid: 5d34fde2e31c4690b0f9bbc7b91d11b0, type: 3}
   northAccess: 2
   eastAccess: 0
   southAccess: 2

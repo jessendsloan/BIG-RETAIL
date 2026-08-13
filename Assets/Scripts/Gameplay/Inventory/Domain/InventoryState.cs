@@ -268,6 +268,23 @@ namespace BigRetail.Inventory.Domain
             quantities[key] = remainingQuantity;
         }
 
+        internal void ApplyAddition(
+            StorageLocationId locationId,
+            ProductId productId,
+            int quantity)
+        {
+            InventoryKey key =
+                new InventoryKey(
+                    locationId,
+                    productId);
+
+            quantities[key] =
+                GetQuantityUnchecked(
+                    locationId,
+                    productId)
+                + quantity;
+        }
+
 
         private void LoadInitialBalances(
             IEnumerable<StockBalance> initialBalances)

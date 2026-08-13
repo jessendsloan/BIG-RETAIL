@@ -99,6 +99,15 @@ namespace BigRetail.Map.Unity.Fixtures
         private FixtureMerchandisingMaskSet[] merchandisingMaskSets =
             Array.Empty<FixtureMerchandisingMaskSet>();
 
+        [Header("Directional Backstock Shelf Masks")]
+
+        [Tooltip(
+            "Optional authored shelf surfaces used to align visible "
+            + "backstock case markers. Masks are ordered top to bottom.")]
+        [SerializeField]
+        private FixtureStorageShelfMaskSet storageShelfMasks =
+            new FixtureStorageShelfMaskSet();
+
         [Header("Retail Access")]
 
         [Tooltip(
@@ -132,8 +141,8 @@ namespace BigRetail.Map.Unity.Fixtures
 
         [Min(0)]
         [Tooltip(
-            "Total shared backstock capacity contributed while this fixture "
-            + "is placed. Zero means the fixture is not backstock storage.")]
+            "Physical product capacity owned by this placed rack. Zero means "
+            + "the fixture is not backstock storage.")]
         [SerializeField]
         private int backstockCapacityUnits;
 
@@ -186,6 +195,9 @@ namespace BigRetail.Map.Unity.Fixtures
                 return false;
             }
         }
+
+        public bool HasStorageShelfMasks =>
+            storageShelfMasks?.HasAnyMasks == true;
 
 
         public FixtureDefinition CreateDomainDefinition()
@@ -319,6 +331,18 @@ namespace BigRetail.Map.Unity.Fixtures
         }
 
 
+        public IReadOnlyList<Sprite> GetStorageShelfMasks(
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation)
+        {
+            return storageShelfMasks != null
+                ? storageShelfMasks.GetShelfMasks(
+                    worldOrientation,
+                    viewOrientation)
+                : Array.Empty<Sprite>();
+        }
+
+
         public void ValidateConfiguration()
         {
             ValidateIdentifier();
@@ -386,6 +410,29 @@ namespace BigRetail.Map.Unity.Fixtures
             }
 
             ValidateMerchandisingMasks();
+            ValidateStorageShelfMasks();
+        }
+
+
+        private void ValidateStorageShelfMasks()
+        {
+            if (storageShelfMasks?.HasAnyMasks != true)
+            {
+                return;
+            }
+
+            if (backstockCapacityUnits <= 0)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' authors storage shelf masks but provides no backstock capacity.");
+            }
+
+            storageShelfMasks.ValidateConfiguration(
+                name,
+                northSprite,
+                eastSprite,
+                southSprite,
+                westSprite);
         }
 
 

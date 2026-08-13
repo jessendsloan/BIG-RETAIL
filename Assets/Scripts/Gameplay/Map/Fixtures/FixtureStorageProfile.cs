@@ -3,9 +3,8 @@ using System;
 namespace BigRetail.Map.Fixtures
 {
     /// <summary>
-    /// Immutable storage capacity contributed by one placed fixture.
-    /// Inventory remains authoritative for stock quantities; storage fixtures
-    /// make the store's shared backstock pool physically accessible.
+    /// Immutable storage capacity owned by one placed fixture. Inventory
+    /// remains authoritative for the product quantities held by that rack.
     /// </summary>
     public sealed class FixtureStorageProfile
     {
