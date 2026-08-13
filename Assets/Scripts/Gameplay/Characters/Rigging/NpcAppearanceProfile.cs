@@ -77,7 +77,8 @@ namespace BigRetail.Characters.Rigging
 
 
         public void Apply(
-            SpriteRenderer renderer)
+            SpriteRenderer renderer,
+            NpcAuthoredDirection direction)
         {
             if (renderer == null)
             {
@@ -86,8 +87,16 @@ namespace BigRetail.Characters.Rigging
 
             Transform partTransform = renderer.transform;
 
-            partTransform.localPosition = localPosition;
-            partTransform.localEulerAngles = localEulerAngles;
+            partTransform.localPosition =
+                NpcFacingUtility.ResolveAuthoredPartPosition(
+                    direction,
+                    id,
+                    localPosition);
+            partTransform.localEulerAngles =
+                NpcFacingUtility.ResolveAuthoredPartEulerAngles(
+                    direction,
+                    id,
+                    localEulerAngles);
             NpcAppearanceUtility.ApplySpriteSize(renderer, size);
         }
     }
@@ -226,9 +235,20 @@ namespace BigRetail.Characters.Rigging
         public void ApplyBonePlacements(
             NpcCutoutRig rig)
         {
+            ApplyBonePlacements(
+                rig,
+                NpcAuthoredDirection.SouthEast);
+        }
+
+
+        public void ApplyBonePlacements(
+            NpcCutoutRig rig,
+            NpcAuthoredDirection direction)
+        {
             NpcAppearanceApplicator.ApplyBonePlacements(
                 CreateSelection(),
-                rig);
+                rig,
+                direction);
         }
 
 
@@ -304,8 +324,8 @@ namespace BigRetail.Characters.Rigging
             {
                 case NpcRigPartId.Head:
                 case NpcRigPartId.Neck:
-                case NpcRigPartId.HandNear:
-                case NpcRigPartId.HandFar:
+                case NpcRigPartId.HandForeground:
+                case NpcRigPartId.HandBackground:
                     return true;
 
                 default:

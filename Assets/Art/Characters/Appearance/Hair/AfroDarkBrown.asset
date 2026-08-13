@@ -13,30 +13,32 @@ MonoBehaviour:
   m_Name: AfroDarkBrown
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcHairSet
   displayName: Afro / Dark Brown
-  hairColor: {r: 0.095, g: 0.065, b: 0.05, a: 1}
+  hairColor: {r: 0.09411765, g: 0.06666667, b: 0.050980393, a: 1}
   supportedGenders: 3
   hairRear:
     id: 0
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairFront:
     id: 11
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairRearShape:
     id: 0
-    localPosition: {x: 0, y: 0.12, z: 0}
-    localEulerAngles: {x: 0, y: 0, z: 0}
-    size: {x: 0.52, y: 0.52}
+    localPosition: {x: -0.035, y: 0.175, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 6.9}
+    size: {x: 0.501, y: 0.543}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: 0.01, y: 0.18, z: 0}
-    localEulerAngles: {x: 0, y: 0, z: 0}
-    size: {x: 0.5, y: 0.44}
+    localPosition: {x: -0.045, y: 0.284, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 8.5}
+    size: {x: 0.504, y: 0.319}
     visible: 1
   detailLayers: []

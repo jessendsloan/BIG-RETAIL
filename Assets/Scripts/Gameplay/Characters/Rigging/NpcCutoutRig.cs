@@ -33,8 +33,8 @@ namespace BigRetail.Characters.Rigging
 
     /// <summary>
     /// One authored local transform for a bone in a directional bind pose.
-    /// These are applied before the west-facing visual mirror, so one
-    /// SouthEast pose and one NorthEast pose cover all four directions.
+    /// These are applied before display mirroring, so one south/front pose
+    /// and one north/back pose cover all four directions.
     /// </summary>
     [Serializable]
     public sealed class NpcRigDirectionalBonePose
@@ -95,14 +95,14 @@ namespace BigRetail.Characters.Rigging
         private SpriteRenderer spriteRenderer;
 
         [Tooltip(
-            "Original artwork displayed for SouthEast and mirrored " +
-            "for SouthWest.")]
+            "Stored south/front artwork. It is unmirrored for SouthEast " +
+            "and mirrored for SouthWest.")]
         [SerializeField]
         private Sprite southEastSprite;
 
         [Tooltip(
-            "Original artwork displayed for NorthEast and mirrored " +
-            "for NorthWest.")]
+            "Stored north/back artwork. It is unmirrored for NorthEast " +
+            "and mirrored for NorthWest.")]
         [SerializeField]
         private Sprite northEastSprite;
 
@@ -214,7 +214,7 @@ namespace BigRetail.Characters.Rigging
         [Tooltip(
             "Presentation details that belong on the front of the " +
             "character, such as a name badge. They are hidden when " +
-            "the authored NorthEast back view is displayed.")]
+            "the north/back view is displayed.")]
         [SerializeField]
         private List<SpriteRenderer> northHiddenDetails =
             new List<SpriteRenderer>();
@@ -222,15 +222,15 @@ namespace BigRetail.Characters.Rigging
         [Header("Authored Direction Poses")]
 
         [Tooltip(
-            "Local bone values for the unmirrored SouthEast pose. " +
-            "SouthWest inherits this pose through mirroring.")]
+            "Local bone values for the stored south/front pose. " +
+            "SouthWest displays it through mirroring.")]
         [SerializeField]
         private List<NpcRigDirectionalBonePose> southEastBonePose =
             new List<NpcRigDirectionalBonePose>();
 
         [Tooltip(
-            "Local bone values for the unmirrored NorthEast pose. " +
-            "NorthWest inherits this pose through mirroring.")]
+            "Local bone values for the stored north/back pose. NorthEast " +
+            "uses it directly; NorthWest displays it through mirroring.")]
         [SerializeField]
         private List<NpcRigDirectionalBonePose> northEastBonePose =
             new List<NpcRigDirectionalBonePose>();
@@ -545,14 +545,15 @@ namespace BigRetail.Characters.Rigging
         [ContextMenu("Apply Facing")]
         private void ApplyFacing()
         {
+            NpcFacingPresentation presentation =
+                NpcFacingUtility.GetPresentation(facing);
             NpcAuthoredDirection authoredDirection =
-                NpcFacingUtility.GetAuthoredDirection(
-                    facing);
+                presentation.AuthoredDirection;
 
             NpcAppearanceSelection effectiveAppearance =
                 GetEffectiveAppearance();
 
-            ResetAppearanceBonePositions();
+            ResetAppearanceBonePositions(authoredDirection);
 
             for (int index = 0; index < parts.Count; index++)
             {
@@ -573,7 +574,8 @@ namespace BigRetail.Characters.Rigging
             ApplyAuthoredBonePose(authoredDirection);
             NpcAppearanceApplicator.ApplyBonePlacements(
                 effectiveAppearance,
-                this);
+                this,
+                authoredDirection);
 
             ApplyHairDetails(
                 effectiveAppearance?.HairSet,
@@ -597,7 +599,7 @@ namespace BigRetail.Characters.Rigging
             }
 
             bool mirrored =
-                NpcFacingUtility.IsMirrored(facing);
+                presentation.MirrorHorizontally;
 
             scale.x =
                 mirrored
@@ -661,7 +663,8 @@ namespace BigRetail.Characters.Rigging
         }
 
 
-        private void ResetAppearanceBonePositions()
+        private void ResetAppearanceBonePositions(
+            NpcAuthoredDirection authoredDirection)
         {
             IReadOnlyList<NpcRigBoneDefinition> definitions =
                 NpcRigDefinition.BoneDefinitions;
@@ -676,7 +679,11 @@ namespace BigRetail.Characters.Rigging
                     continue;
                 }
 
-                bone.localPosition = definition.LocalPosition;
+                bone.localPosition =
+                    NpcFacingUtility.ResolveAuthoredBonePosition(
+                        authoredDirection,
+                        definition.Id,
+                        definition.LocalPosition);
             }
         }
 
@@ -691,18 +698,20 @@ namespace BigRetail.Characters.Rigging
                 case NpcRigBoneId.Chest:
                 case NpcRigBoneId.Neck:
                 case NpcRigBoneId.Head:
-                case NpcRigBoneId.ShoulderNear:
-                case NpcRigBoneId.ForearmNear:
-                case NpcRigBoneId.HandNear:
-                case NpcRigBoneId.ShoulderFar:
-                case NpcRigBoneId.ForearmFar:
-                case NpcRigBoneId.HandFar:
-                case NpcRigBoneId.ThighNear:
-                case NpcRigBoneId.ShinNear:
-                case NpcRigBoneId.FootNear:
-                case NpcRigBoneId.ThighFar:
-                case NpcRigBoneId.ShinFar:
-                case NpcRigBoneId.FootFar:
+                case NpcRigBoneId.ShoulderForeground:
+                case NpcRigBoneId.UpperArmForeground:
+                case NpcRigBoneId.ForearmForeground:
+                case NpcRigBoneId.HandForeground:
+                case NpcRigBoneId.ShoulderBackground:
+                case NpcRigBoneId.UpperArmBackground:
+                case NpcRigBoneId.ForearmBackground:
+                case NpcRigBoneId.HandBackground:
+                case NpcRigBoneId.ThighForeground:
+                case NpcRigBoneId.ShinForeground:
+                case NpcRigBoneId.FootForeground:
+                case NpcRigBoneId.ThighBackground:
+                case NpcRigBoneId.ShinBackground:
+                case NpcRigBoneId.FootBackground:
                     return true;
 
                 default:

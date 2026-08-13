@@ -2,7 +2,8 @@
     "name": "BigRetail.Characters.Rigging.Tests",
     "rootNamespace": "BigRetail.Characters.Rigging.Tests",
     "references": [
-        "BigRetail.Characters.Rigging"
+        "BigRetail.Characters.Rigging",
+        "BigRetail.Characters.Editor"
     ],
     "includePlatforms": [
         "Editor"

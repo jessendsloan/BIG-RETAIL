@@ -45,27 +45,15 @@ MonoBehaviour:
     - asset: {fileID: 11400000, guid: 558ca2636d349dd4a8a623b355d929d0, type: 2}
       weight: 1
     hair:
-    - asset: {fileID: 11400000, guid: 794f791640dd0b24d939cb5eda0b4076, type: 2}
-      weight: 1
-    - asset: {fileID: 11400000, guid: 833c882c22027404a90c4346a834ab13, type: 2}
-      weight: 1
-    - asset: {fileID: 11400000, guid: 4191981ab609dfa409a1f6f1bc492280, type: 2}
-      weight: 1
-    - asset: {fileID: 11400000, guid: 606b143303eb7a64f875e690bbc31353, type: 2}
-      weight: 1
-    - asset: {fileID: 11400000, guid: 38d84e565f6e8a14fa329d8abeb3a6fb, type: 2}
-      weight: 2
     - asset: {fileID: 11400000, guid: b4bb023942f6fb44896428768eb38ecb, type: 2}
       weight: 2
-    - asset: {fileID: 11400000, guid: 7b6d1a9cf27ad2b4684e5b5c6f54fa75, type: 2}
-      weight: 2
-    - asset: {fileID: 11400000, guid: f2717bd83349c2749b3d2b7158ecebaf, type: 2}
-      weight: 2
-    - asset: {fileID: 11400000, guid: 28321012e3a7a7f499ca4fc6a698ac50, type: 2}
-      weight: 2
+    - asset: {fileID: 11400000, guid: 9b649d90b2736824c97605b8a3f7b365, type: 2}
+      weight: 1
+    - asset: {fileID: 11400000, guid: 839ea730ef195044eabc0af327731b95, type: 2}
+      weight: 1
   womenAppearance:
     bodies:
-    - asset: {fileID: 11400000, guid: b24ec3de1fc7ad841a2fb985dc44b77b, type: 2}
+    - asset: {fileID: 0}
       weight: 1
     skins:
     - asset: {fileID: 11400000, guid: 9a4be361103df624d953177f9565bc56, type: 2}
@@ -108,7 +96,7 @@ MonoBehaviour:
       weight: 2
   hasGenderAppearancePools: 1
   bodies:
-  - asset: {fileID: 11400000, guid: bd2f26a027dacc54191534f3b75ca211, type: 2}
+  - asset: {fileID: 0}
     weight: 1
   - asset: {fileID: 11400000, guid: d3a6a92546d735b4e93e995a9ba8f2d6, type: 2}
     weight: 1

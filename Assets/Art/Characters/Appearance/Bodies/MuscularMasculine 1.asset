@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8b5f21c2cdb4e6baa16e43f80136d17, type: 3}
-  m_Name: MuscularMasculine
+  m_Name: MuscularMasculine 1
   m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcBodySilhouette
   displayName: Muscular Masculine
   kind: 0
@@ -46,7 +46,7 @@ MonoBehaviour:
     size: {x: 0.10800001, y: 0.4058911}
     visible: 1
   - id: 6
-    localPosition: {x: 0.03663313, y: -0.04028297, z: 0}
+    localPosition: {x: 0.02363313, y: -0.041282967, z: 0}
     localEulerAngles: {x: -0, y: 0, z: -12.6}
     size: {x: 0.18440002, y: 0.105399996}
     visible: 1
@@ -76,8 +76,8 @@ MonoBehaviour:
     size: {x: 0.37, y: 0.17}
     visible: 1
   - id: 12
-    localPosition: {x: 0.006132051, y: -0.18484832, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 1.9}
+    localPosition: {x: -0, y: -0.18495001, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
     size: {x: 0.16, y: 0.411}
     visible: 1
   - id: 13
@@ -107,13 +107,13 @@ MonoBehaviour:
     visible: 1
   bonePlacements:
   - id: 6
-    localPosition: {x: -0.154, y: 0.087, z: 0}
+    localPosition: {x: -0.109, y: 0.048, z: 0}
   - id: 10
-    localPosition: {x: 0.154, y: 0.056999996, z: 0}
+    localPosition: {x: 0.1571, y: 0.018, z: 0}
   - id: 14
-    localPosition: {x: -0.0743, y: -0.077999994, z: 0}
+    localPosition: {x: -0.0903, y: -0.077999994, z: 0}
   - id: 17
-    localPosition: {x: 0.0743, y: -0.018000007, z: 0}
+    localPosition: {x: 0.0903, y: -0.018000007, z: 0}
   - id: 8
     localPosition: {x: -0.069, y: -0.265, z: 0}
   - id: 12
@@ -146,20 +146,18 @@ MonoBehaviour:
     localPosition: {x: -0.0073989616, y: -0.36433476, z: 0}
   neutralPoseAngles:
   - boneId: 7
-    angle: 10
-  - boneId: 8
-    angle: 7
+    angle: -7
   - boneId: 11
-    angle: -34
+    angle: 32
   - boneId: 12
-    angle: 23
+    angle: 128
   - boneId: 13
-    angle: 1.7
+    angle: 0.3
   - boneId: 14
-    angle: 4
+    angle: -5
   - boneId: 15
-    angle: 3
+    angle: -2
   - boneId: 17
-    angle: -1
+    angle: 3
   - boneId: 18
-    angle: -6
+    angle: 1

@@ -7,8 +7,9 @@ namespace BigRetail.Characters.Rigging
     /// <summary>
     /// The four directions an NPC can display in the isometric world.
     ///
-    /// SouthEast and NorthEast are the canonical authored directions.
-    /// SouthWest and NorthWest use their corresponding mirrored artwork.
+    /// SouthEast and NorthEast identify the two stored source sets: the
+    /// south/front view and the north/back view. Each east-facing source is
+    /// authored directly; its west-facing partner mirrors the complete visual.
     /// </summary>
     public enum NpcFacing
     {
@@ -38,6 +39,34 @@ namespace BigRetail.Characters.Rigging
     }
 
     /// <summary>
+    /// The complete presentation contract for one displayed facing. Keeping
+    /// these decisions together prevents artwork, skeleton, layering, and
+    /// animation code from inventing separate direction conventions.
+    /// </summary>
+    public readonly struct NpcFacingPresentation
+    {
+        public NpcAuthoredDirection AuthoredDirection { get; }
+
+        public bool MirrorHorizontally { get; }
+
+        public NpcCameraSide ForegroundCameraSide { get; }
+
+        public bool UsesNorthFacingAnimation =>
+            AuthoredDirection == NpcAuthoredDirection.NorthEast;
+
+
+        public NpcFacingPresentation(
+            NpcAuthoredDirection authoredDirection,
+            bool mirrorHorizontally,
+            NpcCameraSide foregroundCameraSide)
+        {
+            AuthoredDirection = authoredDirection;
+            MirrorHorizontally = mirrorHorizontally;
+            ForegroundCameraSide = foregroundCameraSide;
+        }
+    }
+
+    /// <summary>
     /// Stable identifiers for the canonical 20-bone NPC skeleton. Limb bones
     /// are named for the visible segment they own, while their Transform
     /// origin is the segment's proximal joint: UpperArm = shoulder, Forearm =
@@ -55,20 +84,20 @@ namespace BigRetail.Characters.Rigging
         Chest = 3,
         Neck = 4,
         Head = 5,
-        ShoulderNear = 6,
-        UpperArmNear = 7,
-        ForearmNear = 8,
-        HandNear = 9,
-        ShoulderFar = 10,
-        UpperArmFar = 11,
-        ForearmFar = 12,
-        HandFar = 13,
-        ThighNear = 14,
-        ShinNear = 15,
-        FootNear = 16,
-        ThighFar = 17,
-        ShinFar = 18,
-        FootFar = 19
+        ShoulderForeground = 6,
+        UpperArmForeground = 7,
+        ForearmForeground = 8,
+        HandForeground = 9,
+        ShoulderBackground = 10,
+        UpperArmBackground = 11,
+        ForearmBackground = 12,
+        HandBackground = 13,
+        ThighForeground = 14,
+        ShinForeground = 15,
+        FootForeground = 16,
+        ThighBackground = 17,
+        ShinBackground = 18,
+        FootBackground = 19
     }
 
     /// <summary>
@@ -77,23 +106,23 @@ namespace BigRetail.Characters.Rigging
     public enum NpcRigPartId
     {
         HairRear = 0,
-        UpperArmNear = 1,
-        ForearmNear = 2,
-        HandNear = 3,
-        ThighNear = 4,
-        ShinNear = 5,
-        FootNear = 6,
+        UpperArmForeground = 1,
+        ForearmForeground = 2,
+        HandForeground = 3,
+        ThighForeground = 4,
+        ShinForeground = 5,
+        FootForeground = 6,
         Pelvis = 7,
         Torso = 8,
         Neck = 9,
         Head = 10,
         HairFront = 11,
-        ThighFar = 12,
-        ShinFar = 13,
-        FootFar = 14,
-        UpperArmFar = 15,
-        ForearmFar = 16,
-        HandFar = 17
+        ThighBackground = 12,
+        ShinBackground = 13,
+        FootBackground = 14,
+        UpperArmBackground = 15,
+        ForearmBackground = 16,
+        HandBackground = 17
     }
 
     /// <summary>
@@ -213,73 +242,73 @@ namespace BigRetail.Characters.Rigging
                     new Vector3(0f, 0.18f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShoulderNear,
+                    NpcRigBoneId.ShoulderForeground,
                     NpcRigBoneId.Chest,
                     new Vector3(-0.13f, 0.02f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.UpperArmNear,
-                    NpcRigBoneId.ShoulderNear,
+                    NpcRigBoneId.UpperArmForeground,
+                    NpcRigBoneId.ShoulderForeground,
                     Vector3.zero),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ForearmNear,
-                    NpcRigBoneId.UpperArmNear,
+                    NpcRigBoneId.ForearmForeground,
+                    NpcRigBoneId.UpperArmForeground,
                     new Vector3(-0.05f, -0.25f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.HandNear,
-                    NpcRigBoneId.ForearmNear,
+                    NpcRigBoneId.HandForeground,
+                    NpcRigBoneId.ForearmForeground,
                     new Vector3(-0.03f, -0.22f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShoulderFar,
+                    NpcRigBoneId.ShoulderBackground,
                     NpcRigBoneId.Chest,
                     new Vector3(0.16f, 0f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.UpperArmFar,
-                    NpcRigBoneId.ShoulderFar,
+                    NpcRigBoneId.UpperArmBackground,
+                    NpcRigBoneId.ShoulderBackground,
                     Vector3.zero),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ForearmFar,
-                    NpcRigBoneId.UpperArmFar,
+                    NpcRigBoneId.ForearmBackground,
+                    NpcRigBoneId.UpperArmBackground,
                     new Vector3(0.06f, -0.26f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.HandFar,
-                    NpcRigBoneId.ForearmFar,
+                    NpcRigBoneId.HandBackground,
+                    NpcRigBoneId.ForearmBackground,
                     new Vector3(0.04f, -0.22f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ThighNear,
+                    NpcRigBoneId.ThighForeground,
                     NpcRigBoneId.Pelvis,
                     new Vector3(-0.10f, -0.04f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShinNear,
-                    NpcRigBoneId.ThighNear,
+                    NpcRigBoneId.ShinForeground,
+                    NpcRigBoneId.ThighForeground,
                     new Vector3(-0.02f, -0.36f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.FootNear,
-                    NpcRigBoneId.ShinNear,
+                    NpcRigBoneId.FootForeground,
+                    NpcRigBoneId.ShinForeground,
                     new Vector3(0.01f, -0.35f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ThighFar,
+                    NpcRigBoneId.ThighBackground,
                     NpcRigBoneId.Pelvis,
                     new Vector3(0.10f, -0.04f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.ShinFar,
-                    NpcRigBoneId.ThighFar,
+                    NpcRigBoneId.ShinBackground,
+                    NpcRigBoneId.ThighBackground,
                     new Vector3(0.02f, -0.36f, 0f)),
 
                 new NpcRigBoneDefinition(
-                    NpcRigBoneId.FootFar,
-                    NpcRigBoneId.ShinFar,
+                    NpcRigBoneId.FootBackground,
+                    NpcRigBoneId.ShinBackground,
                     new Vector3(0.027f, -0.3599f, -0.0093f))
             };
 
@@ -295,43 +324,43 @@ namespace BigRetail.Characters.Rigging
                     new Vector2(0.38f, 0.42f)),
 
                 DefinePart(
-                    NpcRigPartId.UpperArmNear,
-                    NpcRigBoneId.UpperArmNear,
+                    NpcRigPartId.UpperArmForeground,
+                    NpcRigBoneId.UpperArmForeground,
                     1,
                     new Vector2(-0.02f, -0.12f),
                     new Vector2(0.14f, 0.30f)),
 
                 DefinePart(
-                    NpcRigPartId.ForearmNear,
-                    NpcRigBoneId.ForearmNear,
+                    NpcRigPartId.ForearmForeground,
+                    NpcRigBoneId.ForearmForeground,
                     2,
                     new Vector2(-0.01f, -0.11f),
                     new Vector2(0.12f, 0.27f)),
 
                 DefinePart(
-                    NpcRigPartId.HandNear,
-                    NpcRigBoneId.HandNear,
+                    NpcRigPartId.HandForeground,
+                    NpcRigBoneId.HandForeground,
                     3,
                     new Vector2(0f, -0.07f),
                     new Vector2(0.12f, 0.16f)),
 
                 DefinePart(
-                    NpcRigPartId.ThighNear,
-                    NpcRigBoneId.ThighNear,
+                    NpcRigPartId.ThighForeground,
+                    NpcRigBoneId.ThighForeground,
                     4,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.18f, 0.40f)),
 
                 DefinePart(
-                    NpcRigPartId.ShinNear,
-                    NpcRigBoneId.ShinNear,
+                    NpcRigPartId.ShinForeground,
+                    NpcRigBoneId.ShinForeground,
                     5,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.15f, 0.39f)),
 
                 DefinePart(
-                    NpcRigPartId.FootNear,
-                    NpcRigBoneId.FootNear,
+                    NpcRigPartId.FootForeground,
+                    NpcRigBoneId.FootForeground,
                     6,
                     new Vector2(0.04f, -0.04f),
                     new Vector2(0.23f, 0.12f)),
@@ -372,43 +401,43 @@ namespace BigRetail.Characters.Rigging
                     new Vector2(0.36f, 0.32f)),
 
                 DefinePart(
-                    NpcRigPartId.ThighFar,
-                    NpcRigBoneId.ThighFar,
+                    NpcRigPartId.ThighBackground,
+                    NpcRigBoneId.ThighBackground,
                     12,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.18f, 0.40f)),
 
                 DefinePart(
-                    NpcRigPartId.ShinFar,
-                    NpcRigBoneId.ShinFar,
+                    NpcRigPartId.ShinBackground,
+                    NpcRigBoneId.ShinBackground,
                     13,
                     new Vector2(0f, -0.18f),
                     new Vector2(0.15f, 0.39f)),
 
                 DefinePart(
-                    NpcRigPartId.FootFar,
-                    NpcRigBoneId.FootFar,
+                    NpcRigPartId.FootBackground,
+                    NpcRigBoneId.FootBackground,
                     14,
                     new Vector2(0.04f, -0.04f),
                     new Vector2(0.23f, 0.12f)),
 
                 DefinePart(
-                    NpcRigPartId.UpperArmFar,
-                    NpcRigBoneId.UpperArmFar,
+                    NpcRigPartId.UpperArmBackground,
+                    NpcRigBoneId.UpperArmBackground,
                     15,
                     new Vector2(0.02f, -0.12f),
                     new Vector2(0.14f, 0.30f)),
 
                 DefinePart(
-                    NpcRigPartId.ForearmFar,
-                    NpcRigBoneId.ForearmFar,
+                    NpcRigPartId.ForearmBackground,
+                    NpcRigBoneId.ForearmBackground,
                     16,
                     new Vector2(0.01f, -0.11f),
                     new Vector2(0.12f, 0.27f)),
 
                 DefinePart(
-                    NpcRigPartId.HandFar,
-                    NpcRigBoneId.HandFar,
+                    NpcRigPartId.HandBackground,
+                    NpcRigBoneId.HandBackground,
                     17,
                     new Vector2(0f, -0.07f),
                     new Vector2(0.12f, 0.16f))
@@ -485,18 +514,40 @@ namespace BigRetail.Characters.Rigging
     /// </summary>
     public static class NpcFacingUtility
     {
-        public static NpcAuthoredDirection GetAuthoredDirection(
+        /// <summary>
+        /// Single source of truth for all four displayed directions.
+        /// South/North choose the authored body and animation view. East/West
+        /// choose whether that complete view is mirrored. Near always remains
+        /// the foreground limb chain.
+        /// </summary>
+        public static NpcFacingPresentation GetPresentation(
             NpcFacing facing)
         {
             switch (facing)
             {
                 case NpcFacing.SouthEast:
+                    return new NpcFacingPresentation(
+                        NpcAuthoredDirection.SouthEast,
+                        false,
+                        NpcCameraSide.CameraLeft);
+
                 case NpcFacing.SouthWest:
-                    return NpcAuthoredDirection.SouthEast;
+                    return new NpcFacingPresentation(
+                        NpcAuthoredDirection.SouthEast,
+                        true,
+                        NpcCameraSide.CameraRight);
 
                 case NpcFacing.NorthEast:
+                    return new NpcFacingPresentation(
+                        NpcAuthoredDirection.NorthEast,
+                        false,
+                        NpcCameraSide.CameraRight);
+
                 case NpcFacing.NorthWest:
-                    return NpcAuthoredDirection.NorthEast;
+                    return new NpcFacingPresentation(
+                        NpcAuthoredDirection.NorthEast,
+                        true,
+                        NpcCameraSide.CameraLeft);
 
                 default:
                     throw new ArgumentOutOfRangeException(
@@ -506,25 +557,20 @@ namespace BigRetail.Characters.Rigging
             }
         }
 
-        public static bool IsMirrored(
+        public static NpcAuthoredDirection GetAuthoredDirection(
             NpcFacing facing)
         {
-            switch (facing)
-            {
-                case NpcFacing.SouthWest:
-                case NpcFacing.NorthWest:
-                    return true;
+            return GetPresentation(facing).AuthoredDirection;
+        }
 
-                case NpcFacing.SouthEast:
-                case NpcFacing.NorthEast:
-                    return false;
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(facing),
-                        facing,
-                        "Unknown NPC facing.");
-            }
+        /// <summary>
+        /// Returns whether the completed character is horizontally mirrored
+        /// for display. Authored sources face east, so only west facings mirror.
+        /// </summary>
+        public static bool IsDisplayMirrored(
+            NpcFacing facing)
+        {
+            return GetPresentation(facing).MirrorHorizontally;
         }
 
         /// <summary>
@@ -535,29 +581,14 @@ namespace BigRetail.Characters.Rigging
         public static NpcCameraSide GetForegroundCameraSide(
             NpcFacing facing)
         {
-            switch (facing)
-            {
-                case NpcFacing.SouthEast:
-                case NpcFacing.NorthEast:
-                    return NpcCameraSide.CameraLeft;
-
-                case NpcFacing.SouthWest:
-                case NpcFacing.NorthWest:
-                    return NpcCameraSide.CameraRight;
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(facing),
-                        facing,
-                        "Unknown NPC facing.");
-            }
+            return GetPresentation(facing).ForegroundCameraSide;
         }
 
         /// <summary>
-        /// Resolves one depth-identified limb's temporary screen side. Near is
-        /// camera-left in each unmirrored authored view and Far is camera-right;
-        /// their displayed screen sides reverse when the visual is mirrored.
-        /// Their Near/Far depth identities do not change.
+        /// Resolves one depth-identified limb's displayed screen side. Near
+        /// always means foreground and occupies the facing-dependent foreground
+        /// side; Far occupies the opposite side. Their depth identities never
+        /// change when the character turns or mirrors.
         /// </summary>
         public static bool TryGetDisplayedCameraSide(
             NpcFacing facing,
@@ -568,21 +599,21 @@ namespace BigRetail.Characters.Rigging
 
             switch (partId)
             {
-                case NpcRigPartId.UpperArmNear:
-                case NpcRigPartId.ForearmNear:
-                case NpcRigPartId.HandNear:
-                case NpcRigPartId.ThighNear:
-                case NpcRigPartId.ShinNear:
-                case NpcRigPartId.FootNear:
+                case NpcRigPartId.UpperArmForeground:
+                case NpcRigPartId.ForearmForeground:
+                case NpcRigPartId.HandForeground:
+                case NpcRigPartId.ThighForeground:
+                case NpcRigPartId.ShinForeground:
+                case NpcRigPartId.FootForeground:
                     isNear = true;
                     break;
 
-                case NpcRigPartId.UpperArmFar:
-                case NpcRigPartId.ForearmFar:
-                case NpcRigPartId.HandFar:
-                case NpcRigPartId.ThighFar:
-                case NpcRigPartId.ShinFar:
-                case NpcRigPartId.FootFar:
+                case NpcRigPartId.UpperArmBackground:
+                case NpcRigPartId.ForearmBackground:
+                case NpcRigPartId.HandBackground:
+                case NpcRigPartId.ThighBackground:
+                case NpcRigPartId.ShinBackground:
+                case NpcRigPartId.FootBackground:
                     isNear = false;
                     break;
 
@@ -591,15 +622,71 @@ namespace BigRetail.Characters.Rigging
                     return false;
             }
 
-            bool displayedCameraLeft =
-                IsMirrored(facing)
-                    ? !isNear
-                    : isNear;
+            NpcCameraSide foregroundSide =
+                GetForegroundCameraSide(facing);
 
-            cameraSide = displayedCameraLeft
-                ? NpcCameraSide.CameraLeft
-                : NpcCameraSide.CameraRight;
+            cameraSide = isNear
+                ? foregroundSide
+                : GetOppositeCameraSide(foregroundSide);
             return true;
+        }
+
+        /// <summary>
+        /// Converts a canonical south/front limb-bone position into the
+        /// independently authored north/back source frame. Turning from the
+        /// front source to the back source swaps the screen side of every
+        /// foreground/background limb chain, while core bones remain fixed.
+        /// </summary>
+        public static Vector3 ResolveAuthoredBonePosition(
+            NpcAuthoredDirection direction,
+            NpcRigBoneId boneId,
+            Vector3 canonicalPosition)
+        {
+            return direction == NpcAuthoredDirection.NorthEast
+                   && IsDepthLimbBone(boneId)
+                ? ReflectHorizontal(canonicalPosition)
+                : canonicalPosition;
+        }
+
+        /// <summary>
+        /// Artwork counterpart of ResolveAuthoredBonePosition. Arm, thigh, and
+        /// shin artwork follows the north/back source-view reflection. Feet keep
+        /// their authored placement beside the ankle so NorthEast owns one
+        /// complete east-pointing foot pose; NorthWest mirrors that result.
+        /// </summary>
+        public static Vector3 ResolveAuthoredPartPosition(
+            NpcAuthoredDirection direction,
+            NpcRigPartId partId,
+            Vector3 canonicalPosition)
+        {
+            return direction == NpcAuthoredDirection.NorthEast
+                   && IsDepthLimbPart(partId)
+                   && !IsFootPart(partId)
+                ? ReflectHorizontal(canonicalPosition)
+                : canonicalPosition;
+        }
+
+        /// <summary>
+        /// Converts canonical south/front artwork rotation into the north/back
+        /// source frame. Limb segments reflect with their depth chains, while
+        /// feet preserve their canonical toe heading. NorthEast is the authored
+        /// north/back source and NorthWest is produced by mirroring that complete
+        /// source once, which supplies the opposite foot heading.
+        /// </summary>
+        public static Vector3 ResolveAuthoredPartEulerAngles(
+            NpcAuthoredDirection direction,
+            NpcRigPartId partId,
+            Vector3 canonicalEulerAngles)
+        {
+            if (direction == NpcAuthoredDirection.NorthEast
+                && IsDepthLimbPart(partId)
+                && !IsFootPart(partId))
+            {
+                canonicalEulerAngles.z =
+                    Mathf.DeltaAngle(0f, -canonicalEulerAngles.z);
+            }
+
+            return canonicalEulerAngles;
         }
 
         /// <summary>
@@ -638,32 +725,32 @@ namespace BigRetail.Characters.Rigging
 
             switch (partId)
             {
-                case NpcRigPartId.UpperArmNear:
-                case NpcRigPartId.UpperArmFar:
+                case NpcRigPartId.UpperArmForeground:
+                case NpcRigPartId.UpperArmBackground:
                     return near ? 15 : 1;
 
-                case NpcRigPartId.ForearmNear:
-                case NpcRigPartId.ForearmFar:
+                case NpcRigPartId.ForearmForeground:
+                case NpcRigPartId.ForearmBackground:
                     return near ? 16 : 2;
 
-                case NpcRigPartId.HandNear:
-                case NpcRigPartId.HandFar:
+                case NpcRigPartId.HandForeground:
+                case NpcRigPartId.HandBackground:
                     return near ? 17 : 3;
 
-                case NpcRigPartId.ThighNear:
-                case NpcRigPartId.ThighFar:
+                case NpcRigPartId.ThighForeground:
+                case NpcRigPartId.ThighBackground:
                     return northFacing
                         ? (near ? 13 : 5)
                         : (near ? 12 : 4);
 
-                case NpcRigPartId.ShinNear:
-                case NpcRigPartId.ShinFar:
+                case NpcRigPartId.ShinForeground:
+                case NpcRigPartId.ShinBackground:
                     return northFacing
                         ? (near ? 14 : 6)
                         : (near ? 13 : 5);
 
-                case NpcRigPartId.FootNear:
-                case NpcRigPartId.FootFar:
+                case NpcRigPartId.FootForeground:
+                case NpcRigPartId.FootBackground:
                     return northFacing
                         ? (near ? 12 : 4)
                         : (near ? 14 : 6);
@@ -673,17 +760,67 @@ namespace BigRetail.Characters.Rigging
             }
         }
 
+        /// <summary>
+        /// Compatibility alias for callers that predate the explicit display
+        /// mirror name. It must not be used to infer depth or source direction.
+        /// </summary>
+        public static bool IsMirrored(
+            NpcFacing facing)
+        {
+            return IsDisplayMirrored(facing);
+        }
+
+        /// <summary>
+        /// Compatibility hook retained for existing authoring tools. The
+        /// NorthEast source preserves the authored toe heading; west presentation
+        /// mirrors the complete character once to create the opposite heading.
+        /// </summary>
+        public static float RemapDirectionalFootAngle(
+            NpcAuthoredDirection direction,
+            NpcRigPartId partId,
+            float authoredAngle)
+        {
+            return ResolveAuthoredPartEulerAngles(
+                    direction,
+                    partId,
+                    new Vector3(0f, 0f, authoredAngle))
+                .z;
+        }
+
+        /// <summary>
+        /// Bone-angle compatibility hook. Directional pose assets own their
+        /// local angles; the display mirror handles east/west presentation.
+        /// </summary>
+        public static float RemapDirectionalFootAngle(
+            NpcFacing facing,
+            NpcRigBoneId boneId,
+            float authoredAngle)
+        {
+            return authoredAngle;
+        }
+
+        /// <summary>
+        /// Selects the independently authored north/back animation view.
+        /// East/west presentation remains the responsibility of the visual
+        /// root mirror; this choice only distinguishes front from back motion.
+        /// </summary>
+        public static bool UsesNorthFacingAnimation(
+            NpcFacing facing)
+        {
+            return GetPresentation(facing).UsesNorthFacingAnimation;
+        }
+
         public static bool IsNearPart(
             NpcRigPartId partId)
         {
             switch (partId)
             {
-                case NpcRigPartId.UpperArmNear:
-                case NpcRigPartId.ForearmNear:
-                case NpcRigPartId.HandNear:
-                case NpcRigPartId.ThighNear:
-                case NpcRigPartId.ShinNear:
-                case NpcRigPartId.FootNear:
+                case NpcRigPartId.UpperArmForeground:
+                case NpcRigPartId.ForearmForeground:
+                case NpcRigPartId.HandForeground:
+                case NpcRigPartId.ThighForeground:
+                case NpcRigPartId.ShinForeground:
+                case NpcRigPartId.FootForeground:
                     return true;
 
                 default:
@@ -696,17 +833,71 @@ namespace BigRetail.Characters.Rigging
         {
             switch (partId)
             {
-                case NpcRigPartId.UpperArmFar:
-                case NpcRigPartId.ForearmFar:
-                case NpcRigPartId.HandFar:
-                case NpcRigPartId.ThighFar:
-                case NpcRigPartId.ShinFar:
-                case NpcRigPartId.FootFar:
+                case NpcRigPartId.UpperArmBackground:
+                case NpcRigPartId.ForearmBackground:
+                case NpcRigPartId.HandBackground:
+                case NpcRigPartId.ThighBackground:
+                case NpcRigPartId.ShinBackground:
+                case NpcRigPartId.FootBackground:
                     return true;
 
                 default:
                     return false;
             }
+        }
+
+        public static bool IsDepthLimbPart(
+            NpcRigPartId partId)
+        {
+            return IsNearPart(partId) || IsFarPart(partId);
+        }
+
+        public static bool IsFootPart(
+            NpcRigPartId partId)
+        {
+            return partId == NpcRigPartId.FootForeground
+                   || partId == NpcRigPartId.FootBackground;
+        }
+
+        public static bool IsDepthLimbBone(
+            NpcRigBoneId boneId)
+        {
+            switch (boneId)
+            {
+                case NpcRigBoneId.ShoulderForeground:
+                case NpcRigBoneId.UpperArmForeground:
+                case NpcRigBoneId.ForearmForeground:
+                case NpcRigBoneId.HandForeground:
+                case NpcRigBoneId.ShoulderBackground:
+                case NpcRigBoneId.UpperArmBackground:
+                case NpcRigBoneId.ForearmBackground:
+                case NpcRigBoneId.HandBackground:
+                case NpcRigBoneId.ThighForeground:
+                case NpcRigBoneId.ShinForeground:
+                case NpcRigBoneId.FootForeground:
+                case NpcRigBoneId.ThighBackground:
+                case NpcRigBoneId.ShinBackground:
+                case NpcRigBoneId.FootBackground:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        private static NpcCameraSide GetOppositeCameraSide(
+            NpcCameraSide cameraSide)
+        {
+            return cameraSide == NpcCameraSide.CameraLeft
+                ? NpcCameraSide.CameraRight
+                : NpcCameraSide.CameraLeft;
+        }
+
+        private static Vector3 ReflectHorizontal(
+            Vector3 position)
+        {
+            position.x = -position.x;
+            return position;
         }
 
         private static int GetBaseSortingOrder(

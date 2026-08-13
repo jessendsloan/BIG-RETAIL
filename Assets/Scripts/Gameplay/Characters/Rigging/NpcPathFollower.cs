@@ -14,6 +14,9 @@ namespace BigRetail.Characters.Rigging
         private static readonly int SpeedParameter =
             Animator.StringToHash("Speed");
 
+        private static readonly int FacingNorthParameter =
+            Animator.StringToHash("FacingNorth");
+
         [Header("Path Following")]
         [SerializeField]
         private Vector3[] waypoints = Array.Empty<Vector3>();
@@ -36,6 +39,7 @@ namespace BigRetail.Characters.Rigging
         private Animator animator;
         private NpcCutoutRig cutoutRig;
         private bool hasSpeedParameter;
+        private bool hasFacingNorthParameter;
         private int waypointIndex;
         private bool isMoving;
         private Vector3 velocity;
@@ -233,6 +237,16 @@ namespace BigRetail.Characters.Rigging
                 animator.SetFloat(SpeedParameter, actualSpeed);
             }
 
+            if (hasFacingNorthParameter && cutoutRig != null)
+            {
+                animator.SetFloat(
+                    FacingNorthParameter,
+                    NpcFacingUtility.UsesNorthFacingAnimation(
+                        cutoutRig.Facing)
+                        ? 1f
+                        : 0f);
+            }
+
             animator.speed = actualSpeed > 0.0001f
                 ? actualSpeed / walkAnimationMetersPerSecond
                 : 1f;
@@ -243,7 +257,14 @@ namespace BigRetail.Characters.Rigging
             if (animator == null)
             {
                 animator = GetComponent<Animator>();
-                hasSpeedParameter = animator != null && HasSpeedParameter(animator);
+                hasSpeedParameter = animator != null
+                                    && HasFloatParameter(
+                                        animator,
+                                        SpeedParameter);
+                hasFacingNorthParameter = animator != null
+                                          && HasFloatParameter(
+                                              animator,
+                                              FacingNorthParameter);
             }
 
             if (cutoutRig == null)
@@ -252,12 +273,14 @@ namespace BigRetail.Characters.Rigging
             }
         }
 
-        private static bool HasSpeedParameter(Animator targetAnimator)
+        private static bool HasFloatParameter(
+            Animator targetAnimator,
+            int parameterHash)
         {
             AnimatorControllerParameter[] parameters = targetAnimator.parameters;
             for (int index = 0; index < parameters.Length; index++)
             {
-                if (parameters[index].nameHash == SpeedParameter)
+                if (parameters[index].nameHash == parameterHash)
                 {
                     return parameters[index].type == AnimatorControllerParameterType.Float;
                 }

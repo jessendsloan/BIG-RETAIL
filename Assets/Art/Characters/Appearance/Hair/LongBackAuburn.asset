@@ -20,23 +20,25 @@ MonoBehaviour:
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairFront:
     id: 11
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairRearShape:
     id: 0
     localPosition: {x: -0.001, y: -0.131, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 3.4}
     size: {x: 0.488, y: 0.831}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: 0.015, y: 0.09, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.411, y: 0.162}
+    localPosition: {x: -0.008, y: 0.16, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 12.8}
+    size: {x: 0.368, y: 0.162}
     visible: 1
   detailLayers: []

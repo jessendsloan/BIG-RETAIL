@@ -18,18 +18,18 @@ namespace BigRetail.Characters.Editor
 
         private static readonly string[] FacingLabels =
         {
-            "South East",
-            "South West",
+            "North West",
             "North East",
-            "North West"
+            "South West",
+            "South East"
         };
 
         private static readonly NpcFacing[] Facings =
         {
-            NpcFacing.SouthEast,
-            NpcFacing.SouthWest,
+            NpcFacing.NorthWest,
             NpcFacing.NorthEast,
-            NpcFacing.NorthWest
+            NpcFacing.SouthWest,
+            NpcFacing.SouthEast
         };
 
         private NpcAppearanceCatalog catalog;

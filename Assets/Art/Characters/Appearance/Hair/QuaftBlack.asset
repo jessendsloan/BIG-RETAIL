@@ -10,33 +10,35 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e72a5d90fc3e45aba831cf43d615b27c, type: 3}
-  m_Name: BuzzCutDarkBrown
+  m_Name: QuaftBlack
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcHairSet
-  displayName: Buzz Cut / Dark Brown
-  hairColor: {r: 0.095, g: 0.065, b: 0.05, a: 1}
-  supportedGenders: 1
+  displayName: Quaft / Black
+  hairColor: {r: 0, g: 0, b: 0, a: 1}
+  supportedGenders: 3
   hairRear:
     id: 0
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairFront:
     id: 11
     colorRole: 0
     southEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     northEastSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    materialOverride: {fileID: 0}
     visible: 1
   hairRearShape:
     id: 0
-    localPosition: {x: -0.005, y: 0.079, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: -0.3}
-    size: {x: 0.347, y: 0.278}
+    localPosition: {x: -0.03, y: 0.063, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 4.2}
+    size: {x: 0.304, y: 0.311}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: 0.013, y: 0.118, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: -0.3}
-    size: {x: 0.351, y: 0.19}
+    localPosition: {x: -0.009, y: 0.232, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: -86.6}
+    size: {x: 0.2, y: 0.318}
     visible: 1
   detailLayers: []

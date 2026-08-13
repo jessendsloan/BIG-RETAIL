@@ -25,6 +25,14 @@ namespace BigRetail.Characters.Editor
     }
 
 
+    internal enum NpcLimbShapeScope
+    {
+        Both = 0,
+        Foreground = 1,
+        Background = 2
+    }
+
+
     /// <summary>
     /// Friendly authoring surface for the reusable assets consumed by
     /// Population Definitions. All edits occur on a hidden working copy
@@ -62,34 +70,34 @@ namespace BigRetail.Characters.Editor
 
         private static readonly string[] FacingLabels =
         {
-            "South East",
-            "South West",
+            "North West",
             "North East",
-            "North West"
+            "South West",
+            "South East"
         };
 
         private static readonly NpcFacing[] Facings =
         {
-            NpcFacing.SouthEast,
-            NpcFacing.SouthWest,
+            NpcFacing.NorthWest,
             NpcFacing.NorthEast,
-            NpcFacing.NorthWest
+            NpcFacing.SouthWest,
+            NpcFacing.SouthEast
         };
 
         private static readonly NpcRigPartId[] LimbPartIds =
         {
-            NpcRigPartId.UpperArmNear,
-            NpcRigPartId.ForearmNear,
-            NpcRigPartId.HandNear,
-            NpcRigPartId.UpperArmFar,
-            NpcRigPartId.ForearmFar,
-            NpcRigPartId.HandFar,
-            NpcRigPartId.ThighNear,
-            NpcRigPartId.ShinNear,
-            NpcRigPartId.FootNear,
-            NpcRigPartId.ThighFar,
-            NpcRigPartId.ShinFar,
-            NpcRigPartId.FootFar
+            NpcRigPartId.UpperArmForeground,
+            NpcRigPartId.ForearmForeground,
+            NpcRigPartId.HandForeground,
+            NpcRigPartId.UpperArmBackground,
+            NpcRigPartId.ForearmBackground,
+            NpcRigPartId.HandBackground,
+            NpcRigPartId.ThighForeground,
+            NpcRigPartId.ShinForeground,
+            NpcRigPartId.FootForeground,
+            NpcRigPartId.ThighBackground,
+            NpcRigPartId.ShinBackground,
+            NpcRigPartId.FootBackground
         };
 
         private static readonly string[] BodyAuthoringModeLabels =
@@ -97,6 +105,13 @@ namespace BigRetail.Characters.Editor
             "1. Shape",
             "2. Rig Alignment",
             "3. Pose Test"
+        };
+
+        private static readonly string[] LimbShapeScopeLabels =
+        {
+            "Both",
+            "Foreground",
+            "Background"
         };
 
         private static readonly string[] BodyAlignmentPartLabels =
@@ -125,26 +140,32 @@ namespace BigRetail.Characters.Editor
             NpcRigPartId.Neck,
             NpcRigPartId.Torso,
             NpcRigPartId.Pelvis,
-            NpcRigPartId.UpperArmNear,
-            NpcRigPartId.ForearmNear,
-            NpcRigPartId.HandNear,
-            NpcRigPartId.UpperArmFar,
-            NpcRigPartId.ForearmFar,
-            NpcRigPartId.HandFar,
-            NpcRigPartId.ThighNear,
-            NpcRigPartId.ShinNear,
-            NpcRigPartId.FootNear,
-            NpcRigPartId.ThighFar,
-            NpcRigPartId.ShinFar,
-            NpcRigPartId.FootFar
+            NpcRigPartId.UpperArmForeground,
+            NpcRigPartId.ForearmForeground,
+            NpcRigPartId.HandForeground,
+            NpcRigPartId.UpperArmBackground,
+            NpcRigPartId.ForearmBackground,
+            NpcRigPartId.HandBackground,
+            NpcRigPartId.ThighForeground,
+            NpcRigPartId.ShinForeground,
+            NpcRigPartId.FootForeground,
+            NpcRigPartId.ThighBackground,
+            NpcRigPartId.ShinBackground,
+            NpcRigPartId.FootBackground
         };
 
         private NpcAppearanceCatalog catalog;
         private NpcAppearanceProfile defaultAppearance;
         private NpcAppearanceAssetCategory category;
         private NpcBodyAuthoringMode bodyAuthoringMode;
+        private NpcLimbShapeScope armShapeScope =
+            NpcLimbShapeScope.Both;
+        private NpcLimbShapeScope legShapeScope =
+            NpcLimbShapeScope.Both;
         private int bodyAlignmentPartIndex;
         private bool showAdvancedRigAlignment;
+        private bool showArmJointPlacement = true;
+        private bool showLegJointPlacement = true;
         private ScriptableObject selectedAsset;
         private ScriptableObject workingAsset;
         private SerializedObject serializedWorkingAsset;
@@ -166,6 +187,14 @@ namespace BigRetail.Characters.Editor
         private string loadedJson;
         private string statusMessage;
         private MessageType statusType = MessageType.Info;
+
+        private NpcBodySilhouette WorkingBodySilhouette =>
+            workingAsset as NpcBodySilhouette;
+
+        private bool EditingNeutralBindPose =>
+            category == NpcAppearanceAssetCategory.Body
+            && selectedAuthoringPose == null
+            && WorkingBodySilhouette != null;
 
 
         [MenuItem(MenuPath)]
@@ -486,9 +515,11 @@ namespace BigRetail.Characters.Editor
             }
 
             int currentFacing = Array.IndexOf(Facings, facing);
-            int nextFacing = GUILayout.Toolbar(
+            int nextFacing = GUILayout.SelectionGrid(
                 Mathf.Max(0, currentFacing),
-                FacingLabels);
+                FacingLabels,
+                2,
+                GUILayout.Height(44f));
 
             if (nextFacing != currentFacing)
             {
@@ -643,7 +674,7 @@ namespace BigRetail.Characters.Editor
                 EditorStyles.miniBoldLabel);
 
             string[] poseNames = new string[authoringPoses.Count + 1];
-            poseNames[0] = "Neutral / Bind Pose";
+            poseNames[0] = "Neutral / Bind Pose (Saved With Body)";
             int currentIndex = 0;
 
             for (int index = 0; index < authoringPoses.Count; index++)
@@ -701,7 +732,15 @@ namespace BigRetail.Characters.Editor
                 }
             }
 
-            if (testPoseAngles.Count > 0)
+            if (EditingNeutralBindPose)
+            {
+                EditorGUILayout.HelpBox(
+                    "Neutral / Bind Pose is editable in Pose Test and " +
+                    "saved with this Body Silhouette. It becomes the " +
+                    "resting pose for every person using this body.",
+                    MessageType.Info);
+            }
+            else if (testPoseAngles.Count > 0)
             {
                 string poseName = selectedAuthoringPose != null
                     ? selectedAuthoringPose.DisplayName
@@ -735,10 +774,11 @@ namespace BigRetail.Characters.Editor
             showRigAnatomy = false;
 
             EditorGUILayout.HelpBox(
-                "Define the person's proportions here. Paired limbs change " +
-                "together and keep their joint connections. Use Rig " +
-                "Alignment afterward for exact cyan-joint and artwork " +
-                "placement.",
+                "Define the person's proportions here. Start with Both, " +
+                "then choose Foreground or Background in a limb section " +
+                "for depth-specific proportions. Joint connections remain " +
+                "attached. Use Rig Alignment afterward for exact cyan-joint " +
+                "and artwork placement.",
                 MessageType.Info);
 
             EditorGUILayout.LabelField(
@@ -779,60 +819,145 @@ namespace BigRetail.Characters.Editor
                 "Arms and Hands",
                 EditorStyles.boldLabel);
 
-            DrawPartSize(
+            armShapeScope = DrawLimbShapeScope(
+                "Adjust Arms",
+                armShapeScope);
+
+            DrawDepthScopedPartSize(
                 "Upper Arms",
                 0.05f,
                 0.35f,
                 0.10f,
                 0.55f,
-                NpcRigPartId.UpperArmNear,
-                NpcRigPartId.UpperArmFar);
-            DrawPartSize(
+                NpcRigPartId.UpperArmForeground,
+                NpcRigPartId.UpperArmBackground,
+                armShapeScope);
+            DrawDepthScopedPartSize(
                 "Forearms",
                 0.045f,
                 0.32f,
                 0.09f,
                 0.55f,
-                NpcRigPartId.ForearmNear,
-                NpcRigPartId.ForearmFar);
-            DrawPartSize(
+                NpcRigPartId.ForearmForeground,
+                NpcRigPartId.ForearmBackground,
+                armShapeScope);
+            DrawDepthScopedPartSize(
                 "Hands",
                 0.04f,
                 0.28f,
                 0.045f,
                 0.32f,
-                NpcRigPartId.HandNear,
-                NpcRigPartId.HandFar);
+                NpcRigPartId.HandForeground,
+                NpcRigPartId.HandBackground,
+                armShapeScope);
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField(
                 "Legs and Feet",
                 EditorStyles.boldLabel);
 
-            DrawPartSize(
+            legShapeScope = DrawLimbShapeScope(
+                "Adjust Legs",
+                legShapeScope);
+
+            DrawDepthScopedPartSize(
                 "Thighs / Upper Legs",
                 0.05f,
                 0.42f,
                 0.14f,
                 0.70f,
-                NpcRigPartId.ThighNear,
-                NpcRigPartId.ThighFar);
-            DrawPartSize(
+                NpcRigPartId.ThighForeground,
+                NpcRigPartId.ThighBackground,
+                legShapeScope);
+            DrawDepthScopedPartSize(
                 "Shins / Lower Legs",
                 0.045f,
                 0.38f,
                 0.14f,
                 0.70f,
-                NpcRigPartId.ShinNear,
-                NpcRigPartId.ShinFar);
-            DrawPartSize(
+                NpcRigPartId.ShinForeground,
+                NpcRigPartId.ShinBackground,
+                legShapeScope);
+            DrawDepthScopedPartSize(
                 "Feet",
                 0.06f,
                 0.48f,
                 0.04f,
                 0.34f,
-                NpcRigPartId.FootNear,
-                NpcRigPartId.FootFar);
+                NpcRigPartId.FootForeground,
+                NpcRigPartId.FootBackground,
+                legShapeScope);
+        }
+
+
+        private static NpcLimbShapeScope DrawLimbShapeScope(
+            string label,
+            NpcLimbShapeScope currentScope)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+
+            NpcLimbShapeScope nextScope =
+                (NpcLimbShapeScope)GUILayout.Toolbar(
+                    (int)currentScope,
+                    LimbShapeScopeLabels);
+
+            EditorGUILayout.LabelField(
+                nextScope == NpcLimbShapeScope.Both
+                    ? "Changes both depth limbs together."
+                    : "Changes only the " +
+                      nextScope.ToString().ToLowerInvariant() +
+                      " limb.",
+                EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.EndVertical();
+
+            return nextScope;
+        }
+
+
+        private void DrawDepthScopedPartSize(
+            string label,
+            float minimumWidth,
+            float maximumWidth,
+            float minimumLength,
+            float maximumLength,
+            NpcRigPartId foregroundPartId,
+            NpcRigPartId backgroundPartId,
+            NpcLimbShapeScope scope)
+        {
+            switch (scope)
+            {
+                case NpcLimbShapeScope.Foreground:
+                    DrawPartSize(
+                        label,
+                        minimumWidth,
+                        maximumWidth,
+                        minimumLength,
+                        maximumLength,
+                        foregroundPartId);
+                    break;
+
+                case NpcLimbShapeScope.Background:
+                    DrawPartSize(
+                        label,
+                        minimumWidth,
+                        maximumWidth,
+                        minimumLength,
+                        maximumLength,
+                        backgroundPartId);
+                    break;
+
+                default:
+                    DrawPartSize(
+                        label,
+                        minimumWidth,
+                        maximumWidth,
+                        minimumLength,
+                        maximumLength,
+                        foregroundPartId,
+                        backgroundPartId);
+                    break;
+            }
         }
 
 
@@ -983,6 +1108,63 @@ namespace BigRetail.Characters.Editor
                 EditorStyles.wordWrappedMiniLabel);
 
             EditorGUILayout.Space(5f);
+            showArmJointPlacement = EditorGUILayout.Foldout(
+                showArmJointPlacement,
+                "Arm Joint Placement",
+                true,
+                EditorStyles.foldoutHeader);
+
+            if (showArmJointPlacement)
+            {
+                DrawArmJointPlacement(
+                    "Foreground Arm",
+                    NpcRigBoneId.ShoulderForeground,
+                    NpcRigBoneId.UpperArmForeground,
+                    NpcRigBoneId.ForearmForeground,
+                    NpcRigBoneId.HandForeground,
+                    NpcRigOverlayFocus.NearArm);
+
+                DrawArmJointPlacement(
+                    "Background Arm",
+                    NpcRigBoneId.ShoulderBackground,
+                    NpcRigBoneId.UpperArmBackground,
+                    NpcRigBoneId.ForearmBackground,
+                    NpcRigBoneId.HandBackground,
+                    NpcRigOverlayFocus.FarArm);
+            }
+
+            EditorGUILayout.Space(5f);
+            showLegJointPlacement = EditorGUILayout.Foldout(
+                showLegJointPlacement,
+                "Leg Joint Placement",
+                true,
+                EditorStyles.foldoutHeader);
+
+            if (showLegJointPlacement)
+            {
+                DrawLegJointPlacement(
+                    "Foreground Leg",
+                    NpcRigBoneId.ThighForeground,
+                    NpcRigBoneId.ShinForeground,
+                    NpcRigBoneId.FootForeground,
+                    NpcRigOverlayFocus.NearLeg);
+
+                DrawLegJointPlacement(
+                    "Background Leg",
+                    NpcRigBoneId.ThighBackground,
+                    NpcRigBoneId.ShinBackground,
+                    NpcRigBoneId.FootBackground,
+                    NpcRigOverlayFocus.FarLeg);
+            }
+
+            EditorGUILayout.LabelField(
+                "These fields move the cyan joints themselves and save " +
+                "with the Body Silhouette. Artwork offsets remain " +
+                "separate so each visible piece can still be fitted to " +
+                "its joint afterward.",
+                EditorStyles.wordWrappedMiniLabel);
+
+            EditorGUILayout.Space(5f);
             EditorGUILayout.LabelField(
                 "Individual Chain Fit",
                 EditorStyles.miniBoldLabel);
@@ -1087,30 +1269,30 @@ namespace BigRetail.Characters.Editor
 
             switch (partId)
             {
-                case NpcRigPartId.UpperArmNear:
-                case NpcRigPartId.ForearmNear:
-                case NpcRigPartId.HandNear:
+                case NpcRigPartId.UpperArmForeground:
+                case NpcRigPartId.ForearmForeground:
+                case NpcRigPartId.HandForeground:
                     rigOverlayFocus =
                         NpcRigOverlayFocus.NearArm;
                     break;
 
-                case NpcRigPartId.UpperArmFar:
-                case NpcRigPartId.ForearmFar:
-                case NpcRigPartId.HandFar:
+                case NpcRigPartId.UpperArmBackground:
+                case NpcRigPartId.ForearmBackground:
+                case NpcRigPartId.HandBackground:
                     rigOverlayFocus =
                         NpcRigOverlayFocus.FarArm;
                     break;
 
-                case NpcRigPartId.ThighNear:
-                case NpcRigPartId.ShinNear:
-                case NpcRigPartId.FootNear:
+                case NpcRigPartId.ThighForeground:
+                case NpcRigPartId.ShinForeground:
+                case NpcRigPartId.FootForeground:
                     rigOverlayFocus =
                         NpcRigOverlayFocus.NearLeg;
                     break;
 
-                case NpcRigPartId.ThighFar:
-                case NpcRigPartId.ShinFar:
-                case NpcRigPartId.FootFar:
+                case NpcRigPartId.ThighBackground:
+                case NpcRigPartId.ShinBackground:
+                case NpcRigPartId.FootBackground:
                     rigOverlayFocus =
                         NpcRigOverlayFocus.FarLeg;
                     break;
@@ -1147,7 +1329,9 @@ namespace BigRetail.Characters.Editor
         {
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField(
-                "Pose Test (Preview Only)",
+                EditingNeutralBindPose
+                    ? "Neutral / Bind Pose (Saved With Body)"
+                    : "Pose Test (Preview Only)",
                 EditorStyles.miniBoldLabel);
 
             NpcRigOverlayFocus[] chains =
@@ -1255,23 +1439,52 @@ namespace BigRetail.Characters.Editor
                          index < selectedBones.Length;
                          index++)
                     {
-                        testPoseAngles.Remove(selectedBones[index]);
+                        if (EditingNeutralBindPose)
+                        {
+                            WorkingBodySilhouette.RemoveNeutralPoseAngle(
+                                selectedBones[index]);
+                        }
+                        else
+                        {
+                            testPoseAngles.Remove(selectedBones[index]);
+                        }
                     }
 
-                    authoringPoseModified = true;
+                    if (EditingNeutralBindPose)
+                    {
+                        ApplyPreview();
+                    }
+                    else
+                    {
+                        authoringPoseModified = true;
+                    }
+
                     Repaint();
                 }
 
                 if (GUILayout.Button("Reset Entire Pose"))
                 {
-                    ActivateNeutralPose();
+                    if (EditingNeutralBindPose)
+                    {
+                        WorkingBodySilhouette.ClearNeutralPose();
+                        ApplyPreview();
+                        Repaint();
+                    }
+                    else
+                    {
+                        ActivateNeutralPose();
+                    }
                 }
             }
 
             EditorGUILayout.LabelField(
-                "These sliders rotate the actual hidden preview bones " +
-                "around their joints. They are for checking connections " +
-                "and never become part of the Body asset.",
+                EditingNeutralBindPose
+                    ? "These sliders edit this Body Silhouette's saved " +
+                      "resting pose on the unsaved working copy. Use Save " +
+                      "Changes to Selected or Save as New Asset below."
+                    : "These sliders rotate the actual hidden preview " +
+                      "bones around their joints. They are for checking " +
+                      "connections and never become part of the Body asset.",
                 EditorStyles.wordWrappedMiniLabel);
         }
 
@@ -1282,11 +1495,13 @@ namespace BigRetail.Characters.Editor
             float minimum,
             float maximum)
         {
-            float value = testPoseAngles.TryGetValue(
-                boneId,
-                out float stored)
-                ? stored
-                : 0f;
+            float value = EditingNeutralBindPose
+                ? WorkingBodySilhouette.GetNeutralPoseAngle(boneId)
+                : testPoseAngles.TryGetValue(
+                    boneId,
+                    out float stored)
+                    ? stored
+                    : 0f;
             float next = EditorGUILayout.Slider(
                 label,
                 value,
@@ -1295,6 +1510,15 @@ namespace BigRetail.Characters.Editor
 
             if (Mathf.Approximately(next, value))
             {
+                return;
+            }
+
+            if (EditingNeutralBindPose)
+            {
+                WorkingBodySilhouette.SetNeutralPoseAngle(boneId, next);
+                showRigAnatomy = true;
+                rigOverlayFocus = poseTestChain;
+                ApplyPreview();
                 return;
             }
 
@@ -1317,6 +1541,21 @@ namespace BigRetail.Characters.Editor
         {
             EditorGUILayout.Space(6f);
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            if (EditingNeutralBindPose)
+            {
+                EditorGUILayout.LabelField(
+                    "Saving the Neutral / Bind Pose",
+                    EditorStyles.miniBoldLabel);
+                EditorGUILayout.LabelField(
+                    "The pose above belongs to this Body Silhouette. Use " +
+                    "the normal Body save buttons below to keep it. Saved " +
+                    "authoring poses remain temporary inspection stances.",
+                    EditorStyles.wordWrappedMiniLabel);
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
             EditorGUILayout.LabelField(
                 "Reusable Authoring Pose",
                 EditorStyles.miniBoldLabel);
@@ -1356,7 +1595,7 @@ namespace BigRetail.Characters.Editor
             selectedAuthoringPose = null;
             authoringPoseModified = false;
             testPoseAngles.Clear();
-            previewCanvas?.ResetTestPose();
+            ApplyPreview();
             Repaint();
         }
 
@@ -1526,11 +1765,11 @@ namespace BigRetail.Characters.Editor
                 new Dictionary<NpcRigBoneId, float>
                 {
                     {
-                        NpcRigBoneId.UpperArmNear,
+                        NpcRigBoneId.UpperArmForeground,
                         -90f
                     },
                     {
-                        NpcRigBoneId.UpperArmFar,
+                        NpcRigBoneId.UpperArmBackground,
                         90f
                     }
                 };
@@ -1554,36 +1793,36 @@ namespace BigRetail.Characters.Editor
             switch (chain)
             {
                 case NpcRigOverlayFocus.FarArm:
-                    proximal = NpcRigBoneId.UpperArmFar;
-                    middle = NpcRigBoneId.ForearmFar;
-                    distal = NpcRigBoneId.HandFar;
+                    proximal = NpcRigBoneId.UpperArmBackground;
+                    middle = NpcRigBoneId.ForearmBackground;
+                    distal = NpcRigBoneId.HandBackground;
                     proximalLabel = "Shoulder";
                     middleLabel = "Elbow";
                     distalLabel = "Wrist";
                     return;
 
                 case NpcRigOverlayFocus.NearLeg:
-                    proximal = NpcRigBoneId.ThighNear;
-                    middle = NpcRigBoneId.ShinNear;
-                    distal = NpcRigBoneId.FootNear;
+                    proximal = NpcRigBoneId.ThighForeground;
+                    middle = NpcRigBoneId.ShinForeground;
+                    distal = NpcRigBoneId.FootForeground;
                     proximalLabel = "Hip";
                     middleLabel = "Knee";
                     distalLabel = "Ankle";
                     return;
 
                 case NpcRigOverlayFocus.FarLeg:
-                    proximal = NpcRigBoneId.ThighFar;
-                    middle = NpcRigBoneId.ShinFar;
-                    distal = NpcRigBoneId.FootFar;
+                    proximal = NpcRigBoneId.ThighBackground;
+                    middle = NpcRigBoneId.ShinBackground;
+                    distal = NpcRigBoneId.FootBackground;
                     proximalLabel = "Hip";
                     middleLabel = "Knee";
                     distalLabel = "Ankle";
                     return;
 
                 default:
-                    proximal = NpcRigBoneId.UpperArmNear;
-                    middle = NpcRigBoneId.ForearmNear;
-                    distal = NpcRigBoneId.HandNear;
+                    proximal = NpcRigBoneId.UpperArmForeground;
+                    middle = NpcRigBoneId.ForearmForeground;
+                    distal = NpcRigBoneId.HandForeground;
                     proximalLabel = "Shoulder";
                     middleLabel = "Elbow";
                     distalLabel = "Wrist";
@@ -1680,9 +1919,10 @@ namespace BigRetail.Characters.Editor
             DrawTorsoGarmentArtwork();
 
             EditorGUILayout.HelpBox(
-                "SouthWest mirrors SouthEast; NorthWest mirrors NorthEast. " +
-                "The underlying outfit still retains its optional authored " +
-                "sprite overrides.",
+                "SouthWest mirrors the stored south/front artwork. " +
+                "NorthEast displays the stored north/back artwork while " +
+                "NorthWest mirrors it. The underlying outfit " +
+                "still retains its optional authored sprite overrides.",
                 MessageType.Info);
         }
 
@@ -1707,12 +1947,14 @@ namespace BigRetail.Characters.Editor
                 torsoStyle.FindPropertyRelative("southEastSprite"),
                 new GUIContent(
                     "South / Front PNG",
-                    "Used for SouthEast and mirrored for SouthWest."));
+                    "Stored south/front art: SouthEast unmirrored, " +
+                    "SouthWest mirrored."));
             EditorGUILayout.PropertyField(
                 torsoStyle.FindPropertyRelative("northEastSprite"),
                 new GUIContent(
                     "North / Back PNG",
-                    "Used for NorthEast and mirrored for NorthWest."));
+                    "Stored north/back art: NorthEast unmirrored, " +
+                    "NorthWest mirrored."));
             SerializedProperty materialOverride =
                 torsoStyle.FindPropertyRelative("materialOverride");
 
@@ -2684,36 +2926,36 @@ namespace BigRetail.Characters.Editor
                 case NpcRigOverlayFocus.FarArm:
                     parts = new[]
                     {
-                        NpcRigPartId.UpperArmFar,
-                        NpcRigPartId.ForearmFar,
-                        NpcRigPartId.HandFar
+                        NpcRigPartId.UpperArmBackground,
+                        NpcRigPartId.ForearmBackground,
+                        NpcRigPartId.HandBackground
                     };
                     break;
 
                 case NpcRigOverlayFocus.NearLeg:
                     parts = new[]
                     {
-                        NpcRigPartId.ThighNear,
-                        NpcRigPartId.ShinNear,
-                        NpcRigPartId.FootNear
+                        NpcRigPartId.ThighForeground,
+                        NpcRigPartId.ShinForeground,
+                        NpcRigPartId.FootForeground
                     };
                     break;
 
                 case NpcRigOverlayFocus.FarLeg:
                     parts = new[]
                     {
-                        NpcRigPartId.ThighFar,
-                        NpcRigPartId.ShinFar,
-                        NpcRigPartId.FootFar
+                        NpcRigPartId.ThighBackground,
+                        NpcRigPartId.ShinBackground,
+                        NpcRigPartId.FootBackground
                     };
                     break;
 
                 default:
                     parts = new[]
                     {
-                        NpcRigPartId.UpperArmNear,
-                        NpcRigPartId.ForearmNear,
-                        NpcRigPartId.HandNear
+                        NpcRigPartId.UpperArmForeground,
+                        NpcRigPartId.ForearmForeground,
+                        NpcRigPartId.HandForeground
                     };
                     chain = NpcRigOverlayFocus.NearArm;
                     break;
@@ -2848,36 +3090,36 @@ namespace BigRetail.Characters.Editor
         {
             switch (partId)
             {
-                case NpcRigPartId.UpperArmNear:
-                    distalBone = NpcRigBoneId.ForearmNear;
+                case NpcRigPartId.UpperArmForeground:
+                    distalBone = NpcRigBoneId.ForearmForeground;
                     return true;
 
-                case NpcRigPartId.ForearmNear:
-                    distalBone = NpcRigBoneId.HandNear;
+                case NpcRigPartId.ForearmForeground:
+                    distalBone = NpcRigBoneId.HandForeground;
                     return true;
 
-                case NpcRigPartId.UpperArmFar:
-                    distalBone = NpcRigBoneId.ForearmFar;
+                case NpcRigPartId.UpperArmBackground:
+                    distalBone = NpcRigBoneId.ForearmBackground;
                     return true;
 
-                case NpcRigPartId.ForearmFar:
-                    distalBone = NpcRigBoneId.HandFar;
+                case NpcRigPartId.ForearmBackground:
+                    distalBone = NpcRigBoneId.HandBackground;
                     return true;
 
-                case NpcRigPartId.ThighNear:
-                    distalBone = NpcRigBoneId.ShinNear;
+                case NpcRigPartId.ThighForeground:
+                    distalBone = NpcRigBoneId.ShinForeground;
                     return true;
 
-                case NpcRigPartId.ShinNear:
-                    distalBone = NpcRigBoneId.FootNear;
+                case NpcRigPartId.ShinForeground:
+                    distalBone = NpcRigBoneId.FootForeground;
                     return true;
 
-                case NpcRigPartId.ThighFar:
-                    distalBone = NpcRigBoneId.ShinFar;
+                case NpcRigPartId.ThighBackground:
+                    distalBone = NpcRigBoneId.ShinBackground;
                     return true;
 
-                case NpcRigPartId.ShinFar:
-                    distalBone = NpcRigBoneId.FootFar;
+                case NpcRigPartId.ShinBackground:
+                    distalBone = NpcRigBoneId.FootBackground;
                     return true;
 
                 default:
@@ -2941,7 +3183,9 @@ namespace BigRetail.Characters.Editor
             float minimumX,
             float maximumX,
             float minimumY,
-            float maximumY)
+            float maximumY,
+            NpcRigOverlayFocus overlayFocus =
+                NpcRigOverlayFocus.BodyAndHead)
         {
             SerializedProperty position =
                 FindOrCreateBonePlacementPosition(boneId);
@@ -2974,8 +3218,114 @@ namespace BigRetail.Characters.Editor
                 value.y = nextY;
                 position.vector3Value = value;
                 showRigAnatomy = true;
-                rigOverlayFocus = NpcRigOverlayFocus.BodyAndHead;
+                rigOverlayFocus = overlayFocus;
             }
+
+            EditorGUILayout.EndVertical();
+        }
+
+
+        private void DrawArmJointPlacement(
+            string label,
+            NpcRigBoneId shoulderId,
+            NpcRigBoneId upperArmId,
+            NpcRigBoneId forearmId,
+            NpcRigBoneId handId,
+            NpcRigOverlayFocus overlayFocus)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+
+            DrawBonePlacement2D(
+                "Shoulder Anchor from Chest",
+                "Horizontal",
+                "Height",
+                shoulderId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            DrawBonePlacement2D(
+                "Upper-Arm Pivot from Shoulder Anchor",
+                "Horizontal",
+                "Height",
+                upperArmId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            DrawBonePlacement2D(
+                "Elbow / Forearm Pivot from Upper Arm",
+                "Horizontal",
+                "Height",
+                forearmId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            DrawBonePlacement2D(
+                "Wrist / Hand Pivot from Forearm",
+                "Horizontal",
+                "Height",
+                handId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            EditorGUILayout.EndVertical();
+        }
+
+
+        private void DrawLegJointPlacement(
+            string label,
+            NpcRigBoneId thighId,
+            NpcRigBoneId shinId,
+            NpcRigBoneId footId,
+            NpcRigOverlayFocus overlayFocus)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+
+            DrawBonePlacement2D(
+                "Hip / Thigh Pivot from Pelvis",
+                "Horizontal",
+                "Height",
+                thighId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            DrawBonePlacement2D(
+                "Knee / Shin Pivot from Thigh",
+                "Horizontal",
+                "Height",
+                shinId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
+
+            DrawBonePlacement2D(
+                "Ankle / Foot Pivot from Shin",
+                "Horizontal",
+                "Height",
+                footId,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                overlayFocus);
 
             EditorGUILayout.EndVertical();
         }
@@ -3028,8 +3378,8 @@ namespace BigRetail.Characters.Editor
                 "Shoulder Spacing",
                 0.04f,
                 0.35f,
-                NpcRigBoneId.ShoulderNear,
-                NpcRigBoneId.ShoulderFar);
+                NpcRigBoneId.ShoulderForeground,
+                NpcRigBoneId.ShoulderBackground);
 
             DrawBonePairVerticalOffset(
                 "Shoulder Height",
@@ -3037,8 +3387,8 @@ namespace BigRetail.Characters.Editor
                 "chest. The complete arm chains follow them.",
                 -0.3f,
                 0.4f,
-                NpcRigBoneId.ShoulderNear,
-                NpcRigBoneId.ShoulderFar);
+                NpcRigBoneId.ShoulderForeground,
+                NpcRigBoneId.ShoulderBackground);
 
             DrawBonePairVerticalSpread(
                 "Shoulder Depth Offset",
@@ -3048,8 +3398,8 @@ namespace BigRetail.Characters.Editor
                 "Their shared height stays unchanged.",
                 -0.2f,
                 0.2f,
-                NpcRigBoneId.ShoulderNear,
-                NpcRigBoneId.ShoulderFar);
+                NpcRigBoneId.ShoulderForeground,
+                NpcRigBoneId.ShoulderBackground);
 
             EditorGUILayout.Space(3f);
 
@@ -3057,8 +3407,8 @@ namespace BigRetail.Characters.Editor
                 "Leg Spacing",
                 0.02f,
                 0.25f,
-                NpcRigBoneId.ThighNear,
-                NpcRigBoneId.ThighFar);
+                NpcRigBoneId.ThighForeground,
+                NpcRigBoneId.ThighBackground);
 
             DrawBonePairVerticalOffset(
                 "Hip Pivot Height",
@@ -3066,8 +3416,8 @@ namespace BigRetail.Characters.Editor
                 "pelvis. The complete leg chains follow them.",
                 -0.35f,
                 0.3f,
-                NpcRigBoneId.ThighNear,
-                NpcRigBoneId.ThighFar);
+                NpcRigBoneId.ThighForeground,
+                NpcRigBoneId.ThighBackground);
 
             DrawBonePairVerticalSpread(
                 "Hip Depth Offset",
@@ -3077,8 +3427,8 @@ namespace BigRetail.Characters.Editor
                 "height stays unchanged.",
                 -0.2f,
                 0.2f,
-                NpcRigBoneId.ThighNear,
-                NpcRigBoneId.ThighFar);
+                NpcRigBoneId.ThighForeground,
+                NpcRigBoneId.ThighBackground);
         }
 
 
@@ -3170,9 +3520,9 @@ namespace BigRetail.Characters.Editor
         private void DrawSleeveStyle()
         {
             SerializedProperty nearRole = FindOutfitColorRole(
-                NpcRigPartId.ForearmNear);
+                NpcRigPartId.ForearmForeground);
             SerializedProperty farRole = FindOutfitColorRole(
-                NpcRigPartId.ForearmFar);
+                NpcRigPartId.ForearmBackground);
 
             if (nearRole == null || farRole == null)
             {

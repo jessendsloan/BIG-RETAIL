@@ -22,6 +22,10 @@ namespace BigRetail.Characters.Rigging
         private List<NpcAppearanceBonePlacement> bonePlacements =
             new List<NpcAppearanceBonePlacement>();
 
+        [SerializeField]
+        private List<NpcAuthoringPoseAngle> neutralPoseAngles =
+            new List<NpcAuthoringPoseAngle>();
+
 
         public string DisplayName => displayName;
 
@@ -34,6 +38,9 @@ namespace BigRetail.Characters.Rigging
 
         public IReadOnlyList<NpcAppearancePartShape> PartShapes =>
             partShapes;
+
+        public IReadOnlyList<NpcAuthoringPoseAngle> NeutralPoseAngles =>
+            neutralPoseAngles;
 
 
         public bool Supports(
@@ -89,40 +96,164 @@ namespace BigRetail.Characters.Rigging
         }
 
 
+        public float GetNeutralPoseAngle(
+            NpcRigBoneId boneId)
+        {
+            if (neutralPoseAngles == null)
+            {
+                return 0f;
+            }
+
+            for (int index = 0; index < neutralPoseAngles.Count; index++)
+            {
+                NpcAuthoringPoseAngle entry = neutralPoseAngles[index];
+
+                if (entry.BoneId == boneId)
+                {
+                    return entry.Angle;
+                }
+            }
+
+            return 0f;
+        }
+
+
+        public void SetNeutralPoseAngle(
+            NpcRigBoneId boneId,
+            float angle)
+        {
+            if (neutralPoseAngles == null)
+            {
+                neutralPoseAngles = new List<NpcAuthoringPoseAngle>();
+            }
+
+            for (int index = 0; index < neutralPoseAngles.Count; index++)
+            {
+                if (neutralPoseAngles[index].BoneId != boneId)
+                {
+                    continue;
+                }
+
+                if (Mathf.Approximately(angle, 0f))
+                {
+                    neutralPoseAngles.RemoveAt(index);
+                }
+                else
+                {
+                    neutralPoseAngles[index] =
+                        new NpcAuthoringPoseAngle(boneId, angle);
+                }
+
+                return;
+            }
+
+            if (!Mathf.Approximately(angle, 0f))
+            {
+                neutralPoseAngles.Add(
+                    new NpcAuthoringPoseAngle(boneId, angle));
+                neutralPoseAngles.Sort(
+                    (left, right) =>
+                        left.BoneId.CompareTo(right.BoneId));
+            }
+        }
+
+
+        public void RemoveNeutralPoseAngle(
+            NpcRigBoneId boneId)
+        {
+            SetNeutralPoseAngle(boneId, 0f);
+        }
+
+
+        public void ClearNeutralPose()
+        {
+            neutralPoseAngles?.Clear();
+        }
+
+
         public void ApplyBonePlacements(
             NpcCutoutRig rig)
         {
-            if (rig == null || bonePlacements == null)
+            ApplyBonePlacements(
+                rig,
+                NpcAuthoredDirection.SouthEast);
+        }
+
+
+        public void ApplyBonePlacements(
+            NpcCutoutRig rig,
+            NpcAuthoredDirection direction)
+        {
+            if (rig == null)
             {
                 return;
             }
 
-            for (int index = 0; index < bonePlacements.Count; index++)
+            if (bonePlacements != null)
             {
-                NpcAppearanceBonePlacement placement =
-                    bonePlacements[index];
-
-                if (placement != null
-                    && rig.TryGetBone(
-                        placement.Id,
-                        out Transform bone))
+                for (int index = 0; index < bonePlacements.Count; index++)
                 {
-                    if (NpcRigDefinition.TryGetBoneDefinition(
+                    NpcAppearanceBonePlacement placement =
+                        bonePlacements[index];
+
+                    if (placement != null
+                        && rig.TryGetBone(
                             placement.Id,
-                            out NpcRigBoneDefinition definition))
+                            out Transform bone))
                     {
-                        // Body assets store their authored bind position.
-                        // Apply its difference from the canonical rig so
-                        // directional foot poses remain intact underneath.
-                        bone.localPosition +=
-                            placement.LocalPosition
-                            - definition.LocalPosition;
-                    }
-                    else
-                    {
-                        bone.localPosition = placement.LocalPosition;
+                        if (NpcRigDefinition.TryGetBoneDefinition(
+                                placement.Id,
+                                out NpcRigBoneDefinition definition))
+                        {
+                            // Body assets store their authored bind position.
+                            // Apply its difference from the canonical rig so
+                            // directional foot poses remain intact underneath.
+                            Vector3 canonicalDelta =
+                                placement.LocalPosition
+                                - definition.LocalPosition;
+
+                            bone.localPosition +=
+                                NpcFacingUtility.ResolveAuthoredBonePosition(
+                                    direction,
+                                    placement.Id,
+                                    canonicalDelta);
+                        }
+                        else
+                        {
+                            bone.localPosition =
+                                NpcFacingUtility.ResolveAuthoredBonePosition(
+                                    direction,
+                                    placement.Id,
+                                    placement.LocalPosition);
+                        }
                     }
                 }
+            }
+
+            ApplyNeutralPose(rig);
+        }
+
+
+        private void ApplyNeutralPose(
+            NpcCutoutRig rig)
+        {
+            if (neutralPoseAngles == null)
+            {
+                return;
+            }
+
+            for (int index = 0; index < neutralPoseAngles.Count; index++)
+            {
+                NpcAuthoringPoseAngle entry = neutralPoseAngles[index];
+
+                if (Mathf.Approximately(entry.Angle, 0f)
+                    || !rig.TryGetBone(entry.BoneId, out Transform bone))
+                {
+                    continue;
+                }
+
+                bone.localRotation *=
+                    Quaternion.Euler(0f, 0f, entry.Angle);
             }
         }
 

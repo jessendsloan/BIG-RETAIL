@@ -10,11 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15c3764831d646c6af8dbafeed4f0f06, type: 3}
-  m_Name: TPose
+  m_Name: TPoseSouth
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAuthoringPose
-  displayName: T-Pose
+  displayName: T Pose
   boneAngles:
   - boneId: 7
-    angle: -90
+    angle: -69
+  - boneId: 8
+    angle: 1
+  - boneId: 9
+    angle: -14.5
   - boneId: 11
-    angle: 90
+    angle: 22
+  - boneId: 12
+    angle: -111
+  - boneId: 13
+    angle: 7.6
+  - boneId: 14
+    angle: 9
+  - boneId: 15
+    angle: 2
+  - boneId: 16
+    angle: 13.3
+  - boneId: 17
+    angle: -5
+  - boneId: 18
+    angle: -6
+  - boneId: 19
+    angle: 2.7

@@ -31,14 +31,14 @@ MonoBehaviour:
     visible: 1
   hairRearShape:
     id: 0
-    localPosition: {x: -0.03, y: 0.063, z: 0}
-    localEulerAngles: {x: 0, y: 0, z: 4.2}
-    size: {x: 0.304, y: 0.311}
+    localPosition: {x: -0.035, y: 0.175, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 6.9}
+    size: {x: 0.501, y: 0.543}
     visible: 1
   hairFrontShape:
     id: 11
-    localPosition: {x: -0.011, y: 0.083, z: 0}
-    localEulerAngles: {x: 0, y: 0, z: -78.7}
-    size: {x: 0.116, y: 0.228}
+    localPosition: {x: -0.045, y: 0.284, z: 0}
+    localEulerAngles: {x: 0, y: 0, z: 8.5}
+    size: {x: 0.504, y: 0.319}
     visible: 1
   detailLayers: []

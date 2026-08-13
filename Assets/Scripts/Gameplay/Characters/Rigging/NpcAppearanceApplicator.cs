@@ -13,7 +13,21 @@ namespace BigRetail.Characters.Rigging
             NpcAppearanceSelection selection,
             NpcCutoutRig rig)
         {
-            selection?.BodySilhouette?.ApplyBonePlacements(rig);
+            ApplyBonePlacements(
+                selection,
+                rig,
+                NpcAuthoredDirection.SouthEast);
+        }
+
+
+        public static void ApplyBonePlacements(
+            NpcAppearanceSelection selection,
+            NpcCutoutRig rig,
+            NpcAuthoredDirection direction)
+        {
+            selection?.BodySilhouette?.ApplyBonePlacements(
+                rig,
+                direction);
         }
 
 
@@ -114,7 +128,7 @@ namespace BigRetail.Characters.Rigging
                 finalVisible &= outfitStyle.Visible;
             }
 
-            shape?.Apply(renderer);
+            shape?.Apply(renderer, direction);
             renderer.enabled = finalVisible;
         }
     }

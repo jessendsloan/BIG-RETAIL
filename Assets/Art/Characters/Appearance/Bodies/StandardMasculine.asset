@@ -21,54 +21,54 @@ MonoBehaviour:
     size: {x: 0.39, y: 0.34}
     visible: 1
   - id: 1
-    localPosition: {x: -0.027522963, y: -0.12276421, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: -10.2}
-    size: {x: 0.127, y: 0.32}
+    localPosition: {x: -0.025696496, y: -0.119797416, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.4}
+    size: {x: 0.141, y: 0.32974932}
     visible: 1
   - id: 2
-    localPosition: {x: 0.0013892492, y: -0.12024125, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0.4}
-    size: {x: 0.1014, y: 0.295}
+    localPosition: {x: -0.035986416, y: -0.12977037, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.2}
+    size: {x: 0.093, y: 0.33}
     visible: 1
   - id: 3
-    localPosition: {x: 0.015335899, y: -0.06569627, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 13.139622}
-    size: {x: 0.1008, y: 0.1542}
+    localPosition: {x: -0.0028471495, y: -0.0626991, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -2.6}
+    size: {x: 0.1088, y: 0.14345992}
     visible: 1
   - id: 4
-    localPosition: {x: -0.008742462, y: -0.15657872, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: -2.9}
-    size: {x: 0.14, y: 0.38400003}
+    localPosition: {x: -0.0059790583, y: -0.19025673, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -1.8}
+    size: {x: 0.142, y: 0.42300144}
     visible: 1
   - id: 5
-    localPosition: {x: 0.0052812374, y: -0.14894342, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 1.7}
-    size: {x: 0.0958, y: 0.38571382}
+    localPosition: {x: -0.01990691, y: -0.18627366, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -6.1}
+    size: {x: 0.093, y: 0.4058911}
     visible: 1
   - id: 6
-    localPosition: {x: 0.037069567, y: -0.008133331, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.18440002, y: 0.105399996}
+    localPosition: {x: 0.023565235, y: -0.04126779, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.6}
+    size: {x: 0.184, y: 0.105399996}
     visible: 1
   - id: 7
-    localPosition: {x: -0.0061, y: -0.003528567, z: 0}
+    localPosition: {x: -0.0061, y: -0.009, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.28, y: 0.16}
+    size: {x: 0.317, y: 0.19830002}
     visible: 1
   - id: 8
-    localPosition: {x: 0, y: -0.12986362, z: 0}
+    localPosition: {x: 0, y: -0.14104542, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.279, y: 0.59}
+    size: {x: 0.35, y: 0.6309999}
     visible: 1
   - id: 9
-    localPosition: {x: -0, y: 0.047055554, z: 0}
+    localPosition: {x: -0, y: 0.058216665, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.1159, y: 0.12100001}
+    size: {x: 0.1221, y: 0.1497}
     visible: 1
   - id: 10
-    localPosition: {x: 0.002, y: 0.04886841, z: 0}
+    localPosition: {x: -0, y: 0.05618421, z: 0}
     localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.214, y: 0.249}
+    size: {x: 0.289, y: 0.305}
     visible: 1
   - id: 11
     localPosition: {x: 0.02, y: 0.17, z: 0}
@@ -76,67 +76,71 @@ MonoBehaviour:
     size: {x: 0.37, y: 0.17}
     visible: 1
   - id: 12
-    localPosition: {x: 0.007838725, y: -0.17262213, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 2.6}
-    size: {x: 0.14, y: 0.38400003}
+    localPosition: {x: 0, y: -0.18134937, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.142, y: 0.40299857}
     visible: 1
   - id: 13
-    localPosition: {x: 0.012345103, y: -0.17292015, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 3.8}
-    size: {x: 0.0958, y: 0.43628615}
+    localPosition: {x: 0.0153260045, y: -0.17517702, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 5}
+    size: {x: 0.093, y: 0.381}
     visible: 1
   - id: 14
-    localPosition: {x: 0.037069567, y: -0.0031333305, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.18440002, y: 0.105399996}
+    localPosition: {x: 0.05276246, y: -0.018033022, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -9.5}
+    size: {x: 0.184, y: 0.105399996}
     visible: 1
   - id: 15
-    localPosition: {x: 0.034147084, y: -0.12250801, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 11.9}
-    size: {x: 0.127, y: 0.32}
+    localPosition: {x: 0.051155705, y: -0.069924206, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 35.9}
+    size: {x: 0.145, y: 0.3162507}
     visible: 1
   - id: 16
-    localPosition: {x: 0.019351901, y: -0.11733607, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 9.1}
-    size: {x: 0.1014, y: 0.295}
+    localPosition: {x: 0.050421897, y: -0.11959781, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 19.4}
+    size: {x: 0.094, y: 0.318}
     visible: 1
   - id: 17
-    localPosition: {x: 0, y: -0.067462504, z: 0}
-    localEulerAngles: {x: -0, y: 0, z: 0}
-    size: {x: 0.1008, y: 0.1542}
+    localPosition: {x: 0.01663822, y: -0.05919235, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 15.7}
+    size: {x: 0.1088, y: 0.14054011}
     visible: 1
   bonePlacements:
   - id: 6
-    localPosition: {x: -0.0825, y: 0.032, z: 0}
+    localPosition: {x: -0.109, y: 0.052, z: 0}
   - id: 10
-    localPosition: {x: 0.0825, y: 0.074, z: 0}
+    localPosition: {x: 0.1571, y: 0.0339, z: 0}
   - id: 14
-    localPosition: {x: -0.0756, y: -0.012999998, z: 0}
+    localPosition: {x: -0.0903, y: -0.077999994, z: 0}
   - id: 17
-    localPosition: {x: 0.0756, y: 0.091000006, z: 0}
-  - id: 2
-    localPosition: {x: 0, y: 0.149, z: 0}
-  - id: 3
-    localPosition: {x: 0, y: 0.30018505, z: 0}
-  - id: 4
-    localPosition: {x: 0, y: 0.12413636, z: 0}
-  - id: 5
-    localPosition: {x: -0.001, y: 0.13706316, z: 0}
+    localPosition: {x: 0.0903, y: -0.018000007, z: 0}
   - id: 8
-    localPosition: {x: -0.05333333, y: -0.26666665, z: 0}
-  - id: 9
-    localPosition: {x: -0.004408726, y: -0.24255475, z: 0}
+    localPosition: {x: -0.06652838, y: -0.2555075, z: 0}
   - id: 12
-    localPosition: {x: 0.063999996, y: -0.27733332, z: 0}
-  - id: 13
-    localPosition: {x: 0.043703698, y: -0.24037032, z: 0}
-  - id: 15
-    localPosition: {x: -0.019200006, y: -0.34560004, z: 0}
-  - id: 16
-    localPosition: {x: 0.0098900935, y: -0.34615335, z: 0}
-  - id: 18
-    localPosition: {x: 0.019200006, y: -0.34560004, z: 0}
-  - id: 19
-    localPosition: {x: 0.030204428, y: -0.402614, z: -0.010403749}
+    localPosition: {x: 0.1330567, y: -0.18415815, z: 0}
   - id: 1
-    localPosition: {x: 0.131, y: 0.915, z: 0}
+    localPosition: {x: 0, y: 0.797, z: 0}
+  - id: 2
+    localPosition: {x: 0, y: 0.164, z: 0}
+  - id: 3
+    localPosition: {x: 0, y: 0.309, z: 0}
+  - id: 4
+    localPosition: {x: 0, y: 0.128, z: 0}
+  - id: 5
+    localPosition: {x: 0, y: 0.164, z: 0}
+  - id: 9
+    localPosition: {x: -0.068, y: -0.255, z: 0}
+  - id: 13
+    localPosition: {x: 0.099, y: -0.245, z: 0}
+  - id: 19
+    localPosition: {x: 0.059, y: -0.338, z: -0.009085385}
+  - id: 18
+    localPosition: {x: 0.020149928, y: -0.3626987, z: 0}
+  - id: 7
+    localPosition: {x: 0, y: 0, z: 0}
+  - id: 11
+    localPosition: {x: 0, y: 0, z: 0}
+  - id: 15
+    localPosition: {x: -0.033097673, y: -0.37984917, z: 0}
+  - id: 16
+    localPosition: {x: -0.0073989616, y: -0.36433476, z: 0}

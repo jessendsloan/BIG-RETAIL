@@ -24,8 +24,11 @@ namespace BigRetail.Characters.Editor
         private const string PersonPrefabPath =
             "Assets/Prefabs/Characters/Core/Person.prefab";
 
-        private const string WalkClipPath =
-            "Assets/Animations/Characters/Core/Person_Walk.anim";
+        private const string SouthFacingWalkClipPath =
+            "Assets/Animations/Characters/Core/Person_Walk_SouthFacing.anim";
+
+        private const string NorthFacingWalkClipPath =
+            "Assets/Animations/Characters/Core/Person_Walk_NorthFacing.anim";
 
         private const float HorizontalSpacing = 1.25f;
         private const float VerticalSpacing = 2.35f;
@@ -53,7 +56,8 @@ namespace BigRetail.Characters.Editor
             new List<PreviewPerson>();
 
         private PreviewRenderUtility previewUtility;
-        private AnimationClip walkClip;
+        private AnimationClip southFacingWalkClip;
+        private AnimationClip northFacingWalkClip;
         private Texture previewTexture;
         private Bounds lineupBounds;
         private bool hasLineupBounds;
@@ -83,8 +87,12 @@ namespace BigRetail.Characters.Editor
                 return;
             }
 
-            walkClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                WalkClipPath);
+            southFacingWalkClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    SouthFacingWalkClipPath);
+            northFacingWalkClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    NorthFacingWalkClipPath);
             previewUtility = new PreviewRenderUtility();
             previewUtility.camera.orthographic = true;
             previewUtility.camera.allowHDR = false;
@@ -206,19 +214,25 @@ namespace BigRetail.Characters.Editor
                 EnsureFacing(person, facing);
                 RestoreBindPose(person);
 
+                AnimationClip activeWalkClip =
+                    NpcFacingUtility.UsesNorthFacingAnimation(facing)
+                        ? northFacingWalkClip
+                        : southFacingWalkClip;
+
                 if (motion != NpcPopulationAuditMotion.BindPose
-                    && walkClip != null
-                    && walkClip.length > 0f)
+                    && activeWalkClip != null
+                    && activeWalkClip.length > 0f)
                 {
                     float animationPhase =
                         people.Count > 0
-                            ? index / (float)people.Count * walkClip.length
+                            ? index / (float)people.Count
+                              * activeWalkClip.length
                             : 0f;
-                    walkClip.SampleAnimation(
+                    activeWalkClip.SampleAnimation(
                         person.Root,
                         Mathf.Repeat(
                             sampleTime + animationPhase,
-                            walkClip.length));
+                            activeWalkClip.length));
                 }
 
                 person.Root.transform.position =
@@ -290,7 +304,8 @@ namespace BigRetail.Characters.Editor
 
             people.Clear();
             hasLineupBounds = false;
-            walkClip = null;
+            southFacingWalkClip = null;
+            northFacingWalkClip = null;
             DestroyPreviewTexture();
 
             if (previewUtility != null)

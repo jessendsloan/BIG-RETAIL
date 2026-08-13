@@ -41,6 +41,9 @@ namespace BigRetail.Characters.Editor
         private Texture previewTexture;
         private float zoom = 1f;
         private readonly Dictionary<NpcRigBoneId, Quaternion>
+            sourceLocalRotations =
+                new Dictionary<NpcRigBoneId, Quaternion>();
+        private readonly Dictionary<NpcRigBoneId, Quaternion>
             bindLocalRotations =
                 new Dictionary<NpcRigBoneId, Quaternion>();
 
@@ -62,12 +65,18 @@ namespace BigRetail.Characters.Editor
                 return;
             }
 
-            RestoreBindPose();
+            RestoreSourcePose();
             previewProfile.Configure(
                 "Appearance Creator Preview",
                 selection);
 
             previewRig.SetAppearancePreview(previewProfile);
+
+            // SetAppearancePreview applies the current facing immediately.
+            // Return to the untouched prefab pose before applying it once with
+            // the requested facing, or authored rotations accumulate on every
+            // slider refresh.
+            RestoreSourcePose();
             previewRig.SetFacing(facing);
             CaptureBindPose();
         }
@@ -77,7 +86,7 @@ namespace BigRetail.Characters.Editor
             NpcFacing facing)
         {
             EnsureCreated();
-            RestoreBindPose();
+            RestoreSourcePose();
             previewRig?.SetFacing(facing);
             CaptureBindPose();
         }
@@ -195,6 +204,7 @@ namespace BigRetail.Characters.Editor
 
         public void Dispose()
         {
+            sourceLocalRotations.Clear();
             bindLocalRotations.Clear();
             previewRig = null;
 
@@ -287,6 +297,8 @@ namespace BigRetail.Characters.Editor
                 return;
             }
 
+            CapturePose(sourceLocalRotations);
+
             previewProfile =
                 ScriptableObject.CreateInstance<NpcAppearanceProfile>();
             previewProfile.name = "Appearance Creator Preview";
@@ -297,7 +309,26 @@ namespace BigRetail.Characters.Editor
 
         private void CaptureBindPose()
         {
-            bindLocalRotations.Clear();
+            CapturePose(bindLocalRotations);
+        }
+
+
+        private void RestoreBindPose()
+        {
+            RestorePose(bindLocalRotations);
+        }
+
+
+        private void RestoreSourcePose()
+        {
+            RestorePose(sourceLocalRotations);
+        }
+
+
+        private void CapturePose(
+            Dictionary<NpcRigBoneId, Quaternion> destination)
+        {
+            destination.Clear();
 
             if (previewRig == null)
             {
@@ -313,13 +344,14 @@ namespace BigRetail.Characters.Editor
 
                 if (previewRig.TryGetBone(id, out Transform bone))
                 {
-                    bindLocalRotations[id] = bone.localRotation;
+                    destination[id] = bone.localRotation;
                 }
             }
         }
 
 
-        private void RestoreBindPose()
+        private void RestorePose(
+            IReadOnlyDictionary<NpcRigBoneId, Quaternion> source)
         {
             if (previewRig == null)
             {
@@ -327,7 +359,7 @@ namespace BigRetail.Characters.Editor
             }
 
             foreach (KeyValuePair<NpcRigBoneId, Quaternion> entry
-                     in bindLocalRotations)
+                     in source)
             {
                 if (previewRig.TryGetBone(
                         entry.Key,
@@ -588,38 +620,38 @@ namespace BigRetail.Characters.Editor
                     AddBones(
                         result,
                         NpcRigBoneId.Chest,
-                        NpcRigBoneId.ShoulderNear,
-                        NpcRigBoneId.UpperArmNear,
-                        NpcRigBoneId.ForearmNear,
-                        NpcRigBoneId.HandNear);
+                        NpcRigBoneId.ShoulderForeground,
+                        NpcRigBoneId.UpperArmForeground,
+                        NpcRigBoneId.ForearmForeground,
+                        NpcRigBoneId.HandForeground);
                     break;
 
                 case NpcRigOverlayFocus.FarArm:
                     AddBones(
                         result,
                         NpcRigBoneId.Chest,
-                        NpcRigBoneId.ShoulderFar,
-                        NpcRigBoneId.UpperArmFar,
-                        NpcRigBoneId.ForearmFar,
-                        NpcRigBoneId.HandFar);
+                        NpcRigBoneId.ShoulderBackground,
+                        NpcRigBoneId.UpperArmBackground,
+                        NpcRigBoneId.ForearmBackground,
+                        NpcRigBoneId.HandBackground);
                     break;
 
                 case NpcRigOverlayFocus.NearLeg:
                     AddBones(
                         result,
                         NpcRigBoneId.Pelvis,
-                        NpcRigBoneId.ThighNear,
-                        NpcRigBoneId.ShinNear,
-                        NpcRigBoneId.FootNear);
+                        NpcRigBoneId.ThighForeground,
+                        NpcRigBoneId.ShinForeground,
+                        NpcRigBoneId.FootForeground);
                     break;
 
                 case NpcRigOverlayFocus.FarLeg:
                     AddBones(
                         result,
                         NpcRigBoneId.Pelvis,
-                        NpcRigBoneId.ThighFar,
-                        NpcRigBoneId.ShinFar,
-                        NpcRigBoneId.FootFar);
+                        NpcRigBoneId.ThighBackground,
+                        NpcRigBoneId.ShinBackground,
+                        NpcRigBoneId.FootBackground);
                     break;
 
                 default:
@@ -673,46 +705,46 @@ namespace BigRetail.Characters.Editor
                 case NpcRigBoneId.Head:
                     return "Head / Head Pivot";
 
-                case NpcRigBoneId.ShoulderNear:
+                case NpcRigBoneId.ShoulderForeground:
                     return "Foreground Shoulder Spacing Anchor";
 
-                case NpcRigBoneId.UpperArmNear:
+                case NpcRigBoneId.UpperArmForeground:
                     return "Foreground Shoulder / Upper-Arm Pivot";
 
-                case NpcRigBoneId.ForearmNear:
+                case NpcRigBoneId.ForearmForeground:
                     return "Foreground Elbow / Forearm Pivot";
 
-                case NpcRigBoneId.HandNear:
+                case NpcRigBoneId.HandForeground:
                     return "Foreground Wrist / Hand Pivot";
 
-                case NpcRigBoneId.ShoulderFar:
+                case NpcRigBoneId.ShoulderBackground:
                     return "Background Shoulder Spacing Anchor";
 
-                case NpcRigBoneId.UpperArmFar:
+                case NpcRigBoneId.UpperArmBackground:
                     return "Background Shoulder / Upper-Arm Pivot";
 
-                case NpcRigBoneId.ForearmFar:
+                case NpcRigBoneId.ForearmBackground:
                     return "Background Elbow / Forearm Pivot";
 
-                case NpcRigBoneId.HandFar:
+                case NpcRigBoneId.HandBackground:
                     return "Background Wrist / Hand Pivot";
 
-                case NpcRigBoneId.ThighNear:
+                case NpcRigBoneId.ThighForeground:
                     return "Foreground Hip / Thigh Pivot";
 
-                case NpcRigBoneId.ShinNear:
+                case NpcRigBoneId.ShinForeground:
                     return "Foreground Knee / Shin Pivot";
 
-                case NpcRigBoneId.FootNear:
+                case NpcRigBoneId.FootForeground:
                     return "Foreground Ankle / Foot Pivot";
 
-                case NpcRigBoneId.ThighFar:
+                case NpcRigBoneId.ThighBackground:
                     return "Background Hip / Thigh Pivot";
 
-                case NpcRigBoneId.ShinFar:
+                case NpcRigBoneId.ShinBackground:
                     return "Background Knee / Shin Pivot";
 
-                case NpcRigBoneId.FootFar:
+                case NpcRigBoneId.FootBackground:
                     return "Background Ankle / Foot Pivot";
 
                 default:
@@ -741,12 +773,12 @@ namespace BigRetail.Characters.Editor
                     NpcRigPartId.HairRear,
                     NpcRigPartId.HairFront,
                     NpcRigPartId.Torso,
-                    NpcRigPartId.UpperArmNear,
-                    NpcRigPartId.UpperArmFar,
-                    NpcRigPartId.ForearmNear,
-                    NpcRigPartId.ForearmFar,
-                    NpcRigPartId.HandNear,
-                    NpcRigPartId.HandFar);
+                    NpcRigPartId.UpperArmForeground,
+                    NpcRigPartId.UpperArmBackground,
+                    NpcRigPartId.ForearmForeground,
+                    NpcRigPartId.ForearmBackground,
+                    NpcRigPartId.HandForeground,
+                    NpcRigPartId.HandBackground);
             }
 
             Renderer[] renderers =

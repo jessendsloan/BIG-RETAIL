@@ -10,25 +10,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15c3764831d646c6af8dbafeed4f0f06, type: 3}
-  m_Name: Neutral2
+  m_Name: TPoseNorth
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcAuthoringPose
-  displayName: Neutral 2
+  displayName: T Pose North
   boneAngles:
   - boneId: 7
-    angle: 33.3
+    angle: 84
   - boneId: 8
-    angle: -12.6
+    angle: 1
   - boneId: 9
-    angle: -22.4
+    angle: -14.5
+  - boneId: 11
+    angle: -85
   - boneId: 12
-    angle: -25.9
+    angle: -140
   - boneId: 13
-    angle: 9
+    angle: -6.4
   - boneId: 14
-    angle: 8.9
+    angle: 3
   - boneId: 15
-    angle: -10.4
+    angle: -3
   - boneId: 16
-    angle: 5.7
+    angle: 13.3
+  - boneId: 17
+    angle: 1
   - boneId: 18
-    angle: -5.9
+    angle: 3
+  - boneId: 19
+    angle: 2.7

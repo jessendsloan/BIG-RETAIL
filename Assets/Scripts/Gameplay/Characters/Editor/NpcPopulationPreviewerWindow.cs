@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using BigRetail.Characters.Rigging;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace BigRetail.Characters.Editor
@@ -23,10 +25,10 @@ namespace BigRetail.Characters.Editor
 
 
     /// <summary>
-    /// Read-only showroom for either spawn-authorized population options or
-    /// every saved appearance-library asset. The displayed person lives in
-    /// Unity's hidden preview scene; this window never edits a gameplay scene
-    /// or prefab.
+    /// Showroom for either spawn-authorized population options or every saved
+    /// appearance-library asset. Preview people live in Unity's hidden preview
+    /// scene. A deliberate workbench action may place a copy in the open scene,
+    /// but this window never edits the shared Person prefab or saves a scene.
     /// </summary>
     public sealed class NpcPopulationPreviewerWindow : EditorWindow
     {
@@ -39,8 +41,11 @@ namespace BigRetail.Characters.Editor
         private const string PersonIdleClipPath =
             "Assets/Animations/Characters/Core/Person_Idle.anim";
 
-        private const string PersonWalkClipPath =
-            "Assets/Animations/Characters/Core/Person_Walk.anim";
+        private const string PersonSouthFacingWalkClipPath =
+            "Assets/Animations/Characters/Core/Person_Walk_SouthFacing.anim";
+
+        private const string PersonNorthFacingWalkClipPath =
+            "Assets/Animations/Characters/Core/Person_Walk_NorthFacing.anim";
 
         private const string AppearanceRoot =
             "Assets/Art/Characters/Appearance";
@@ -59,18 +64,18 @@ namespace BigRetail.Characters.Editor
 
         private static readonly string[] FacingLabels =
         {
-            "South East",
-            "South West",
+            "North West",
             "North East",
-            "North West"
+            "South West",
+            "South East"
         };
 
         private static readonly NpcFacing[] Facings =
         {
-            NpcFacing.SouthEast,
-            NpcFacing.SouthWest,
+            NpcFacing.NorthWest,
             NpcFacing.NorthEast,
-            NpcFacing.NorthWest
+            NpcFacing.SouthWest,
+            NpcFacing.SouthEast
         };
 
         private static readonly string[] AnimationLabels =
@@ -116,7 +121,11 @@ namespace BigRetail.Characters.Editor
         private NpcAppearanceProfile previewProfile;
         private Texture previewTexture;
         private AnimationClip idleClip;
-        private AnimationClip walkClip;
+        private AnimationClip southFacingWalkClip;
+        private AnimationClip northFacingWalkClip;
+        private Hash128 personPrefabDependencyHash;
+        private bool hasPersonPrefabDependencyHash;
+        private bool personRigReloadQueued;
 
         private readonly List<PreviewTransformPose> bindPose =
             new List<PreviewTransformPose>();
@@ -179,6 +188,8 @@ namespace BigRetail.Characters.Editor
             lastEditorUpdateTime = EditorApplication.timeSinceStartup;
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.update += OnEditorUpdate;
+            EditorApplication.projectChanged -= OnProjectChanged;
+            EditorApplication.projectChanged += OnProjectChanged;
             FindCatalog();
             RefreshAppearanceLibrary();
             SelectFirstDefinition();
@@ -189,6 +200,7 @@ namespace BigRetail.Characters.Editor
 
         private void OnFocus()
         {
+            QueuePersonRigReloadIfDependencyChanged();
             RefreshAppearanceLibrary();
 
             if (previewSource
@@ -204,6 +216,9 @@ namespace BigRetail.Characters.Editor
         private void OnDisable()
         {
             EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.update -= ReloadPersonRigWhenEditorReady;
+            EditorApplication.projectChanged -= OnProjectChanged;
+            personRigReloadQueued = false;
             CleanupPreviewScene();
         }
 
@@ -211,7 +226,77 @@ namespace BigRetail.Characters.Editor
         private void OnDestroy()
         {
             EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.update -= ReloadPersonRigWhenEditorReady;
+            EditorApplication.projectChanged -= OnProjectChanged;
+            personRigReloadQueued = false;
             CleanupPreviewScene();
+        }
+
+        private void OnProjectChanged()
+        {
+            QueuePersonRigReloadIfDependencyChanged();
+        }
+
+        private void QueuePersonRigReloadIfDependencyChanged()
+        {
+            Hash128 currentHash =
+                AssetDatabase.GetAssetDependencyHash(PersonPrefabPath);
+
+            if (!hasPersonPrefabDependencyHash)
+            {
+                personPrefabDependencyHash = currentHash;
+                hasPersonPrefabDependencyHash = true;
+                return;
+            }
+
+            if (currentHash == personPrefabDependencyHash)
+            {
+                return;
+            }
+
+            QueuePersonRigReload();
+        }
+
+        private void QueuePersonRigReload()
+        {
+            if (personRigReloadQueued)
+            {
+                return;
+            }
+
+            personRigReloadQueued = true;
+            EditorApplication.update -= ReloadPersonRigWhenEditorReady;
+            EditorApplication.update += ReloadPersonRigWhenEditorReady;
+        }
+
+        private void ReloadPersonRigWhenEditorReady()
+        {
+            if (EditorApplication.isCompiling
+                || EditorApplication.isUpdating)
+            {
+                return;
+            }
+
+            EditorApplication.update -= ReloadPersonRigWhenEditorReady;
+            personRigReloadQueued = false;
+            ReloadPersonRig(
+                "Person rig reloaded from the latest project assets.");
+        }
+
+        private void ReloadPersonRig(string successMessage)
+        {
+            CleanupPreviewScene();
+            EnsurePreviewScene();
+
+            if (previewRig == null || previewProfile == null)
+            {
+                Repaint();
+                return;
+            }
+
+            ApplyCurrentAppearance();
+            SetStatus(successMessage, MessageType.Info);
+            Repaint();
         }
 
 
@@ -225,9 +310,9 @@ namespace BigRetail.Characters.Editor
             EditorGUILayout.HelpBox(
                 "Preview spawn-authorized Population options or every saved " +
                 "asset in the Appearance Library. The person on the right " +
-                "exists " +
-                "only inside this window; scenes and prefabs are never " +
-                "changed.",
+                "exists only inside this window unless you deliberately " +
+                "place it in the open scene with the Unity AI workbench " +
+                "button below. Prefabs are never changed.",
                 MessageType.Info);
 
             if (catalog == null)
@@ -276,6 +361,10 @@ namespace BigRetail.Characters.Editor
                     DrawAppearanceSelectors();
                     EditorGUILayout.Space(10f);
                     DrawRandomControls();
+                    EditorGUILayout.Space(10f);
+                    DrawPersonRigReloadControls();
+                    EditorGUILayout.Space(10f);
+                    DrawSceneWorkbenchControls();
 
                     if (!string.IsNullOrWhiteSpace(statusMessage))
                     {
@@ -835,6 +924,179 @@ namespace BigRetail.Characters.Editor
         }
 
 
+        private void DrawSceneWorkbenchControls()
+        {
+            EditorGUILayout.LabelField(
+                "Unity AI Scene Workbench",
+                EditorStyles.boldLabel);
+
+            EditorGUILayout.LabelField(
+                "Place this exact preview as a real, selected Person in the " +
+                "open scene. It keeps the shared rig and Animator so Unity " +
+                "AI can inspect, pose, and animate it. The scene is not " +
+                "saved automatically.",
+                EditorStyles.wordWrappedMiniLabel);
+
+            if (GUILayout.Button(
+                    "Place Current Person in Open Scene",
+                    GUILayout.Height(32f)))
+            {
+                PlaceCurrentPersonInOpenScene();
+            }
+        }
+
+        private void DrawPersonRigReloadControls()
+        {
+            EditorGUILayout.LabelField(
+                "Preview Rig",
+                EditorStyles.boldLabel);
+
+            EditorGUILayout.LabelField(
+                "This hidden Person refreshes automatically when its " +
+                "project assets change. Reload it manually if the preview " +
+                "ever looks older than the current Person prefab.",
+                EditorStyles.wordWrappedMiniLabel);
+
+            if (GUILayout.Button(
+                    "Reload Person Rig",
+                    GUILayout.Height(24f)))
+            {
+                ReloadPersonRig(
+                    "Person rig reloaded from the latest project assets.");
+            }
+        }
+
+
+        private void PlaceCurrentPersonInOpenScene()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                SetStatus(
+                    "Exit Play Mode before placing a workbench Person.",
+                    MessageType.Warning);
+                return;
+            }
+
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            {
+                SetStatus(
+                    "Exit Prefab Mode first so the Person is placed in the " +
+                    "open gameplay scene.",
+                    MessageType.Warning);
+                return;
+            }
+
+            NpcAppearanceSelection appearance =
+                CreateCurrentSelection();
+
+            if (!appearance.TryValidate(out string failureReason))
+            {
+                SetStatus(failureReason, MessageType.Warning);
+                return;
+            }
+
+            Scene activeScene = SceneManager.GetActiveScene();
+
+            if (!activeScene.IsValid() || !activeScene.isLoaded)
+            {
+                SetStatus(
+                    "Open a gameplay scene before placing a workbench " +
+                    "Person.",
+                    MessageType.Warning);
+                return;
+            }
+
+            GameObject personPrefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PersonPrefabPath);
+
+            if (personPrefab == null)
+            {
+                SetStatus(
+                    "The shared Person prefab was not found at " +
+                    PersonPrefabPath + ".",
+                    MessageType.Error);
+                return;
+            }
+
+            GameObject scenePerson =
+                PrefabUtility.InstantiatePrefab(
+                    personPrefab,
+                    activeScene) as GameObject;
+
+            if (scenePerson == null)
+            {
+                SetStatus(
+                    "Unity could not place the shared Person prefab in the " +
+                    "open scene.",
+                    MessageType.Error);
+                return;
+            }
+
+            Undo.RegisterCreatedObjectUndo(
+                scenePerson,
+                "Place Unity AI Workbench Person");
+
+            scenePerson.name = "Unity AI Workbench Person";
+
+            Vector3 scenePosition = Vector3.zero;
+            SceneView sceneView = SceneView.lastActiveSceneView;
+
+            if (sceneView != null)
+            {
+                scenePosition = sceneView.pivot;
+                scenePosition.z = 0f;
+            }
+
+            scenePerson.transform.SetPositionAndRotation(
+                scenePosition,
+                Quaternion.identity);
+            scenePerson.transform.localScale = Vector3.one;
+
+            NpcCutoutRig sceneRig =
+                scenePerson.GetComponentInChildren<NpcCutoutRig>(true);
+
+            if (sceneRig == null)
+            {
+                Undo.DestroyObjectImmediate(scenePerson);
+                SetStatus(
+                    "The shared Person prefab has no NPC cutout rig.",
+                    MessageType.Error);
+                return;
+            }
+
+            if (!sceneRig.TrySetAppearanceSelection(
+                    appearance,
+                    out failureReason))
+            {
+                Undo.DestroyObjectImmediate(scenePerson);
+                SetStatus(failureReason, MessageType.Error);
+                return;
+            }
+
+            sceneRig.SetFacing(facing);
+
+            Animator animator =
+                scenePerson.GetComponentInChildren<Animator>(true);
+
+            if (animator != null)
+            {
+                animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            }
+
+            Selection.activeGameObject = scenePerson;
+            EditorGUIUtility.PingObject(scenePerson);
+            EditorSceneManager.MarkSceneDirty(activeScene);
+            SceneView.RepaintAll();
+
+            SetStatus(
+                "Placed and selected Unity AI Workbench Person in " +
+                activeScene.name + ". Save the scene only if you want to " +
+                "keep it.",
+                MessageType.Info);
+        }
+
+
         private TAsset DrawChoiceRow<TChoice, TAsset>(
             string label,
             TAsset current,
@@ -1294,6 +1556,10 @@ namespace BigRetail.Characters.Editor
             previewProfile.hideFlags = HideFlags.HideAndDontSave;
 
             CaptureBindPose();
+
+            personPrefabDependencyHash =
+                AssetDatabase.GetAssetDependencyHash(PersonPrefabPath);
+            hasPersonPrefabDependencyHash = true;
         }
 
 
@@ -1368,8 +1634,12 @@ namespace BigRetail.Characters.Editor
         {
             idleClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
                 PersonIdleClipPath);
-            walkClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                PersonWalkClipPath);
+            southFacingWalkClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    PersonSouthFacingWalkClipPath);
+            northFacingWalkClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    PersonNorthFacingWalkClipPath);
         }
 
 
@@ -1416,7 +1686,9 @@ namespace BigRetail.Characters.Editor
                     return idleClip;
 
                 case NpcPopulationPreviewAnimation.Walk:
-                    return walkClip;
+                    return NpcFacingUtility.UsesNorthFacingAnimation(facing)
+                        ? northFacingWalkClip
+                        : southFacingWalkClip;
 
                 default:
                     return null;

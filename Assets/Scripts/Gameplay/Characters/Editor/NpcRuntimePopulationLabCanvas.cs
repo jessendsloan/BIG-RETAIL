@@ -18,8 +18,8 @@ namespace BigRetail.Characters.Editor
 
         private const float HorizontalSpacing = 1.35f;
         private const float VerticalSpacing = 2.25f;
-        private const float RouteRadiusX = 0.22f;
-        private const float RouteRadiusY = 0.14f;
+        private const float RouteRadiusX = 0.5f;
+        private const float RouteRadiusY = 0.32f;
 
         private readonly List<RuntimePerson> people =
             new List<RuntimePerson>();
