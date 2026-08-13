@@ -35,10 +35,13 @@ namespace BigRetail.Map.Walls
 
         public int SkippedMissingFoundationCount { get; }
 
+        public int SkippedPlacementConstraintCount { get; }
+
         public int SkippedCount =>
             SkippedOutsideMapCount
             + SkippedOutsideConstructionAreaCount
-            + SkippedMissingFoundationCount;
+            + SkippedMissingFoundationCount
+            + SkippedPlacementConstraintCount;
 
         public int SatisfiedCount =>
             ChangedCount
@@ -58,6 +61,7 @@ namespace BigRetail.Map.Walls
             int skippedOutsideMapCount,
             int skippedOutsideConstructionAreaCount,
             int skippedMissingFoundationCount,
+            int skippedPlacementConstraintCount,
             WallChangeFailure failure,
             CellEdge failedEdge)
         {
@@ -71,6 +75,8 @@ namespace BigRetail.Map.Walls
                 skippedOutsideConstructionAreaCount;
             SkippedMissingFoundationCount =
                 skippedMissingFoundationCount;
+            SkippedPlacementConstraintCount =
+                skippedPlacementConstraintCount;
             Failure = failure;
             FailedEdge = failedEdge;
         }
@@ -83,7 +89,8 @@ namespace BigRetail.Map.Walls
             int alreadyExistingCount,
             int skippedOutsideMapCount,
             int skippedOutsideConstructionAreaCount,
-            int skippedMissingFoundationCount)
+            int skippedMissingFoundationCount,
+            int skippedPlacementConstraintCount)
         {
             return new WallEnsureResult(
                 true,
@@ -94,6 +101,7 @@ namespace BigRetail.Map.Walls
                 skippedOutsideMapCount,
                 skippedOutsideConstructionAreaCount,
                 skippedMissingFoundationCount,
+                skippedPlacementConstraintCount,
                 WallChangeFailure.None,
                 default);
         }
@@ -110,6 +118,7 @@ namespace BigRetail.Map.Walls
                 requestedCount,
                 uniqueCount,
                 default,
+                0,
                 0,
                 0,
                 0,

@@ -18,6 +18,10 @@ namespace BigRetail.Map.Walls
         private readonly WallState wallState;
         private readonly IFoundationSupportQuery foundationSupport;
 
+        private readonly List<IWallPlacementConstraint>
+            placementConstraints =
+                new List<IWallPlacementConstraint>();
+
 
         public WallConstructionService(
             GridMapDefinition mapDefinition,
@@ -54,6 +58,32 @@ namespace BigRetail.Map.Walls
         }
 
 
+        public void RegisterPlacementConstraint(
+            IWallPlacementConstraint constraint)
+        {
+            if (constraint == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(constraint));
+            }
+
+            if (!placementConstraints.Contains(constraint))
+            {
+                placementConstraints.Add(constraint);
+            }
+        }
+
+
+        public void UnregisterPlacementConstraint(
+            IWallPlacementConstraint constraint)
+        {
+            if (constraint != null)
+            {
+                placementConstraints.Remove(constraint);
+            }
+        }
+
+
         public WallChangeResult EvaluatePlacement(
             CellEdge edge)
         {
@@ -76,6 +106,16 @@ namespace BigRetail.Map.Walls
                 return WallChangeResult.Rejected(
                     edge,
                     WallChangeFailure.AlreadyExists);
+            }
+
+            WallChangeFailure constraintFailure =
+                EvaluatePlacementConstraints(edge);
+
+            if (constraintFailure != WallChangeFailure.None)
+            {
+                return WallChangeResult.Rejected(
+                    edge,
+                    constraintFailure);
             }
 
             if (!HasFoundationSupport(edge))
@@ -223,6 +263,7 @@ namespace BigRetail.Map.Walls
             int skippedOutsideMapCount = 0;
             int skippedOutsideConstructionAreaCount = 0;
             int skippedMissingFoundationCount = 0;
+            int skippedPlacementConstraintCount = 0;
 
             for (int index = 0;
                  index < edges.Count;
@@ -260,6 +301,13 @@ namespace BigRetail.Map.Walls
                     continue;
                 }
 
+                if (EvaluatePlacementConstraints(edge)
+                    != WallChangeFailure.None)
+                {
+                    skippedPlacementConstraintCount++;
+                    continue;
+                }
+
                 missingLegalEdges.Add(edge);
             }
 
@@ -281,7 +329,8 @@ namespace BigRetail.Map.Walls
                 alreadyExistingCount,
                 skippedOutsideMapCount,
                 skippedOutsideConstructionAreaCount,
-                skippedMissingFoundationCount);
+                skippedMissingFoundationCount,
+                skippedPlacementConstraintCount);
         }
 
 
@@ -425,6 +474,18 @@ namespace BigRetail.Map.Walls
                         edge,
                         WallChangeFailure.MissingFoundation);
                 }
+
+
+                WallChangeFailure constraintFailure =
+                    EvaluatePlacementConstraints(edge);
+
+                if (constraintFailure != WallChangeFailure.None)
+                {
+                    return WallBatchChangeResult.Rejected(
+                        edit.Count,
+                        edge,
+                        constraintFailure);
+                }
             }
 
             if (!wallState.TryAddWalls(edit.Edges))
@@ -499,6 +560,27 @@ namespace BigRetail.Map.Walls
                        edge.FirstCell)
                 || foundationSupport.HasFoundation(
                        edge.SecondCell);
+        }
+
+
+        private WallChangeFailure EvaluatePlacementConstraints(
+            CellEdge edge)
+        {
+            for (int index = 0;
+                 index < placementConstraints.Count;
+                 index++)
+            {
+                WallChangeFailure failure =
+                    placementConstraints[index]
+                        .EvaluateWallPlacement(edge);
+
+                if (failure != WallChangeFailure.None)
+                {
+                    return failure;
+                }
+            }
+
+            return WallChangeFailure.None;
         }
     }
 }

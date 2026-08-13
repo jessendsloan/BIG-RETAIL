@@ -234,15 +234,15 @@ namespace BigRetail.Characters.Rigging.Tests
 
             Assert.That(
                 southBindings.Any(
-                    binding => binding.path.Contains("Near")),
+                    binding => binding.path.Contains("Foreground")),
                 Is.True,
-                "The south-facing walk must target the Near chain.");
+                "The south-facing walk must target the Foreground chain.");
 
             Assert.That(
                 southBindings.Any(
-                    binding => binding.path.Contains("Far")),
+                    binding => binding.path.Contains("Background")),
                 Is.True,
-                "The south-facing walk must target the Far chain.");
+                "The south-facing walk must target the Background chain.");
 
             Assert.That(
                 southBindings.Any(

@@ -96,6 +96,33 @@
         </ui:VisualElement>
 
         <ui:VisualElement
+            name="fixture-definition-picker"
+            class="finish-picker"
+            picking-mode="Position">
+
+            <ui:Label
+                text="Fixtures"
+                class="finish-picker__title"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="fixture-picker__content"
+                picking-mode="Position">
+
+                <ui:VisualElement
+                    name="fixture-definition-picker-items"
+                    class="finish-picker__items"
+                    picking-mode="Position" />
+
+                <ui:Button
+                    name="fixture-rotate-button"
+                    text="↻"
+                    class="fixture-picker__rotate-button"
+                    tooltip="Rotate the selected fixture clockwise (R)." />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="demolition-picker"
             class="demolition-picker"
             picking-mode="Position">
@@ -133,6 +160,15 @@
                     tooltip="Demolish walls">
                     <ui:VisualElement
                         class="demolition-picker__icon demolition-picker__icon--walls"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-fixtures-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish fixtures">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--fixtures"
                         picking-mode="Ignore" />
                 </ui:Button>
             </ui:VisualElement>
@@ -270,6 +306,15 @@
                     tooltip="Doors">
                     <ui:VisualElement
                         class="construction-toolbar__icon construction-toolbar__icon--doors"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="fixtures-button"
+                    class="construction-toolbar__button"
+                    tooltip="Fixtures">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--fixtures"
                         picking-mode="Ignore" />
                 </ui:Button>
 

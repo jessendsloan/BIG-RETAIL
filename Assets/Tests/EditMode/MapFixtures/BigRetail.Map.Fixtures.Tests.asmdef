@@ -1,0 +1,20 @@
+{
+    "name": "BigRetail.Map.Fixtures.Tests",
+    "rootNamespace": "",
+    "references": [
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain",
+        "BigRetail.Map.Fixtures"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

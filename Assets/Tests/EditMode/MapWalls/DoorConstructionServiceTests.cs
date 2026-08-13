@@ -68,7 +68,8 @@ namespace BigRetail.Map.Walls.Tests
                 eventObservedCompleteState =
                     reportedAssembly.Id == assemblyId
                     && state.AssemblyCount == 1
-                    && state.OccupiedEdgeCount == 4;
+                    && state.OccupiedEdgeCount == 4
+                    && state.ReservedPassageCellCount == 4;
             };
 
             DoorAssemblyChangeResult result =
@@ -82,6 +83,9 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(result.SegmentCount, Is.EqualTo(4));
             Assert.That(state.AssemblyCount, Is.EqualTo(1));
             Assert.That(state.OccupiedEdgeCount, Is.EqualTo(4));
+            Assert.That(
+                state.ReservedPassageCellCount,
+                Is.EqualTo(4));
             Assert.That(eventObservedCompleteState, Is.True);
 
             for (int index = 0;
@@ -129,6 +133,25 @@ namespace BigRetail.Map.Walls.Tests
 
             Assert.That(
                 result.Assembly.IsPassageEdge(run[3]),
+                Is.False);
+
+            Assert.That(
+                state.IsPassageCellReserved(run[0].FirstCell),
+                Is.False);
+            Assert.That(
+                state.IsPassageCellReserved(run[1].FirstCell),
+                Is.True);
+            Assert.That(
+                state.IsPassageCellReserved(run[1].SecondCell),
+                Is.True);
+            Assert.That(
+                state.IsPassageCellReserved(run[2].FirstCell),
+                Is.True);
+            Assert.That(
+                state.IsPassageCellReserved(run[2].SecondCell),
+                Is.True);
+            Assert.That(
+                state.IsPassageCellReserved(run[3].FirstCell),
                 Is.False);
         }
 
@@ -349,7 +372,8 @@ namespace BigRetail.Map.Walls.Tests
                 eventObservedCompleteState =
                     reportedAssembly.Id == assemblyId
                     && state.AssemblyCount == 0
-                    && state.OccupiedEdgeCount == 0;
+                    && state.OccupiedEdgeCount == 0
+                    && state.ReservedPassageCellCount == 0;
             };
 
             DoorAssemblyChangeResult result =
@@ -360,6 +384,9 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(result.SegmentCount, Is.EqualTo(4));
             Assert.That(state.AssemblyCount, Is.EqualTo(0));
             Assert.That(state.OccupiedEdgeCount, Is.EqualTo(0));
+            Assert.That(
+                state.ReservedPassageCellCount,
+                Is.EqualTo(0));
             Assert.That(eventObservedCompleteState, Is.True);
 
             for (int index = 0;
@@ -405,6 +432,72 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(result.Succeeded, Is.True);
             Assert.That(result.Assembly.GetEdge(0), Is.EqualTo(run[0]));
             Assert.That(result.Assembly.GetEdge(3), Is.EqualTo(run[3]));
+        }
+
+
+        [Test]
+        public void RemovingOneDoor_PreservesSharedPassageCellReservation()
+        {
+            GridPosition sharedCell =
+                new GridPosition(2, 2);
+
+            CellEdge eastEdge =
+                new CellEdge(
+                    sharedCell,
+                    CellEdgeDirection.NorthEast);
+
+            CellEdge northEdge =
+                new CellEdge(
+                    sharedCell,
+                    CellEdgeDirection.NorthWest);
+
+            DoorAssemblyState state =
+                new DoorAssemblyState();
+
+            DoorConstructionService service =
+                CreateService(
+                    state,
+                    new[] { eastEdge, northEdge });
+
+            DoorAssemblyId eastDoorId =
+                new DoorAssemblyId("east-door");
+
+            DoorAssemblyId northDoorId =
+                new DoorAssemblyId("north-door");
+
+            Assert.That(
+                service.TryPlaceAssembly(
+                        eastDoorId,
+                        SingleDoorId,
+                        new[] { eastEdge })
+                    .Succeeded,
+                Is.True);
+
+            Assert.That(
+                service.TryPlaceAssembly(
+                        northDoorId,
+                        SingleDoorId,
+                        new[] { northEdge })
+                    .Succeeded,
+                Is.True);
+
+            Assert.That(
+                state.ReservedPassageCellCount,
+                Is.EqualTo(3));
+
+            Assert.That(
+                service.TryRemoveAssembly(eastDoorId).Succeeded,
+                Is.True);
+
+            Assert.That(
+                state.IsPassageCellReserved(sharedCell),
+                Is.True);
+            Assert.That(
+                state.IsPassageCellReserved(eastEdge.SecondCell),
+                Is.False);
+            Assert.That(
+                state.IsPassageCellReserved(northEdge.SecondCell),
+                Is.True);
         }
 
 

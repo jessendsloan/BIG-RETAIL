@@ -252,6 +252,11 @@ namespace BigRetail.Characters.Rigging
         private List<SpriteRenderer> hairDetailRenderers =
             new List<SpriteRenderer>();
 
+        [NonSerialized]
+        private readonly Dictionary<Transform, Quaternion>
+            defaultBoneRotations =
+                new Dictionary<Transform, Quaternion>();
+
 
         public NpcFacing Facing => facing;
 
@@ -553,6 +558,7 @@ namespace BigRetail.Characters.Rigging
             NpcAppearanceSelection effectiveAppearance =
                 GetEffectiveAppearance();
 
+            ResetBoneRotations();
             ResetAppearanceBonePositions(authoredDirection);
 
             for (int index = 0; index < parts.Count; index++)
@@ -659,6 +665,33 @@ namespace BigRetail.Characters.Rigging
                 }
 
                 bonePose.Apply(bone);
+            }
+        }
+
+
+        private void ResetBoneRotations()
+        {
+            for (int index = 0; index < bones.Count; index++)
+            {
+                NpcRigBoneBinding binding = bones[index];
+                Transform bone = binding?.Bone;
+
+                if (bone == null)
+                {
+                    continue;
+                }
+
+                if (!defaultBoneRotations.TryGetValue(
+                        bone,
+                        out Quaternion defaultRotation))
+                {
+                    defaultRotation = bone.localRotation;
+                    defaultBoneRotations.Add(
+                        bone,
+                        defaultRotation);
+                }
+
+                bone.localRotation = defaultRotation;
             }
         }
 

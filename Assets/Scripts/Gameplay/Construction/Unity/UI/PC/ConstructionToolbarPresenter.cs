@@ -167,6 +167,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildDoors;
                     break;
 
+                case ConstructionToolbarSection.Fixtures:
+                    requestedMode =
+                        ConstructionToolMode.BuildFixtures;
+                    break;
+
                 default:
                     return;
             }
@@ -216,6 +221,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 ConstructionToolbarDemolitionTarget.Walls =>
                     ConstructionToolMode.DemolishWalls,
+
+                ConstructionToolbarDemolitionTarget.Fixtures =>
+                    ConstructionToolMode.DemolishFixtures,
 
                 _ => ConstructionToolMode.None
             };
@@ -437,7 +445,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             return mode == ConstructionToolMode.DemolishFoundations
                 || mode == ConstructionToolMode.DemolishFloors
-                || mode == ConstructionToolMode.DemolishWalls;
+                || mode == ConstructionToolMode.DemolishWalls
+                || mode == ConstructionToolMode.DemolishFixtures;
         }
 
 
@@ -454,6 +463,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 ConstructionToolMode.DemolishWalls =>
                     ConstructionToolbarDemolitionTarget.Walls,
+
+                ConstructionToolMode.DemolishFixtures =>
+                    ConstructionToolbarDemolitionTarget.Fixtures,
 
                 _ => null
             };

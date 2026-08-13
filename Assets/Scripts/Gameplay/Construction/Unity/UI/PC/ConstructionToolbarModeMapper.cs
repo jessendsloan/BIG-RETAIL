@@ -19,6 +19,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 ConstructionToolMode.BuildDoors =>
                     ConstructionToolbarSection.Doors,
 
+                ConstructionToolMode.BuildFixtures =>
+                    ConstructionToolbarSection.Fixtures,
+
                 ConstructionToolMode.BuildFoundations =>
                     ConstructionToolbarSection.Foundations,
 
@@ -32,6 +35,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                     ConstructionToolbarSection.Demolition,
 
                 ConstructionToolMode.DemolishFloors =>
+                    ConstructionToolbarSection.Demolition,
+
+                ConstructionToolMode.DemolishFixtures =>
                     ConstructionToolbarSection.Demolition,
 
                 _ =>

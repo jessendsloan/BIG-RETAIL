@@ -733,7 +733,7 @@ namespace BigRetail.Map.Unity.Walls
                 sortingOrder =
                     Math.Max(
                         sortingOrder,
-                        wallView.SortingOrder);
+                        wallView.StructuralSortingOrder);
 
                 rendererPriority =
                     Math.Max(

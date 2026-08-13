@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.View;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Walls
@@ -18,6 +19,8 @@ namespace BigRetail.Map.Unity.Walls
         public const int WallBaseOrder = 200;
         public const int PylonBaseOrder = 300;
 
+        public const int DisplayDepthOrderStep = 2;
+
         public const int RisingRightPriority = 0;
         public const int RisingLeftPriority = 1;
         public const int AppearancePreviewPriorityOffset = 2;
@@ -34,11 +37,58 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        /// <summary>
+        /// Wall art keeps its structural depth at every presentation height.
+        /// The low sprite creates the cutaway through transparent pixels, so
+        /// its opaque base must retain the same front/back relationship as a
+        /// full wall.
+        /// </summary>
+        public static int ResolveWall(
+            CellEdge displayEdge,
+            WallPresentationHeight presentationHeight)
+        {
+            int structuralOrder =
+                ResolveWall(displayEdge);
+
+            switch (presentationHeight)
+            {
+                case WallPresentationHeight.Full:
+                    return structuralOrder;
+
+                case WallPresentationHeight.Low:
+                    return structuralOrder;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(presentationHeight),
+                        presentationHeight,
+                        "Unsupported wall presentation height.");
+            }
+        }
+
+
         public static int ResolveWallDepth(
             int displayDepth)
         {
             return WallBaseOrder
-                - displayDepth;
+                - displayDepth * DisplayDepthOrderStep
+                - 1;
+        }
+
+
+        /// <summary>
+        /// Places a cell occupant between the wall on its viewer-facing side
+        /// and the wall on its far side. The doubled depth scale reserves the
+        /// odd integer between neighboring cell centers for their shared wall.
+        /// </summary>
+        public static int ResolveCell(
+            GridPosition displayCell)
+        {
+            int displayDepth =
+                displayCell.X + displayCell.Y;
+
+            return WallBaseOrder
+                - displayDepth * DisplayDepthOrderStep;
         }
 
 
@@ -74,7 +124,8 @@ namespace BigRetail.Map.Unity.Walls
         {
             return PylonBaseOrder
                 - Mathf.RoundToInt(
-                    displayDepth);
+                    displayDepth
+                    * DisplayDepthOrderStep);
         }
     }
 }

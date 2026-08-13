@@ -40,6 +40,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public FixtureDefinitionPickerView FixtureDefinitionPickerView
+        {
+            get;
+            private set;
+        }
+
         public DepartmentPickerView DepartmentPickerView
         {
             get;
@@ -57,6 +63,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public bool HasDoorDefinitionPickerView =>
             DoorDefinitionPickerView != null;
+
+        public bool HasFixtureDefinitionPickerView =>
+            FixtureDefinitionPickerView != null;
 
         public bool HasDepartmentPickerView =>
             DepartmentPickerView != null;
@@ -114,6 +123,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public event Action<DoorDefinitionPickerView>
             DoorDefinitionPickerViewReady;
+
+        public event Action<FixtureDefinitionPickerView>
+            FixtureDefinitionPickerViewReady;
 
         public event Action<DepartmentPickerView> DepartmentPickerViewReady;
 
@@ -184,6 +196,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && FinishPickerView != null
                 && FloorFinishPickerView != null
                 && DoorDefinitionPickerView != null
+                && FixtureDefinitionPickerView != null
                 && DepartmentPickerView != null
                 && loadedVersion == version)
             {
@@ -212,6 +225,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new DoorDefinitionPickerView(
                         root);
 
+                FixtureDefinitionPickerView =
+                    new FixtureDefinitionPickerView(
+                        root);
+
                 DepartmentPickerView =
                     new DepartmentPickerView(
                         root);
@@ -230,6 +247,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 DoorDefinitionPickerViewReady?.Invoke(
                     DoorDefinitionPickerView);
+
+                FixtureDefinitionPickerViewReady?.Invoke(
+                    FixtureDefinitionPickerView);
 
                 DepartmentPickerViewReady?.Invoke(
                     DepartmentPickerView);
@@ -272,6 +292,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 DoorDefinitionPickerView.Dispose();
                 DoorDefinitionPickerView = null;
+            }
+
+            if (FixtureDefinitionPickerView != null)
+            {
+                FixtureDefinitionPickerView.Dispose();
+                FixtureDefinitionPickerView = null;
             }
 
             if (DepartmentPickerView != null)

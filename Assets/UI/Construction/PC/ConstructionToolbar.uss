@@ -121,10 +121,41 @@
     top: 316px;
 }
 
+#fixture-definition-picker {
+    top: 388px;
+}
+
+.fixture-picker__content {
+    flex-direction: row;
+    align-items: center;
+}
+
+.fixture-picker__rotate-button {
+    width: 48px;
+    height: 48px;
+    margin-left: 8px;
+    padding: 0;
+    color: rgb(35, 43, 50);
+    font-size: 28px;
+    -unity-font-style: bold;
+    background-color: rgba(255, 255, 255, 0.46);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0.16);
+    border-radius: 8px;
+}
+
+.fixture-picker__rotate-button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.fixture-picker__rotate-button:active {
+    background-color: rgba(54, 63, 69, 0.20);
+}
+
 .demolition-picker {
     display: none;
     position: absolute;
-    top: 388px;
+    top: 460px;
     left: 104px;
     flex-direction: column;
     align-items: center;
@@ -474,6 +505,10 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Floors.png");
 }
 
+.construction-toolbar__icon--fixtures {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Fixtures.png");
+}
+
 .construction-toolbar__icon--demolition {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Demolition.png");
 }
@@ -500,4 +535,8 @@
 
 .demolition-picker__icon--walls {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
+}
+
+.demolition-picker__icon--fixtures {
+    background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Fixtures.png");
 }
