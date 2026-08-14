@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using BigRetail.Map.View;
 using UnityEngine.UIElements;
 
@@ -46,6 +47,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string RedoButtonName = "redo-button";
         public const string MerchandiseToolButtonName =
             "merchandise-tool-button";
+        public const string StoreCashValueName =
+            "store-cash-value";
         public const string SelectedClassName = "is-selected";
 
         private readonly Button wallsButton;
@@ -72,6 +75,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button cameraViewWestButton;
         private readonly Button undoButton;
         private readonly Button redoButton;
+        private readonly Label storeCashValueLabel;
 
         private bool isDisposed;
 
@@ -122,6 +126,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, CameraViewWestButtonName);
             undoButton = RequireButton(root, UndoButtonName);
             redoButton = RequireButton(root, RedoButtonName);
+            storeCashValueLabel =
+                RequireLabel(root, StoreCashValueName);
 
             wallsButton.clicked += HandleWallsRequested;
             doorsButton.clicked += HandleDoorsRequested;
@@ -197,6 +203,15 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetMerchandiseToolActive(bool isActive)
         {
             SetSelected(merchandiseToolButton, isActive);
+        }
+
+        public void SetCashBalance(long balanceCents)
+        {
+            storeCashValueLabel.text =
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "${0:N2}",
+                    balanceCents / 100m);
         }
 
         public void SetDemolitionPickerVisible(bool isVisible)
@@ -474,6 +489,21 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             throw new InvalidOperationException(
                 $"Construction toolbar is missing required element '{elementName}'.");
+        }
+
+        private static Label RequireLabel(
+            VisualElement root,
+            string labelName)
+        {
+            Label label = root.Q<Label>(labelName);
+
+            if (label != null)
+            {
+                return label;
+            }
+
+            throw new InvalidOperationException(
+                $"Construction toolbar is missing required label '{labelName}'.");
         }
 
         private static void SetSelected(Button button, bool isSelected)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using BigRetail.Economy.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
@@ -31,10 +32,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
 
         private FixtureMerchandisingInspectorView boundView;
+        private ConstructionToolbarView boundToolbarView;
         private FixturePlanogramState subscribedPlanogramState;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
         private FixtureBackstockService subscribedBackstock;
         private FixturePurchasingService subscribedPurchasing;
+        private StoreCashState subscribedCash;
         private bool productsAreBound;
         private string purchasingStatus;
 
@@ -62,6 +65,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             documentHost.FixtureMerchandisingInspectorViewReady +=
                 HandleViewReady;
+            documentHost.ViewReady += HandleToolbarViewReady;
             selectionHost.SelectionChanged += HandleSelectionChanged;
             planogramRuntimeHost.Initialized += HandlePlanogramInitialized;
 
@@ -69,6 +73,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToDisplayInventory();
             AttachToBackstock();
             AttachToPurchasing();
+            AttachToCash();
+
+            if (documentHost.HasView)
+            {
+                BindToolbarView(documentHost.View);
+            }
 
             if (documentHost.HasFixtureMerchandisingInspectorView)
             {
@@ -87,6 +97,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 documentHost.FixtureMerchandisingInspectorViewReady -=
                     HandleViewReady;
+                documentHost.ViewReady -= HandleToolbarViewReady;
             }
 
             if (selectionHost != null)
@@ -103,6 +114,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             DetachFromDisplayInventory();
             DetachFromBackstock();
             DetachFromPurchasing();
+            DetachFromCash();
+            UnbindToolbarView();
             UnbindView();
         }
 
@@ -111,6 +124,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureMerchandisingInspectorView view)
         {
             BindView(view);
+        }
+
+        private void HandleToolbarViewReady(
+            ConstructionToolbarView view)
+        {
+            BindToolbarView(view);
         }
 
         private void HandleSelectionChanged()
@@ -126,7 +145,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToDisplayInventory();
             AttachToBackstock();
             AttachToPurchasing();
+            AttachToCash();
             productsAreBound = false;
+            RefreshCashHud();
             RefreshView();
         }
 
@@ -164,6 +185,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 RefreshView();
             }
+        }
+
+        private void HandleCashBalanceChanged()
+        {
+            RefreshCashHud();
         }
 
         private void HandleEditRequested()
@@ -485,6 +511,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshView();
         }
 
+        private void BindToolbarView(ConstructionToolbarView view)
+        {
+            boundToolbarView = view;
+            RefreshCashHud();
+        }
+
+        private void UnbindToolbarView()
+        {
+            boundToolbarView = null;
+        }
+
         private void UnbindView()
         {
             if (boundView != null)
@@ -621,6 +658,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                 boundView.SetStatus(
                     "Empty slot. Choose a product.");
             }
+        }
+
+        private void RefreshCashHud()
+        {
+            boundToolbarView?.SetCashBalance(
+                planogramRuntimeHost.Cash?.BalanceCents ?? 0);
         }
 
         private void EnsureProductsAreBound()
@@ -1076,6 +1119,38 @@ namespace BigRetail.Construction.Unity.UI.PC
             subscribedPurchasing.OrdersChanged -=
                 HandlePurchasingChanged;
             subscribedPurchasing = null;
+        }
+
+        private void AttachToCash()
+        {
+            StoreCashState nextState =
+                planogramRuntimeHost.Cash;
+
+            if (subscribedCash == nextState)
+            {
+                return;
+            }
+
+            DetachFromCash();
+            subscribedCash = nextState;
+
+            if (subscribedCash != null)
+            {
+                subscribedCash.BalanceChanged +=
+                    HandleCashBalanceChanged;
+            }
+        }
+
+        private void DetachFromCash()
+        {
+            if (subscribedCash == null)
+            {
+                return;
+            }
+
+            subscribedCash.BalanceChanged -=
+                HandleCashBalanceChanged;
+            subscribedCash = null;
         }
 
         private bool IsSelectedStorageFixture()

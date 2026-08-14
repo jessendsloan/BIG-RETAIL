@@ -7,6 +7,23 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="store-cash-hud"
+            class="store-cash-hud"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="STORE CASH"
+                class="store-cash-hud__caption"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="store-cash-value"
+                text="$0.00"
+                class="store-cash-hud__value"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="department-picker"
             class="department-picker"
             picking-mode="Position">

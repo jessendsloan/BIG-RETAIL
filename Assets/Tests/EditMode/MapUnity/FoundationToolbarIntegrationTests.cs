@@ -507,6 +507,45 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void CashHud_FormatsAuthoritativeCentBalance()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                MethodInfo setCashBalance =
+                    viewType.GetMethod(
+                        "SetCashBalance",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(setCashBalance, Is.Not.Null);
+
+                setCashBalance.Invoke(
+                    view,
+                    new object[] { 250000L });
+
+                Assert.That(
+                    root.Q<Label>("store-cash-value").text,
+                    Is.EqualTo("$2,500.00"));
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
         public void MerchandiseInput_RepairsMissingHoverOutlineReference()
         {
             Type controllerType =
@@ -747,6 +786,11 @@ namespace BigRetail.Map.Unity.Tests
                     "camera-view-west-button"));
             root.Add(CreateButton("undo-button"));
             root.Add(CreateButton("redo-button"));
+            root.Add(
+                new Label
+                {
+                    name = "store-cash-value"
+                });
 
             return root;
         }
