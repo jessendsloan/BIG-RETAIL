@@ -26,6 +26,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label productsValueLabel;
         private readonly Label shelfStockValueLabel;
         private readonly Label backstockValueLabel;
+        private readonly Label salesTodayValueLabel;
         private readonly Label restockStatusValueLabel;
         private readonly Label shelfLabel;
         private readonly Label widthLabel;
@@ -37,7 +38,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly VisualElement productContainer;
         private readonly Button editButton;
         private readonly Button restockButton;
-        private readonly Button debugSaleButton;
         private readonly Button autoRestockButton;
         private readonly Button doneButton;
         private readonly Button closeButton;
@@ -88,6 +88,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             backstockValueLabel = Require<Label>(
                 root,
                 "fixture-merchandising-backstock-value");
+            salesTodayValueLabel = Require<Label>(
+                root,
+                "fixture-merchandising-sales-today-value");
             restockStatusValueLabel = Require<Label>(
                 root,
                 "fixture-merchandising-restock-status-value");
@@ -109,9 +112,6 @@ namespace BigRetail.Construction.Unity.UI.PC
             restockButton = Require<Button>(
                 root,
                 "fixture-merchandising-restock-button");
-            debugSaleButton = Require<Button>(
-                root,
-                "fixture-merchandising-debug-sale-button");
             autoRestockButton = Require<Button>(
                 root,
                 "fixture-merchandising-auto-restock-button");
@@ -160,12 +160,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked += HandleEditRequested;
             restockButton.clicked += HandleRestockRequested;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            debugSaleButton.style.display = DisplayStyle.Flex;
-            debugSaleButton.clicked += HandleDebugSaleRequested;
-#else
-            debugSaleButton.style.display = DisplayStyle.None;
-#endif
             doneButton.clicked += HandleDoneRequested;
             closeButton.clicked += HandleCloseRequested;
             widthDecreaseButton.clicked += HandleWidthDecreaseRequested;
@@ -180,8 +174,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action EditRequested;
 
         public event Action RestockRequested;
-
-        public event Action DebugSaleRequested;
 
         public event Action DoneRequested;
 
@@ -401,6 +393,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             restockButton.SetEnabled(canRestock);
         }
 
+        public void SetSalesToday(long amountCents)
+        {
+            salesTodayValueLabel.text =
+                FormatMoney(amountCents);
+        }
+
         public void SetRestockStatus(string status)
         {
             restockStatusValueLabel.text =
@@ -502,9 +500,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked -= HandleEditRequested;
             restockButton.clicked -= HandleRestockRequested;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            debugSaleButton.clicked -= HandleDebugSaleRequested;
-#endif
             doneButton.clicked -= HandleDoneRequested;
             closeButton.clicked -= HandleCloseRequested;
             widthDecreaseButton.clicked -= HandleWidthDecreaseRequested;
@@ -623,11 +618,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleRestockRequested()
         {
             RestockRequested?.Invoke();
-        }
-
-        private void HandleDebugSaleRequested()
-        {
-            DebugSaleRequested?.Invoke();
         }
 
         private void HandleDoneRequested()

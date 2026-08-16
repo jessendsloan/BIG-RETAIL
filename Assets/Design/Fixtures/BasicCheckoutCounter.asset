@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3ab3a7886145f19f0ac81bdf4b381b, type: 3}
+  m_Name: BasicCheckoutCounter
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureDefinitionAsset
+  definitionId: BASIC_CHECKOUT_COUNTER
+  displayName: Basic Checkout Counter
+  widthInCells: 2
+  depthInCells: 1
+  catalogIcon: {fileID: 21300000, guid: 1248e54450ee5b8449477e4dcde619ba, type: 3}
+  northSprite: {fileID: 21300000, guid: 036cc6bc9a2633b4db22836965180079, type: 3}
+  eastSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
+  southSprite: {fileID: 21300000, guid: 036cc6bc9a2633b4db22836965180079, type: 3}
+  westSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
+  northSpriteAnchorCorner: 0
+  eastSpriteAnchorCorner: 0
+  southSpriteAnchorCorner: 0
+  westSpriteAnchorCorner: 0
+  repeatSpritePerOccupiedCell: 0
+  worldPositionOffset: {x: 0, y: 0, z: 0}
+  merchandisingMaskSets: []
+  storageShelfMasks:
+    northShelfMasks: []
+    eastShelfMasks: []
+    southShelfMasks: []
+    westShelfMasks: []
+  northAccess: 8
+  eastAccess: 0
+  southAccess: 4
+  westAccess: 0
+  accessClearancePolicy: 0
+  backstockCapacityUnits: 0

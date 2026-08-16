@@ -23,6 +23,12 @@ namespace BigRetail.Map.Fixtures.Tests
         private static readonly FixtureInstanceId BackstockInstanceId =
             new FixtureInstanceId("BACKSTOCK-ONE");
 
+        private static readonly FixtureDefinitionId CheckoutDefinitionId =
+            new FixtureDefinitionId("BASIC-CHECKOUT-COUNTER");
+
+        private static readonly FixtureInstanceId CheckoutInstanceId =
+            new FixtureInstanceId("CHECKOUT-ONE");
+
         private static readonly ProductId CerealProductId =
             new ProductId("CEREAL");
 
@@ -222,6 +228,259 @@ namespace BigRetail.Map.Fixtures.Tests
                         BackstockLocationId,
                         CerealProductId),
                     Is.EqualTo(100));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void MoveProductToBasket_StockedFixture_TransfersOwnershipBeforeCheckout()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 1);
+                context.DisplayInventory.TryRestockFixture(ShelfInstanceId);
+
+                ShoppingBasket basket = new ShoppingBasket();
+
+                FixtureBasketPickupResult result =
+                    context.DisplayInventory.TryMoveProductToBasket(
+                        ShelfInstanceId,
+                        CerealProductId,
+                        requestedUnitCount: 1,
+                        basket);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.ProductId, Is.EqualTo(CerealProductId));
+                Assert.That(result.PickedUpUnitCount, Is.EqualTo(1));
+                Assert.That(basket.TotalUnitCount, Is.EqualTo(1));
+                Assert.That(
+                    basket.GetQuantity(
+                        ShelfInstanceId,
+                        CerealProductId),
+                    Is.EqualTo(1));
+
+                Assert.That(
+                    context.DisplayInventory.TryGetSnapshot(
+                        ShelfInstanceId,
+                        out FixtureDisplayStockSnapshot snapshot),
+                    Is.True);
+                Assert.That(snapshot.StockedUnitCount, Is.EqualTo(5));
+                Assert.That(snapshot.CapacityUnitCount, Is.EqualTo(6));
+                Assert.That(snapshot.CanRestock, Is.True);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void CompleteBasketSale_OwnedStock_CreditsCashAndClearsBasket()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 1);
+                context.DisplayInventory.TryRestockFixture(ShelfInstanceId);
+
+                ShoppingBasket basket = new ShoppingBasket();
+                context.DisplayInventory.TryMoveProductToBasket(
+                    ShelfInstanceId,
+                    CerealProductId,
+                    requestedUnitCount: 1,
+                    basket);
+
+                StoreCashState cash = new StoreCashState(10000);
+                FixtureSalesService sales =
+                    new FixtureSalesService(
+                        context.Products,
+                        cash);
+
+                FixtureInstanceId changedFixtureId = default;
+                sales.SalesChanged +=
+                    fixtureId => changedFixtureId = fixtureId;
+
+                FixtureSaleResult result =
+                    sales.TryCompleteBasketSale(basket);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.UnitsSold, Is.EqualTo(1));
+                Assert.That(result.RevenueCents, Is.EqualTo(349));
+                Assert.That(basket.IsEmpty, Is.True);
+                Assert.That(cash.BalanceCents, Is.EqualTo(10349));
+                Assert.That(sales.SalesTodayCents, Is.EqualTo(349));
+                Assert.That(sales.UnitsSoldToday, Is.EqualTo(1));
+                Assert.That(
+                    sales.GetFixtureSalesTodayCents(ShelfInstanceId),
+                    Is.EqualTo(349));
+                Assert.That(
+                    sales.GetFixtureUnitsSoldToday(ShelfInstanceId),
+                    Is.EqualTo(1));
+                Assert.That(changedFixtureId, Is.EqualTo(ShelfInstanceId));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void CompleteBasketSale_EmptyBasket_LeavesAccountingUnchanged()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                StoreCashState cash = new StoreCashState(10000);
+                FixtureSalesService sales =
+                    new FixtureSalesService(
+                        context.Products,
+                        cash);
+
+                bool salesChanged = false;
+                sales.SalesChanged += _ => salesChanged = true;
+
+                FixtureSaleResult result =
+                    sales.TryCompleteBasketSale(
+                        new ShoppingBasket());
+
+                Assert.That(result.Succeeded, Is.False);
+                Assert.That(
+                    result.Outcome,
+                    Is.EqualTo(FixtureSaleOutcome.BasketEmpty));
+                Assert.That(cash.BalanceCents, Is.EqualTo(10000));
+                Assert.That(sales.SalesTodayCents, Is.Zero);
+                Assert.That(sales.UnitsSoldToday, Is.Zero);
+                Assert.That(salesChanged, Is.False);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void ProcessBasket_NoPlacedCheckout_LeavesBasketAndCashUnchanged()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 1);
+                context.DisplayInventory.TryRestockFixture(ShelfInstanceId);
+
+                ShoppingBasket basket = new ShoppingBasket();
+                context.DisplayInventory.TryMoveProductToBasket(
+                    ShelfInstanceId,
+                    CerealProductId,
+                    requestedUnitCount: 1,
+                    basket);
+
+                StoreCashState cash = new StoreCashState(10000);
+                FixtureSalesService sales =
+                    new FixtureSalesService(
+                        context.Products,
+                        cash);
+
+                using FixtureCheckoutService checkout =
+                    new FixtureCheckoutService(
+                        context.FixtureState,
+                        sales);
+
+                FixtureSaleResult result =
+                    checkout.TryProcessBasket(
+                        CheckoutInstanceId,
+                        basket);
+
+                Assert.That(checkout.HasOperationalCheckout, Is.False);
+                Assert.That(result.Succeeded, Is.False);
+                Assert.That(
+                    result.Outcome,
+                    Is.EqualTo(FixtureSaleOutcome.CheckoutUnavailable));
+                Assert.That(cash.BalanceCents, Is.EqualTo(10000));
+                Assert.That(sales.SalesTodayCents, Is.Zero);
+                Assert.That(basket.TotalUnitCount, Is.EqualTo(1));
+                Assert.That(
+                    context.DisplayInventory.TryGetSnapshot(
+                        ShelfInstanceId,
+                        out FixtureDisplayStockSnapshot snapshot),
+                    Is.True);
+                Assert.That(snapshot.StockedUnitCount, Is.EqualTo(5));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void ProcessBasket_PlacedCheckout_ClearsBasketAndCreditsCash()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 1);
+                context.DisplayInventory.TryRestockFixture(ShelfInstanceId);
+
+                ShoppingBasket basket = new ShoppingBasket();
+                context.DisplayInventory.TryMoveProductToBasket(
+                    ShelfInstanceId,
+                    CerealProductId,
+                    requestedUnitCount: 1,
+                    basket);
+
+                StoreCashState cash = new StoreCashState(10000);
+                FixtureSalesService sales =
+                    new FixtureSalesService(
+                        context.Products,
+                        cash);
+
+                using FixtureCheckoutService checkout =
+                    new FixtureCheckoutService(
+                        context.FixtureState,
+                        sales);
+
+                FixturePlacementResult placement =
+                    context.Placement.TryPlaceFixture(
+                        CheckoutInstanceId,
+                        CheckoutDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North);
+
+                Assert.That(
+                    placement.Succeeded,
+                    Is.True,
+                    placement.Failure.ToString());
+                Assert.That(checkout.OperationalCheckoutCount, Is.EqualTo(1));
+
+                FixtureSaleResult result =
+                    checkout.TryProcessBasket(
+                        CheckoutInstanceId,
+                        basket);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.UnitsSold, Is.EqualTo(1));
+                Assert.That(cash.BalanceCents, Is.EqualTo(10349));
+                Assert.That(basket.IsEmpty, Is.True);
+                Assert.That(
+                    context.DisplayInventory.TryGetSnapshot(
+                        ShelfInstanceId,
+                        out FixtureDisplayStockSnapshot snapshot),
+                    Is.True);
+                Assert.That(snapshot.StockedUnitCount, Is.EqualTo(5));
+
+                FixturePlacementResult removal =
+                    context.Placement.TryRemoveFixture(CheckoutInstanceId);
+
+                Assert.That(removal.Succeeded, Is.True);
+                Assert.That(checkout.HasOperationalCheckout, Is.False);
             }
             finally
             {
@@ -556,6 +815,18 @@ namespace BigRetail.Map.Fixtures.Tests
                     storageProfile:
                         new FixtureStorageProfile(480));
 
+            FixtureDefinition checkoutDefinition =
+                new FixtureDefinition(
+                    CheckoutDefinitionId,
+                    "Basic Checkout Counter",
+                    2,
+                    1,
+                    new FixtureAccessProfile(
+                        FixtureAccessMode.EmployeeCheckout,
+                        FixtureAccessMode.None,
+                        FixtureAccessMode.CustomerCheckout,
+                        FixtureAccessMode.None));
+
             FixtureState fixtureState = new FixtureState();
 
             FixturePlacementService placement =
@@ -566,7 +837,8 @@ namespace BigRetail.Map.Fixtures.Tests
                         new[]
                         {
                             definition,
-                            backstockDefinition
+                            backstockDefinition,
+                            checkoutDefinition
                         }),
                     fixtureState,
                     new TestSurfaceQuery(cells));
@@ -644,6 +916,7 @@ namespace BigRetail.Map.Fixtures.Tests
 
             return new TestContext(
                 placement,
+                fixtureState,
                 products,
                 planograms,
                 inventory,
@@ -660,7 +933,8 @@ namespace BigRetail.Map.Fixtures.Tests
                 displayName,
                 new ProductCategoryId("GROCERY"),
                 StockUnit.Each,
-                wholesaleCaseCostCents: 2500);
+                wholesaleCaseCostCents: 2500,
+                retailUnitPriceCents: 349);
         }
 
 
@@ -699,6 +973,7 @@ namespace BigRetail.Map.Fixtures.Tests
         {
             public TestContext(
                 FixturePlacementService placement,
+                FixtureState fixtureState,
                 ProductCatalog products,
                 FixturePlanogramService planograms,
                 InventoryState inventory,
@@ -706,6 +981,7 @@ namespace BigRetail.Map.Fixtures.Tests
                 FixtureDisplayInventoryService displayInventory)
             {
                 Placement = placement;
+                FixtureState = fixtureState;
                 Products = products;
                 Planograms = planograms;
                 Inventory = inventory;
@@ -715,6 +991,8 @@ namespace BigRetail.Map.Fixtures.Tests
 
 
             public FixturePlacementService Placement { get; }
+
+            public FixtureState FixtureState { get; }
 
             public ProductCatalog Products { get; }
 

@@ -136,8 +136,9 @@
                             text="Sales today"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
+                            name="fixture-merchandising-sales-today-value"
                             text="--"
-                            class="fixture-merchandising-inspector__summary-value" />
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
                     <ui:VisualElement
@@ -167,12 +168,6 @@
                         class="fixture-merchandising-inspector__secondary-button fixture-merchandising-inspector__action-button"
                         tooltip="Move matching backstock directly onto this fixture." />
                 </ui:VisualElement>
-
-                <ui:Button
-                    name="fixture-merchandising-debug-sale-button"
-                    text="DEV - Simulate Sale (-1 unit)"
-                    class="fixture-merchandising-inspector__debug-button"
-                    tooltip="Development-only control for testing shelf depletion and restocking." />
 
                 <ui:VisualElement
                     class="fixture-merchandising-inspector__automation-row"

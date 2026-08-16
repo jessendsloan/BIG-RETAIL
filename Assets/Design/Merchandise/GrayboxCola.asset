@@ -17,3 +17,4 @@ MonoBehaviour:
   categoryId: GROCERY
   stockUnit: 0
   wholesaleCaseCostCents: 3000
+  retailUnitPriceCents: 249
