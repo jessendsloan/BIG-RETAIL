@@ -16,11 +16,11 @@ MonoBehaviour:
   displayName: Basic Checkout Counter
   widthInCells: 2
   depthInCells: 1
-  catalogIcon: {fileID: 21300000, guid: 1248e54450ee5b8449477e4dcde619ba, type: 3}
-  northSprite: {fileID: 21300000, guid: 036cc6bc9a2633b4db22836965180079, type: 3}
-  eastSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
-  southSprite: {fileID: 21300000, guid: 036cc6bc9a2633b4db22836965180079, type: 3}
-  westSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
+  catalogIcon: {fileID: 21300000, guid: bc562b6ecb074c058476f61fc1887378, type: 3}
+  northSprite: {fileID: 21300000, guid: bc562b6ecb074c058476f61fc1887378, type: 3}
+  eastSprite: {fileID: 21300000, guid: 19e0e732d2554a58894a3392df5d933f, type: 3}
+  southSprite: {fileID: 21300000, guid: 7e448ad6201946ee9bfaeb5ae659a931, type: 3}
+  westSprite: {fileID: 21300000, guid: f761a1e370a343dc82a2ed46193640e1, type: 3}
   northSpriteAnchorCorner: 0
   eastSpriteAnchorCorner: 0
   southSpriteAnchorCorner: 0
