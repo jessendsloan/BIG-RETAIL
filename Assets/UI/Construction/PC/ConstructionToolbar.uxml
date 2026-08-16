@@ -548,6 +548,15 @@
                 </ui:Button>
 
                 <ui:Button
+                    name="demolish-sidewalks-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish sidewalks">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--sidewalks"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
                     name="demolish-floors-button"
                     class="demolition-picker__button"
                     tooltip="Demolish floors">
@@ -690,6 +699,15 @@
                     tooltip="Foundations">
                     <ui:VisualElement
                         class="construction-toolbar__icon construction-toolbar__icon--foundations"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="sidewalks-button"
+                    class="construction-toolbar__button"
+                    tooltip="Sidewalks">
+                    <ui:VisualElement
+                        class="construction-toolbar__icon construction-toolbar__icon--sidewalks"
                         picking-mode="Ignore" />
                 </ui:Button>
 

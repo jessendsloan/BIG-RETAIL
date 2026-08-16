@@ -10,6 +10,7 @@
         "GUID:c9c44a018e8457d42b603bc0ef17c3da",
         "GUID:7e133162d1b908c64c689b4927278fff",
         "BigRetail.Map.Foundations",
+        "BigRetail.Map.Sidewalks",
         "BigRetail.Map.Fixtures",
         "BigRetail.Merchandise.Domain",
         "BigRetail.Merchandise.Unity"

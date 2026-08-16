@@ -3,6 +3,7 @@ using BigRetail.Construction.Unity.Doors;
 using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Fixtures;
 using BigRetail.Construction.Unity.Foundations;
+using BigRetail.Construction.Unity.Sidewalks;
 using BigRetail.Construction.Unity.Walls;
 using UnityEngine;
 
@@ -26,6 +27,17 @@ namespace BigRetail.Construction.Unity.Tools
         [SerializeField]
         private FoundationDemolitionToolController
             foundationDemolitionTool;
+
+
+        [Header("Sidewalk Tools")]
+
+        [SerializeField]
+        private SidewalkConstructionToolController
+            sidewalkConstructionTool;
+
+        [SerializeField]
+        private SidewalkDemolitionToolController
+            sidewalkDemolitionTool;
 
 
         [Header("Wall Tools")]
@@ -108,6 +120,18 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 foundationDemolitionTool.ToolActiveChanged +=
                     HandleFoundationDemolitionActivityChanged;
+            }
+
+            if (sidewalkConstructionTool != null)
+            {
+                sidewalkConstructionTool.ToolActiveChanged +=
+                    HandleSidewalkConstructionActivityChanged;
+            }
+
+            if (sidewalkDemolitionTool != null)
+            {
+                sidewalkDemolitionTool.ToolActiveChanged +=
+                    HandleSidewalkDemolitionActivityChanged;
             }
 
             if (wallConstructionTool != null)
@@ -196,6 +220,16 @@ namespace BigRetail.Construction.Unity.Tools
                         .CancelCurrentGesture();
                     break;
 
+                case ConstructionToolMode.BuildSidewalks:
+                    sidewalkConstructionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.DemolishSidewalks:
+                    sidewalkDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+
                 case ConstructionToolMode.BuildWalls:
                     wallConstructionTool
                         .CancelCurrentGesture();
@@ -251,6 +285,28 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 SetMode(
                     ConstructionToolMode.DemolishFoundations);
+            }
+        }
+
+
+        [ContextMenu("Activate Sidewalk Construction")]
+        public void ActivateSidewalkConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildSidewalks);
+            }
+        }
+
+
+        [ContextMenu("Activate Sidewalk Demolition")]
+        public void ActivateSidewalkDemolition()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.DemolishSidewalks);
             }
         }
 
@@ -373,6 +429,14 @@ namespace BigRetail.Construction.Unity.Tools
                     mode
                     == ConstructionToolMode.DemolishFoundations);
 
+                SetSidewalkConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildSidewalks);
+
+                SetSidewalkDemolitionActive(
+                    mode
+                    == ConstructionToolMode.DemolishSidewalks);
+
                 SetWallConstructionActive(
                     mode
                     == ConstructionToolMode.BuildWalls);
@@ -445,6 +509,34 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 foundationDemolitionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetSidewalkConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                sidewalkConstructionTool.ActivateTool();
+            }
+            else
+            {
+                sidewalkConstructionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetSidewalkDemolitionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                sidewalkDemolitionTool.ActivateTool();
+            }
+            else
+            {
+                sidewalkDemolitionTool.DeactivateTool();
             }
         }
 
@@ -594,6 +686,62 @@ namespace BigRetail.Construction.Unity.Tools
 
             if (CurrentMode
                 == ConstructionToolMode.DemolishFoundations)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
+        private void HandleSidewalkConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildSidewalks,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildSidewalks)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
+        private void HandleSidewalkDemolitionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.DemolishSidewalks,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.DemolishSidewalks)
             {
                 ApplyMode(
                     ConstructionToolMode.None,
@@ -821,6 +969,26 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (sidewalkConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "SidewalkConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (sidewalkDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "SidewalkDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             if (wallConstructionTool == null)
             {
                 Debug.LogError(
@@ -923,6 +1091,18 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 foundationDemolitionTool.ToolActiveChanged -=
                     HandleFoundationDemolitionActivityChanged;
+            }
+
+            if (sidewalkConstructionTool != null)
+            {
+                sidewalkConstructionTool.ToolActiveChanged -=
+                    HandleSidewalkConstructionActivityChanged;
+            }
+
+            if (sidewalkDemolitionTool != null)
+            {
+                sidewalkDemolitionTool.ToolActiveChanged -=
+                    HandleSidewalkDemolitionActivityChanged;
             }
 
             if (wallConstructionTool != null)

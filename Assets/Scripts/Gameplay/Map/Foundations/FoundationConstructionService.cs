@@ -20,12 +20,30 @@ namespace BigRetail.Map.Foundations
         private readonly FoundationState foundationState;
         private readonly IFoundationRemovalValidator removalValidator;
 
+        private readonly ISidewalkOccupancyQuery sidewalkOccupancy;
+
 
         public FoundationConstructionService(
             GridMapDefinition mapDefinition,
             ConstructionAreaDefinition constructionArea,
             FoundationState foundationState,
             IFoundationRemovalValidator removalValidator)
+            : this(
+                mapDefinition,
+                constructionArea,
+                foundationState,
+                removalValidator,
+                EmptySidewalkOccupancyQuery.Instance)
+        {
+        }
+
+
+        public FoundationConstructionService(
+            GridMapDefinition mapDefinition,
+            ConstructionAreaDefinition constructionArea,
+            FoundationState foundationState,
+            IFoundationRemovalValidator removalValidator,
+            ISidewalkOccupancyQuery sidewalkOccupancy)
         {
             this.mapDefinition =
                 mapDefinition
@@ -46,6 +64,11 @@ namespace BigRetail.Map.Foundations
                 removalValidator
                 ?? throw new ArgumentNullException(
                     nameof(removalValidator));
+
+            this.sidewalkOccupancy =
+                sidewalkOccupancy
+                ?? throw new ArgumentNullException(
+                    nameof(sidewalkOccupancy));
         }
 
 
@@ -115,6 +138,13 @@ namespace BigRetail.Map.Foundations
                     FoundationChangeFailure.AlreadyExists);
             }
 
+            if (sidewalkOccupancy.HasSidewalk(cell))
+            {
+                return FoundationChangeResult.Rejected(
+                    cell,
+                    FoundationChangeFailure.SidewalkOccupied);
+            }
+
             return FoundationChangeResult.Success(cell);
         }
 
@@ -151,6 +181,7 @@ namespace BigRetail.Map.Foundations
             int alreadyExistingCount = 0;
             int skippedOutsideMapCount = 0;
             int skippedOutsideConstructionAreaCount = 0;
+            int skippedSidewalkCount = 0;
 
             for (int index = 0;
                  index < cells.Count;
@@ -182,6 +213,12 @@ namespace BigRetail.Map.Foundations
                     continue;
                 }
 
+                if (sidewalkOccupancy.HasSidewalk(cell))
+                {
+                    skippedSidewalkCount++;
+                    continue;
+                }
+
                 missingLegalCells.Add(cell);
             }
 
@@ -202,7 +239,8 @@ namespace BigRetail.Map.Foundations
                 missingLegalCells,
                 alreadyExistingCount,
                 skippedOutsideMapCount,
-                skippedOutsideConstructionAreaCount);
+                skippedOutsideConstructionAreaCount,
+                skippedSidewalkCount);
         }
 
 
@@ -336,6 +374,14 @@ namespace BigRetail.Map.Foundations
                         edit.Count,
                         cell,
                         FoundationChangeFailure.AlreadyExists);
+                }
+
+                if (sidewalkOccupancy.HasSidewalk(cell))
+                {
+                    return FoundationBatchChangeResult.Rejected(
+                        edit.Count,
+                        cell,
+                        FoundationChangeFailure.SidewalkOccupied);
                 }
             }
 

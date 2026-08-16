@@ -1,13 +1,9 @@
 using System.Collections.Generic;
 using BigRetail.Map.Domain;
 
-namespace BigRetail.Map.Foundations
+namespace BigRetail.Map.Sidewalks
 {
-    /// <summary>
-    /// Describes the result of ensuring that requested cells contain
-    /// constructed foundations.
-    /// </summary>
-    public readonly struct FoundationEnsureResult
+    public readonly struct SidewalkEnsureResult
     {
         public bool Succeeded { get; }
 
@@ -15,10 +11,12 @@ namespace BigRetail.Map.Foundations
 
         public int UniqueCount { get; }
 
-        public FoundationEdit Edit { get; }
+        public SidewalkEdit Edit { get; }
 
-        public int ChangedCount =>
-            Edit.Count;
+        public int ChangedCount => Edit.Count;
+
+        public int SatisfiedCount =>
+            ChangedCount + AlreadyExistingCount;
 
         public int AlreadyExistingCount { get; }
 
@@ -26,32 +24,28 @@ namespace BigRetail.Map.Foundations
 
         public int SkippedOutsideConstructionAreaCount { get; }
 
-        public int SkippedSidewalkCount { get; }
+        public int SkippedFoundationCount { get; }
 
         public int SkippedCount =>
             SkippedOutsideMapCount
             + SkippedOutsideConstructionAreaCount
-            + SkippedSidewalkCount;
+            + SkippedFoundationCount;
 
-        public int SatisfiedCount =>
-            ChangedCount
-            + AlreadyExistingCount;
-
-        public FoundationChangeFailure Failure { get; }
+        public SidewalkChangeFailure Failure { get; }
 
         public GridPosition FailedCell { get; }
 
 
-        private FoundationEnsureResult(
+        private SidewalkEnsureResult(
             bool succeeded,
             int requestedCount,
             int uniqueCount,
-            FoundationEdit edit,
+            SidewalkEdit edit,
             int alreadyExistingCount,
             int skippedOutsideMapCount,
             int skippedOutsideConstructionAreaCount,
-            int skippedSidewalkCount,
-            FoundationChangeFailure failure,
+            int skippedFoundationCount,
+            SidewalkChangeFailure failure,
             GridPosition failedCell)
         {
             Succeeded = succeeded;
@@ -62,42 +56,42 @@ namespace BigRetail.Map.Foundations
             SkippedOutsideMapCount = skippedOutsideMapCount;
             SkippedOutsideConstructionAreaCount =
                 skippedOutsideConstructionAreaCount;
-            SkippedSidewalkCount = skippedSidewalkCount;
+            SkippedFoundationCount = skippedFoundationCount;
             Failure = failure;
             FailedCell = failedCell;
         }
 
 
-        public static FoundationEnsureResult Success(
+        public static SidewalkEnsureResult Success(
             int requestedCount,
             int uniqueCount,
             IReadOnlyList<GridPosition> changedCells,
             int alreadyExistingCount,
             int skippedOutsideMapCount,
             int skippedOutsideConstructionAreaCount,
-            int skippedSidewalkCount = 0)
+            int skippedFoundationCount)
         {
-            return new FoundationEnsureResult(
+            return new SidewalkEnsureResult(
                 true,
                 requestedCount,
                 uniqueCount,
-                FoundationEdit.AddFoundations(changedCells),
+                SidewalkEdit.AddSidewalks(changedCells),
                 alreadyExistingCount,
                 skippedOutsideMapCount,
                 skippedOutsideConstructionAreaCount,
-                skippedSidewalkCount,
-                FoundationChangeFailure.None,
+                skippedFoundationCount,
+                SidewalkChangeFailure.None,
                 default);
         }
 
 
-        public static FoundationEnsureResult Rejected(
+        public static SidewalkEnsureResult Rejected(
             int requestedCount,
             int uniqueCount,
             GridPosition failedCell,
-            FoundationChangeFailure failure)
+            SidewalkChangeFailure failure)
         {
-            return new FoundationEnsureResult(
+            return new SidewalkEnsureResult(
                 false,
                 requestedCount,
                 uniqueCount,
@@ -108,25 +102,6 @@ namespace BigRetail.Map.Foundations
                 0,
                 failure,
                 failedCell);
-        }
-
-
-        public override string ToString()
-        {
-            if (!Succeeded)
-            {
-                return
-                    $"Ensure-foundation request failed: {Failure}. " +
-                    $"Failed cell: {FailedCell}.";
-            }
-
-            return
-                $"Ensure-foundation request processed. " +
-                $"Requested: {RequestedCount}. " +
-                $"Unique: {UniqueCount}. " +
-                $"Created: {ChangedCount}. " +
-                $"Already existing: {AlreadyExistingCount}. " +
-                $"Skipped: {SkippedCount}.";
         }
     }
 }
