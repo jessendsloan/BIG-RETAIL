@@ -80,6 +80,24 @@ namespace BigRetail.Characters.Rigging
             bone.localEulerAngles = localEulerAngles;
             bone.localScale = localScale;
         }
+
+
+        public void CaptureRotation(
+            Transform bone,
+            float neutralPoseAngle)
+        {
+            if (bone == null)
+            {
+                return;
+            }
+
+            Quaternion neutralPoseRotation =
+                Quaternion.Euler(0f, 0f, neutralPoseAngle);
+
+            localEulerAngles =
+                (bone.localRotation
+                 * Quaternion.Inverse(neutralPoseRotation)).eulerAngles;
+        }
     }
 
     /// <summary>
@@ -534,6 +552,131 @@ namespace BigRetail.Characters.Rigging
             ApplyFacing();
         }
 
+
+        /// <summary>
+        /// Returns true when every generated body bone has an explicit
+        /// transform in the requested authored source pose. Root stays shared
+        /// because facing must never move the NPC's world anchor.
+        /// </summary>
+        public bool HasCompleteAuthoredBonePose(
+            NpcAuthoredDirection direction)
+        {
+            List<NpcRigDirectionalBonePose> pose =
+                GetAuthoredBonePose(direction);
+
+            if (pose == null
+                || bones == null
+                || bones.Count == 0)
+            {
+                return false;
+            }
+
+            int expectedBoneCount = 0;
+
+            for (int index = 0; index < bones.Count; index++)
+            {
+                NpcRigBoneBinding binding = bones[index];
+
+                if (binding == null || binding.Bone == null)
+                {
+                    return false;
+                }
+
+                if (binding.Id == NpcRigBoneId.Root)
+                {
+                    continue;
+                }
+
+                expectedBoneCount++;
+
+                if (FindAuthoredBonePose(pose, binding.Id) == null)
+                {
+                    return false;
+                }
+            }
+
+            return expectedBoneCount > 0;
+        }
+
+
+        /// <summary>
+        /// One-time authoring migration for rigs whose older directional pose
+        /// tables contain only a subset of bones. It evaluates each existing
+        /// source direction, captures every body bone, then restores the
+        /// displayed facing.
+        /// </summary>
+        public bool InitializeCompleteAuthoredBonePoses()
+        {
+            if (!TryValidate(out _))
+            {
+                return false;
+            }
+
+            NpcFacing originalFacing = facing;
+
+            PrepareAuthoredBonePoseForCapture(
+                NpcAuthoredDirection.SouthEast);
+            southEastBonePose = CaptureCurrentAuthoredBonePose();
+
+            PrepareAuthoredBonePoseForCapture(
+                NpcAuthoredDirection.NorthEast);
+            northEastBonePose = CaptureCurrentAuthoredBonePose();
+
+            SetFacing(originalFacing);
+
+            return HasCompleteAuthoredBonePose(
+                       NpcAuthoredDirection.SouthEast)
+                   && HasCompleteAuthoredBonePose(
+                       NpcAuthoredDirection.NorthEast);
+        }
+
+
+        /// <summary>
+        /// Saves one currently displayed bone rotation into one authored
+        /// source pose. Appearance-specific neutral-pose rotation is removed
+        /// first so it is not applied twice. Animation clips remain
+        /// independent and are not modified.
+        /// </summary>
+        public bool CaptureAuthoredBoneRotation(
+            NpcAuthoredDirection direction,
+            NpcRigBoneId boneId)
+        {
+            if (boneId == NpcRigBoneId.Root
+                || !TryGetBone(boneId, out Transform bone))
+            {
+                return false;
+            }
+
+            List<NpcRigDirectionalBonePose> pose =
+                GetOrCreateAuthoredBonePose(direction);
+            NpcRigDirectionalBonePose bonePose =
+                FindAuthoredBonePose(pose, boneId);
+
+            float neutralPoseAngle =
+                GetEffectiveAppearance()?.BodySilhouette
+                    ?.GetNeutralPoseAngle(boneId)
+                ?? 0f;
+
+            if (bonePose == null)
+            {
+                bonePose = new NpcRigDirectionalBonePose(
+                    boneId,
+                    GetBaseAuthoredBonePosition(
+                        direction,
+                        boneId,
+                        bone),
+                    Vector3.zero,
+                    bone.localScale);
+                pose.Add(bonePose);
+            }
+
+            bonePose.CaptureRotation(
+                bone,
+                neutralPoseAngle);
+
+            return true;
+        }
+
         /// <summary>
         /// Sets optional front-only presentation details for a generated rig.
         /// </summary>
@@ -642,9 +785,7 @@ namespace BigRetail.Characters.Rigging
             NpcAuthoredDirection authoredDirection)
         {
             List<NpcRigDirectionalBonePose> pose =
-                authoredDirection == NpcAuthoredDirection.SouthEast
-                    ? southEastBonePose
-                    : northEastBonePose;
+                GetAuthoredBonePose(authoredDirection);
 
             if (pose == null)
             {
@@ -666,6 +807,139 @@ namespace BigRetail.Characters.Rigging
 
                 bonePose.Apply(bone);
             }
+        }
+
+
+        private List<NpcRigDirectionalBonePose>
+            CaptureCurrentAuthoredBonePose()
+        {
+            List<NpcRigDirectionalBonePose> capturedPose =
+                new List<NpcRigDirectionalBonePose>();
+
+            for (int index = 0; index < bones.Count; index++)
+            {
+                NpcRigBoneBinding binding = bones[index];
+
+                if (binding == null
+                    || binding.Bone == null
+                    || binding.Id == NpcRigBoneId.Root)
+                {
+                    continue;
+                }
+
+                Transform bone = binding.Bone;
+                capturedPose.Add(
+                    new NpcRigDirectionalBonePose(
+                        binding.Id,
+                        bone.localPosition,
+                        bone.localEulerAngles,
+                        bone.localScale));
+            }
+
+            return capturedPose;
+        }
+
+
+        private void PrepareAuthoredBonePoseForCapture(
+            NpcAuthoredDirection direction)
+        {
+            // Rebuild only the underlying rig pose here. Appearance body
+            // offsets and neutral angles are deliberately applied later by
+            // ApplyFacing, so capturing this state cannot make them stack.
+            ResetBoneRotations();
+            ResetAppearanceBonePositions(direction);
+            ApplyAuthoredBonePose(direction);
+        }
+
+
+        private static Vector3 GetBaseAuthoredBonePosition(
+            NpcAuthoredDirection direction,
+            NpcRigBoneId boneId,
+            Transform bone)
+        {
+            if (IsAppearancePositionBone(boneId)
+                && NpcRigDefinition.TryGetBoneDefinition(
+                    boneId,
+                    out NpcRigBoneDefinition definition))
+            {
+                return NpcFacingUtility.ResolveAuthoredBonePosition(
+                    direction,
+                    boneId,
+                    definition.LocalPosition);
+            }
+
+            return bone != null
+                ? bone.localPosition
+                : Vector3.zero;
+        }
+
+
+        private List<NpcRigDirectionalBonePose> GetAuthoredBonePose(
+            NpcAuthoredDirection direction)
+        {
+            switch (direction)
+            {
+                case NpcAuthoredDirection.SouthEast:
+                    return southEastBonePose;
+
+                case NpcAuthoredDirection.NorthEast:
+                    return northEastBonePose;
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(direction),
+                        direction,
+                        "Unknown authored NPC direction.");
+            }
+        }
+
+
+        private List<NpcRigDirectionalBonePose> GetOrCreateAuthoredBonePose(
+            NpcAuthoredDirection direction)
+        {
+            List<NpcRigDirectionalBonePose> pose =
+                GetAuthoredBonePose(direction);
+
+            if (pose != null)
+            {
+                return pose;
+            }
+
+            pose = new List<NpcRigDirectionalBonePose>();
+
+            if (direction == NpcAuthoredDirection.SouthEast)
+            {
+                southEastBonePose = pose;
+            }
+            else
+            {
+                northEastBonePose = pose;
+            }
+
+            return pose;
+        }
+
+
+        private static NpcRigDirectionalBonePose FindAuthoredBonePose(
+            List<NpcRigDirectionalBonePose> pose,
+            NpcRigBoneId boneId)
+        {
+            if (pose == null)
+            {
+                return null;
+            }
+
+            for (int index = 0; index < pose.Count; index++)
+            {
+                NpcRigDirectionalBonePose bonePose = pose[index];
+
+                if (bonePose != null && bonePose.Id == boneId)
+                {
+                    return bonePose;
+                }
+            }
+
+            return null;
         }
 
 

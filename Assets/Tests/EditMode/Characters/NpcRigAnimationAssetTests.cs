@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using BigRetail.Characters.Editor;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -12,14 +13,23 @@ namespace BigRetail.Characters.Rigging.Tests
         private const string PrefabPath =
             "Assets/Prefabs/Characters/Core/Person.prefab";
 
-        private const string IdleClipPath =
-            "Assets/Animations/Characters/Core/Person_Idle.anim";
+        private const string SouthFacingIdleClipPath =
+            "Assets/Animations/Characters/Core/Person_Idle_SouthFacing.anim";
+
+        private const string NorthFacingIdleClipPath =
+            "Assets/Animations/Characters/Core/Person_Idle_NorthFacing.anim";
 
         private const string SouthFacingWalkClipPath =
             "Assets/Animations/Characters/Core/Person_Walk_SouthFacing.anim";
 
         private const string NorthFacingWalkClipPath =
             "Assets/Animations/Characters/Core/Person_Walk_NorthFacing.anim";
+
+        private const string SouthFacingShelfGrabClipPath =
+            NpcShelfGrabAnimationAssetBuilder.SouthFacingClipPath;
+
+        private const string NorthFacingShelfGrabClipPath =
+            NpcShelfGrabAnimationAssetBuilder.NorthFacingClipPath;
 
         private const string ControllerPath =
             "Assets/Animations/Characters/Core/Person.controller";
@@ -155,11 +165,15 @@ namespace BigRetail.Characters.Rigging.Tests
 
 
         [Test]
-        public void PersonAnimationLibrary_HasNamedIndependentWalkViews()
+        public void PersonAnimationLibrary_HasNamedIndependentDirectionalViews()
         {
-            AnimationClip idleClip =
+            AnimationClip southFacingIdleClip =
                 AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                    IdleClipPath);
+                    SouthFacingIdleClipPath);
+
+            AnimationClip northFacingIdleClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    NorthFacingIdleClipPath);
 
             AnimationClip southFacingWalkClip =
                 AssetDatabase.LoadAssetAtPath<AnimationClip>(
@@ -170,7 +184,11 @@ namespace BigRetail.Characters.Rigging.Tests
                     NorthFacingWalkClipPath);
 
             Assert.That(
-                idleClip,
+                southFacingIdleClip,
+                Is.Not.Null);
+
+            Assert.That(
+                northFacingIdleClip,
                 Is.Not.Null);
 
             Assert.That(
@@ -182,6 +200,14 @@ namespace BigRetail.Characters.Rigging.Tests
                 Is.Not.Null);
 
             Assert.That(
+                southFacingIdleClip.name,
+                Is.EqualTo("Person_Idle_SouthFacing"));
+
+            Assert.That(
+                northFacingIdleClip.name,
+                Is.EqualTo("Person_Idle_NorthFacing"));
+
+            Assert.That(
                 southFacingWalkClip.name,
                 Is.EqualTo("Person_Walk_SouthFacing"));
 
@@ -191,7 +217,12 @@ namespace BigRetail.Characters.Rigging.Tests
 
             Assert.That(
                 AnimationUtility.GetAnimationClipSettings(
-                    idleClip).loopTime,
+                    southFacingIdleClip).loopTime,
+                Is.True);
+
+            Assert.That(
+                AnimationUtility.GetAnimationClipSettings(
+                    northFacingIdleClip).loopTime,
                 Is.True);
 
             Assert.That(
@@ -205,6 +236,14 @@ namespace BigRetail.Characters.Rigging.Tests
                 Is.True);
 
             Assert.That(
+                southFacingIdleClip.length,
+                Is.GreaterThan(0f));
+
+            Assert.That(
+                northFacingIdleClip.length,
+                Is.GreaterThan(0f));
+
+            Assert.That(
                 southFacingWalkClip.length,
                 Is.GreaterThan(0f));
 
@@ -214,7 +253,12 @@ namespace BigRetail.Characters.Rigging.Tests
 
             Assert.That(
                 AnimationUtility.GetCurveBindings(
-                    idleClip).Length,
+                    southFacingIdleClip).Length,
+                Is.GreaterThanOrEqualTo(3));
+
+            Assert.That(
+                AnimationUtility.GetCurveBindings(
+                    northFacingIdleClip).Length,
                 Is.GreaterThanOrEqualTo(3));
 
             Assert.That(
@@ -231,6 +275,10 @@ namespace BigRetail.Characters.Rigging.Tests
                 AnimationUtility.GetCurveBindings(southFacingWalkClip);
             EditorCurveBinding[] northBindings =
                 AnimationUtility.GetCurveBindings(northFacingWalkClip);
+            EditorCurveBinding[] southIdleBindings =
+                AnimationUtility.GetCurveBindings(southFacingIdleClip);
+            EditorCurveBinding[] northIdleBindings =
+                AnimationUtility.GetCurveBindings(northFacingIdleClip);
 
             Assert.That(
                 southBindings.Any(
@@ -258,11 +306,98 @@ namespace BigRetail.Characters.Rigging.Tests
                 "The north-facing walk must not retain legacy screen-side "
                 + "binding paths.");
 
+            string[] northArmBones =
+            {
+                "ShoulderForeground",
+                "UpperArmForeground",
+                "ForearmForeground",
+                "HandForeground",
+                "ShoulderBackground",
+                "UpperArmBackground",
+                "ForearmBackground",
+                "HandBackground"
+            };
+
+            for (int index = 0; index < northArmBones.Length; index++)
+            {
+                string armBone = northArmBones[index];
+
+                Assert.That(
+                    northBindings.Any(
+                        binding =>
+                            binding.path.EndsWith("/" + armBone)),
+                    Is.True,
+                    $"The north-facing walk must animate {armBone}.");
+
+                EditorCurveBinding northArmBinding =
+                    northBindings.First(
+                        binding =>
+                            binding.path.EndsWith("/" + armBone)
+                            && binding.propertyName.EndsWith(".z")
+                            && binding.propertyName.Contains("EulerAngles"));
+                EditorCurveBinding southSameSideBinding =
+                    southBindings.First(
+                        binding =>
+                            binding.path == northArmBinding.path
+                            && binding.type == northArmBinding.type
+                            && binding.propertyName
+                            == northArmBinding.propertyName);
+                AnimationCurve northArmCurve =
+                    AnimationUtility.GetEditorCurve(
+                        northFacingWalkClip,
+                        northArmBinding);
+                AnimationCurve southSameSideCurve =
+                    AnimationUtility.GetEditorCurve(
+                        southFacingWalkClip,
+                        southSameSideBinding);
+
+                Assert.That(
+                    AnimationCurvesMatch(
+                        northArmCurve,
+                        southSameSideCurve),
+                    Is.False,
+                    $"The rear-view {armBone} must not retain the "
+                    + "same-side south-facing motion.");
+            }
+
+            string[] northFootBones =
+            {
+                "FootForeground",
+                "FootBackground"
+            };
+
+            for (int index = 0; index < northFootBones.Length; index++)
+            {
+                string footBone = northFootBones[index];
+                EditorCurveBinding footBinding =
+                    northBindings.First(
+                        binding =>
+                            binding.path.EndsWith("/" + footBone)
+                            && binding.propertyName.EndsWith(".z")
+                            && binding.propertyName.Contains("EulerAngles"));
+                AnimationCurve footCurve =
+                    AnimationUtility.GetEditorCurve(
+                        northFacingWalkClip,
+                        footBinding);
+                float meanSignedFootAngle =
+                    footCurve.keys.Average(
+                        key => Mathf.DeltaAngle(0f, key.value));
+
+                Assert.That(
+                    meanSignedFootAngle,
+                    Is.GreaterThan(0f),
+                    $"The north-facing {footBone} curve must preserve its "
+                    + "north-oriented positive heading.");
+            }
+
             GameObject prefab =
                 AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
 
             foreach (EditorCurveBinding binding in
-                     southBindings.Concat(northBindings))
+                     southBindings
+                         .Concat(northBindings)
+                         .Concat(southIdleBindings)
+                         .Concat(northIdleBindings))
             {
                 if (string.IsNullOrEmpty(binding.path))
                 {
@@ -272,7 +407,7 @@ namespace BigRetail.Characters.Rigging.Tests
                 Assert.That(
                     prefab.transform.Find(binding.path),
                     Is.Not.Null,
-                    $"Authored walk binding path does not resolve: "
+                    $"Authored animation binding path does not resolve: "
                     + binding.path);
             }
         }
@@ -338,6 +473,22 @@ namespace BigRetail.Characters.Rigging.Tests
                 stateNames,
                 "Walk");
 
+            CollectionAssert.DoesNotContain(
+                stateNames,
+                "Person_Idle_NorthFacing");
+
+            CollectionAssert.DoesNotContain(
+                stateNames,
+                "Person_Walk_NorthFacing");
+
+            AnimatorState idleState =
+                controller.layers[0]
+                    .stateMachine.states
+                    .Single(
+                        childState =>
+                            childState.state.name == "Idle")
+                    .state;
+
             AnimatorState walkState =
                 controller.layers[0]
                     .stateMachine.states
@@ -346,41 +497,557 @@ namespace BigRetail.Characters.Rigging.Tests
                             childState.state.name == "Walk")
                     .state;
 
-            Assert.That(
-                walkState.motion,
-                Is.TypeOf<BlendTree>());
+            AssertDirectionalBlendTree(
+                idleState,
+                "Idle Facing Direction",
+                SouthFacingIdleClipPath,
+                NorthFacingIdleClipPath);
+            AssertDirectionalBlendTree(
+                walkState,
+                "Walk Facing Direction",
+                SouthFacingWalkClipPath,
+                NorthFacingWalkClipPath);
+        }
 
-            BlendTree facingWalk = (BlendTree)walkState.motion;
+
+        [Test]
+        public void ShelfGrabAnimationLibrary_HasIndependentDirectionalViews()
+        {
+            AnimationClip southClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    SouthFacingShelfGrabClipPath);
+            AnimationClip northClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    NorthFacingShelfGrabClipPath);
+
+            Assert.That(southClip, Is.Not.Null);
+            Assert.That(northClip, Is.Not.Null);
+            Assert.That(
+                southClip.name,
+                Is.EqualTo("Person_ShelfGrab_SouthFacing"));
+            Assert.That(
+                northClip.name,
+                Is.EqualTo("Person_ShelfGrab_NorthFacing"));
+
+            AnimationClip[] clips =
+            {
+                southClip,
+                northClip
+            };
+            string[] requiredArmBones =
+            {
+                "ShoulderForeground",
+                "UpperArmForeground",
+                "ForearmForeground",
+                "HandForeground",
+                "ShoulderBackground",
+                "UpperArmBackground",
+                "ForearmBackground",
+                "HandBackground"
+            };
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+
+            foreach (AnimationClip clip in clips)
+            {
+                Assert.That(
+                    AnimationUtility.GetAnimationClipSettings(clip).loopTime,
+                    Is.False,
+                    $"{clip.name} must remain a one-shot interaction.");
+                Assert.That(
+                    clip.frameRate,
+                    Is.EqualTo(
+                        NpcShelfGrabAnimationAssetBuilder.FrameRate)
+                        .Within(0.001f));
+                Assert.That(
+                    clip.length,
+                    Is.EqualTo(
+                        NpcShelfGrabAnimationAssetBuilder.DurationSeconds)
+                        .Within(0.001f));
+
+                EditorCurveBinding[] bindings =
+                    AnimationUtility.GetCurveBindings(clip);
+
+                Assert.That(
+                    bindings.Any(
+                        binding => binding.path.Contains("Thigh")
+                                   || binding.path.Contains("Shin")
+                                   || binding.path.Contains("Foot")),
+                    Is.False,
+                    "A shelf grab should preserve the planted leg pose.");
+
+                for (int index = 0;
+                     index < requiredArmBones.Length;
+                     index++)
+                {
+                    string boneName = requiredArmBones[index];
+                    EditorCurveBinding binding = bindings.Single(
+                        candidate =>
+                            candidate.path.EndsWith("/" + boneName)
+                            && candidate.propertyName
+                                == "localEulerAnglesRaw.z");
+                    AnimationCurve curve =
+                        AnimationUtility.GetEditorCurve(clip, binding);
+
+                    Assert.That(curve, Is.Not.Null);
+                    Assert.That(
+                        Mathf.DeltaAngle(
+                            curve.keys[0].value,
+                            curve.keys[curve.length - 1].value),
+                        Is.Zero.Within(0.001f),
+                        $"{clip.name} must settle {boneName} back into its "
+                        + "directional starting pose.");
+                    Assert.That(
+                        prefab.transform.Find(binding.path),
+                        Is.Not.Null,
+                        $"{clip.name} targets a missing rig path: "
+                        + binding.path);
+                }
+            }
+
+            AnimationCurve southReach = GetLocalZCurve(
+                southClip,
+                "UpperArmBackground");
+            AnimationCurve northReach = GetLocalZCurve(
+                northClip,
+                "UpperArmForeground");
+            AnimationCurve southElbow = GetLocalZCurve(
+                southClip,
+                "ForearmBackground");
+            AnimationCurve northElbow = GetLocalZCurve(
+                northClip,
+                "ForearmForeground");
 
             Assert.That(
-                facingWalk.name,
-                Is.EqualTo("Walk Facing Direction"));
-
+                southReach.keys.Max(key => key.value),
+                Is.GreaterThan(55f),
+                "The south-facing shelf-side arm must visibly reach without "
+                + "crossing the torso.");
             Assert.That(
-                facingWalk.blendParameter,
-                Is.EqualTo("FacingNorth"));
-
+                northReach.keys.Max(key => key.value),
+                Is.GreaterThan(75f),
+                "The north-facing foreground arm must travel higher to "
+                + "suggest depth toward the shelf.");
             Assert.That(
-                facingWalk.children.Length,
-                Is.EqualTo(2));
-
+                AnimationCurvesMatch(southReach, northReach),
+                Is.False,
+                "North and south shelf grabs must remain independently "
+                + "authored perspective views.");
             Assert.That(
-                AssetDatabase.GetAssetPath(
-                    facingWalk.children[0].motion),
-                Is.EqualTo(SouthFacingWalkClipPath));
-
+                southElbow.Evaluate(1f),
+                Is.EqualTo(14f).Within(0.001f),
+                "The south arm must remain visually straight at full reach.");
             Assert.That(
-                facingWalk.children[0].threshold,
-                Is.EqualTo(0f));
+                northElbow.Evaluate(1f),
+                Is.Zero.Within(0.001f),
+                "The north arm must not hinge backward at full reach.");
 
-            Assert.That(
-                AssetDatabase.GetAssetPath(
-                    facingWalk.children[1].motion),
-                Is.EqualTo(NorthFacingWalkClipPath));
+            foreach (AnimationClip clip in clips)
+            {
+                EditorCurveBinding pelvisForwardBinding =
+                    EditorCurveBinding.FloatCurve(
+                        "Directional Visual/Root/Pelvis",
+                        typeof(Transform),
+                        "m_LocalPosition.x");
+                AnimationCurve pelvisForward =
+                    AnimationUtility.GetEditorCurve(
+                        clip,
+                        pelvisForwardBinding);
 
+                Assert.That(pelvisForward, Is.Not.Null);
+                Assert.That(
+                    pelvisForward.keys.Max(key => key.value),
+                    Is.GreaterThan(0.03f),
+                    $"{clip.name} must advance the body slightly into the "
+                    + "reach.");
+            }
+
+            AnimatorController controller =
+                AssetDatabase.LoadAssetAtPath<AnimatorController>(
+                    ControllerPath);
+            AnimatorState southState = controller.layers[0]
+                .stateMachine.states
+                .Single(
+                    childState => childState.state.name
+                        == southClip.name)
+                .state;
+            AnimatorState northState = controller.layers[0]
+                .stateMachine.states
+                .Single(
+                    childState => childState.state.name
+                        == northClip.name)
+                .state;
+
+            Assert.That(southState.motion, Is.SameAs(southClip));
+            Assert.That(northState.motion, Is.SameAs(northClip));
             Assert.That(
-                facingWalk.children[1].threshold,
-                Is.EqualTo(1f));
+                southState.transitions,
+                Is.Empty,
+                "The south shelf grab is selectable for authoring but must "
+                + "not change gameplay transitions yet.");
+            Assert.That(
+                northState.transitions,
+                Is.Empty,
+                "The north shelf grab is selectable for authoring but must "
+                + "not change gameplay transitions yet.");
+        }
+
+
+        [Test]
+        public void NorthWalkGaitRepair_SwapsPreviouslyCopiedShoulderSides()
+        {
+            const string armRoot =
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/";
+            EditorCurveBinding foregroundBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot + "ShoulderForeground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            EditorCurveBinding backgroundBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot + "ShoulderBackground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            AnimationCurve southForeground =
+                AnimationCurve.Linear(0f, -12f, 1f, 18f);
+            AnimationCurve southBackground =
+                AnimationCurve.Linear(0f, 32f, 1f, -24f);
+            AnimationClip southClip = new AnimationClip();
+            AnimationClip northClip = new AnimationClip();
+
+            try
+            {
+                AnimationUtility.SetEditorCurve(
+                    southClip,
+                    foregroundBinding,
+                    southForeground);
+                AnimationUtility.SetEditorCurve(
+                    southClip,
+                    backgroundBinding,
+                    southBackground);
+
+                // Reproduce the old bug: each north shoulder received the
+                // motion from the identically named south shoulder.
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    foregroundBinding,
+                    new AnimationCurve(southForeground.keys));
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    backgroundBinding,
+                    new AnimationCurve(southBackground.keys));
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.True);
+
+                Assert.That(
+                    AnimationCurvesMatch(
+                        AnimationUtility.GetEditorCurve(
+                            northClip,
+                            foregroundBinding),
+                        southBackground),
+                    Is.True,
+                    "The north foreground shoulder must receive the south "
+                    + "background shoulder motion.");
+                Assert.That(
+                    AnimationCurvesMatch(
+                        AnimationUtility.GetEditorCurve(
+                            northClip,
+                            backgroundBinding),
+                        southForeground),
+                    Is.True,
+                    "The north background shoulder must receive the south "
+                    + "foreground shoulder motion.");
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.False,
+                    "A second repair pass must be idempotent.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(northClip);
+                Object.DestroyImmediate(southClip);
+            }
+        }
+
+
+        [Test]
+        public void NorthWalkGaitRepair_TightensGeneratedBackgroundUpperArm()
+        {
+            const string armRoot =
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/";
+            EditorCurveBinding sourceBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot
+                    + "ShoulderForeground/UpperArmForeground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            EditorCurveBinding targetBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot
+                    + "ShoulderBackground/UpperArmBackground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            AnimationCurve generatedSource = new AnimationCurve(
+                new Keyframe(0f, 22f),
+                new Keyframe(0.33333334f, 0f),
+                new Keyframe(0.8333333f, -25f),
+                new Keyframe(1.1666666f, 0f),
+                new Keyframe(1.6666666f, 22f));
+            AnimationClip southClip = new AnimationClip();
+            AnimationClip northClip = new AnimationClip();
+
+            try
+            {
+                AnimationUtility.SetEditorCurve(
+                    southClip,
+                    sourceBinding,
+                    generatedSource);
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    targetBinding,
+                    new AnimationCurve(generatedSource.keys));
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.True);
+
+                AnimationCurve tightened =
+                    AnimationUtility.GetEditorCurve(
+                        northClip,
+                        targetBinding);
+
+                Assert.That(
+                    tightened.keys.Min(key => key.value),
+                    Is.EqualTo(-13.75f).Within(0.001f));
+                Assert.That(
+                    tightened.keys.Max(key => key.value),
+                    Is.EqualTo(22f).Within(0.001f),
+                    "The forward half of the swing must remain unchanged.");
+                Assert.That(
+                    generatedSource.keys.Min(key => key.value),
+                    Is.EqualTo(-25f).Within(0.001f),
+                    "The south-facing source clip must remain unchanged.");
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.False,
+                    "The range adjustment must be idempotent.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(northClip);
+                Object.DestroyImmediate(southClip);
+            }
+        }
+
+
+        [Test]
+        public void NorthWalkGaitRepair_SmoothsAuthoredBackgroundShoulder()
+        {
+            const string shoulderPath =
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/"
+                + "ShoulderBackground";
+            EditorCurveBinding shoulderBinding =
+                EditorCurveBinding.FloatCurve(
+                    shoulderPath,
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            AnimationCurve authoredShoulder = new AnimationCurve(
+                new Keyframe(0f, 42f),
+                new Keyframe(0.16666667f, 11f),
+                new Keyframe(0.33333334f, 25f),
+                new Keyframe(0.5f, 28f),
+                new Keyframe(0.6666667f, 20f),
+                new Keyframe(0.8333333f, 6f),
+                new Keyframe(1f, -2f),
+                new Keyframe(1.1666666f, 0f),
+                new Keyframe(1.3333334f, 2f),
+                new Keyframe(1.6666666f, 42f));
+            AnimationClip southClip = new AnimationClip();
+            AnimationClip northClip = new AnimationClip();
+            float[] expectedValues =
+            {
+                24.25f,
+                22.25f,
+                22.25f,
+                25.25f,
+                18.5f,
+                7.5f,
+                0.5f,
+                0f,
+                11.5f,
+                24.25f
+            };
+
+            try
+            {
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    shoulderBinding,
+                    authoredShoulder);
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.True);
+
+                AnimationCurve smoothedShoulder =
+                    AnimationUtility.GetEditorCurve(
+                        northClip,
+                        shoulderBinding);
+                Keyframe[] smoothedKeys = smoothedShoulder.keys;
+
+                Assert.That(
+                    smoothedKeys.Length,
+                    Is.EqualTo(expectedValues.Length));
+
+                for (int index = 0;
+                     index < expectedValues.Length;
+                     index++)
+                {
+                    Assert.That(
+                        smoothedKeys[index].value,
+                        Is.EqualTo(expectedValues[index]).Within(0.001f),
+                        $"Unexpected smoothed shoulder value at key "
+                        + index);
+                }
+
+                Assert.That(
+                    smoothedKeys[0].inTangent,
+                    Is.EqualTo(smoothedKeys[smoothedKeys.Length - 1]
+                        .inTangent).Within(0.001f),
+                    "The loop endpoints must share a tangent.");
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.False,
+                    "The shoulder smoothing pass must be idempotent.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(northClip);
+                Object.DestroyImmediate(southClip);
+            }
+        }
+
+
+        [Test]
+        public void NorthWalkGaitRepair_ShiftsBothUpperArmRangesForward()
+        {
+            const string armRoot =
+                "Directional Visual/Root/Pelvis/SpineLower/Chest/";
+            EditorCurveBinding foregroundBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot
+                    + "ShoulderForeground/UpperArmForeground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            EditorCurveBinding backgroundBinding =
+                EditorCurveBinding.FloatCurve(
+                    armRoot
+                    + "ShoulderBackground/UpperArmBackground",
+                    typeof(Transform),
+                    "localEulerAnglesRaw.z");
+            AnimationCurve foregroundCurve = new AnimationCurve(
+                new Keyframe(0f, -42f),
+                new Keyframe(0.16666667f, -32f),
+                new Keyframe(0.33333334f, -20f),
+                new Keyframe(0.6666667f, -5f),
+                new Keyframe(0.8333333f, 5f),
+                new Keyframe(1f, -5f),
+                new Keyframe(1.1666666f, -20f),
+                new Keyframe(1.3333334f, -32f),
+                new Keyframe(1.6666666f, -42f));
+            AnimationCurve backgroundCurve = new AnimationCurve(
+                new Keyframe(0f, 22f),
+                new Keyframe(0.16666667f, 16f),
+                new Keyframe(0.33333334f, 0f),
+                new Keyframe(0.6666667f, -10f),
+                new Keyframe(0.8333333f, -13.75f),
+                new Keyframe(1f, -9.900001f),
+                new Keyframe(1.1666666f, 0f),
+                new Keyframe(1.3333334f, 16f),
+                new Keyframe(1.6666666f, 22f));
+            AnimationClip southClip = new AnimationClip();
+            AnimationClip northClip = new AnimationClip();
+
+            try
+            {
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    foregroundBinding,
+                    foregroundCurve);
+                AnimationUtility.SetEditorCurve(
+                    northClip,
+                    backgroundBinding,
+                    backgroundCurve);
+
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.True);
+
+                AnimationCurve shiftedForeground =
+                    AnimationUtility.GetEditorCurve(
+                        northClip,
+                        foregroundBinding);
+                AnimationCurve shiftedBackground =
+                    AnimationUtility.GetEditorCurve(
+                        northClip,
+                        backgroundBinding);
+
+                AssertCurveOffsetBy(
+                    foregroundCurve,
+                    shiftedForeground,
+                    8f);
+                AssertCurveOffsetBy(
+                    backgroundCurve,
+                    shiftedBackground,
+                    8f);
+                Assert.That(
+                    shiftedForeground.keys.Max(key => key.value)
+                    - shiftedForeground.keys.Min(key => key.value),
+                    Is.EqualTo(47f).Within(0.001f),
+                    "The foreground swing width must remain unchanged.");
+                Assert.That(
+                    shiftedBackground.keys.Max(key => key.value)
+                    - shiftedBackground.keys.Min(key => key.value),
+                    Is.EqualTo(35.75f).Within(0.001f),
+                    "The background swing width must remain unchanged.");
+                Assert.That(
+                    NpcDirectionalAnimationAssetBuilder
+                        .EnsureNorthWalkGaitCurves(
+                            southClip,
+                            northClip),
+                    Is.False,
+                    "The forward-bias adjustment must be idempotent.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(northClip);
+                Object.DestroyImmediate(southClip);
+            }
         }
 
 
@@ -605,6 +1272,65 @@ namespace BigRetail.Characters.Rigging.Tests
         }
 
 
+        private static AnimationCurve GetLocalZCurve(
+            AnimationClip clip,
+            string boneName)
+        {
+            EditorCurveBinding binding =
+                AnimationUtility.GetCurveBindings(clip).Single(
+                    candidate =>
+                        candidate.path.EndsWith("/" + boneName)
+                        && candidate.propertyName
+                            == "localEulerAnglesRaw.z");
+
+            return AnimationUtility.GetEditorCurve(clip, binding);
+        }
+
+
+        private static void AssertDirectionalBlendTree(
+            AnimatorState state,
+            string expectedName,
+            string southClipPath,
+            string northClipPath)
+        {
+            Assert.That(
+                state.motion,
+                Is.TypeOf<BlendTree>());
+
+            BlendTree blendTree = (BlendTree)state.motion;
+
+            Assert.That(
+                blendTree.name,
+                Is.EqualTo(expectedName));
+
+            Assert.That(
+                blendTree.blendParameter,
+                Is.EqualTo("FacingNorth"));
+
+            Assert.That(
+                blendTree.children.Length,
+                Is.EqualTo(2));
+
+            Assert.That(
+                AssetDatabase.GetAssetPath(
+                    blendTree.children[0].motion),
+                Is.EqualTo(southClipPath));
+
+            Assert.That(
+                blendTree.children[0].threshold,
+                Is.EqualTo(0f));
+
+            Assert.That(
+                AssetDatabase.GetAssetPath(
+                    blendTree.children[1].motion),
+                Is.EqualTo(northClipPath));
+
+            Assert.That(
+                blendTree.children[1].threshold,
+                Is.EqualTo(1f));
+        }
+
+
         private static float GetAuthoredFootAngle(
             SerializedProperty pose,
             NpcRigBoneId footBone)
@@ -633,6 +1359,71 @@ namespace BigRetail.Characters.Rigging.Tests
                 $"The Person prefab is missing an authored pose for "
                 + $"{footBone}.");
             return 0f;
+        }
+
+
+        private static void AssertCurveOffsetBy(
+            AnimationCurve original,
+            AnimationCurve shifted,
+            float expectedOffset)
+        {
+            Assert.That(shifted, Is.Not.Null);
+            Assert.That(
+                shifted.length,
+                Is.EqualTo(original.length));
+
+            Keyframe[] originalKeys = original.keys;
+            Keyframe[] shiftedKeys = shifted.keys;
+
+            for (int index = 0; index < originalKeys.Length; index++)
+            {
+                Assert.That(
+                    shiftedKeys[index].time,
+                    Is.EqualTo(originalKeys[index].time).Within(0.0001f));
+                Assert.That(
+                    shiftedKeys[index].value
+                    - originalKeys[index].value,
+                    Is.EqualTo(expectedOffset).Within(0.001f));
+                Assert.That(
+                    shiftedKeys[index].inTangent,
+                    Is.EqualTo(originalKeys[index].inTangent)
+                        .Within(0.001f));
+                Assert.That(
+                    shiftedKeys[index].outTangent,
+                    Is.EqualTo(originalKeys[index].outTangent)
+                        .Within(0.001f));
+            }
+        }
+
+
+        private static bool AnimationCurvesMatch(
+            AnimationCurve first,
+            AnimationCurve second)
+        {
+            if (first == null
+                || second == null
+                || first.length != second.length)
+            {
+                return false;
+            }
+
+            Keyframe[] firstKeys = first.keys;
+            Keyframe[] secondKeys = second.keys;
+
+            for (int index = 0; index < firstKeys.Length; index++)
+            {
+                if (!Mathf.Approximately(
+                        firstKeys[index].time,
+                        secondKeys[index].time)
+                    || !Mathf.Approximately(
+                        firstKeys[index].value,
+                        secondKeys[index].value))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
 

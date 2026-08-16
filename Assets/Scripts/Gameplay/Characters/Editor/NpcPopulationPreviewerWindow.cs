@@ -38,8 +38,11 @@ namespace BigRetail.Characters.Editor
         private const string PersonPrefabPath =
             "Assets/Prefabs/Characters/Core/Person.prefab";
 
-        private const string PersonIdleClipPath =
-            "Assets/Animations/Characters/Core/Person_Idle.anim";
+        private const string PersonSouthFacingIdleClipPath =
+            "Assets/Animations/Characters/Core/Person_Idle_SouthFacing.anim";
+
+        private const string PersonNorthFacingIdleClipPath =
+            "Assets/Animations/Characters/Core/Person_Idle_NorthFacing.anim";
 
         private const string PersonSouthFacingWalkClipPath =
             "Assets/Animations/Characters/Core/Person_Walk_SouthFacing.anim";
@@ -120,7 +123,8 @@ namespace BigRetail.Characters.Editor
         private NpcCutoutRig previewRig;
         private NpcAppearanceProfile previewProfile;
         private Texture previewTexture;
-        private AnimationClip idleClip;
+        private AnimationClip southFacingIdleClip;
+        private AnimationClip northFacingIdleClip;
         private AnimationClip southFacingWalkClip;
         private AnimationClip northFacingWalkClip;
         private Hash128 personPrefabDependencyHash;
@@ -1632,8 +1636,12 @@ namespace BigRetail.Characters.Editor
 
         private void LoadPreviewAnimations()
         {
-            idleClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(
-                PersonIdleClipPath);
+            southFacingIdleClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    PersonSouthFacingIdleClipPath);
+            northFacingIdleClip =
+                AssetDatabase.LoadAssetAtPath<AnimationClip>(
+                    PersonNorthFacingIdleClipPath);
             southFacingWalkClip =
                 AssetDatabase.LoadAssetAtPath<AnimationClip>(
                     PersonSouthFacingWalkClipPath);
@@ -1683,7 +1691,9 @@ namespace BigRetail.Characters.Editor
             switch (selectedAnimation)
             {
                 case NpcPopulationPreviewAnimation.Idle:
-                    return idleClip;
+                    return NpcFacingUtility.UsesNorthFacingAnimation(facing)
+                        ? northFacingIdleClip
+                        : southFacingIdleClip;
 
                 case NpcPopulationPreviewAnimation.Walk:
                     return NpcFacingUtility.UsesNorthFacingAnimation(facing)
