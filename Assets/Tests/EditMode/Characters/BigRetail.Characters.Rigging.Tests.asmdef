@@ -1,0 +1,19 @@
+{
+    "name": "BigRetail.Characters.Rigging.Tests",
+    "rootNamespace": "BigRetail.Characters.Rigging.Tests",
+    "references": [
+        "BigRetail.Characters.Rigging",
+        "BigRetail.Characters.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
