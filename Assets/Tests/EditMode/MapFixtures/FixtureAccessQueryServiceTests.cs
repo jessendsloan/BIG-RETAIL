@@ -254,7 +254,7 @@ namespace BigRetail.Map.Fixtures.Tests
 
 
         [TestCase(FixtureAccessMode.None)]
-        [TestCase((FixtureAccessMode)8)]
+        [TestCase((FixtureAccessMode)16)]
         public void Query_UnsupportedRequiredMode_IsRejected(
             FixtureAccessMode mode)
         {

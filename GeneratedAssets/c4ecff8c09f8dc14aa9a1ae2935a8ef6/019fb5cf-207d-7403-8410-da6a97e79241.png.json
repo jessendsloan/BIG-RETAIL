@@ -1,0 +1,31 @@
+{
+    "asset": "c4ecff8c09f8dc14aa9a1ae2935a8ef6",
+    "fileName": "019fb5cf-207d-7403-8410-da6a97e79241.png",
+    "prompt": "A transparent 2D Sprite of an ordinary retail employee's UpperArmFar body piece. Clean, readable isometric management-sim style, precise 1-pixel dark outline (#15181F), soft outline, and restrained flat shading. View from NorthEast (rear angle). Muted blue short-sleeve work shirt sleeve and a small portion of bare skin. ONLY the upper arm. NO body, NO forearm, NO background. Isolated on a transparent background.",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}

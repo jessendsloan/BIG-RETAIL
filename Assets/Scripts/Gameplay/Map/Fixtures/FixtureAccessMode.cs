@@ -11,7 +11,9 @@ namespace BigRetail.Map.Fixtures
     {
         None = 0,
         CustomerBrowse = 1 << 0,
-        EmployeeStock = 1 << 1
+        EmployeeStock = 1 << 1,
+        CustomerCheckout = 1 << 2,
+        EmployeeCheckout = 1 << 3
     }
 
 
@@ -19,7 +21,9 @@ namespace BigRetail.Map.Fixtures
     {
         private const FixtureAccessMode AllSupportedModes =
             FixtureAccessMode.CustomerBrowse
-            | FixtureAccessMode.EmployeeStock;
+            | FixtureAccessMode.EmployeeStock
+            | FixtureAccessMode.CustomerCheckout
+            | FixtureAccessMode.EmployeeCheckout;
 
 
         public static bool IsSupported(

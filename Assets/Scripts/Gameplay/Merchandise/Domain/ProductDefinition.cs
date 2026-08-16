@@ -14,6 +14,8 @@ namespace BigRetail.Merchandise.Domain
         public string DisplayName { get; }
         public ProductCategoryId CategoryId { get; }
         public StockUnit StockUnit { get; }
+        public long WholesaleCaseCostCents { get; }
+        public long RetailUnitPriceCents { get; }
 
 
         public ProductDefinition(
@@ -21,6 +23,39 @@ namespace BigRetail.Merchandise.Domain
             string displayName,
             ProductCategoryId categoryId,
             StockUnit stockUnit)
+            : this(
+                id,
+                displayName,
+                categoryId,
+                stockUnit,
+                wholesaleCaseCostCents: 0,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents)
+            : this(
+                id,
+                displayName,
+                categoryId,
+                stockUnit,
+                wholesaleCaseCostCents,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents,
+            long retailUnitPriceCents)
         {
             if (!id.IsValid)
             {
@@ -53,10 +88,28 @@ namespace BigRetail.Merchandise.Domain
                     "The stock unit is not supported.");
             }
 
+            if (wholesaleCaseCostCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(wholesaleCaseCostCents),
+                    wholesaleCaseCostCents,
+                    "A wholesale case cost cannot be negative.");
+            }
+
+            if (retailUnitPriceCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(retailUnitPriceCents),
+                    retailUnitPriceCents,
+                    "A retail unit price cannot be negative.");
+            }
+
             Id = id;
             DisplayName = displayName.Trim();
             CategoryId = categoryId;
             StockUnit = stockUnit;
+            WholesaleCaseCostCents = wholesaleCaseCostCents;
+            RetailUnitPriceCents = retailUnitPriceCents;
         }
     }
 }

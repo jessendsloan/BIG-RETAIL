@@ -242,7 +242,7 @@ namespace BigRetail.Map.Fixtures.Tests
         {
             Assert.That(
                 () => new FixtureAccessProfile(
-                    (FixtureAccessMode)8,
+                    (FixtureAccessMode)16,
                     FixtureAccessMode.None,
                     FixtureAccessMode.None,
                     FixtureAccessMode.None),

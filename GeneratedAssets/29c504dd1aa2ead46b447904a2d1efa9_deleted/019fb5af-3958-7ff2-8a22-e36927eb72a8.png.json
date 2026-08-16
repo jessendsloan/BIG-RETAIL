@@ -1,0 +1,31 @@
+{
+    "asset": "29c504dd1aa2ead46b447904a2d1efa9",
+    "fileName": "019fb5af-3958-7ff2-8a22-e36927eb72a8.png",
+    "prompt": "A 2D sprite of a single isolated torso of an ordinary retail employee for a management-sim character rig. It is a clean, readable isometric management-sim illustration of a torso garment with shoulders. Muted blue short-sleeve work shirt. Neutral standing bind pose, three-quarter view facing SouthEast. Soft outline and restrained flat shading. ONLY the torso garment and shoulders. NO head, NO neck, NO arms, NO hands, NO pelvis, NO legs, NO feet, NO face, NO logo, NO background, NO shadow, and NO text. Isolated on a white or transparent background.",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": -1,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelatePixelGridSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0,
+    "dimensions": {
+        "width": 1024,
+        "height": 1024
+    },
+    "spriteSheet": false,
+    "duration": 0.0,
+    "dynamicParams": {
+        "serializedData": []
+    }
+}

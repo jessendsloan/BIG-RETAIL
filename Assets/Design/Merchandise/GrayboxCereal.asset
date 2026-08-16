@@ -16,3 +16,5 @@ MonoBehaviour:
   displayName: Cereal
   categoryId: GROCERY
   stockUnit: 0
+  wholesaleCaseCostCents: 3600
+  retailUnitPriceCents: 349

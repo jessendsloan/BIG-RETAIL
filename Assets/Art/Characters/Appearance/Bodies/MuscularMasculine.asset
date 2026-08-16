@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8b5f21c2cdb4e6baa16e43f80136d17, type: 3}
+  m_Name: MuscularMasculine
+  m_EditorClassIdentifier: BigRetail.Characters.Rigging:BigRetail.Characters.Rigging:NpcBodySilhouette
+  displayName: Muscular Masculine
+  kind: 0
+  partShapes:
+  - id: 0
+    localPosition: {x: 0, y: 0.1, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.39, y: 0.34}
+    visible: 1
+  - id: 1
+    localPosition: {x: -0.03101821, y: -0.12364469, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.4}
+    size: {x: 0.1716, y: 0.342}
+    visible: 1
+  - id: 2
+    localPosition: {x: -0.03785165, y: -0.1293671, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.2}
+    size: {x: 0.1159, y: 0.33}
+    visible: 1
+  - id: 3
+    localPosition: {x: -0.0029253457, y: -0.06442112, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -2.6}
+    size: {x: 0.119600005, y: 0.1474}
+    visible: 1
+  - id: 4
+    localPosition: {x: -0.0060977708, y: -0.19403423, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -1.8}
+    size: {x: 0.16, y: 0.43140003}
+    visible: 1
+  - id: 5
+    localPosition: {x: -0.01990691, y: -0.18627366, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -6.1}
+    size: {x: 0.10800001, y: 0.4058911}
+    visible: 1
+  - id: 6
+    localPosition: {x: 0.03663313, y: -0.04028297, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -12.6}
+    size: {x: 0.18440002, y: 0.105399996}
+    visible: 1
+  - id: 7
+    localPosition: {x: -0.0061, y: -0.009, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.347, y: 0.19830002}
+    visible: 1
+  - id: 8
+    localPosition: {x: 0, y: -0.14104542, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.394, y: 0.6309999}
+    visible: 1
+  - id: 9
+    localPosition: {x: -0, y: 0.058216665, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.1374, y: 0.1497}
+    visible: 1
+  - id: 10
+    localPosition: {x: -0, y: 0.05618421, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 0}
+    size: {x: 0.289, y: 0.305}
+    visible: 1
+  - id: 11
+    localPosition: {x: 0.02, y: 0.17, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 353}
+    size: {x: 0.37, y: 0.17}
+    visible: 1
+  - id: 12
+    localPosition: {x: 0.006132051, y: -0.18484832, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 1.9}
+    size: {x: 0.16, y: 0.411}
+    visible: 1
+  - id: 13
+    localPosition: {x: 0.0153260045, y: -0.17517702, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 5}
+    size: {x: 0.10800001, y: 0.381}
+    visible: 1
+  - id: 14
+    localPosition: {x: 0.052831084, y: -0.018044503, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: -9.5}
+    size: {x: 0.18440002, y: 0.105399996}
+    visible: 1
+  - id: 15
+    localPosition: {x: 0.05698965, y: -0.07150296, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 35.9}
+    size: {x: 0.1716, y: 0.328}
+    visible: 1
+  - id: 16
+    localPosition: {x: 0.05214328, y: -0.11899161, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 19.4}
+    size: {x: 0.1159, y: 0.318}
+    visible: 1
+  - id: 17
+    localPosition: {x: 0.017095182, y: -0.06081805, z: 0}
+    localEulerAngles: {x: -0, y: 0, z: 15.7}
+    size: {x: 0.119600005, y: 0.1444}
+    visible: 1
+  bonePlacements:
+  - id: 6
+    localPosition: {x: -0.154, y: 0.087, z: 0}
+  - id: 10
+    localPosition: {x: 0.154, y: 0.056999996, z: 0}
+  - id: 14
+    localPosition: {x: -0.0743, y: -0.077999994, z: 0}
+  - id: 17
+    localPosition: {x: 0.0743, y: -0.018000007, z: 0}
+  - id: 8
+    localPosition: {x: -0.069, y: -0.265, z: 0}
+  - id: 12
+    localPosition: {x: 0.138, y: -0.191, z: 0}
+  - id: 1
+    localPosition: {x: 0, y: 0.797, z: 0}
+  - id: 2
+    localPosition: {x: 0, y: 0.164, z: 0}
+  - id: 3
+    localPosition: {x: 0, y: 0.309, z: 0}
+  - id: 4
+    localPosition: {x: 0, y: 0.128, z: 0}
+  - id: 5
+    localPosition: {x: 0, y: 0.164, z: 0}
+  - id: 9
+    localPosition: {x: -0.068, y: -0.255, z: 0}
+  - id: 13
+    localPosition: {x: 0.099, y: -0.245, z: 0}
+  - id: 19
+    localPosition: {x: 0.059, y: -0.338, z: -0.009085385}
+  - id: 18
+    localPosition: {x: 0.02055, y: -0.36990002, z: 0}
+  - id: 7
+    localPosition: {x: 0, y: 0, z: 0}
+  - id: 11
+    localPosition: {x: 0, y: 0, z: 0}
+  - id: 15
+    localPosition: {x: -0.03375482, y: -0.38739094, z: 0}
+  - id: 16
+    localPosition: {x: -0.0073989616, y: -0.36433476, z: 0}
+  neutralPoseAngles:
+  - boneId: 7
+    angle: 10
+  - boneId: 8
+    angle: 7
+  - boneId: 11
+    angle: -34
+  - boneId: 12
+    angle: 23
+  - boneId: 13
+    angle: 1.7
+  - boneId: 14
+    angle: 4
+  - boneId: 15
+    angle: 3
+  - boneId: 17
+    angle: -1
+  - boneId: 18
+    angle: -6

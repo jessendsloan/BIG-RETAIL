@@ -196,19 +196,22 @@ namespace BigRetail.Editor.Fixtures
                 GetOrCreateProduct(
                     GrayboxCerealPath,
                     "CEREAL",
-                    "Cereal");
+                    "Cereal",
+                    wholesaleCaseCostCents: 3600);
 
             ProductDefinitionAsset soup =
                 GetOrCreateProduct(
                     GrayboxSoupPath,
                     "SOUP",
-                    "Soup");
+                    "Soup",
+                    wholesaleCaseCostCents: 4800);
 
             ProductDefinitionAsset cola =
                 GetOrCreateProduct(
                     GrayboxColaPath,
                     "COLA",
-                    "Cola");
+                    "Cola",
+                    wholesaleCaseCostCents: 3000);
 
             ProductCatalogAsset productCatalog =
                 GetOrCreateProductCatalog(
@@ -1172,7 +1175,8 @@ namespace BigRetail.Editor.Fixtures
         private static ProductDefinitionAsset GetOrCreateProduct(
             string assetPath,
             string productId,
-            string displayName)
+            string displayName,
+            long wholesaleCaseCostCents)
         {
             ProductDefinitionAsset product =
                 AssetDatabase.LoadAssetAtPath<ProductDefinitionAsset>(
@@ -1191,6 +1195,8 @@ namespace BigRetail.Editor.Fixtures
             serialized.FindProperty("categoryId").stringValue = "GROCERY";
             serialized.FindProperty("stockUnit").enumValueIndex =
                 (int)StockUnit.Each;
+            serialized.FindProperty("wholesaleCaseCostCents").longValue =
+                wholesaleCaseCostCents;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(product);
             return product;

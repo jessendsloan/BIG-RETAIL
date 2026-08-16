@@ -247,6 +247,190 @@ namespace BigRetail.Map.Fixtures
             return 0f;
         }
 
+        /// <summary>
+        /// Finds the first assigned product that is physically stocked on a
+        /// fixture. Catalog order keeps the graybox sale choice deterministic.
+        /// A future customer choice can bypass this helper and request a
+        /// specific product through TryConsumeProductStock.
+        /// </summary>
+        public bool TryGetFirstStockedProduct(
+            FixtureInstanceId fixtureId,
+            out ProductId productId)
+        {
+            productId = default;
+
+            if (!fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture))
+            {
+                return false;
+            }
+
+            StorageLocationId displayLocationId =
+                GetDisplayLocationId(fixtureId);
+
+            if (!inventory.ContainsLocation(displayLocationId))
+            {
+                return false;
+            }
+
+            ReconcileDisplayCapacity(fixture);
+
+            Dictionary<ProductId, int> capacityByProduct =
+                GetCapacityByProduct(fixture);
+
+            foreach (
+                ProductDefinition product
+                in productCatalog.EnumerateDefinitions())
+            {
+                if (!capacityByProduct.ContainsKey(product.Id)
+                    || inventory.GetQuantity(
+                        displayLocationId,
+                        product.Id) <= 0)
+                {
+                    continue;
+                }
+
+                productId = product.Id;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes a specific assigned product from one display. This is the
+        /// inventory half of a sale transaction; pricing and cash belong to
+        /// FixtureSalesService.
+        /// </summary>
+        public FixtureStockConsumptionResult TryConsumeProductStock(
+            FixtureInstanceId fixtureId,
+            ProductId productId,
+            int requestedUnitCount)
+        {
+            if (requestedUnitCount <= 0)
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.InvalidQuantity);
+            }
+
+            if (!productCatalog.Contains(productId))
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.UnknownProduct);
+            }
+
+            if (!fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture))
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.UnknownFixture);
+            }
+
+            StorageLocationId displayLocationId =
+                GetDisplayLocationId(fixtureId);
+
+            if (!inventory.ContainsLocation(displayLocationId))
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.UnknownFixture);
+            }
+
+            ReconcileDisplayCapacity(fixture);
+
+            if (!GetCapacityByProduct(fixture).ContainsKey(productId))
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.ProductNotAssigned);
+            }
+
+            int stockedUnitCount =
+                inventory.GetQuantity(
+                    displayLocationId,
+                    productId);
+
+            int removalQuantity =
+                Math.Min(
+                    stockedUnitCount,
+                    requestedUnitCount);
+
+            if (removalQuantity == 0)
+            {
+                return FixtureStockConsumptionResult.Failed(
+                    FixtureStockConsumptionOutcome.DisplayEmpty);
+            }
+
+            StockRemovalResult removal =
+                removals.TryRemove(
+                    displayLocationId,
+                    productId,
+                    removalQuantity);
+
+            if (!removal.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Calculated fixture stock consumption failed: {removal.Failure}.");
+            }
+
+            FixtureStockChanged?.Invoke(fixtureId);
+
+            return FixtureStockConsumptionResult.Consumed(
+                removal.QuantityRemoved,
+                requestedUnitCount - removal.QuantityRemoved);
+        }
+
+        /// <summary>
+        /// Transfers displayed merchandise into shopper-owned inventory. The
+        /// display is depleted now, while pricing and payment remain the
+        /// responsibility of the checkout transaction.
+        /// </summary>
+        public FixtureBasketPickupResult TryMoveProductToBasket(
+            FixtureInstanceId fixtureId,
+            ProductId productId,
+            int requestedUnitCount,
+            ShoppingBasket basket)
+        {
+            if (basket == null)
+            {
+                return FixtureBasketPickupResult.Failed(
+                    FixtureBasketPickupOutcome.BasketUnavailable);
+            }
+
+            if (!basket.CanAccept(
+                    fixtureId,
+                    productId,
+                    requestedUnitCount))
+            {
+                return FixtureBasketPickupResult.Failed(
+                    requestedUnitCount <= 0
+                        ? FixtureBasketPickupOutcome.InvalidQuantity
+                        : FixtureBasketPickupOutcome.BasketLimitReached);
+            }
+
+            FixtureStockConsumptionResult consumption =
+                TryConsumeProductStock(
+                    fixtureId,
+                    productId,
+                    requestedUnitCount);
+
+            if (!consumption.Succeeded)
+            {
+                return FixtureBasketPickupResult.Failed(
+                    MapPickupOutcome(consumption.Outcome));
+            }
+
+            basket.Add(
+                fixtureId,
+                productId,
+                consumption.ConsumedUnitCount);
+
+            return FixtureBasketPickupResult.PickedUp(
+                productId,
+                consumption.ConsumedUnitCount,
+                consumption.UnfulfilledUnitCount);
+        }
+
         public FixtureRestockResult TryRestockFixture(
             FixtureInstanceId fixtureId)
         {
@@ -699,6 +883,25 @@ namespace BigRetail.Map.Fixtures
             return result;
         }
 
+        private static FixtureBasketPickupOutcome MapPickupOutcome(
+            FixtureStockConsumptionOutcome outcome)
+        {
+            return outcome switch
+            {
+                FixtureStockConsumptionOutcome.DisplayEmpty =>
+                    FixtureBasketPickupOutcome.DisplayEmpty,
+                FixtureStockConsumptionOutcome.InvalidQuantity =>
+                    FixtureBasketPickupOutcome.InvalidQuantity,
+                FixtureStockConsumptionOutcome.UnknownFixture =>
+                    FixtureBasketPickupOutcome.UnknownFixture,
+                FixtureStockConsumptionOutcome.UnknownProduct =>
+                    FixtureBasketPickupOutcome.UnknownProduct,
+                FixtureStockConsumptionOutcome.ProductNotAssigned =>
+                    FixtureBasketPickupOutcome.ProductNotAssigned,
+                _ => FixtureBasketPickupOutcome.InventoryUnavailable
+            };
+        }
+
         private int GetAvailableBackstockQuantity(
             ProductId productId)
         {
@@ -808,7 +1011,9 @@ namespace BigRetail.Map.Fixtures
         Consumed = 1,
         DisplayEmpty = 2,
         InvalidQuantity = 3,
-        UnknownFixture = 4
+        UnknownFixture = 4,
+        UnknownProduct = 5,
+        ProductNotAssigned = 6
     }
 
 
@@ -850,6 +1055,72 @@ namespace BigRetail.Map.Fixtures
         {
             return new FixtureStockConsumptionResult(
                 outcome,
+                0,
+                0);
+        }
+    }
+
+
+    public enum FixtureBasketPickupOutcome
+    {
+        None = 0,
+        PickedUp = 1,
+        DisplayEmpty = 2,
+        InvalidQuantity = 3,
+        UnknownFixture = 4,
+        UnknownProduct = 5,
+        ProductNotAssigned = 6,
+        BasketUnavailable = 7,
+        BasketLimitReached = 8,
+        InventoryUnavailable = 9
+    }
+
+
+    public readonly struct FixtureBasketPickupResult
+    {
+        public FixtureBasketPickupOutcome Outcome { get; }
+
+        public ProductId ProductId { get; }
+
+        public int PickedUpUnitCount { get; }
+
+        public int UnfulfilledUnitCount { get; }
+
+        public bool Succeeded =>
+            Outcome == FixtureBasketPickupOutcome.PickedUp;
+
+
+        private FixtureBasketPickupResult(
+            FixtureBasketPickupOutcome outcome,
+            ProductId productId,
+            int pickedUpUnitCount,
+            int unfulfilledUnitCount)
+        {
+            Outcome = outcome;
+            ProductId = productId;
+            PickedUpUnitCount = pickedUpUnitCount;
+            UnfulfilledUnitCount = unfulfilledUnitCount;
+        }
+
+
+        internal static FixtureBasketPickupResult PickedUp(
+            ProductId productId,
+            int pickedUpUnitCount,
+            int unfulfilledUnitCount)
+        {
+            return new FixtureBasketPickupResult(
+                FixtureBasketPickupOutcome.PickedUp,
+                productId,
+                pickedUpUnitCount,
+                unfulfilledUnitCount);
+        }
+
+        internal static FixtureBasketPickupResult Failed(
+            FixtureBasketPickupOutcome outcome)
+        {
+            return new FixtureBasketPickupResult(
+                outcome,
+                default,
                 0,
                 0);
         }

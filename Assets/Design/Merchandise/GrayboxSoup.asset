@@ -16,3 +16,5 @@ MonoBehaviour:
   displayName: Soup
   categoryId: GROCERY
   stockUnit: 0
+  wholesaleCaseCostCents: 4800
+  retailUnitPriceCents: 399

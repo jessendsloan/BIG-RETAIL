@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Globalization;
+using BigRetail.Economy.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
@@ -30,10 +32,14 @@ namespace BigRetail.Construction.Unity.UI.PC
 
 
         private FixtureMerchandisingInspectorView boundView;
+        private ConstructionToolbarView boundToolbarView;
         private FixturePlanogramState subscribedPlanogramState;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
         private FixtureBackstockService subscribedBackstock;
         private FixturePurchasingService subscribedPurchasing;
+        private StoreCashState subscribedCash;
+        private FixtureSalesService subscribedSales;
+        private FixtureCheckoutService subscribedCheckout;
         private bool productsAreBound;
         private string purchasingStatus;
 
@@ -61,6 +67,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             documentHost.FixtureMerchandisingInspectorViewReady +=
                 HandleViewReady;
+            documentHost.ViewReady += HandleToolbarViewReady;
             selectionHost.SelectionChanged += HandleSelectionChanged;
             planogramRuntimeHost.Initialized += HandlePlanogramInitialized;
 
@@ -68,6 +75,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToDisplayInventory();
             AttachToBackstock();
             AttachToPurchasing();
+            AttachToCash();
+            AttachToSales();
+            AttachToCheckout();
+
+            if (documentHost.HasView)
+            {
+                BindToolbarView(documentHost.View);
+            }
 
             if (documentHost.HasFixtureMerchandisingInspectorView)
             {
@@ -86,6 +101,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 documentHost.FixtureMerchandisingInspectorViewReady -=
                     HandleViewReady;
+                documentHost.ViewReady -= HandleToolbarViewReady;
             }
 
             if (selectionHost != null)
@@ -102,6 +118,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             DetachFromDisplayInventory();
             DetachFromBackstock();
             DetachFromPurchasing();
+            DetachFromCash();
+            DetachFromSales();
+            DetachFromCheckout();
+            UnbindToolbarView();
             UnbindView();
         }
 
@@ -110,6 +130,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureMerchandisingInspectorView view)
         {
             BindView(view);
+        }
+
+        private void HandleToolbarViewReady(
+            ConstructionToolbarView view)
+        {
+            BindToolbarView(view);
         }
 
         private void HandleSelectionChanged()
@@ -125,7 +151,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToDisplayInventory();
             AttachToBackstock();
             AttachToPurchasing();
+            AttachToCash();
+            AttachToSales();
+            AttachToCheckout();
             productsAreBound = false;
+            RefreshCashHud();
             RefreshView();
         }
 
@@ -165,6 +195,29 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
         }
 
+        private void HandleCashBalanceChanged()
+        {
+            RefreshCashHud();
+        }
+
+        private void HandleSalesChanged(
+            FixtureInstanceId fixtureId)
+        {
+            if (selectionHost.HasSelectedFixture
+                && fixtureId == selectionHost.SelectedFixtureId)
+            {
+                RefreshView();
+            }
+        }
+
+        private void HandleCheckoutAvailabilityChanged()
+        {
+            if (selectionHost.HasSelectedFixture)
+            {
+                RefreshView();
+            }
+        }
+
         private void HandleEditRequested()
         {
             selectionHost.BeginEditing();
@@ -187,26 +240,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView?.SetRestockStatus(
                 DescribeRestockResult(result));
-        }
-
-        private void HandleDebugSaleRequested()
-        {
-            if (!selectionHost.HasSelectedFixture
-                || planogramRuntimeHost.DisplayInventory == null)
-            {
-                return;
-            }
-
-            FixtureStockConsumptionResult result =
-                planogramRuntimeHost.DisplayInventory
-                    .TryConsumeFixtureStock(
-                        selectionHost.SelectedFixtureId,
-                        requestedUnitCount: 1);
-
-            RefreshView();
-
-            boundView?.SetRestockStatus(
-                DescribeStockConsumptionResult(result));
         }
 
         private void HandleDoneRequested()
@@ -395,17 +428,24 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            if (!purchasing.TryPlaceCaseOrder(productId))
+            if (!purchasing.TryPlaceCaseOrder(
+                    productId,
+                    out FixturePurchaseFailure failure))
             {
-                purchasingStatus = "That case could not be ordered.";
+                purchasingStatus =
+                    DescribePurchaseFailure(productId, failure);
                 boundView?.SetPurchasingStatus(purchasingStatus);
                 return;
             }
 
+            ProductDefinition product =
+                planogramRuntimeHost.Products.GetRequired(productId);
+
             purchasingStatus =
                 $"Added one {purchasing.CaseUnitCount}-unit "
                 + $"{ResolveProductName(productId)} case. "
-                + $"{purchasing.PendingUnitCount} units pending.";
+                + $"Spent {FormatMoney(product.WholesaleCaseCostCents)}; "
+                + $"{FormatMoney(purchasing.CashBalanceCents)} remains.";
 
             boundView?.SetPurchasingStatus(purchasingStatus);
         }
@@ -464,7 +504,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.EditRequested += HandleEditRequested;
             boundView.RestockRequested += HandleRestockRequested;
-            boundView.DebugSaleRequested += HandleDebugSaleRequested;
             boundView.DoneRequested += HandleDoneRequested;
             boundView.CloseRequested += HandleCloseRequested;
             boundView.ProductRequested += HandleProductRequested;
@@ -477,13 +516,23 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshView();
         }
 
+        private void BindToolbarView(ConstructionToolbarView view)
+        {
+            boundToolbarView = view;
+            RefreshCashHud();
+        }
+
+        private void UnbindToolbarView()
+        {
+            boundToolbarView = null;
+        }
+
         private void UnbindView()
         {
             if (boundView != null)
             {
                 boundView.EditRequested -= HandleEditRequested;
                 boundView.RestockRequested -= HandleRestockRequested;
-                boundView.DebugSaleRequested -= HandleDebugSaleRequested;
                 boundView.DoneRequested -= HandleDoneRequested;
                 boundView.CloseRequested -= HandleCloseRequested;
                 boundView.ProductRequested -= HandleProductRequested;
@@ -615,6 +664,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
         }
 
+        private void RefreshCashHud()
+        {
+            boundToolbarView?.SetCashBalance(
+                planogramRuntimeHost.Cash?.BalanceCents ?? 0);
+        }
+
         private void EnsureProductsAreBound()
         {
             if (productsAreBound
@@ -683,7 +738,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                     fixture.Id,
                     out FixtureDisplayStockSnapshot snapshot))
             {
-                boundView.SetInventorySummary(0, 0, 0, false);
+                boundView.SetInventorySummary(
+                    0,
+                    0,
+                    0,
+                    canRestock: false);
+                boundView.SetSalesToday(0);
                 boundView.SetRestockStatus("Inventory unavailable");
                 return;
             }
@@ -694,8 +754,17 @@ namespace BigRetail.Construction.Unity.UI.PC
                 snapshot.BackstockUnitCount,
                 snapshot.CanRestock);
 
+            boundView.SetSalesToday(
+                planogramRuntimeHost.Sales
+                    ?.GetFixtureSalesTodayCents(fixture.Id)
+                ?? 0);
+
             string status =
-                snapshot.CapacityUnitCount == 0
+                snapshot.StockedUnitCount > 0
+                    && planogramRuntimeHost.Checkout
+                        ?.HasOperationalCheckout != true
+                    ? "Checkout needed"
+                    : snapshot.CapacityUnitCount == 0
                     ? "Awaiting planogram"
                     : snapshot.MissingUnitCount == 0
                         ? "Display full"
@@ -729,7 +798,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     isWarning: true);
                 boundView.SetStorageContents(null);
                 boundView.SetPurchasingProducts(null);
-                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingSummary(
+                    cashBalanceCents: 0,
+                    pendingUnitCount: 0,
+                    canReceive: false);
                 boundView.SetPurchasingStatus("Purchasing unavailable.");
                 return;
             }
@@ -815,7 +887,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (purchasing == null || products == null)
             {
                 boundView.SetPurchasingProducts(null);
-                boundView.SetPurchasingSummary(0, canReceive: false);
+                boundView.SetPurchasingSummary(
+                    cashBalanceCents: 0,
+                    pendingUnitCount: 0,
+                    canReceive: false);
                 boundView.SetPurchasingStatus("Purchasing unavailable.");
                 return;
             }
@@ -830,13 +905,18 @@ namespace BigRetail.Construction.Unity.UI.PC
                         product.Id,
                         product.DisplayName,
                         purchasing.CaseUnitCount,
+                        product.WholesaleCaseCostCents,
                         purchasing.GetPendingUnitCount(product.Id),
+                            product.WholesaleCaseCostCents > 0
+                                && purchasing.CashBalanceCents
+                                    >= product.WholesaleCaseCostCents,
                         FixtureMerchandisingGrayboxPalette
                             .ResolveProductColor(product.Id)));
             }
 
             boundView.SetPurchasingProducts(rows);
             boundView.SetPurchasingSummary(
+                purchasing.CashBalanceCents,
                 purchasing.PendingUnitCount,
                 purchasing.HasPendingDelivery);
             boundView.SetPurchasingStatus(purchasingStatus);
@@ -853,6 +933,47 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             return productId.Value;
+        }
+
+        private string DescribePurchaseFailure(
+            ProductId productId,
+            FixturePurchaseFailure failure)
+        {
+            switch (failure)
+            {
+                case FixturePurchaseFailure.InsufficientFunds:
+                    if (planogramRuntimeHost.Products != null
+                        && planogramRuntimeHost.Products.TryGet(
+                            productId,
+                            out ProductDefinition product))
+                    {
+                        return
+                            $"Not enough cash for a {product.DisplayName} case "
+                            + $"({FormatMoney(product.WholesaleCaseCostCents)}).";
+                    }
+
+                    return "There is not enough cash for that case.";
+
+                case FixturePurchaseFailure.InvalidCaseCost:
+                    return "That product does not have a valid case price.";
+
+                case FixturePurchaseFailure.PendingCapacityExceeded:
+                    return "The pending order is already at its supported limit.";
+
+                case FixturePurchaseFailure.UnknownProduct:
+                    return "That product is no longer in the store catalog.";
+
+                default:
+                    return "That case could not be ordered.";
+            }
+        }
+
+        private static string FormatMoney(long amountCents)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "${0:N2}",
+                amountCents / 100m);
         }
 
         private void CountAssignedFrontage(
@@ -1018,6 +1139,102 @@ namespace BigRetail.Construction.Unity.UI.PC
             subscribedPurchasing = null;
         }
 
+        private void AttachToCash()
+        {
+            StoreCashState nextState =
+                planogramRuntimeHost.Cash;
+
+            if (subscribedCash == nextState)
+            {
+                return;
+            }
+
+            DetachFromCash();
+            subscribedCash = nextState;
+
+            if (subscribedCash != null)
+            {
+                subscribedCash.BalanceChanged +=
+                    HandleCashBalanceChanged;
+            }
+        }
+
+        private void DetachFromCash()
+        {
+            if (subscribedCash == null)
+            {
+                return;
+            }
+
+            subscribedCash.BalanceChanged -=
+                HandleCashBalanceChanged;
+            subscribedCash = null;
+        }
+
+        private void AttachToSales()
+        {
+            FixtureSalesService nextService =
+                planogramRuntimeHost.Sales;
+
+            if (subscribedSales == nextService)
+            {
+                return;
+            }
+
+            DetachFromSales();
+            subscribedSales = nextService;
+
+            if (subscribedSales != null)
+            {
+                subscribedSales.SalesChanged +=
+                    HandleSalesChanged;
+            }
+        }
+
+        private void DetachFromSales()
+        {
+            if (subscribedSales == null)
+            {
+                return;
+            }
+
+            subscribedSales.SalesChanged -=
+                HandleSalesChanged;
+            subscribedSales = null;
+        }
+
+        private void AttachToCheckout()
+        {
+            FixtureCheckoutService nextService =
+                planogramRuntimeHost.Checkout;
+
+            if (subscribedCheckout == nextService)
+            {
+                return;
+            }
+
+            DetachFromCheckout();
+            subscribedCheckout = nextService;
+
+            if (subscribedCheckout != null)
+            {
+                subscribedCheckout.AvailabilityChanged +=
+                    HandleCheckoutAvailabilityChanged;
+            }
+        }
+
+        private void DetachFromCheckout()
+        {
+            if (subscribedCheckout == null)
+            {
+                return;
+            }
+
+            subscribedCheckout.AvailabilityChanged -=
+                HandleCheckoutAvailabilityChanged;
+            subscribedCheckout = null;
+        }
+
         private bool IsSelectedStorageFixture()
         {
             return selectionHost.HasSelectedFixture
@@ -1099,21 +1316,6 @@ namespace BigRetail.Construction.Unity.UI.PC
                 FixtureRestockOutcome.BackstockUnavailable =>
                     "No matching backstock available",
                 _ => "Restock unavailable"
-            };
-        }
-
-        private static string DescribeStockConsumptionResult(
-            FixtureStockConsumptionResult result)
-        {
-            return result.Outcome switch
-            {
-                FixtureStockConsumptionOutcome.Consumed =>
-                    result.UnfulfilledUnitCount > 0
-                        ? $"Sold {result.ConsumedUnitCount} test unit(s); display is now empty"
-                        : $"Sold {result.ConsumedUnitCount} test unit(s)",
-                FixtureStockConsumptionOutcome.DisplayEmpty =>
-                    "Display is empty; restock it first",
-                _ => "Test sale unavailable"
             };
         }
 

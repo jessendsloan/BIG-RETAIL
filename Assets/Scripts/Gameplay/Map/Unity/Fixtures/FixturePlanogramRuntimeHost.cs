@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using BigRetail.Economy.Domain;
 using BigRetail.Inventory.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Merchandise.Domain;
@@ -15,8 +15,8 @@ namespace BigRetail.Map.Unity.Fixtures
     [DefaultExecutionOrder(-60)]
     public sealed class FixturePlanogramRuntimeHost : MonoBehaviour
     {
-        private const int GrayboxBackstockUnitsPerProduct = 144;
         private const int GrayboxPurchaseCaseUnitCount = 24;
+        private const long GrayboxOpeningCashCents = 250000;
 
         private static readonly StorageLocationId GrayboxBackstockLocationId =
             new StorageLocationId("GRAYBOX-BACKSTOCK");
@@ -40,7 +40,13 @@ namespace BigRetail.Map.Unity.Fixtures
 
         public FixturePurchasingService Purchasing { get; private set; }
 
+        public StoreCashState Cash { get; private set; }
+
         public FixtureDisplayInventoryService DisplayInventory { get; private set; }
+
+        public FixtureSalesService Sales { get; private set; }
+
+        public FixtureCheckoutService Checkout { get; private set; }
 
         public StorageLocationId BackstockLocationId =>
             GrayboxBackstockLocationId;
@@ -84,10 +90,15 @@ namespace BigRetail.Map.Unity.Fixtures
             DisplayInventory?.Dispose();
             DisplayInventory = null;
 
+            Checkout?.Dispose();
+            Checkout = null;
+            Sales = null;
+
             Backstock?.Dispose();
             Backstock = null;
 
             Purchasing = null;
+            Cash = null;
 
             Planograms?.Dispose();
             Planograms = null;
@@ -128,25 +139,12 @@ namespace BigRetail.Map.Unity.Fixtures
                     "Graybox Backstock",
                     StorageRole.Backroom);
 
-            List<StockBalance> initialBalances =
-                new List<StockBalance>();
-
-            foreach (
-                ProductDefinition product
-                in Products.EnumerateDefinitions())
-            {
-                initialBalances.Add(
-                    new StockBalance(
-                        GrayboxBackstockLocationId,
-                        product.Id,
-                        GrayboxBackstockUnitsPerProduct));
-            }
-
+            // A rack provides storage capacity, not free merchandise. Product
+            // enters the store only through purchasing and receiving.
             Inventory =
                 new InventoryState(
                     Products,
-                    new[] { backstockLocation },
-                    initialBalances);
+                    new[] { backstockLocation });
 
             Planograms =
                 new FixturePlanogramService(
@@ -160,10 +158,14 @@ namespace BigRetail.Map.Unity.Fixtures
                     Inventory,
                     GrayboxBackstockLocationId);
 
+            Cash =
+                new StoreCashState(GrayboxOpeningCashCents);
+
             Purchasing =
                 new FixturePurchasingService(
                     Products,
                     Backstock,
+                    Cash,
                     GrayboxPurchaseCaseUnitCount);
 
             DisplayInventory =
@@ -174,11 +176,21 @@ namespace BigRetail.Map.Unity.Fixtures
                     Inventory,
                     Backstock);
 
+            Sales =
+                new FixtureSalesService(
+                    Products,
+                    Cash);
+
+            Checkout =
+                new FixtureCheckoutService(
+                    fixtureRuntimeHost.FixtureState,
+                    Sales);
+
             IsInitialized = true;
             Initialized?.Invoke(this);
 
             Debug.Log(
-                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), and {Backstock.CapacityUnitCount} total rack capacity.",
+                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), {Backstock.CapacityUnitCount} total rack capacity, and {Cash.BalanceCents} cents opening cash.",
                 this);
 
             return true;

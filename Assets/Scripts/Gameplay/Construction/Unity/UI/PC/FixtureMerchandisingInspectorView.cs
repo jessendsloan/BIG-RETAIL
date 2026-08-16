@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label productsValueLabel;
         private readonly Label shelfStockValueLabel;
         private readonly Label backstockValueLabel;
+        private readonly Label salesTodayValueLabel;
         private readonly Label restockStatusValueLabel;
         private readonly Label shelfLabel;
         private readonly Label widthLabel;
@@ -36,7 +38,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly VisualElement productContainer;
         private readonly Button editButton;
         private readonly Button restockButton;
-        private readonly Button debugSaleButton;
         private readonly Button autoRestockButton;
         private readonly Button doneButton;
         private readonly Button closeButton;
@@ -51,6 +52,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Label storageStatusValueLabel;
         private readonly VisualElement purchasingProductContainer;
         private readonly Label purchasingPendingValueLabel;
+        private readonly Label purchasingCashValueLabel;
         private readonly Button receiveDeliveryButton;
         private readonly Label purchasingStatusLabel;
         private readonly List<ProductButtonBinding> productBindings =
@@ -86,6 +88,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             backstockValueLabel = Require<Label>(
                 root,
                 "fixture-merchandising-backstock-value");
+            salesTodayValueLabel = Require<Label>(
+                root,
+                "fixture-merchandising-sales-today-value");
             restockStatusValueLabel = Require<Label>(
                 root,
                 "fixture-merchandising-restock-status-value");
@@ -107,9 +112,6 @@ namespace BigRetail.Construction.Unity.UI.PC
             restockButton = Require<Button>(
                 root,
                 "fixture-merchandising-restock-button");
-            debugSaleButton = Require<Button>(
-                root,
-                "fixture-merchandising-debug-sale-button");
             autoRestockButton = Require<Button>(
                 root,
                 "fixture-merchandising-auto-restock-button");
@@ -142,6 +144,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             purchasingPendingValueLabel = Require<Label>(
                 root,
                 "fixture-purchasing-pending-value");
+            purchasingCashValueLabel = Require<Label>(
+                root,
+                "fixture-purchasing-cash-value");
             receiveDeliveryButton = Require<Button>(
                 root,
                 "fixture-purchasing-receive-button");
@@ -155,12 +160,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked += HandleEditRequested;
             restockButton.clicked += HandleRestockRequested;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            debugSaleButton.style.display = DisplayStyle.Flex;
-            debugSaleButton.clicked += HandleDebugSaleRequested;
-#else
-            debugSaleButton.style.display = DisplayStyle.None;
-#endif
             doneButton.clicked += HandleDoneRequested;
             closeButton.clicked += HandleCloseRequested;
             widthDecreaseButton.clicked += HandleWidthDecreaseRequested;
@@ -175,8 +174,6 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action EditRequested;
 
         public event Action RestockRequested;
-
-        public event Action DebugSaleRequested;
 
         public event Action DoneRequested;
 
@@ -325,15 +322,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new Button
                     {
                         text = product.PendingUnitCount > 0
-                            ? $"Order {product.ProductName} +{product.CaseUnitCount} ({product.PendingUnitCount} pending)"
-                            : $"Order {product.ProductName} +{product.CaseUnitCount}",
+                            ? $"{product.ProductName} case · {FormatMoney(product.CaseCostCents)} ({product.PendingUnitCount} pending)"
+                            : $"{product.ProductName} case · {FormatMoney(product.CaseCostCents)}",
                         tooltip =
-                            $"Add one {product.CaseUnitCount}-unit case of {product.ProductName} to the pending delivery."
+                            $"Buy one {product.CaseUnitCount}-unit case of {product.ProductName} for {FormatMoney(product.CaseCostCents)}."
                     };
 
                 button.AddToClassList(
                     "fixture-merchandising-inspector__purchase-button");
                 button.style.borderLeftColor = product.Color;
+                button.SetEnabled(product.CanAfford);
 
                 ProductId productId = product.ProductId;
                 Action clickHandler =
@@ -347,9 +345,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         public void SetPurchasingSummary(
+            long cashBalanceCents,
             int pendingUnitCount,
             bool canReceive)
         {
+            purchasingCashValueLabel.text =
+                FormatMoney(cashBalanceCents);
             purchasingPendingValueLabel.text =
                 $"Pending delivery: {pendingUnitCount} units";
             receiveDeliveryButton.SetEnabled(canReceive);
@@ -390,6 +391,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                 $"{backstockUnitCount} units available";
 
             restockButton.SetEnabled(canRestock);
+        }
+
+        public void SetSalesToday(long amountCents)
+        {
+            salesTodayValueLabel.text =
+                FormatMoney(amountCents);
         }
 
         public void SetRestockStatus(string status)
@@ -493,9 +500,6 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked -= HandleEditRequested;
             restockButton.clicked -= HandleRestockRequested;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            debugSaleButton.clicked -= HandleDebugSaleRequested;
-#endif
             doneButton.clicked -= HandleDoneRequested;
             closeButton.clicked -= HandleCloseRequested;
             widthDecreaseButton.clicked -= HandleWidthDecreaseRequested;
@@ -616,11 +620,6 @@ namespace BigRetail.Construction.Unity.UI.PC
             RestockRequested?.Invoke();
         }
 
-        private void HandleDebugSaleRequested()
-        {
-            DebugSaleRequested?.Invoke();
-        }
-
         private void HandleDoneRequested()
         {
             DoneRequested?.Invoke();
@@ -649,6 +648,14 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleReceiveDeliveryRequested()
         {
             ReceiveDeliveryRequested?.Invoke();
+        }
+
+        private static string FormatMoney(long amountCents)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "${0:N2}",
+                amountCents / 100m);
         }
 
         private static T Require<T>(
@@ -727,13 +734,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             ProductId productId,
             string productName,
             int caseUnitCount,
+            long caseCostCents,
             int pendingUnitCount,
+            bool canAfford,
             UnityEngine.Color color)
         {
             ProductId = productId;
             ProductName = productName;
             CaseUnitCount = caseUnitCount;
+            CaseCostCents = caseCostCents;
             PendingUnitCount = pendingUnitCount;
+            CanAfford = canAfford;
             Color = color;
         }
 
@@ -744,7 +755,11 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public int CaseUnitCount { get; }
 
+        public long CaseCostCents { get; }
+
         public int PendingUnitCount { get; }
+
+        public bool CanAfford { get; }
 
         public UnityEngine.Color Color { get; }
     }

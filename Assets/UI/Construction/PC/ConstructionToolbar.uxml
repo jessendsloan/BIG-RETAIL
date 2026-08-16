@@ -7,6 +7,23 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="store-cash-hud"
+            class="store-cash-hud"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="STORE CASH"
+                class="store-cash-hud__caption"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="store-cash-value"
+                text="$0.00"
+                class="store-cash-hud__value"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="department-picker"
             class="department-picker"
             picking-mode="Position">
@@ -119,8 +136,9 @@
                             text="Sales today"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
+                            name="fixture-merchandising-sales-today-value"
                             text="--"
-                            class="fixture-merchandising-inspector__summary-value" />
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
                     <ui:VisualElement
@@ -150,12 +168,6 @@
                         class="fixture-merchandising-inspector__secondary-button fixture-merchandising-inspector__action-button"
                         tooltip="Move matching backstock directly onto this fixture." />
                 </ui:VisualElement>
-
-                <ui:Button
-                    name="fixture-merchandising-debug-sale-button"
-                    text="DEV - Simulate Sale (-1 unit)"
-                    class="fixture-merchandising-inspector__debug-button"
-                    tooltip="Development-only control for testing shelf depletion and restocking." />
 
                 <ui:VisualElement
                     class="fixture-merchandising-inspector__automation-row"
@@ -297,14 +309,26 @@
                     picking-mode="Position">
 
                     <ui:Label
-                        text="Purchasing graybox"
+                        text="Case Purchasing"
                         class="fixture-merchandising-inspector__subtitle"
                         picking-mode="Ignore" />
 
                     <ui:Label
-                        text="Order a case now; receive the pending shipment when you are ready. Money, suppliers, lead times, and delivery workers come later."
+                        text="Case orders spend store cash immediately. Receive the pending shipment when you are ready; supplier timing and delivery workers come later."
                         class="fixture-merchandising-inspector__purchasing-note"
                         picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__purchasing-summary fixture-merchandising-inspector__purchasing-summary--cash"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Available cash"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-purchasing-cash-value"
+                            text="$0.00"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--cash" />
+                    </ui:VisualElement>
 
                     <ui:VisualElement
                         name="fixture-purchasing-products"
