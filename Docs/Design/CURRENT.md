@@ -78,7 +78,7 @@ The final Purchasing UI should wait until these relationships are concrete enoug
 
 ## Deferred for later
 
-- Deep supplier accounts / relationship tiers
+- Supplier Accounts & Relationships — preserved as a design patch in `Patches/SupplierAccountsAndRelationships.md`
 - Negotiations
 - Contracts
 - Credit terms and invoices
