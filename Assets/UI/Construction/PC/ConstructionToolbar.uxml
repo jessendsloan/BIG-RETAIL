@@ -426,24 +426,68 @@
 
         <ui:VisualElement
             name="foundation-picker"
-            class="finish-picker"
+            class="finish-picker foundation-picker"
             picking-mode="Position">
 
             <ui:Label
-                text="Foundations"
+                text="Foundation tools"
                 class="finish-picker__title"
                 picking-mode="Ignore" />
 
+            <ui:Label
+                text="Choose what you want to build"
+                class="foundation-picker__subtitle"
+                picking-mode="Ignore" />
+
             <ui:VisualElement
-                class="finish-picker__items"
+                class="finish-picker__items foundation-picker__items"
                 picking-mode="Position">
 
                 <ui:Button
                     name="foundation-default-button"
-                    class="finish-picker__button"
+                    class="finish-picker__button foundation-picker__choice"
                     tooltip="Foundation">
                     <ui:VisualElement
-                        class="finish-picker__icon foundation-picker__icon--default"
+                        class="foundation-picker__preview"
+                        picking-mode="Ignore">
+                        <ui:VisualElement
+                            class="finish-picker__icon foundation-picker__icon--default"
+                            picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement
+                        class="foundation-picker__choice-divider"
+                        picking-mode="Ignore" />
+                    <ui:Label
+                        text="Foundation"
+                        class="foundation-picker__choice-title"
+                        picking-mode="Ignore" />
+                    <ui:Label
+                        text="Buildable base"
+                        class="foundation-picker__choice-detail"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="sidewalks-button"
+                    class="finish-picker__button foundation-picker__choice"
+                    tooltip="Sidewalk">
+                    <ui:VisualElement
+                        class="foundation-picker__preview"
+                        picking-mode="Ignore">
+                        <ui:VisualElement
+                            class="finish-picker__icon foundation-picker__icon--sidewalk"
+                            picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement
+                        class="foundation-picker__choice-divider"
+                        picking-mode="Ignore" />
+                    <ui:Label
+                        text="Sidewalk"
+                        class="foundation-picker__choice-title"
+                        picking-mode="Ignore" />
+                    <ui:Label
+                        text="Walking path"
+                        class="foundation-picker__choice-detail"
                         picking-mode="Ignore" />
                 </ui:Button>
             </ui:VisualElement>
@@ -699,15 +743,6 @@
                     tooltip="Foundations">
                     <ui:VisualElement
                         class="construction-toolbar__icon construction-toolbar__icon--foundations"
-                        picking-mode="Ignore" />
-                </ui:Button>
-
-                <ui:Button
-                    name="sidewalks-button"
-                    class="construction-toolbar__button"
-                    tooltip="Sidewalks">
-                    <ui:VisualElement
-                        class="construction-toolbar__icon construction-toolbar__icon--sidewalks"
                         picking-mode="Ignore" />
                 </ui:Button>
 

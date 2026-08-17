@@ -76,6 +76,38 @@ namespace BigRetail.Map.Unity.Tests
         }
 
         [Test]
+        public void BuildSidewalks_MapsToSidewalkToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            Assert.That(toSection, Is.Not.Null);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildSidewalks")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Sidewalks"));
+        }
+
+        [Test]
         public void DemolishFoundations_MapsToDemolitionToolbarSection()
         {
             Type mapperType =
@@ -390,6 +422,11 @@ namespace BigRetail.Map.Unity.Tests
                         .ClassListContains("is-selected"),
                     Is.True);
 
+                Assert.That(
+                    root.Q<Button>("sidewalks-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
                 setSelectedSection.Invoke(
                     view,
                     new[]
@@ -498,6 +535,69 @@ namespace BigRetail.Map.Unity.Tests
                     root.Q<Button>("merchandise-tool-button")
                         .ClassListContains("is-selected"),
                     Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void SidewalkSection_UsesFoundationCategoryAndSelectsSidewalkChoice()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            Type sectionType =
+                RequireType(SectionTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                MethodInfo setSelectedSection =
+                    viewType.GetMethod(
+                        "SetSelectedSection",
+                        BindingFlags.Public
+                        | BindingFlags.Instance);
+
+                Assert.That(setSelectedSection, Is.Not.Null);
+
+                setSelectedSection.Invoke(
+                    view,
+                    new[]
+                    {
+                        Enum.Parse(
+                            sectionType,
+                            "Sidewalks")
+                    });
+
+                Assert.That(
+                    root.Q<Button>("foundations-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<VisualElement>("foundation-picker")
+                        .style.display.value,
+                    Is.EqualTo(DisplayStyle.Flex));
+
+                Assert.That(
+                    root.Q<Button>("foundation-default-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                Assert.That(
+                    root.Q<Button>("sidewalks-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
             }
             finally
             {
@@ -752,6 +852,8 @@ namespace BigRetail.Map.Unity.Tests
                 };
             foundationPicker.Add(
                 CreateButton("foundation-default-button"));
+            foundationPicker.Add(
+                CreateButton("sidewalks-button"));
             root.Add(foundationPicker);
             root.Add(CreateButton("walls-button"));
             root.Add(CreateButton("doors-button"));
@@ -760,6 +862,7 @@ namespace BigRetail.Map.Unity.Tests
             root.Add(CreateButton("floors-button"));
             root.Add(CreateButton("demolition-button"));
             root.Add(CreateButton("demolish-foundations-button"));
+            root.Add(CreateButton("demolish-sidewalks-button"));
             root.Add(CreateButton("demolish-floors-button"));
             root.Add(CreateButton("demolish-walls-button"));
             root.Add(CreateButton("demolish-fixtures-button"));

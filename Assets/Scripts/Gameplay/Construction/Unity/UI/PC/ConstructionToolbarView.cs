@@ -184,8 +184,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public void SetSelectedSection(ConstructionToolbarSection section)
         {
-            bool isFoundationSelected =
-                section == ConstructionToolbarSection.Foundations;
+            bool isFoundationCategorySelected =
+                section == ConstructionToolbarSection.Foundations
+                || section == ConstructionToolbarSection.Sidewalks;
 
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
             SetSelected(doorsButton, section == ConstructionToolbarSection.Doors);
@@ -194,15 +195,15 @@ namespace BigRetail.Construction.Unity.UI.PC
                 section == ConstructionToolbarSection.Fixtures);
             SetSelected(
                 foundationsButton,
-                isFoundationSelected);
+                isFoundationCategorySelected);
             SetSelected(
                 sidewalksButton,
                 section == ConstructionToolbarSection.Sidewalks);
             SetSelected(
                 foundationDefaultButton,
-                isFoundationSelected);
+                section == ConstructionToolbarSection.Foundations);
             foundationPicker.style.display =
-                isFoundationSelected
+                isFoundationCategorySelected
                     ? DisplayStyle.Flex
                     : DisplayStyle.None;
             SetSelected(floorsButton, section == ConstructionToolbarSection.Floors);
