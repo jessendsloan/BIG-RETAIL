@@ -13,7 +13,8 @@
         "BigRetail.Map.Sidewalks",
         "BigRetail.Map.Fixtures",
         "BigRetail.Merchandise.Domain",
-        "BigRetail.Merchandise.Unity"
+        "BigRetail.Merchandise.Unity",
+        "BigRetail.Characters.Rigging"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

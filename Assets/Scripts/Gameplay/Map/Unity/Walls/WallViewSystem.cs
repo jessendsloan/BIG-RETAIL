@@ -229,6 +229,29 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        /// <summary>
+        /// Requests the existing presentation for a placed door to open or
+        /// close. Structural passage rules remain owned by the door domain;
+        /// this method only drives the authored visual transition.
+        /// </summary>
+        public bool TrySetDoorOpen(
+            DoorAssemblyId assemblyId,
+            bool shouldOpen)
+        {
+            if (!assemblyId.IsValid
+                || !doorAssemblyViews.TryGetValue(
+                    assemblyId,
+                    out DoorAssemblyView doorView)
+                || doorView == null)
+            {
+                return false;
+            }
+
+            doorView.SetOpen(shouldOpen);
+            return true;
+        }
+
+
         private void HandleMapInitialized(
             GridMapHost initializedHost)
         {
