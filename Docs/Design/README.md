@@ -12,6 +12,27 @@ This folder is the canonical design-memory system for Big Retail.
 - Deferred ideas should be labeled **Deferred**, not mixed into the current implementation target.
 - `Patches/` holds promising deferred designs that are intentionally **not active yet**. A patch preserves an idea so it can be revisited later without contaminating the current design target.
 
+## Organization stewardship
+
+The assistant is responsible for keeping this design hub orderly as the project grows.
+
+These documents are primarily working memory for future design conversations and implementation handoffs, so optimize them for fast retrieval and unambiguous state while keeping them comfortable for a human to read.
+
+Default organization rules:
+
+- Prefer a small number of durable topic files over many tiny notes.
+- Keep one clear source of truth for each active system.
+- Separate **Active**, **Deferred**, **Open Question**, and **Patch** ideas rather than blending them together.
+- Do not duplicate accepted design across several files unless one location is explicitly a short summary/index.
+- When an old decision is replaced, update the canonical topic file instead of preserving contradictory active versions.
+- Preserve promising future ideas as patches rather than forcing them into the current implementation scope.
+- Create new folders or indexes only when the existing structure has genuinely become hard to navigate.
+- Favor descriptive filenames that remain obvious months later.
+- Keep implementation details separate from design intent when that distinction helps future work.
+- Treat organization itself as maintenance work: tidy stale references, broken links, duplicate notes, and outdated status summaries when encountered.
+
+The goal is not bureaucratic documentation. The goal is to make it possible to ask **"Where are we at?"** at any time and recover the current design quickly and accurately.
+
 ## Chat shorthand
 
 When Jesse says:
