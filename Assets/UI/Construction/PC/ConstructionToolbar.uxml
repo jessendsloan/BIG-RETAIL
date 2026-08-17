@@ -7,6 +7,52 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="simulation-clock"
+            class="simulation-clock"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                class="simulation-clock__readout"
+                picking-mode="Ignore">
+                <ui:Label
+                    name="simulation-clock-day"
+                    text="MONDAY  •  DAY 1"
+                    class="simulation-clock__day"
+                    picking-mode="Ignore" />
+                <ui:Label
+                    name="simulation-clock-time"
+                    text="8:00 AM"
+                    class="simulation-clock__time"
+                    picking-mode="Ignore" />
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                class="simulation-clock__speeds"
+                picking-mode="Position">
+                <ui:Button
+                    name="simulation-speed-pause"
+                    text="Ⅱ"
+                    class="simulation-clock__speed"
+                    tooltip="Pause simulation time." />
+                <ui:Button
+                    name="simulation-speed-one"
+                    text="1×"
+                    class="simulation-clock__speed is-selected"
+                    tooltip="Run at normal speed." />
+                <ui:Button
+                    name="simulation-speed-two"
+                    text="2×"
+                    class="simulation-clock__speed"
+                    tooltip="Run at double speed." />
+                <ui:Button
+                    name="simulation-speed-four"
+                    text="4×"
+                    class="simulation-clock__speed"
+                    tooltip="Run at quadruple speed." />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="department-picker"
             class="department-picker"
             picking-mode="Position">

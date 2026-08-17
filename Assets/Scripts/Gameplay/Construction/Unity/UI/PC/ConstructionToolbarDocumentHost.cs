@@ -52,6 +52,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public SimulationClockView SimulationClockView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
@@ -69,6 +75,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public bool HasDepartmentPickerView =>
             DepartmentPickerView != null;
+
+        public bool HasSimulationClockView =>
+            SimulationClockView != null;
 
         /// <summary>
         /// Returns true when a screen position is currently over a pickable
@@ -128,6 +137,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureDefinitionPickerViewReady;
 
         public event Action<DepartmentPickerView> DepartmentPickerViewReady;
+
+        public event Action<SimulationClockView> SimulationClockViewReady;
 
         private int loadedVersion = -1;
 
@@ -198,6 +209,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && DoorDefinitionPickerView != null
                 && FixtureDefinitionPickerView != null
                 && DepartmentPickerView != null
+                && SimulationClockView != null
                 && loadedVersion == version)
             {
                 return;
@@ -233,6 +245,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new DepartmentPickerView(
                         root);
 
+                SimulationClockView =
+                    new SimulationClockView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -253,6 +269,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 DepartmentPickerViewReady?.Invoke(
                     DepartmentPickerView);
+
+                SimulationClockViewReady?.Invoke(
+                    SimulationClockView);
             }
             catch (Exception exception)
             {
@@ -304,6 +323,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 DepartmentPickerView.Dispose();
                 DepartmentPickerView = null;
+            }
+
+            if (SimulationClockView != null)
+            {
+                SimulationClockView.Dispose();
+                SimulationClockView = null;
             }
         }
     }
