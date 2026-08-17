@@ -10,6 +10,7 @@ This folder is the canonical design-memory system for Big Retail.
 - Keep `CURRENT.md` short. It is a status board, not the full design document.
 - Topic files hold the durable reasoning and current accepted design.
 - Deferred ideas should be labeled **Deferred**, not mixed into the current implementation target.
+- `Patches/` holds promising deferred designs that are intentionally **not active yet**. A patch preserves an idea so it can be revisited later without contaminating the current design target.
 
 ## Chat shorthand
 
@@ -18,6 +19,7 @@ When Jesse says:
 - **"Where are we at?"** → read `CURRENT.md` and summarize the active design state.
 - **"Lock that"** → update the relevant topic file and `CURRENT.md`.
 - **"Add that to resources"** → save the accepted design into this design hub unless the request clearly refers to a Unity runtime asset.
+- **"Save that as a patch"** → preserve the idea under `Docs/Design/Patches/` and keep it out of the active implementation target unless explicitly promoted later.
 - **"What did we decide about X?"** → read the relevant topic file first, then answer.
 
 ## Important Unity distinction
@@ -27,3 +29,5 @@ Design documents belong here under `Docs/Design/`, not in Unity's special `Asset
 ## Source-of-truth rule
 
 `Docs/Design/` is the current design authority. Older design notes elsewhere in the repository may contain stale assumptions and should be treated as reference material until reconciled into this folder.
+
+Files under `Docs/Design/Patches/` are preserved possibilities, not current authority. They only become active design when explicitly promoted into a topic file and reflected in `CURRENT.md`.
