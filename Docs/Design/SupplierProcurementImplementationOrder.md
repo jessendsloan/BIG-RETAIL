@@ -1,258 +1,321 @@
-# Big Retail — Supplier & Procurement Implementation Order
+# Big Retail — Merchandise Circulation Implementation Order
 
-**Status:** Approved design direction
-**Domain:** Retail Operations & Scale → Suppliers / Purchasing / Stocking
+**Status:** Current implementation plan
+**Domain:** Products / Brands / Suppliers / Purchasing / Receiving / Stocking
 
 ## Goal
 
-Build the merchandise circulation system in dependency order so the opening corner-store implementation can scale into mega-retail without replacing its core concepts.
+Build the opening merchandise loop in small permanent checkpoints. Each checkpoint should prove one relationship the player will actually use before adding the next layer.
 
-Permanent chain:
+Opening vertical slice:
 
-**Product / SKU → Supplier Account → Supplier Offer → Procurement Need → Draft Purchase Order → Committed Purchase Order → Delivery → Receiving → Inventory → Fixture Demand → Stocking**
+**Brand → Product / SKU → Supplier Offer → Draft Purchase Order → Placed Order → Delivery / Receiving → Inventory → Fixture → Stocking → Customer Sale**
 
-## Approved Scope Decisions
-
-- Supplier Accounts & Relationships are part of the permanent system.
-- Multiple suppliers may offer the same SKU.
-- Suppliers remain meaningful economic actors rather than being flattened into a universal catalog.
-- The early game starts small, while the underlying structures must support later scale.
-- Do **not** implement returns/damaged freight at this stage.
-- Do **not** implement product/supplier discontinuation at this stage.
-- Do **not** add deep supplier-failure simulation yet.
-- Stocking consumes available inventory; stocking does not directly purchase inventory.
+The opening implementation stays intentionally flat. Deeper supplier-account and relationship systems are preserved separately in `Patches/SupplierAccountsAndRelationships.md` and are not part of this build sequence.
 
 ---
 
-## 1. Supplier Accounts & Relationships
+## Current Design Rules
 
-Define what it means for the player's business to have access to a supplier.
+- Products / SKUs exist independently of Suppliers.
+- Brands and Suppliers are separate concepts.
+- A Brand is the consumer identity attached to a SKU.
+- A Supplier Offer connects a Supplier to a SKU under specific commercial terms.
+- The same SKU may have multiple Supplier Offers.
+- Wholesale price, purchase-pack size, minimums, and delivery timing belong to Supplier Offers, not Products.
+- Purchasing is the transaction surface.
+- Suppliers are not a second duplicate shopping system; a Supplier can later act as a filter / management context over Purchasing.
+- Customer purchase motive is not a fixed Product Role. The Product describes what the item is; customer / trip logic later explains why it is wanted.
+- Stocking moves inventory the store already owns. Purchasing obtains inventory the store does not yet own.
+- The week is continuous Monday–Sunday simulation time, and Supplier delivery rules use that calendar.
 
-The permanent model should have room for states such as:
+---
 
-- known
-- available
-- active
-- restricted / requirements unmet
+# Checkpoint 1 — Brands + Products
 
-The opening implementation can remain simple: BIG Wholesale, Central Grocery Supply, and Beacon Beverage Distribution can begin as active accounts.
+Create the authored consumer-world foundation before procurement.
 
-The account/relationship structure is where later systems can attach:
-
-- supplier access requirements
-- purchasing-volume qualifications
-- better commercial terms
-- preferred status
-- relationship history
-- negotiation eligibility
-
-Mr. BIG's commercial relationship with the player should plug into the same supplier/account framework rather than use a separate special-case system.
-
-## 2. Supplier Offers
-
-Lock the permanent commercial atom:
-
-> **Supplier X offers SKU Y in purchase pack Z, at price P, under delivery rule D.**
+## BrandDefinition
 
 Minimum opening data:
 
-- supplier
-- SKU
-- purchase pack
-- pack quantity
-- pack price
-- effective unit cost
+- stable ID
+- display name
+- identity / presentation metadata as needed by UI or art later
+
+## ProductDefinition / SKU
+
+Minimum opening data:
+
+- stable ID
+- Brand reference
+- Product Line
+- Category
+- Market Position: Value / Standard / Premium
+- Package / Form
+- Shelf Profile reference or placeholder
+
+Do not put Supplier, wholesale price, case size, or delivery timing on Product.
+
+## Seed accepted opening content
+
+Author the 10 opening Brands and 12 opening SKUs already defined in `Brands.md` and `Products.md`.
+
+The checkpoint is complete when the game can reliably enumerate the real opening products and resolve their Brand identities.
+
+---
+
+# Checkpoint 2 — Suppliers
+
+Create the three opening Supplier definitions.
+
+## SupplierDefinition
+
+Minimum opening data:
+
+- stable ID
+- display name
+- supplier identity / category tags
+- minimum-order rule
 - delivery rule
+
+Opening Suppliers:
+
+1. **BIG Wholesale** — broad, same-day / within-hours, highly flexible, expensive
+2. **Central Grocery Supply** — grocery-focused, next-day, cheaper, moderate minimum
+3. **Beacon Beverage Distribution** — beverage specialist, best beverage economics, Tuesday / Friday route
+
+Do not implement supplier relationship tiers, contracts, negotiation, or account progression here.
+
+---
+
+# Checkpoint 3 — Supplier Offer Matrix
+
+Connect the Product world to the Supplier world.
+
+## SupplierOfferDefinition
+
+Minimum opening data:
+
+- Supplier reference
+- SKU reference
+- purchase-pack quantity
+- purchase-pack price
+- effective unit cost, calculated where appropriate
+- delivery behavior / rule reference
 - availability
 
-The Product/SKU must not own a universal wholesale price.
+The permanent commercial atom is:
 
-Different suppliers can therefore compete to supply the same consumer-facing SKU.
+> **Supplier X offers SKU Y in purchase pack Z, at price P, under delivery rule D.**
 
-## 3. Procurement Need
+Build the actual opening Supplier Offer matrix across the accepted 12 SKUs.
 
-Define the store-side requirement independently from supplier choice.
+Design goal:
 
-Example:
+- BIG should feel broad.
+- Central should feel like a serious grocery alternative.
+- Beacon should feel narrow and meaningfully specialized.
+- Several SKUs must overlap across Suppliers so Cost / Flexibility / Assurance creates real choices.
 
-> **Bright Cola procurement requirement: +36 units**
+Stop and inspect this matrix before building Purchasing. The first economy should make sense as content before the UI is asked to present it.
 
-A Need says what the retail operation requires. It must **not** say:
+---
 
-> Buy two cases from Central Grocery.
+# Checkpoint 4 — Draft Purchase Orders
 
-Supplier selection belongs to Purchasing.
+Create runtime purchasing state only after Supplier Offers exist.
 
-Opening logic can be simple and expand later. Early need calculation may derive from assigned fixture/display capacity compared with available and inbound inventory.
+## Runtime concepts
 
-Future systems may extend the same Need with:
+- `DraftPurchaseOrder`
+- `PurchaseOrderLine`
+- `PurchasingService` or equivalent domain owner
 
-- reserve targets
-- min/max inventory
-- days of supply
-- demand forecasting
-- safety stock
+Rules:
 
-without replacing the concept.
+- Every Draft PO belongs to exactly one Supplier.
+- A line references a Supplier Offer plus a quantity of purchase packs.
+- Adding an offer for BIG creates / updates the BIG draft.
+- Selecting the Central offer for the same SKU creates / updates the Central draft instead.
+- The domain calculates order totals and validates Supplier minimums.
 
-## 4. Draft Purchase Order Workspace
+The important test is:
 
-This is the first major UX design task.
+> One SKU has several offers, and choosing one offer creates the correct Supplier-specific commercial consequence.
 
-The player should be able to work from store needs/products and choose supplier offers. The game then groups the chosen lines into supplier-specific draft Purchase Orders.
+Do not build final UI yet.
 
-Example:
+---
 
-- BIG Wholesale — 3 lines
-- Central Grocery — 14 lines
-- Beacon Beverage — 6 lines
+# Checkpoint 5 — Gray-Box Product-First Purchasing UI
 
-Each draft PO independently communicates:
+Build one functional Purchasing workspace before polishing it.
 
-- total cost
-- purchase packs/cases
-- supplier minimum status
-- order cutoff
+The canonical purchasing interaction is product-oriented:
+
+> **Product → available Supplier Offer → quantity → Supplier-specific Draft PO**
+
+A product row / card should be able to show, at minimum:
+
+- Brand / product identity
+- Product name
+- Package / Form
+- selected Supplier Offer
+- purchase-pack quantity
+- pack price and/or effective unit cost
 - expected arrival
-- relevant warnings
+- quantity controls
 
-The game handles clerical grouping. The player makes the commercial decisions.
+If a SKU has multiple offers, the Supplier / offer control exposes those alternatives.
 
-The workspace must support both natural entry directions:
+If only one offer is relevant, do not require a meaningless extra selection.
 
-1. **Supplier-first:** "I am placing my Central Grocery order."
-2. **Need/product-first:** "We need more cereal; who should supply it?"
+The workspace may show multiple Supplier-specific Draft POs simultaneously.
 
-Both manipulate the same Supplier Offers and Draft POs.
+Example:
 
-## 5. Committed Purchase Order Rules
+- BIG Wholesale — draft total
+- Central Grocery — draft total / minimum status
+- Beacon Beverage — draft total / minimum status
 
-Define the point where a draft order becomes a real commercial commitment.
+Important UI rule:
+
+> Do not build a separate Supplier catalog purchasing flow.
+
+A future Suppliers management screen may open this same Purchasing workspace with a Supplier filter applied.
+
+Playtest this gray-box interaction before visual polish.
+
+---
+
+# Checkpoint 6 — Place and Schedule Orders
+
+Turn a Draft PO into a real order.
 
 Opening state flow:
 
 **Draft → Placed → Scheduled / In Transit → Delivered**
 
-Determine:
+Define only what the opening game needs:
 
-- what `Place Order` commits
-- when payment is taken/committed
-- whether an order may be changed before supplier cutoff
-- how expected delivery time is calculated
-
-Do not add invoices, returns, damage, or other accounting branches yet.
-
-## 6. Delivery & Receiving Handoff
-
-A placed order must physically reach the store before it becomes usable inventory.
-
-Opening implementation:
-
-- supplier vehicle arrives
-- ordered cases are unloaded at the receiving point
-- goods pass through Receiving
-- successfully received goods become available store inventory
-
-Later systems may add docks, pallets, unloading equipment, staging, congestion, and dedicated receivers without replacing the original flow.
-
-Purchasing should eventually be capable of warning the player when incoming orders will stress receiving capacity.
-
-## 7. Inventory Location States
-
-Lock only the states the early game needs:
-
-- **On Shelf**
-- **Backstock**
-- **Inbound**
-
-These values should be visible where they are relevant to purchasing decisions.
-
-The player should not need to leave Purchasing and manually remember shelf counts simply to decide how much stock to order.
-
-## 8. Fixture Demand & Stocking
-
-A fixture assignment declares what SKU belongs there and how much product the fixture wants to display.
-
-Example:
-
-> Bright Cola
-> Display target: 24
-> Currently on fixture: 9
-> Fixture shortfall: 15
-
-If compatible inventory exists elsewhere in the store, the shortfall can generate stocking work.
-
-Opening stocking controls can later be designed around concepts such as:
-
-- Restock Now
-- Auto Restock
-- Hold / Ignore
-
-Permanent boundary:
-
-> **Stocking moves inventory already owned by the store. Purchasing obtains inventory the store does not own.**
-
-## 9. Contextual UI Links
-
-After the underlying systems are stable, connect the world and Purchasing workspace.
+- `Place Order` commits the PO
+- money is paid / committed according to the current simple economy
+- Supplier minimum validation is enforced
+- delivery time is calculated from the Supplier's rule and the current weekday / time
 
 Examples:
 
-- Fixture → Order Stock
-- Fixture → Product Detail
-- Product → View Fixtures
-- Product → Compare Supplier Offers
-- Supplier → Catalog
-- Need → Compare Offers
-- Low Stock → Purchasing
+- BIG Wholesale: arrives later the same simulated day
+- Central Grocery: arrives the next day
+- Beacon Beverage: arrives on the next Tuesday / Friday route
 
-These are contextual entry points into the same system, never duplicate purchasing mechanics.
-
-## 10. Supplier Progression & Relationship Depth
-
-Add deeper supplier gameplay only after the core merchandise circulation loop works.
-
-Later extensions can include:
-
-- supplier account requirements
-- better terms through purchasing volume
-- preferred suppliers
-- category sourcing policies
-- relationship progression
-- new supplier discovery
-- specialized distributors
-- pallet purchasing
-- direct manufacturer relationships
-- contracts and negotiation
-- late-game supplier competition for the player's business
-
-The long arc remains:
-
-> **You adapt to suppliers → you select suppliers → you negotiate with suppliers → suppliers adapt to you.**
+Do not add invoices, credit terms, backorders, returns, damage, or contract logic here.
 
 ---
 
-# Immediate Design Packets
+# Checkpoint 7 — Delivery / Receiving / Owned Inventory
 
-## Packet A — Commercial Foundation
+A placed order must physically arrive before it becomes usable inventory.
 
-1. Supplier Account
-2. Supplier Offer
-3. Procurement Need
+Opening flow:
 
-## Packet B — Purchasing UX
+**Placed Order → Supplier Vehicle Arrival → Receiving → Owned Inventory**
 
-1. Needs / Products / Suppliers views
-2. Supplier-offer comparison
-3. Draft PO workspace
-4. Place-order flow
+Keep this first pass simple.
 
-## Packet C — Physical Handoff
+The checkpoint is complete when:
 
-1. Delivery
-2. Receiving
-3. On Shelf / Backstock / Inbound inventory states
-4. Fixture replenishment demand
-5. Employee stocking work
+- the Supplier's scheduled delivery occurs
+- the ordered SKU quantities arrive through Receiving
+- those quantities become inventory owned by the store
+- Purchasing / inventory state can distinguish inbound from received stock
 
-Completing these three packets produces the MVP merchandise-circulation loop while preserving the architecture required for later mega-retail procurement.
+Later receiving capacity, pallets, docks, staging, and congestion extend this flow rather than replace it.
+
+---
+
+# Checkpoint 8 — Fixture Assignment + Stocking + First Sale
+
+Connect owned inventory to the sales floor.
+
+A Fixture assignment declares:
+
+- which SKU belongs there
+- how much display capacity the Fixture currently wants for that SKU
+
+Stocking then moves available owned inventory to the Fixture.
+
+Permanent boundary:
+
+> **Purchasing obtains inventory. Stocking moves inventory.**
+
+The opening vertical slice is complete when a real accepted SKU can travel through the entire chain:
+
+> Bright Cola exists as a branded Product → a Supplier offers it → the player orders it → it arrives → it becomes owned inventory → it is stocked onto an assigned Fixture → a Customer purchases it.
+
+---
+
+# Checkpoint 9 — Contextual Links and Supplier Management Surface
+
+Only after the core loop works, connect convenient entry points.
+
+Examples:
+
+- Fixture → Product detail / Order Stock
+- Product → View Fixtures
+- Product → compare Supplier Offers
+- Supplier → open Purchasing filtered to that Supplier
+- low stock → open Purchasing on that Product
+
+A dedicated Suppliers screen, when added, is a **commercial relationship / supplier-management surface**, not another place to duplicate the buying workflow.
+
+Deep Supplier Accounts & Relationships remain deferred until the opening Purchasing loop proves itself.
+
+---
+
+# Explicitly Deferred
+
+Do not pull these into the first merchandise-circulation slice:
+
+- Supplier Accounts & Relationship tiers
+- contracts
+- negotiation
+- credit terms / invoices
+- preferred-supplier policies
+- pallet / truckload economics
+- supplier reliability simulation
+- shortages / backorders
+- returns / damage
+- product discontinuation
+- manufacturer-direct sourcing
+- private label
+- auto-replenishment
+- deep forecasting
+- brand loyalty simulation
+
+Preserve strong ideas as patches instead of widening the active build.
+
+---
+
+# Build Discipline
+
+Use the project workflow rule: one boundary at a time.
+
+For this system, the intended order is:
+
+1. **Brands + 12 Products**
+2. **3 Suppliers**
+3. **Supplier Offer matrix**
+4. **Draft PO domain**
+5. **Gray-box product-first Purchasing UI**
+6. **Place / schedule orders**
+7. **Delivery / Receiving / inventory**
+8. **Fixture stocking + first customer sale**
+9. **Contextual links / Supplier management surface**
+
+After each checkpoint: compile, test, playtest where relevant, and keep the accepted checkpoint stable before adding the next boundary.
+
+## Overengineering test
+
+If a proposed feature does not change what the player can **see, choose, pay, wait for, receive, stock, or sell** in the opening vertical slice, it probably belongs in a patch instead of the active implementation.
