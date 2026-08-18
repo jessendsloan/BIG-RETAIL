@@ -10,6 +10,8 @@ Permanent commercial chain:
 
 **Supplier → Supplier Offer → Purchase Order → Delivery → Inventory**
 
+Products themselves are defined separately in `Products.md`; consumer brands are defined separately in `Brands.md`.
+
 ## Supplier tradeoff model
 
 Suppliers are balanced primarily across three dimensions:
@@ -77,6 +79,8 @@ Example pattern:
 
 The player is choosing a supply arrangement for the same product, not choosing between artificial duplicate products.
 
+The exact opening supplier-to-product map should now be authored against the accepted 12-SKU opening assortment in `Products.md` rather than against placeholders.
+
 ## Product separation
 
 A Product/SKU is the consumer-facing item. It does not own one universal purchase price.
@@ -94,6 +98,60 @@ Opening Supplier Offer data should be able to express:
 - Effective unit cost
 - Delivery rule
 - Availability
+
+## Supplier availability philosophy
+
+The opening system should protect supplier choice rather than hide it behind relationship progression.
+
+Once a supplier is commercially available to the store, the player can place ordinary orders with them subject to that supplier's concrete order conditions.
+
+Useful restrictions are things such as:
+
+- category / department compatibility
+- required store capability later (for example refrigeration or pallet-capable receiving)
+- minimum order
+- delivery schedule
+- pack size
+- price
+
+Future relationships and contracts may improve or bend those terms, but should not become an XP-style permission gate for ordinary supplier choice.
+
+## Purchasing interaction rule
+
+**Purchasing is the transaction surface. Suppliers are not a second shopping system.**
+
+Canonical buying flow:
+
+**Product → choose Supplier Offer → choose quantity → add to supplier-specific Purchase Order**
+
+If a SKU has multiple Supplier Offers, Purchasing exposes the available choices and their consequences such as:
+
+- unit cost
+- purchase pack
+- arrival timing
+- minimum/order constraint
+
+A supplier can also be used as a filter/lens over the same Purchasing workspace.
+
+Example:
+
+> Open Central Grocery → View Products
+
+This opens Purchasing filtered to Central. It does **not** open a second duplicated supplier catalog interface.
+
+## Future Suppliers management UI
+
+A dedicated Suppliers screen still has a valid long-term role, but its purpose is to manage / understand the companies themselves rather than duplicate purchasing.
+
+It can eventually answer:
+
+- Who supplies us?
+- What categories do they serve?
+- What are their delivery rules and minimums?
+- What agreements or contracts exist?
+- What relationship / account terms exist later?
+
+The opening implementation may keep this screen minimal or defer it until it has enough management content to justify itself.
 
 ## Weekly calendar
 
@@ -125,6 +183,8 @@ The intended player feeling is approximately:
 
 BIG Wholesale is therefore both a real gameplay tool and a narrative expression of the player's early dependence on Mr. BIG's ecosystem.
 
+BIG Wholesale should remain persistently useful: expensive convenience is a legitimate strategic option, not merely a tutorial trap that disappears once the player learns better planning.
+
 ## Opening scope rule
 
 Keep the first supplier implementation flat.
@@ -142,6 +202,8 @@ Do **not** build these yet:
 - pallets or truckloads
 - private label
 - manufacturer-direct deals
+
+The relationship concept is preserved separately as a future patch under `Patches/SupplierAccountsAndRelationships.md`.
 
 These are future extensions of the same supplier model, not requirements for the opening implementation.
 
