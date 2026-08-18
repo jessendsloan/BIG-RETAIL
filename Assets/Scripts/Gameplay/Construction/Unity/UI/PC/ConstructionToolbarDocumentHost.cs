@@ -59,6 +59,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public SimulationClockView SimulationClockView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
@@ -79,6 +85,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public bool HasFixtureMerchandisingInspectorView =>
             FixtureMerchandisingInspectorView != null;
+
+        public bool HasSimulationClockView =>
+            SimulationClockView != null;
 
         /// <summary>
         /// Returns true when a screen position is currently over a pickable
@@ -141,6 +150,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public event Action<FixtureMerchandisingInspectorView>
             FixtureMerchandisingInspectorViewReady;
+
+        public event Action<SimulationClockView> SimulationClockViewReady;
 
         private int loadedVersion = -1;
 
@@ -212,6 +223,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && FixtureDefinitionPickerView != null
                 && DepartmentPickerView != null
                 && FixtureMerchandisingInspectorView != null
+                && SimulationClockView != null
                 && loadedVersion == version)
             {
                 return;
@@ -251,6 +263,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new FixtureMerchandisingInspectorView(
                         root);
 
+                SimulationClockView =
+                    new SimulationClockView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -274,6 +290,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 FixtureMerchandisingInspectorViewReady?.Invoke(
                     FixtureMerchandisingInspectorView);
+
+                SimulationClockViewReady?.Invoke(
+                    SimulationClockView);
             }
             catch (Exception exception)
             {
@@ -331,6 +350,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 FixtureMerchandisingInspectorView.Dispose();
                 FixtureMerchandisingInspectorView = null;
+            }
+
+            if (SimulationClockView != null)
+            {
+                SimulationClockView.Dispose();
+                SimulationClockView = null;
             }
         }
     }

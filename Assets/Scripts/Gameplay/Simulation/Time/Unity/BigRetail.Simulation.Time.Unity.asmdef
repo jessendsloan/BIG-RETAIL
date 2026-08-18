@@ -1,0 +1,16 @@
+{
+    "name": "BigRetail.Simulation.Time.Unity",
+    "rootNamespace": "BigRetail.Simulation.Time.Unity",
+    "references": [
+        "BigRetail.Simulation.Time.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

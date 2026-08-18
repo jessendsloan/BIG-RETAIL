@@ -1,0 +1,14 @@
+{
+    "name": "BigRetail.Simulation.Time.Domain",
+    "rootNamespace": "BigRetail.Simulation.Time.Domain",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
