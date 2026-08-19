@@ -1,6 +1,6 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-18
+**Last updated:** 2026-08-19
 
 ## Current focus
 
@@ -17,6 +17,7 @@ A parallel narrative-design thread is now established around Milton Big and the 
 - Products/SKUs exist independently of suppliers.
 - Brands and Products are separate concepts from Suppliers.
 - A supplier can offer the same SKU differently from another supplier through price, purchase-pack size, delivery timing, minimums, and assortment.
+- Supplier visual identity is also separate from consumer Product/Brand identity. Trucks, shipping cases, receiving labels, and supplier UI carry supplier identity while the merchandise keeps its consumer branding.
 - Purchasing should ultimately be one persistent management workspace that grows with the retailer rather than being replaced by a different late-game system.
 - Purchasing is the transaction surface; Suppliers are not a second duplicate shopping system.
 - A supplier may be used as a filter/lens over the same product-oriented Purchasing workspace.
@@ -77,6 +78,7 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Very flexible, very dependable, expensive.
 - No meaningful early minimum.
 - Functions as the player's safety net and emergency supplier.
+- Visual starting identity: **burgundy / cream / gold**.
 
 ### Central Grocery Supply
 - Grocery-focused regional distributor.
@@ -84,6 +86,7 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Cheaper than BIG Wholesale.
 - Moderate minimum order.
 - Rewards planning.
+- Visual starting identity: **green / beige / burnt orange**.
 
 ### Beacon Beverage Distribution
 - Beverage specialist.
@@ -91,6 +94,9 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Fixed route days, currently Tuesday and Friday.
 - Least flexible of the opening three.
 - Rewards specialization and calendar planning.
+- Visual starting identity: **blue / white / teal**.
+
+The canonical supplier art-direction guide is `SupplierVisualIdentity.md`. Exact production colors may still move after sprite-scale testing; the identity system and color separation are accepted.
 
 ## Supplier balancing law
 
