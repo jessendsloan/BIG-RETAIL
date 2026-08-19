@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75f1fe0629629c4b8b74424516cd585, type: 3}
+  m_Name: BeaconBeverage
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.SupplierDefinitionAsset
+  supplierId: BEACON
+  displayName: Beacon Beverage Distribution
+  specialty: Beverage route specialist
+  description: The best beverage economics on a fixed Tuesday and Friday route.
+  minimumOrderCents: 7500
+  deliveryKind: 2
+  sameDayLeadHours: 1
+  routeDays: 18
+  logo: {fileID: 0}
+  accentColor: {r: 0.2, g: 0.53, b: 0.29, a: 1}

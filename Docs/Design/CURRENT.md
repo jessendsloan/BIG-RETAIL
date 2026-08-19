@@ -1,12 +1,12 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-17
+**Last updated:** 2026-08-18
 
 ## Current focus
 
-Designing the merchandise circulation system, especially the seam between **Products, Suppliers, Purchasing, Receiving, Fixtures, and Stocking**.
+The opening **Products → Suppliers → Purchasing** commercial foundation now exists as authored data and a playable workspace through PO placement and supplier scheduling.
 
-The current immediate task is to turn the accepted opening Product/Brand set into real Supplier Offers so the purchasing prototype can operate on an actual starting economy instead of placeholders.
+The current review boundary is deliberately after order placement but before campaign spending or physical delivery. Purchasing can now expose the time consequence of each supplier choice without pretending that inventory has arrived.
 
 ## Locked foundations
 
@@ -107,13 +107,25 @@ He is a recurring campaign spine with three simultaneous roles:
 
 BIG helped finance the player's beginning, owns the player's debt, and owns BIG Wholesale. Mr. BIG is charming, useful, slightly unfair, and profits from the player's dependence. The long-term relationship should shift from the player adapting to BIG toward BIG eventually wanting the player's business.
 
-## Current implementation target
+## Current implementation state
 
-Keep the first implementation **flat and small**.
+The opening implementation is flat and intentionally bounded:
 
-Do not build deep supplier-account progression yet.
+- 10 authored Brands
+- 12 authored opening Products / SKUs
+- 3 authored Suppliers
+- 24 authored Supplier Offers
+- one runtime Draft Purchase Order per Supplier
+- a product-first Purchasing workspace with search, category filters, a Supplier lens, offer comparisons, pack quantities, draft totals, and minimum-order feedback
+- exact arrival estimates derived from the current commercial time for same-day and next-day service, plus day-only estimates for fixed routes
+- a Review Orders sheet that enforces every staged Supplier minimum atomically
+- immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
+- a placement confirmation state that clears committed drafts without creating inventory
+- a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
+- stub-ready image slots on Product, Brand, and Supplier assets
+- isolated `PurchasingWorkspaceLab` and `CommercialDirectoryLab` scenes; no campaign or gameplay scene integration yet
 
-The immediate commercial foundation should prove:
+The implemented seam proves:
 
 1. Product / SKU
 2. Brand identity attached to each SKU
@@ -121,8 +133,19 @@ The immediate commercial foundation should prove:
 4. Supplier Offer
 5. Multiple suppliers offering overlapping SKUs differently
 6. Supplier-specific Draft Purchase Orders behind one product-oriented Purchasing workflow
+7. Review, minimum validation, placement, and Supplier-rule scheduling
 
-The next content pass should map the accepted 12 opening SKUs across BIG Wholesale, Central Grocery Supply, and Beacon Beverage Distribution, then assign opening pack sizes, prices, minimum implications, and delivery consequences.
+### Opening assortment map
+
+| Supplier | Opening assortment | Count |
+|---|---|---:|
+| BIG Wholesale | All opening SKUs | 12 |
+| Central Grocery Supply | All opening SKUs except Spark Batteries and FreshMint Toothpaste | 10 |
+| Beacon Beverage Distribution | Bright Cola and ClearSpring Water | 2 |
+
+Opening balance values are **v0.1 playtest numbers**, not permanent economic law. The exact pack and price matrix lives in `Suppliers.md`.
+
+Supplier minimum and delivery rules are supplier-wide in this opening model. Purchase pack, pack price, effective unit cost, and availability belong to each Supplier Offer.
 
 ## Deferred for later
 
@@ -141,12 +164,14 @@ The next content pass should map the accepted 12 opening SKUs across BIG Wholesa
 
 ## Next design question
 
-Define the **opening supplier catalogs / Supplier Offers** against the real 12-SKU assortment:
+Playtest and critique the placement and scheduling pass:
 
-- Which of the 12 SKUs does BIG Wholesale carry?
-- Which does Central Grocery Supply carry?
-- Which does Beacon Beverage Distribution carry?
-- Where should offers overlap so supplier choice is meaningful?
-- What opening case/pack sizes and relative price levels create the intended Cost / Flexibility / Assurance tradeoff?
+- Is choosing the Product before the Supplier Offer natural?
+- Are pack size, unit cost, case price, and delivery timing legible enough to compare?
+- Does the Supplier lens feel like a useful filter rather than a duplicate store?
+- Are multiple staged Supplier POs understandable before review?
+- Do the v0.1 offers make BIG feel flexible and expensive, Central planned and economical, and Beacon specialized and schedule-bound?
+- Does the review sheet make **when each order arrives** obvious enough to drive the Supplier decision?
+- Does an unmet Supplier minimum explain clearly why placement is blocked?
 
-Once this is locked, the purchasing prototype has real content to transact with.
+If that interaction survives review, connect its explicit seams to the campaign clock and economy before beginning **Checkpoint 7: Delivery / Receiving / Owned Inventory**.

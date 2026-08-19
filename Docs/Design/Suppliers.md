@@ -1,6 +1,6 @@
 # Big Retail — Supplier Design
 
-**Status:** Accepted foundation; opening implementation intentionally flat
+**Status:** Accepted foundation; opening gray-box implemented
 
 ## Core role
 
@@ -79,7 +79,34 @@ Example pattern:
 
 The player is choosing a supply arrangement for the same product, not choosing between artificial duplicate products.
 
-The exact opening supplier-to-product map should now be authored against the accepted 12-SKU opening assortment in `Products.md` rather than against placeholders.
+The opening map is now authored against the accepted 12-SKU assortment in `Products.md`.
+
+## Opening commercial terms — v0.1
+
+These are implementation/playtest values, not permanent balancing law.
+
+| Supplier | Minimum | Delivery |
+|---|---:|---|
+| BIG Wholesale | None | Within 3 hours |
+| Central Grocery Supply | $100.00 | Next day |
+| Beacon Beverage Distribution | $75.00 | Tuesday / Friday route |
+
+| Opening SKU | BIG Wholesale | Central Grocery | Beacon Beverage |
+|---|---:|---:|---:|
+| Bright Cola — 20 oz Bottle | Case × 12 · $12.00 | Case × 24 · $21.00 | Case × 24 · $19.20 |
+| ClearSpring Pure Water — 20 oz Bottle | Case × 12 · $8.40 | Case × 24 · $14.40 | Case × 24 · $12.96 |
+| Ridgeway Original Potato Chips — Single Bag | Case × 12 · $11.40 | Case × 24 · $20.40 | — |
+| ChocoMax Milk Chocolate — Bar | Case × 24 · $16.80 | Case × 48 · $29.76 | — |
+| Sunburst Fruit Chews — Pack | Case × 12 · $9.00 | Case × 24 · $15.84 | — |
+| Homestead White Bread — Loaf | Case × 8 · $12.00 | Case × 16 · $21.60 | — |
+| Homestead Whole Milk — Jug | Case × 6 · $10.80 | Case × 12 · $19.20 | — |
+| Crunch-O Corn Flakes — Box | Case × 8 · $14.40 | Case × 12 · $19.20 | — |
+| CleanMax Paper Towels — Roll | Case × 12 · $12.00 | Case × 24 · $21.12 | — |
+| CleanMax Dish Soap — Bottle | Case × 12 · $14.40 | Case × 24 · $25.44 | — |
+| Spark Alkaline Batteries — 4-Pack | Case × 12 · $28.80 | — | — |
+| FreshMint Toothpaste — Tube | Case × 12 · $18.00 | — | — |
+
+This yields 24 opening Supplier Offers: BIG carries 12 SKUs, Central carries 10, and Beacon carries 2.
 
 ## Product separation
 
@@ -89,15 +116,16 @@ A Supplier Offer means:
 
 > This supplier sells this SKU in this purchase pack, at this price, under this delivery rule.
 
-Opening Supplier Offer data should be able to express:
+Opening Supplier Offer data expresses:
 
 - Supplier
 - SKU
 - Purchase-pack quantity
 - Purchase-pack price
 - Effective unit cost
-- Delivery rule
 - Availability
+
+The opening Supplier owns its shared minimum-order and delivery rule. Each Offer resolves those consequences through its Supplier. This keeps repeated terms in one authored place while leaving room for offer-specific exceptions later if playtesting demonstrates a real need.
 
 ## Supplier availability philosophy
 
@@ -139,7 +167,16 @@ Example:
 
 This opens Purchasing filtered to Central. It does **not** open a second duplicated supplier catalog interface.
 
-## Future Suppliers management UI
+## Supplier directory and future management UI
+
+The opening Commercial Directory now provides a deliberately read-only Supplier view. It answers:
+
+- Who are the opening Suppliers?
+- What is each Supplier's specialty?
+- What are their current delivery rules and minimums?
+- Which opening Products do they carry?
+
+This directory does not place orders and does not duplicate Purchasing.
 
 A dedicated Suppliers screen still has a valid long-term role, but its purpose is to manage / understand the companies themselves rather than duplicate purchasing.
 
@@ -151,7 +188,7 @@ It can eventually answer:
 - What agreements or contracts exist?
 - What relationship / account terms exist later?
 
-The opening implementation may keep this screen minimal or defer it until it has enough management content to justify itself.
+The current read-only directory is the minimal opening form. Deeper management should wait until agreements, relationships, or account terms provide something real to manage.
 
 ## Weekly calendar
 

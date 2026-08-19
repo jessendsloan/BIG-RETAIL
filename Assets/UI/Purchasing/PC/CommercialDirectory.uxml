@@ -1,0 +1,94 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="CommercialDirectory.uss" />
+
+    <ui:VisualElement
+        name="commercial-directory-screen"
+        class="directory-screen"
+        picking-mode="Position">
+
+        <ui:VisualElement class="directory-header">
+            <ui:VisualElement class="directory-header__identity">
+                <ui:Label text="BIG" class="directory-header__mark" />
+                <ui:VisualElement class="directory-header__title-group">
+                    <ui:Label text="COMMERCIAL DIRECTORY" class="directory-header__title" />
+                    <ui:Label
+                        text="Opening brands and supplier network"
+                        class="directory-header__subtitle" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="directory-header__status">
+                <ui:Label text="REFERENCE ONLY" class="directory-mode-pill" />
+                <ui:Label
+                    text="Browse the commercial world without ordering"
+                    class="directory-header__status-copy" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="directory-body">
+            <ui:VisualElement class="directory-nav">
+                <ui:Label text="DIRECTORY" class="directory-nav__eyebrow" />
+                <ui:Label
+                    text="Learn who appears on the shelf and who brings those products to the store."
+                    class="directory-nav__introduction" />
+
+                <ui:Button
+                    name="directory-brands-button"
+                    text="BRANDS"
+                    class="directory-nav-button" />
+                <ui:Button
+                    name="directory-suppliers-button"
+                    text="SUPPLIERS"
+                    class="directory-nav-button" />
+
+                <ui:VisualElement class="directory-nav__rule" />
+
+                <ui:Label text="WHAT LIVES HERE" class="directory-nav__eyebrow" />
+                <ui:Label
+                    text="Brands are customer-facing identities. Suppliers are outside companies with assortments and operating terms."
+                    class="directory-nav__help" />
+
+                <ui:VisualElement class="directory-nav__boundary">
+                    <ui:Label text="NO TRANSACTIONS" class="directory-nav__boundary-title" />
+                    <ui:Label
+                        text="Ordering remains in the Purchasing workspace."
+                        class="directory-nav__boundary-copy" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="directory-main">
+                <ui:VisualElement class="directory-section-heading">
+                    <ui:VisualElement class="directory-section-heading__copy">
+                        <ui:Label
+                            name="directory-section-eyebrow"
+                            text="CONSUMER WORLD"
+                            class="directory-section-heading__eyebrow" />
+                        <ui:Label
+                            name="directory-section-title"
+                            text="Opening brands"
+                            class="directory-section-heading__title" />
+                        <ui:Label
+                            name="directory-section-description"
+                            text="The names customers recognize on the shelf."
+                            class="directory-section-heading__description" />
+                    </ui:VisualElement>
+                    <ui:Label
+                        name="directory-section-count"
+                        text="0 BRANDS"
+                        class="directory-section-heading__count" />
+                </ui:VisualElement>
+
+                <ui:ScrollView class="directory-scroll" mode="Vertical">
+                    <ui:VisualElement
+                        name="directory-content"
+                        class="directory-content showing-brands" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Label
+            name="directory-error-state"
+            text="The commercial catalog could not be loaded."
+            class="directory-error-state" />
+    </ui:VisualElement>
+</ui:UXML>

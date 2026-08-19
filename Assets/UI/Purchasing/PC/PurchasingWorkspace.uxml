@@ -1,0 +1,191 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="PurchasingWorkspace.uss" />
+
+    <ui:VisualElement
+        name="purchasing-workspace-screen"
+        class="purchasing-screen"
+        picking-mode="Position">
+
+        <ui:VisualElement class="purchasing-header">
+            <ui:VisualElement class="purchasing-header__identity">
+                <ui:Label text="BIG" class="purchasing-header__mark" />
+                <ui:VisualElement class="purchasing-header__title-group">
+                    <ui:Label text="PURCHASING" class="purchasing-header__title" />
+                    <ui:Label
+                        text="Opening commercial catalog"
+                        class="purchasing-header__subtitle" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:TextField
+                name="purchasing-search"
+                class="purchasing-search"
+                label=""
+                placeholder-text="Search products, brands, or suppliers…" />
+
+            <ui:VisualElement class="purchasing-header__status">
+                <ui:Label
+                    name="commercial-time"
+                    text="MONDAY · 9:00 AM"
+                    class="purchasing-mode-pill" />
+                <ui:Label
+                    text="Expected arrivals use the current store time"
+                    class="purchasing-header__status-copy" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="purchasing-body">
+            <ui:VisualElement class="purchasing-filters">
+                <ui:Label text="PRODUCTS" class="section-kicker" />
+                <ui:VisualElement
+                    name="category-filters"
+                    class="purchasing-filter-list" />
+
+                <ui:VisualElement class="filter-separator" />
+
+                <ui:Label text="SUPPLIER LENS" class="section-kicker" />
+                <ui:Label
+                    text="This filters the same catalog. It is not a second store."
+                    class="filter-help" />
+                <ui:VisualElement
+                    name="supplier-filters"
+                    class="supplier-filter-list" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="purchasing-catalog">
+                <ui:VisualElement class="catalog-heading">
+                    <ui:VisualElement>
+                        <ui:Label text="Opening assortment" class="catalog-heading__title" />
+                        <ui:Label
+                            text="Choose the product first, then the supply arrangement."
+                            class="catalog-heading__subtitle" />
+                    </ui:VisualElement>
+                    <ui:Label
+                        name="product-count"
+                        text="0 products"
+                        class="catalog-heading__count" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="offer-legend">
+                    <ui:Label text="SUPPLIER" class="offer-legend__supplier" />
+                    <ui:Label text="PURCHASE PACK" class="offer-legend__pack" />
+                    <ui:Label text="UNIT COST" class="offer-legend__unit" />
+                    <ui:Label text="CASE PRICE" class="offer-legend__price" />
+                    <ui:Label text="QUANTITY" class="offer-legend__quantity" />
+                </ui:VisualElement>
+
+                <ui:ScrollView
+                    name="product-scroll"
+                    class="product-scroll"
+                    mode="Vertical">
+                    <ui:VisualElement
+                        name="product-list"
+                        class="product-list" />
+                    <ui:Label
+                        name="product-empty-state"
+                        text="No products match these filters."
+                        class="product-empty-state" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="purchasing-drafts">
+                <ui:VisualElement class="draft-heading">
+                    <ui:Label text="PURCHASE ORDERS" class="draft-heading__title" />
+                    <ui:Label
+                        text="One draft per supplier"
+                        class="draft-heading__subtitle" />
+                </ui:VisualElement>
+
+                <ui:ScrollView class="draft-scroll" mode="Vertical">
+                    <ui:VisualElement name="draft-list" class="draft-list" />
+                    <ui:Label
+                        name="draft-empty-state"
+                        text="No purchase orders staged yet.&#10;Add a case to begin one."
+                        class="draft-empty-state" />
+                </ui:ScrollView>
+
+                <ui:VisualElement class="draft-footer">
+                    <ui:VisualElement class="draft-footer__total-row">
+                        <ui:Label text="DRAFT TOTAL" class="draft-footer__label" />
+                        <ui:Label
+                            name="draft-grand-total"
+                            text="$0.00"
+                            class="draft-footer__total" />
+                    </ui:VisualElement>
+                    <ui:Button
+                        name="review-orders-button"
+                        text="REVIEW ORDERS"
+                        class="review-orders-button" />
+                    <ui:Label
+                        text="Minimums checked before placement."
+                        class="draft-footer__boundary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="order-review-overlay"
+            class="order-review-overlay"
+            picking-mode="Position">
+            <ui:VisualElement class="order-review-sheet">
+                <ui:VisualElement class="order-review-header">
+                    <ui:Label
+                        name="order-review-kicker"
+                        text="FINAL CHECK"
+                        class="order-review-kicker" />
+                    <ui:Label
+                        name="order-review-title"
+                        text="Review purchase orders"
+                        class="order-review-title" />
+                    <ui:Label
+                        name="order-review-timing"
+                        text="PLACING MONDAY · 9:00 AM"
+                        class="order-review-timing" />
+                </ui:VisualElement>
+
+                <ui:ScrollView
+                    class="order-review-scroll"
+                    mode="Vertical">
+                    <ui:VisualElement
+                        name="order-review-list"
+                        class="order-review-list" />
+                </ui:ScrollView>
+
+                <ui:VisualElement class="order-review-footer">
+                    <ui:Label
+                        name="order-review-blocker"
+                        text=""
+                        class="order-review-blocker" />
+                    <ui:VisualElement class="order-review-total-row">
+                        <ui:Label
+                            text="ORDER TOTAL"
+                            class="order-review-total-label" />
+                        <ui:Label
+                            name="order-review-grand-total"
+                            text="$0.00"
+                            class="order-review-grand-total" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="order-review-actions">
+                        <ui:Button
+                            name="order-review-back-button"
+                            text="BACK TO PURCHASING"
+                            class="order-review-secondary-button" />
+                        <ui:Button
+                            name="place-orders-button"
+                            text="PLACE ORDERS"
+                            class="order-review-primary-button" />
+                        <ui:Button
+                            name="order-confirmation-close-button"
+                            text="RETURN TO PURCHASING"
+                            class="order-review-primary-button confirmation-close-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Label
+            name="purchasing-error-state"
+            text="The commercial catalog could not be loaded."
+            class="purchasing-error-state" />
+    </ui:VisualElement>
+</ui:UXML>

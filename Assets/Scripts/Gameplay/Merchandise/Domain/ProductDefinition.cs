@@ -12,7 +12,11 @@ namespace BigRetail.Merchandise.Domain
     {
         public ProductId Id { get; }
         public string DisplayName { get; }
+        public BrandId BrandId { get; }
+        public string ProductLine { get; }
         public ProductCategoryId CategoryId { get; }
+        public MarketPosition MarketPosition { get; }
+        public string PackageForm { get; }
         public StockUnit StockUnit { get; }
 
 
@@ -20,6 +24,27 @@ namespace BigRetail.Merchandise.Domain
             ProductId id,
             string displayName,
             ProductCategoryId categoryId,
+            StockUnit stockUnit)
+            : this(
+                id,
+                displayName,
+                BrandId.Unbranded,
+                displayName,
+                categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
+                stockUnit)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            BrandId brandId,
+            string productLine,
+            ProductCategoryId categoryId,
+            MarketPosition marketPosition,
+            string packageForm,
             StockUnit stockUnit)
         {
             if (!id.IsValid)
@@ -43,6 +68,37 @@ namespace BigRetail.Merchandise.Domain
                     nameof(categoryId));
             }
 
+            if (!brandId.IsValid)
+            {
+                throw new ArgumentException(
+                    "A product definition requires a valid brand identifier.",
+                    nameof(brandId));
+            }
+
+            if (string.IsNullOrWhiteSpace(productLine))
+            {
+                throw new ArgumentException(
+                    "A product definition requires a product line.",
+                    nameof(productLine));
+            }
+
+            if (!Enum.IsDefined(
+                    typeof(MarketPosition),
+                    marketPosition))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(marketPosition),
+                    marketPosition,
+                    "The market position is not supported.");
+            }
+
+            if (string.IsNullOrWhiteSpace(packageForm))
+            {
+                throw new ArgumentException(
+                    "A product definition requires a customer package or form.",
+                    nameof(packageForm));
+            }
+
             if (!Enum.IsDefined(
                     typeof(StockUnit),
                     stockUnit))
@@ -55,7 +111,11 @@ namespace BigRetail.Merchandise.Domain
 
             Id = id;
             DisplayName = displayName.Trim();
+            BrandId = brandId;
+            ProductLine = productLine.Trim();
             CategoryId = categoryId;
+            MarketPosition = marketPosition;
+            PackageForm = packageForm.Trim();
             StockUnit = stockUnit;
         }
     }
