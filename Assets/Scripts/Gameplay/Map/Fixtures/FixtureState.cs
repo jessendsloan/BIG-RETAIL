@@ -180,7 +180,7 @@ namespace BigRetail.Map.Fixtures
             FixtureInstance fixture)
         {
             IReadOnlyList<FixtureAccessPoint> accessPoints =
-                FixtureAccessPointResolver.Resolve(fixture);
+                fixture.ReservedAccessPoints;
 
             for (int index = 0;
                  index < accessPoints.Count;
@@ -204,7 +204,7 @@ namespace BigRetail.Map.Fixtures
             FixtureInstance fixture)
         {
             IReadOnlyList<FixtureAccessPoint> accessPoints =
-                FixtureAccessPointResolver.Resolve(fixture);
+                fixture.ReservedAccessPoints;
 
             for (int index = 0;
                  index < accessPoints.Count;

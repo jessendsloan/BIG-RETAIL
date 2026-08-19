@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using BigRetail.Core.Session;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Foundations;
@@ -37,6 +39,17 @@ namespace BigRetail.Map.Unity
         private FoundationRuntimeHost foundationRuntimeHost;
 
 
+        [Header("Prototype Land Region Progression")]
+
+        [SerializeField]
+        [Min(0)]
+        private int firstExpansionPriceCents;
+
+        [SerializeField]
+        private string firstExpansionQualificationId =
+            "prototype.first_land_region";
+
+
         [Header("Diagnostics")]
 
         [SerializeField]
@@ -50,6 +63,34 @@ namespace BigRetail.Map.Unity
         }
 
         public ConstructionAreaDefinition ConstructionArea
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// The current construction gate. This combines the permanent
+        /// authored property boundary with mutable Land Region ownership.
+        /// </summary>
+        public IConstructionCellEligibility ConstructionEligibility
+        {
+            get;
+            private set;
+        }
+
+        public LandRegionCatalog LandRegions
+        {
+            get;
+            private set;
+        }
+
+        public LandRegionOwnershipState LandRegionOwnership
+        {
+            get;
+            private set;
+        }
+
+        public LandRegionPurchaseService LandRegionPurchases
         {
             get;
             private set;
@@ -212,6 +253,36 @@ namespace BigRetail.Map.Unity
                         .CreateConstructionAreaDefinition(
                             MapDefinition);
 
+                LandRegions =
+                    LandRegionCatalog.CreateFor(ConstructionArea);
+
+                LandRegionOwnership =
+                    new LandRegionOwnershipState(LandRegions);
+
+                if (GameSessionHost.ActiveMode == GameMode.Campaign)
+                {
+                    LandRegionOwnership.Own(
+                        LandRegionCatalog.FrontCornerRegionId);
+                }
+                else
+                {
+                    // Direct Gameplay launches and Sandbox sessions preserve
+                    // the established unrestricted construction workflow.
+                    LandRegionOwnership.OwnAll();
+                }
+
+                ConstructionEligibility =
+                    new LandRegionConstructionEligibility(
+                        ConstructionArea,
+                        LandRegions,
+                        LandRegionOwnership);
+
+                LandRegionPurchases =
+                    new LandRegionPurchaseService(
+                        LandRegions,
+                        LandRegionOwnership,
+                        CreatePrototypePurchaseOptions());
+
                 // The current map begins with no runtime walls.
                 // Save loading can supply restored walls here later.
                 WallState =
@@ -220,7 +291,7 @@ namespace BigRetail.Map.Unity
                 WallConstruction =
                     new WallConstructionService(
                         MapDefinition,
-                        ConstructionArea,
+                        ConstructionEligibility,
                         WallState,
                         foundationRuntimeHost);
 
@@ -271,6 +342,10 @@ namespace BigRetail.Map.Unity
                 DoorConstruction = null;
                 DoorAssemblies = null;
                 DoorDefinitions = null;
+                LandRegionPurchases = null;
+                ConstructionEligibility = null;
+                LandRegionOwnership = null;
+                LandRegions = null;
                 WallAppearanceStrokes = null;
                 WallFinishes?.Dispose();
                 WallFinishes = null;
@@ -292,10 +367,64 @@ namespace BigRetail.Map.Unity
                 + $"Valid cells: {MapDefinition.ValidCellCount}. "
                 + $"Construction-eligible cells: "
                 + $"{ConstructionArea.EligibleCellCount}. "
+                + $"Owned Land Regions: "
+                + $"{LandRegionOwnership.OwnedRegionCount}/"
+                + $"{LandRegionCatalog.RegionCount}. "
                 + $"Initial walls: {WallState.WallCount}. "
                 + $"Wall finishes: {WallFinishCatalog.Count}. "
                 + $"Door definitions: {DoorDefinitionAssets.Count}.",
                 this);
+        }
+
+
+        /// <summary>
+        /// Temporary, inspector-accessible proof of the ownership transition.
+        /// A future campaign/economy flow will authorize payment and permit
+        /// requirements before calling the same purchase service.
+        /// </summary>
+        [ContextMenu("Testing/Purchase First Available Land Region")]
+        public void PurchaseFirstAvailableLandRegionForTesting()
+        {
+            if (LandRegionPurchases == null)
+            {
+                Debug.LogWarning(
+                    "Land Region purchases are not initialized.",
+                    this);
+                return;
+            }
+
+            foreach (LandRegionPurchaseOption option in
+                     LandRegionPurchases.EnumerateAvailableOptions())
+            {
+                LandRegionPurchaseResult result =
+                    LandRegionPurchases.TryCompletePurchase(
+                        option.RegionId);
+
+                Debug.Log(
+                    result.Succeeded
+                        ? $"Purchased {result.RegionId} for testing."
+                        : $"Could not purchase {result.RegionId}: "
+                            + $"{result.Failure}.",
+                    this);
+                return;
+            }
+
+            Debug.LogWarning(
+                "No offered adjacent Land Region is currently available.",
+                this);
+        }
+
+
+        private IEnumerable<LandRegionPurchaseOption>
+            CreatePrototypePurchaseOptions()
+        {
+            // This is intentionally only the first adjacent expansion. The
+            // final price, permit ladder, and remaining region offers are not
+            // locked by the current design patch.
+            yield return new LandRegionPurchaseOption(
+                new LandRegionId(1, 0),
+                firstExpansionPriceCents,
+                firstExpansionQualificationId);
         }
     }
 }

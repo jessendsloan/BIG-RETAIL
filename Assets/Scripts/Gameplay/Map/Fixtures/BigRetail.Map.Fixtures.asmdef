@@ -2,8 +2,11 @@
     "name": "BigRetail.Map.Fixtures",
     "rootNamespace": "BigRetail.Map.Fixtures",
     "references": [
+        "BigRetail.Economy.Domain",
+        "BigRetail.Inventory.Domain",
         "BigRetail.Map.Construction",
-        "BigRetail.Map.Domain"
+        "BigRetail.Map.Domain",
+        "BigRetail.Merchandise.Domain"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

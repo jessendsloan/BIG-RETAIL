@@ -57,17 +57,12 @@ namespace BigRetail.Inventory.Domain
                         nameof(locations));
                 }
 
-                if (this.locations.ContainsKey(
-                        location.Id))
+                if (!TryRegisterLocation(location))
                 {
                     throw new ArgumentException(
                         $"Storage location '{location.Id}' is duplicated.",
                         nameof(locations));
                 }
-
-                this.locations.Add(
-                    location.Id,
-                    location);
             }
 
             quantities =
@@ -95,6 +90,47 @@ namespace BigRetail.Inventory.Domain
         {
             return locations.ContainsKey(
                 locationId);
+        }
+
+        public bool TryRegisterLocation(
+            StorageLocationDefinition location)
+        {
+            if (location == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(location));
+            }
+
+            if (locations.ContainsKey(location.Id))
+            {
+                return false;
+            }
+
+            locations.Add(
+                location.Id,
+                location);
+
+            return true;
+        }
+
+        public bool TryRemoveLocation(
+            StorageLocationId locationId)
+        {
+            if (!locations.ContainsKey(locationId))
+            {
+                return false;
+            }
+
+            foreach (KeyValuePair<InventoryKey, int> entry in quantities)
+            {
+                if (entry.Key.LocationId == locationId
+                    && entry.Value > 0)
+                {
+                    return false;
+                }
+            }
+
+            return locations.Remove(locationId);
         }
 
         public StorageLocationDefinition GetLocationRequired(
@@ -208,6 +244,45 @@ namespace BigRetail.Inventory.Domain
 
             quantities[destinationKey] =
                 destinationQuantity + quantity;
+        }
+
+        internal void ApplyRemoval(
+            StorageLocationId locationId,
+            ProductId productId,
+            int quantity)
+        {
+            InventoryKey key =
+                new InventoryKey(
+                    locationId,
+                    productId);
+
+            int remainingQuantity =
+                quantities[key] - quantity;
+
+            if (remainingQuantity == 0)
+            {
+                quantities.Remove(key);
+                return;
+            }
+
+            quantities[key] = remainingQuantity;
+        }
+
+        internal void ApplyAddition(
+            StorageLocationId locationId,
+            ProductId productId,
+            int quantity)
+        {
+            InventoryKey key =
+                new InventoryKey(
+                    locationId,
+                    productId);
+
+            quantities[key] =
+                GetQuantityUnchecked(
+                    locationId,
+                    productId)
+                + quantity;
         }
 
 

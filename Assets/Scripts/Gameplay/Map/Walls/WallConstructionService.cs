@@ -14,7 +14,7 @@ namespace BigRetail.Map.Walls
     public sealed class WallConstructionService
     {
         private readonly GridMapDefinition mapDefinition;
-        private readonly ConstructionAreaDefinition constructionArea;
+        private readonly IConstructionCellEligibility constructionArea;
         private readonly WallState wallState;
         private readonly IFoundationSupportQuery foundationSupport;
 
@@ -25,7 +25,7 @@ namespace BigRetail.Map.Walls
 
         public WallConstructionService(
             GridMapDefinition mapDefinition,
-            ConstructionAreaDefinition constructionArea,
+            IConstructionCellEligibility constructionArea,
             WallState wallState,
             IFoundationSupportQuery foundationSupport)
         {

@@ -85,7 +85,7 @@ namespace BigRetail.Map.Unity.Fixtures
             if (mapHost == null
                 || !mapHost.IsInitialized
                 || mapHost.MapDefinition == null
-                || mapHost.ConstructionArea == null
+                || mapHost.ConstructionEligibility == null
                 || floorRuntimeHost == null
                 || !floorRuntimeHost.TryInitialize()
                 || floorRuntimeHost.FloorState == null
@@ -101,7 +101,7 @@ namespace BigRetail.Map.Unity.Fixtures
                 FixturePlacement =
                     new FixturePlacementService(
                         mapHost.MapDefinition,
-                        mapHost.ConstructionArea,
+                        mapHost.ConstructionEligibility,
                         Definitions,
                         FixtureState,
                         this);
@@ -162,8 +162,8 @@ namespace BigRetail.Map.Unity.Fixtures
             return mapHost != null
                 && mapHost.MapDefinition != null
                 && mapHost.MapDefinition.ContainsCell(cell)
-                && mapHost.ConstructionArea != null
-                && mapHost.ConstructionArea.IsEligible(cell)
+                && mapHost.ConstructionEligibility != null
+                && mapHost.ConstructionEligibility.IsEligible(cell)
                 && HasFloor(cell)
                 && !HasWall(accessPoint.BoundaryEdge);
         }

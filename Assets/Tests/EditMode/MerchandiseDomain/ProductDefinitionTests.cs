@@ -4,7 +4,8 @@ using NUnit.Framework;
 namespace BigRetail.Merchandise.Domain.Tests
 {
     /// <summary>
-    /// Locks down the minimum shared data required to describe one product.
+    /// Locks down the shared data required to describe one product while the
+    /// existing fixture graybox transitions to supplier-backed purchasing.
     /// </summary>
     public sealed class ProductDefinitionTests
     {
@@ -20,7 +21,9 @@ namespace BigRetail.Merchandise.Domain.Tests
                     new ProductCategoryId("produce"),
                     MarketPosition.Standard,
                     "Single Tomato",
-                    StockUnit.Each);
+                    StockUnit.Each,
+                    wholesaleCaseCostCents: 4200,
+                    retailUnitPriceCents: 299);
 
             Assert.That(
                 definition.Id,
@@ -55,6 +58,14 @@ namespace BigRetail.Merchandise.Domain.Tests
             Assert.That(
                 definition.PackageForm,
                 Is.EqualTo("Single Tomato"));
+
+            Assert.That(
+                definition.WholesaleCaseCostCents,
+                Is.EqualTo(4200));
+
+            Assert.That(
+                definition.RetailUnitPriceCents,
+                Is.EqualTo(299));
         }
 
         [Test]
@@ -70,6 +81,25 @@ namespace BigRetail.Merchandise.Domain.Tests
             Assert.That(definition.BrandId, Is.EqualTo(BrandId.Unbranded));
             Assert.That(definition.ProductLine, Is.EqualTo("Graybox Cola"));
             Assert.That(definition.PackageForm, Is.EqualTo("Each"));
+            Assert.That(definition.WholesaleCaseCostCents, Is.Zero);
+            Assert.That(definition.RetailUnitPriceCents, Is.Zero);
+        }
+
+        [Test]
+        public void GrayboxCostConstructor_PreservesTemporaryGameplayValues()
+        {
+            ProductDefinition definition =
+                new ProductDefinition(
+                    new ProductId("GRAYBOX-CEREAL"),
+                    "Graybox Cereal",
+                    new ProductCategoryId("GROCERY"),
+                    StockUnit.Each,
+                    wholesaleCaseCostCents: 3600,
+                    retailUnitPriceCents: 249);
+
+            Assert.That(definition.WholesaleCaseCostCents, Is.EqualTo(3600));
+            Assert.That(definition.RetailUnitPriceCents, Is.EqualTo(249));
+            Assert.That(definition.BrandId, Is.EqualTo(BrandId.Unbranded));
         }
 
         [Test]

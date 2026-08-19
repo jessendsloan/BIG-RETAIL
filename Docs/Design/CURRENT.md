@@ -6,7 +6,7 @@
 
 The opening **Products → Suppliers → Purchasing** commercial foundation now exists as authored data and a playable workspace through PO placement and supplier scheduling.
 
-The current review boundary is deliberately after order placement but before campaign spending or physical delivery. Purchasing can now expose the time consequence of each supplier choice without pretending that inventory has arrived.
+The supplier workspace currently stops after order placement and scheduling. Main now also has a separate opening-day graybox for cash, pending cases, receiving, backstock, fixtures, sales, and the live simulation clock. The next integration seam is to let the supplier-backed purchase orders drive those campaign systems instead of the temporary fixed-case shortcut.
 
 ## Locked foundations
 
@@ -20,6 +20,11 @@ The current review boundary is deliberately after order placement but before cam
 - A supplier may be used as a filter/lens over the same product-oriented Purchasing workspace.
 - Fixtures declare what the store wants to merchandise; inventory records what the store actually has; stocking reconciles the two.
 - Stocking consumes inventory. It does not directly purchase inventory.
+- The current property is **96 × 96 tiles = 9,216 tiles**.
+- The property is subdivided into a **3 × 3 grid of nine 32 × 32 land regions**, each containing 1,024 tiles.
+- The player begins owning only the **front corner land region at the road intersection**, making the opening business literally a corner store.
+- The remaining eight land regions are progression/acquisition space.
+- Milton "Mr. BIG" Big should tutorialize the **first** land-region purchase; after that handoff, land acquisition should be player-directed when regions are eligible and affordable.
 
 ## Opening Product foundation
 
@@ -107,9 +112,36 @@ He is a recurring campaign spine with three simultaneous roles:
 
 BIG helped finance the player's beginning, owns the player's debt, and owns BIG Wholesale. Mr. BIG is charming, useful, slightly unfair, and profits from the player's dependence. The long-term relationship should shift from the player adapting to BIG toward BIG eventually wanting the player's business.
 
+His tutorial role now also includes guiding the player's **first property expansion purchase**, after which the permanent land-acquisition system becomes player-directed.
+
+## Progression design thread — partially locked
+
+The canonical progression patch is `Patches/PermitParcelProgression.md` (the filename is retained for continuity; the design terminology inside now uses **Land Region**).
+
+Locked property facts:
+
+- 96 × 96 total property.
+- 9,216 tiles total.
+- Nine equal 32 × 32 land regions arranged 3 × 3.
+- One front-corner region owned at game start.
+- Eight regions remain for later acquisition.
+- Milton guides the first purchase only.
+- Later eligible/affordable land acquisition is controlled by the player.
+
+Still exploratory:
+
+- Avoid arbitrary XP-style department unlocks where possible.
+- Use **permits** as visible progression gates tied to concrete store requirements.
+- Keep **permit, infrastructure, and department** as separate concepts: permission/qualification → physical capability → commercial operation.
+- Let employees, suppliers, utilities, security, receiving, parking, and other systems become department requirements where appropriate rather than making one system the universal gate.
+- The exact permit tiers, Grocery gate, land prices, region eligibility order, and permit-to-land relationship remain open.
+- The existing `ConstructionAreaDefinition` already separates physical construction eligibility from ownership/progression/cost rules and is the preferred seam for a future land-region ownership layer.
+
+This progression work should not interrupt the current purchasing integration target unless a gameplay chat is explicitly tasked with prototyping land-region ownership.
+
 ## Current implementation state
 
-The opening implementation is flat and intentionally bounded:
+The supplier-backed opening implementation is flat and intentionally bounded:
 
 - 10 authored Brands
 - 12 authored opening Products / SKUs
@@ -124,6 +156,16 @@ The opening implementation is flat and intentionally bounded:
 - a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
 - stub-ready image slots on Product, Brand, and Supplier assets
 - isolated `PurchasingWorkspaceLab` and `CommercialDirectoryLab` scenes; no campaign or gameplay scene integration yet
+
+Main independently provides the campaign-side systems needed for the next pass:
+
+- a deterministic Monday-starting simulation clock installed in `Gameplay`
+- opening store cash and checkout revenue
+- fixture planograms, display inventory, physical backstock, stocking, and receiving
+- a temporary fixed-case ordering shortcut that spends cash immediately and creates pending units
+- the opening campaign presentation and the first land-region ownership/progression foundation
+
+The temporary fixture ordering shortcut keeps wholesale case cost and retail unit price on the Product only for graybox compatibility. Permanent supplier prices, purchase-pack quantities, minimums, and delivery rules remain owned by Supplier Offers.
 
 The implemented seam proves:
 
@@ -150,6 +192,7 @@ Supplier minimum and delivery rules are supplier-wide in this opening model. Pur
 ## Deferred for later
 
 - Supplier Accounts & Relationships — preserved as a design patch in `Patches/SupplierAccountsAndRelationships.md`
+- Full permit / department progression schedule — continuing design lives in `Patches/PermitParcelProgression.md`
 - Negotiations
 - Contracts
 - Credit terms and invoices
@@ -164,7 +207,7 @@ Supplier minimum and delivery rules are supplier-wide in this opening model. Pur
 
 ## Next design question
 
-Playtest and critique the placement and scheduling pass:
+Integrate and playtest the placement and scheduling pass against the campaign systems:
 
 - Is choosing the Product before the Supplier Offer natural?
 - Are pack size, unit cost, case price, and delivery timing legible enough to compare?
@@ -173,5 +216,8 @@ Playtest and critique the placement and scheduling pass:
 - Do the v0.1 offers make BIG feel flexible and expensive, Central planned and economical, and Beacon specialized and schedule-bound?
 - Does the review sheet make **when each order arrives** obvious enough to drive the Supplier decision?
 - Does an unmet Supplier minimum explain clearly why placement is blocked?
+- Does Purchasing use the live campaign clock rather than a lab-only Monday 9:00 AM value?
+- Does placement spend store cash atomically and reject an unaffordable batch without partially committing orders?
+- Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
 
-If that interaction survives review, connect its explicit seams to the campaign clock and economy before beginning **Checkpoint 7: Delivery / Receiving / Owned Inventory**.
+Replace the temporary fixed-case fixture ordering path only after the supplier-backed path proves clock, cash, delivery, and owned-inventory behavior in the gameplay scene.

@@ -19,6 +19,17 @@ namespace BigRetail.Merchandise.Domain
         public string PackageForm { get; }
         public StockUnit StockUnit { get; }
 
+        /// <summary>
+        /// Temporary graybox purchasing value retained for the existing
+        /// fixture workflow. Supplier purchasing prices live on Supplier Offers.
+        /// </summary>
+        public long WholesaleCaseCostCents { get; }
+
+        /// <summary>
+        /// Temporary graybox shelf price retained for the opening gameplay loop.
+        /// </summary>
+        public long RetailUnitPriceCents { get; }
+
 
         public ProductDefinition(
             ProductId id,
@@ -33,7 +44,50 @@ namespace BigRetail.Merchandise.Domain
                 categoryId,
                 MarketPosition.Standard,
                 stockUnit.ToString(),
-                stockUnit)
+                stockUnit,
+                wholesaleCaseCostCents: 0,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents)
+            : this(
+                id,
+                displayName,
+                BrandId.Unbranded,
+                displayName,
+                categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
+                stockUnit,
+                wholesaleCaseCostCents,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents,
+            long retailUnitPriceCents)
+            : this(
+                id,
+                displayName,
+                BrandId.Unbranded,
+                displayName,
+                categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
+                stockUnit,
+                wholesaleCaseCostCents,
+                retailUnitPriceCents)
         {
         }
 
@@ -46,6 +100,31 @@ namespace BigRetail.Merchandise.Domain
             MarketPosition marketPosition,
             string packageForm,
             StockUnit stockUnit)
+            : this(
+                id,
+                displayName,
+                brandId,
+                productLine,
+                categoryId,
+                marketPosition,
+                packageForm,
+                stockUnit,
+                wholesaleCaseCostCents: 0,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            BrandId brandId,
+            string productLine,
+            ProductCategoryId categoryId,
+            MarketPosition marketPosition,
+            string packageForm,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents,
+            long retailUnitPriceCents)
         {
             if (!id.IsValid)
             {
@@ -109,6 +188,22 @@ namespace BigRetail.Merchandise.Domain
                     "The stock unit is not supported.");
             }
 
+            if (wholesaleCaseCostCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(wholesaleCaseCostCents),
+                    wholesaleCaseCostCents,
+                    "A wholesale case cost cannot be negative.");
+            }
+
+            if (retailUnitPriceCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(retailUnitPriceCents),
+                    retailUnitPriceCents,
+                    "A retail unit price cannot be negative.");
+            }
+
             Id = id;
             DisplayName = displayName.Trim();
             BrandId = brandId;
@@ -117,6 +212,8 @@ namespace BigRetail.Merchandise.Domain
             MarketPosition = marketPosition;
             PackageForm = packageForm.Trim();
             StockUnit = stockUnit;
+            WholesaleCaseCostCents = wholesaleCaseCostCents;
+            RetailUnitPriceCents = retailUnitPriceCents;
         }
     }
 }

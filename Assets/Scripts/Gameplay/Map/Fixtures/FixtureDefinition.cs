@@ -18,6 +18,10 @@ namespace BigRetail.Map.Fixtures
 
         public FixtureAccessProfile AccessProfile { get; }
 
+        public FixtureMerchandisingProfile MerchandisingProfile { get; }
+
+        public FixtureStorageProfile StorageProfile { get; }
+
         public int OccupiedCellCount =>
             WidthInCells * DepthInCells;
 
@@ -27,7 +31,9 @@ namespace BigRetail.Map.Fixtures
             string displayName,
             int widthInCells,
             int depthInCells,
-            FixtureAccessProfile accessProfile = null)
+            FixtureAccessProfile accessProfile = null,
+            FixtureMerchandisingProfile merchandisingProfile = null,
+            FixtureStorageProfile storageProfile = null)
         {
             if (!id.IsValid)
             {
@@ -66,6 +72,15 @@ namespace BigRetail.Map.Fixtures
             AccessProfile =
                 accessProfile
                 ?? FixtureAccessProfile.None;
+
+            MerchandisingProfile =
+                merchandisingProfile
+                ?? FixtureMerchandisingProfile
+                    .CreateForCustomerBrowseSides(AccessProfile);
+
+            StorageProfile =
+                storageProfile
+                ?? FixtureStorageProfile.None;
         }
     }
 }

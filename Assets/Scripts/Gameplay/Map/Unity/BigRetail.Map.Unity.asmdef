@@ -2,13 +2,18 @@
     "name": "BigRetail.Map.Unity",
     "rootNamespace": "",
     "references": [
+        "BigRetail.Economy.Domain",
+        "BigRetail.Inventory.Domain",
         "GUID:2adc117b32cbf824880b2318c05f811f",
         "GUID:3e0085d755156984c9206a564893fbf3",
         "GUID:f97694ec91e9dec47acd350236c67162",
         "GUID:c9c44a018e8457d42b603bc0ef17c3da",
         "GUID:7e133162d1b908c64c689b4927278fff",
         "BigRetail.Map.Foundations",
-        "BigRetail.Map.Fixtures"
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Merchandise.Domain",
+        "BigRetail.Merchandise.Unity",
+        "BigRetail.Session"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

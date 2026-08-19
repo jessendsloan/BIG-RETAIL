@@ -7,6 +7,69 @@
         picking-mode="Ignore">
 
         <ui:VisualElement
+            name="store-cash-hud"
+            class="store-cash-hud"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="STORE CASH"
+                class="store-cash-hud__caption"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="store-cash-value"
+                text="$0.00"
+                class="store-cash-hud__value"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="simulation-clock"
+            class="simulation-clock"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                class="simulation-clock__readout"
+                picking-mode="Ignore">
+                <ui:Label
+                    name="simulation-clock-day"
+                    text="MONDAY  •  DAY 1"
+                    class="simulation-clock__day"
+                    picking-mode="Ignore" />
+                <ui:Label
+                    name="simulation-clock-time"
+                    text="8:00 AM"
+                    class="simulation-clock__time"
+                    picking-mode="Ignore" />
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                class="simulation-clock__speeds"
+                picking-mode="Position">
+                <ui:Button
+                    name="simulation-speed-pause"
+                    text="Ⅱ"
+                    class="simulation-clock__speed"
+                    tooltip="Pause simulation time." />
+                <ui:Button
+                    name="simulation-speed-one"
+                    text="1×"
+                    class="simulation-clock__speed is-selected"
+                    tooltip="Run at normal speed." />
+                <ui:Button
+                    name="simulation-speed-two"
+                    text="2×"
+                    class="simulation-clock__speed"
+                    tooltip="Run at double speed." />
+                <ui:Button
+                    name="simulation-speed-four"
+                    text="4×"
+                    class="simulation-clock__speed"
+                    tooltip="Run at quadruple speed." />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
             name="department-picker"
             class="department-picker"
             picking-mode="Position">
@@ -20,6 +83,391 @@
                 name="department-picker-items"
                 class="department-picker__items"
                 picking-mode="Position" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="fixture-merchandising-inspector"
+            class="fixture-merchandising-inspector"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                class="fixture-merchandising-inspector__header"
+                picking-mode="Position">
+
+                <ui:Label
+                    name="fixture-merchandising-title"
+                    text="Fixture"
+                    class="fixture-merchandising-inspector__title"
+                    picking-mode="Ignore" />
+
+                <ui:Button
+                    name="fixture-merchandising-close-button"
+                    text="X"
+                    class="fixture-merchandising-inspector__close-button"
+                    tooltip="Close fixture inspector." />
+            </ui:VisualElement>
+
+            <ui:Label
+                name="fixture-merchandising-status"
+                text="Fixture planogram."
+                class="fixture-merchandising-inspector__status"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                name="fixture-merchandising-overview"
+                class="fixture-merchandising-inspector__overview"
+                picking-mode="Position">
+
+                <ui:Label
+                    text="Department / zone: not connected"
+                    class="fixture-merchandising-inspector__subtitle"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="DISPLAY INVENTORY ACTIVE  -  JOBS / SALES NOT CONNECTED"
+                    class="fixture-merchandising-inspector__preview-badge"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__summary"
+                    picking-mode="Ignore">
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="Planogram"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-planogram-value"
+                            text="0 / 0 assigned"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="Products"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-products-value"
+                            text="0 products"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Shelf stock"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-shelf-stock-value"
+                            text="0 / 0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Backstock"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-backstock-value"
+                            text="0 units available"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Sales today"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-sales-today-value"
+                            text="--"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Restock status"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-merchandising-restock-status-value"
+                            text="Awaiting planogram"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__action-row"
+                    picking-mode="Position">
+
+                    <ui:Button
+                        name="fixture-merchandising-edit-button"
+                        text="Edit Products"
+                        class="fixture-merchandising-inspector__primary-button fixture-merchandising-inspector__action-button" />
+
+                    <ui:Button
+                        name="fixture-merchandising-restock-button"
+                        text="Restock Now"
+                        class="fixture-merchandising-inspector__secondary-button fixture-merchandising-inspector__action-button"
+                        tooltip="Move matching backstock directly onto this fixture." />
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__automation-row"
+                    picking-mode="Position">
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__automation-copy"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Auto Restock"
+                            class="fixture-merchandising-inspector__automation-title" />
+                        <ui:Label
+                            text="Requires inventory and worker jobs"
+                            class="fixture-merchandising-inspector__automation-note" />
+                    </ui:VisualElement>
+
+                    <ui:Button
+                        name="fixture-merchandising-auto-restock-button"
+                        text="Not Connected"
+                        class="fixture-merchandising-inspector__automation-button"
+                        tooltip="Auto Restock is a future operations hookup." />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                name="fixture-storage-overview"
+                class="fixture-merchandising-inspector__storage-overview"
+                picking-mode="Position">
+
+                <ui:ScrollView
+                    name="fixture-storage-scroll"
+                    class="fixture-merchandising-inspector__storage-scroll"
+                    horizontal-scroller-visibility="Hidden"
+                    vertical-scroller-visibility="Auto">
+
+                <ui:Label
+                    text="Physical backstock rack"
+                    class="fixture-merchandising-inspector__subtitle"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="RACK INVENTORY + RECEIVING ACTIVE  -  CASH / WORKERS NOT CONNECTED"
+                    class="fixture-merchandising-inspector__preview-badge"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="Stock is assigned to this rack. Received cases are distributed automatically; excess waits in inbound / overflow."
+                    class="fixture-merchandising-inspector__storage-note"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__summary"
+                    picking-mode="Ignore">
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="This rack"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-rack-capacity-value"
+                            text="0 / 0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
+                        <ui:Label
+                            text="Store capacity"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-total-capacity-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Stored"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-stored-value"
+                            text="0 / 0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Inbound / overflow"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-unallocated-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Free space"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-free-space-value"
+                            text="0 units"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__summary-row">
+                        <ui:Label
+                            text="Storage status"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-storage-status-value"
+                            text="Unavailable"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:Label
+                    text="This rack contains"
+                    class="fixture-merchandising-inspector__subtitle"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    name="fixture-storage-contents"
+                    class="fixture-merchandising-inspector__storage-contents"
+                    picking-mode="Ignore">
+                    <ui:Label
+                        text="Empty"
+                        class="fixture-merchandising-inspector__storage-empty"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="fixture-merchandising-inspector__purchasing"
+                    picking-mode="Position">
+
+                    <ui:Label
+                        text="Case Purchasing"
+                        class="fixture-merchandising-inspector__subtitle"
+                        picking-mode="Ignore" />
+
+                    <ui:Label
+                        text="Case orders spend store cash immediately. Receive the pending shipment when you are ready; supplier timing and delivery workers come later."
+                        class="fixture-merchandising-inspector__purchasing-note"
+                        picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__purchasing-summary fixture-merchandising-inspector__purchasing-summary--cash"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Available cash"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-purchasing-cash-value"
+                            text="$0.00"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--cash" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement
+                        name="fixture-purchasing-products"
+                        class="fixture-merchandising-inspector__purchasing-products"
+                        picking-mode="Position" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__purchasing-summary"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            text="Pending delivery"
+                            class="fixture-merchandising-inspector__summary-label" />
+                        <ui:Label
+                            name="fixture-purchasing-pending-value"
+                            text="No cases ordered"
+                            class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--pending" />
+                    </ui:VisualElement>
+
+                    <ui:Button
+                        name="fixture-purchasing-receive-button"
+                        text="Receive Pending Delivery"
+                        class="fixture-merchandising-inspector__receive-button"
+                        tooltip="Convert every pending case order into real inbound inventory." />
+
+                    <ui:Label
+                        name="fixture-purchasing-status"
+                        text="Place a case order to begin."
+                        class="fixture-merchandising-inspector__purchasing-status"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <ui:VisualElement
+                name="fixture-merchandising-editing"
+                class="fixture-merchandising-inspector__editing"
+                picking-mode="Position">
+
+                <ui:Label
+                    name="fixture-merchandising-shelf"
+                    text="Choose a shelf slot"
+                    class="fixture-merchandising-inspector__shelf-label"
+                    picking-mode="Ignore" />
+
+                <ui:Label
+                    text="Light = empty  |  Gold = selected  |  Product color = assigned"
+                    class="fixture-merchandising-inspector__color-legend"
+                    picking-mode="Ignore" />
+
+                <ui:VisualElement
+                    name="fixture-merchandising-frontage-controls"
+                    class="fixture-merchandising-inspector__frontage-controls"
+                    picking-mode="Position">
+
+                    <ui:VisualElement
+                        name="fixture-merchandising-products"
+                        class="fixture-merchandising-inspector__products"
+                        picking-mode="Position" />
+
+                    <ui:VisualElement
+                        class="fixture-merchandising-inspector__width-row"
+                        picking-mode="Position">
+
+                        <ui:Button
+                            name="fixture-merchandising-width-decrease"
+                            text="-"
+                            class="fixture-merchandising-inspector__step-button"
+                            tooltip="Use one fewer shelf slot." />
+
+                        <ui:Label
+                            name="fixture-merchandising-width"
+                            text="Width: 1 of 4 slots"
+                            class="fixture-merchandising-inspector__width-label"
+                            picking-mode="Ignore" />
+
+                        <ui:Button
+                            name="fixture-merchandising-width-increase"
+                            text="+"
+                            class="fixture-merchandising-inspector__step-button"
+                            tooltip="Use one more shelf slot." />
+                    </ui:VisualElement>
+
+                    <ui:Button
+                        name="fixture-merchandising-clear-button"
+                        text="Clear Product"
+                        class="fixture-merchandising-inspector__secondary-button" />
+                </ui:VisualElement>
+
+                <ui:Button
+                    name="fixture-merchandising-done-button"
+                    text="Done"
+                    class="fixture-merchandising-inspector__primary-button" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement
@@ -264,6 +712,15 @@
                 picking-mode="Ignore" />
         </ui:Button>
 
+        <ui:Button
+            name="merchandise-tool-button"
+            class="construction-toolbar__button merchandise-tool-button"
+            tooltip="Merchandise fixtures">
+            <ui:VisualElement
+                class="construction-toolbar__icon construction-toolbar__icon--departments"
+                picking-mode="Ignore" />
+        </ui:Button>
+
         <ui:VisualElement
             name="construction-toolbar"
             class="construction-toolbar"
@@ -354,6 +811,87 @@
                         class="construction-toolbar__icon construction-toolbar__icon--redo"
                         picking-mode="Ignore" />
                 </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="campaign-objective-card"
+            class="campaign-objective-card"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="CURRENT OBJECTIVE"
+                class="campaign-objective-card__caption"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="campaign-objective-title"
+                text="Make It a Store"
+                class="campaign-objective-card__title"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="campaign-objective-description"
+                text="Build a store shell with an entrance and room for merchandise."
+                class="campaign-objective-card__description"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="campaign-opening-overlay"
+            class="campaign-opening-overlay"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                class="campaign-opening-panel"
+                picking-mode="Position">
+
+                <ui:VisualElement
+                    class="campaign-opening-panel__portrait-frame"
+                    picking-mode="Ignore">
+                    <ui:VisualElement
+                        class="campaign-opening-panel__portrait"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="campaign-opening-panel__content"
+                    picking-mode="Position">
+
+                    <ui:VisualElement
+                        class="campaign-opening-panel__header"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            name="campaign-opening-speaker"
+                            text="MILTON BIG"
+                            class="campaign-opening-panel__speaker"
+                            picking-mode="Ignore" />
+                        <ui:Label
+                            name="campaign-opening-progress"
+                            text="1 / 3"
+                            class="campaign-opening-panel__progress"
+                            picking-mode="Ignore" />
+                    </ui:VisualElement>
+
+                    <ui:Label
+                        name="campaign-opening-dialogue"
+                        text="There she is."
+                        class="campaign-opening-panel__dialogue"
+                        picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        class="campaign-opening-panel__actions"
+                        picking-mode="Position">
+                        <ui:Button
+                            name="campaign-opening-skip"
+                            text="Skip Introduction"
+                            class="campaign-opening-panel__button campaign-opening-panel__button--secondary" />
+                        <ui:Button
+                            name="campaign-opening-continue"
+                            text="Continue"
+                            class="campaign-opening-panel__button campaign-opening-panel__button--primary" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

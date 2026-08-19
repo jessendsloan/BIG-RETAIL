@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.View;
 using UnityEngine;
@@ -88,6 +89,25 @@ namespace BigRetail.Map.Unity.Fixtures
         [SerializeField]
         private Vector3 worldPositionOffset = Vector3.zero;
 
+        [Header("Directional Merchandising Masks")]
+
+        [Tooltip(
+            "Optional authored shelf surfaces grouped by logical fixture "
+            + "display face. A direction can remain empty when that face is "
+            + "hidden by the matching presentation sprite.")]
+        [SerializeField]
+        private FixtureMerchandisingMaskSet[] merchandisingMaskSets =
+            Array.Empty<FixtureMerchandisingMaskSet>();
+
+        [Header("Directional Backstock Shelf Masks")]
+
+        [Tooltip(
+            "Optional authored shelf surfaces used to align visible "
+            + "backstock case markers. Masks are ordered top to bottom.")]
+        [SerializeField]
+        private FixtureStorageShelfMaskSet storageShelfMasks =
+            new FixtureStorageShelfMaskSet();
+
         [Header("Retail Access")]
 
         [Tooltip(
@@ -109,6 +129,22 @@ namespace BigRetail.Map.Unity.Fixtures
             "Interactions supported from the authored negative-X side.")]
         [SerializeField]
         private FixtureAccessMode westAccess = FixtureAccessMode.None;
+
+        [Tooltip(
+            "All authored access points are normally required. Storage racks "
+            + "may instead require one complete usable side.")]
+        [SerializeField]
+        private FixtureAccessClearancePolicy accessClearancePolicy =
+            FixtureAccessClearancePolicy.AllAuthoredAccessPoints;
+
+        [Header("Backstock Storage")]
+
+        [Min(0)]
+        [Tooltip(
+            "Physical product capacity owned by this placed rack. Zero means "
+            + "the fixture is not backstock storage.")]
+        [SerializeField]
+        private int backstockCapacityUnits;
 
 
         public FixtureDefinitionId Id
@@ -137,6 +173,32 @@ namespace BigRetail.Map.Unity.Fixtures
         public Vector3 WorldPositionOffset =>
             worldPositionOffset;
 
+        public bool HasAnyMerchandisingShelfMasks
+        {
+            get
+            {
+                if (merchandisingMaskSets == null)
+                {
+                    return false;
+                }
+
+                for (int index = 0;
+                     index < merchandisingMaskSets.Length;
+                     index++)
+                {
+                    if (merchandisingMaskSets[index]?.HasAnyMasks == true)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        public bool HasStorageShelfMasks =>
+            storageShelfMasks?.HasAnyMasks == true;
+
 
         public FixtureDefinition CreateDomainDefinition()
         {
@@ -151,7 +213,11 @@ namespace BigRetail.Map.Unity.Fixtures
                     northAccess,
                     eastAccess,
                     southAccess,
-                    westAccess));
+                    westAccess,
+                    accessClearancePolicy),
+                storageProfile:
+                    new FixtureStorageProfile(
+                        backstockCapacityUnits));
         }
 
 
@@ -209,6 +275,74 @@ namespace BigRetail.Map.Unity.Fixtures
         }
 
 
+        public IReadOnlyList<Sprite> GetMerchandisingShelfMasks(
+            FixtureSide localDisplaySide,
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation)
+        {
+            if (merchandisingMaskSets == null)
+            {
+                return Array.Empty<Sprite>();
+            }
+
+            for (int index = 0;
+                 index < merchandisingMaskSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingMaskSet maskSet =
+                    merchandisingMaskSets[index];
+
+                if (maskSet != null
+                    && maskSet.LocalDisplaySide == localDisplaySide)
+                {
+                    return maskSet.GetShelfMasks(
+                        worldOrientation,
+                        viewOrientation);
+                }
+            }
+
+            return Array.Empty<Sprite>();
+        }
+
+
+        public bool HasMerchandisingShelfMasks(
+            FixtureSide localDisplaySide)
+        {
+            if (merchandisingMaskSets == null)
+            {
+                return false;
+            }
+
+            for (int index = 0;
+                 index < merchandisingMaskSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingMaskSet maskSet =
+                    merchandisingMaskSets[index];
+
+                if (maskSet != null
+                    && maskSet.LocalDisplaySide == localDisplaySide)
+                {
+                    return maskSet.HasAnyMasks;
+                }
+            }
+
+            return false;
+        }
+
+
+        public IReadOnlyList<Sprite> GetStorageShelfMasks(
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation)
+        {
+            return storageShelfMasks != null
+                ? storageShelfMasks.GetShelfMasks(
+                    worldOrientation,
+                    viewOrientation)
+                : Array.Empty<Sprite>();
+        }
+
+
         public void ValidateConfiguration()
         {
             ValidateIdentifier();
@@ -259,6 +393,93 @@ namespace BigRetail.Map.Unity.Fixtures
             {
                 throw new InvalidOperationException(
                     $"Fixture definition '{name}' contains an unsupported access mode.");
+            }
+
+            if (!Enum.IsDefined(
+                    typeof(FixtureAccessClearancePolicy),
+                    accessClearancePolicy))
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' contains an unsupported access-clearance policy.");
+            }
+
+            if (backstockCapacityUnits < 0)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' cannot have negative backstock capacity.");
+            }
+
+            ValidateMerchandisingMasks();
+            ValidateStorageShelfMasks();
+        }
+
+
+        private void ValidateStorageShelfMasks()
+        {
+            if (storageShelfMasks?.HasAnyMasks != true)
+            {
+                return;
+            }
+
+            if (backstockCapacityUnits <= 0)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' authors storage shelf masks but provides no backstock capacity.");
+            }
+
+            storageShelfMasks.ValidateConfiguration(
+                name,
+                northSprite,
+                eastSprite,
+                southSprite,
+                westSprite);
+        }
+
+
+        private void ValidateMerchandisingMasks()
+        {
+            if (merchandisingMaskSets == null)
+            {
+                return;
+            }
+
+            FixtureMerchandisingProfile profile =
+                FixtureMerchandisingProfile
+                    .CreateForCustomerBrowseSides(
+                        new FixtureAccessProfile(
+                            northAccess,
+                            eastAccess,
+                            southAccess,
+                            westAccess));
+
+            for (int index = 0;
+                 index < merchandisingMaskSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingMaskSet maskSet =
+                    merchandisingMaskSets[index]
+                    ?? throw new InvalidOperationException(
+                        $"Fixture definition '{name}' contains an empty merchandising-mask set at index {index}.");
+
+                for (int priorIndex = 0;
+                     priorIndex < index;
+                     priorIndex++)
+                {
+                    if (merchandisingMaskSets[priorIndex].LocalDisplaySide
+                        == maskSet.LocalDisplaySide)
+                    {
+                        throw new InvalidOperationException(
+                            $"Fixture definition '{name}' repeats merchandising masks for side '{maskSet.LocalDisplaySide}'.");
+                    }
+                }
+
+                maskSet.ValidateConfiguration(
+                    name,
+                    profile,
+                    northSprite,
+                    eastSprite,
+                    southSprite,
+                    westSprite);
             }
         }
 

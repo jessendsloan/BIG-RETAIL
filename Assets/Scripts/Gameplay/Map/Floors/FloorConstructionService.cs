@@ -19,14 +19,14 @@ namespace BigRetail.Map.Floors
     public sealed class FloorConstructionService
     {
         private readonly GridMapDefinition mapDefinition;
-        private readonly ConstructionAreaDefinition constructionArea;
+        private readonly IConstructionCellEligibility constructionArea;
         private readonly FloorState floorState;
         private readonly IFoundationSupportQuery foundationSupport;
 
 
         public FloorConstructionService(
             GridMapDefinition mapDefinition,
-            ConstructionAreaDefinition constructionArea,
+            IConstructionCellEligibility constructionArea,
             FloorState floorState,
             IFoundationSupportQuery foundationSupport)
         {

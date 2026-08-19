@@ -366,7 +366,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb9df861b2b31ca41a1ea778f0262f75, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.UI.StartScreen.StartScreenController
+  m_EditorClassIdentifier: BigRetail.Session::BigRetail.UI.StartScreen.StartScreenController
   sessionHost: {fileID: 975163604}
 --- !u!4 &582913165
 Transform:
@@ -572,7 +572,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: BigRetail.UI.StartScreen.StartScreenController, Assembly-CSharp
+      value: BigRetail.UI.StartScreen.StartScreenController, BigRetail.Session
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -761,7 +761,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c5cc32401bf95446b9a5a942442da72, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Core.Session.GameSessionHost
+  m_EditorClassIdentifier: BigRetail.Session::BigRetail.Core.Session.GameSessionHost
   gameplaySceneName: Gameplay
 --- !u!4 &975163605
 Transform:
@@ -991,7 +991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: BigRetail.UI.StartScreen.StartScreenController, Assembly-CSharp
+      value: BigRetail.UI.StartScreen.StartScreenController, BigRetail.Session
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -1343,11 +1343,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartStoryMode
+      value: StartCampaignMode
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: BigRetail.UI.StartScreen.StartScreenController, Assembly-CSharp
+      value: BigRetail.UI.StartScreen.StartScreenController, BigRetail.Session
       objectReference: {fileID: 0}
     - target: {fileID: 6709308033666263812, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -1355,7 +1355,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8639007526325309838, guid: 70c5ef0b209968843950424bba5072dd, type: 3}
       propertyPath: m_Name
-      value: StoryModeButton
+      value: CampaignModeButton
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

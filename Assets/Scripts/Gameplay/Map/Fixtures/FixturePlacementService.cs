@@ -12,7 +12,7 @@ namespace BigRetail.Map.Fixtures
     public sealed class FixturePlacementService
     {
         private readonly GridMapDefinition mapDefinition;
-        private readonly ConstructionAreaDefinition constructionArea;
+        private readonly IConstructionCellEligibility constructionArea;
         private readonly FixtureDefinitionCatalog definitionCatalog;
         private readonly FixtureState fixtureState;
         private readonly IFixturePlacementSurfaceQuery surfaceQuery;
@@ -20,7 +20,7 @@ namespace BigRetail.Map.Fixtures
 
         public FixturePlacementService(
             GridMapDefinition mapDefinition,
-            ConstructionAreaDefinition constructionArea,
+            IConstructionCellEligibility constructionArea,
             FixtureDefinitionCatalog definitionCatalog,
             FixtureState fixtureState,
             IFixturePlacementSurfaceQuery surfaceQuery)
@@ -142,7 +142,8 @@ namespace BigRetail.Map.Fixtures
                 EvaluateAccessClearance(
                     definition,
                     footprint,
-                    out blockedCell);
+                    out blockedCell,
+                    out _);
 
             if (accessFailure != FixturePlacementFailure.None)
             {
@@ -193,7 +194,10 @@ namespace BigRetail.Map.Fixtures
                 new FixtureInstance(
                     instanceId,
                     definition,
-                    evaluation.Footprint);
+                    evaluation.Footprint,
+                    ResolveReservableAccessPoints(
+                        definition,
+                        evaluation.Footprint));
 
             if (!fixtureState.TryAddFixture(fixture))
             {
@@ -413,12 +417,22 @@ namespace BigRetail.Map.Fixtures
         private FixturePlacementFailure EvaluateAccessClearance(
             FixtureDefinition definition,
             FixtureFootprint footprint,
-            out GridPosition blockedCell)
+            out GridPosition blockedCell,
+            out IReadOnlyList<FixtureAccessPoint> reservableAccessPoints)
         {
             IReadOnlyList<FixtureAccessPoint> accessPoints =
                 FixtureAccessPointResolver.Resolve(
                     definition,
                     footprint);
+
+            if (definition.AccessProfile.ClearancePolicy
+                == FixtureAccessClearancePolicy.AtLeastOneCompleteSide)
+            {
+                return EvaluateOneCompleteSideClearance(
+                    accessPoints,
+                    out blockedCell,
+                    out reservableAccessPoints);
+            }
 
             for (int index = 0;
                  index < accessPoints.Count;
@@ -430,12 +444,124 @@ namespace BigRetail.Map.Fixtures
                 if (!IsClearAccessPoint(accessPoint))
                 {
                     blockedCell = accessPoint.Cell;
+                    reservableAccessPoints =
+                        Array.Empty<FixtureAccessPoint>();
                     return FixturePlacementFailure.BlockedAccess;
                 }
             }
 
             blockedCell = default;
+            reservableAccessPoints = accessPoints;
             return FixturePlacementFailure.None;
+        }
+
+
+        private FixturePlacementFailure EvaluateOneCompleteSideClearance(
+            IReadOnlyList<FixtureAccessPoint> accessPoints,
+            out GridPosition blockedCell,
+            out IReadOnlyList<FixtureAccessPoint> reservableAccessPoints)
+        {
+            List<FixtureAccessPoint> clearPoints =
+                new List<FixtureAccessPoint>(accessPoints.Count);
+            bool foundClearSide = false;
+            bool foundBlockedPoint = false;
+            GridPosition firstBlockedCell = default;
+
+            FixtureSide[] sides =
+            {
+                FixtureSide.North,
+                FixtureSide.East,
+                FixtureSide.South,
+                FixtureSide.West
+            };
+
+            for (int sideIndex = 0;
+                 sideIndex < sides.Length;
+                 sideIndex++)
+            {
+                FixtureSide side = sides[sideIndex];
+                bool sideHasPoints = false;
+                bool sideIsClear = true;
+
+                for (int pointIndex = 0;
+                     pointIndex < accessPoints.Count;
+                     pointIndex++)
+                {
+                    FixtureAccessPoint accessPoint =
+                        accessPoints[pointIndex];
+
+                    if (accessPoint.Side != side)
+                    {
+                        continue;
+                    }
+
+                    sideHasPoints = true;
+
+                    if (IsClearAccessPoint(accessPoint))
+                    {
+                        continue;
+                    }
+
+                    sideIsClear = false;
+
+                    if (!foundBlockedPoint)
+                    {
+                        foundBlockedPoint = true;
+                        firstBlockedCell = accessPoint.Cell;
+                    }
+                }
+
+                if (!sideHasPoints || !sideIsClear)
+                {
+                    continue;
+                }
+
+                foundClearSide = true;
+
+                for (int pointIndex = 0;
+                     pointIndex < accessPoints.Count;
+                     pointIndex++)
+                {
+                    if (accessPoints[pointIndex].Side == side)
+                    {
+                        clearPoints.Add(accessPoints[pointIndex]);
+                    }
+                }
+            }
+
+            if (!foundClearSide)
+            {
+                blockedCell = firstBlockedCell;
+                reservableAccessPoints =
+                    Array.Empty<FixtureAccessPoint>();
+                return FixturePlacementFailure.BlockedAccess;
+            }
+
+            blockedCell = default;
+            reservableAccessPoints = clearPoints.ToArray();
+            return FixturePlacementFailure.None;
+        }
+
+
+        private IReadOnlyList<FixtureAccessPoint>
+            ResolveReservableAccessPoints(
+                FixtureDefinition definition,
+                FixtureFootprint footprint)
+        {
+            FixturePlacementFailure failure =
+                EvaluateAccessClearance(
+                    definition,
+                    footprint,
+                    out _,
+                    out IReadOnlyList<FixtureAccessPoint> accessPoints);
+
+            if (failure != FixturePlacementFailure.None)
+            {
+                throw new InvalidOperationException(
+                    "An approved fixture placement no longer has valid access.");
+            }
+
+            return accessPoints;
         }
 
 

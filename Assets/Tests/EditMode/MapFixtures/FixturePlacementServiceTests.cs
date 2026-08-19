@@ -32,6 +32,14 @@ namespace BigRetail.Map.Fixtures.Tests
                 SalesFloorAccess,
                 FixtureAccessMode.None);
 
+        private static readonly FixtureAccessProfile FlexibleStorageAccess =
+            new FixtureAccessProfile(
+                FixtureAccessMode.EmployeeStock,
+                FixtureAccessMode.None,
+                FixtureAccessMode.EmployeeStock,
+                FixtureAccessMode.None,
+                FixtureAccessClearancePolicy.AtLeastOneCompleteSide);
+
 
         [Test]
         public void EvaluatePlacement_ValidFixture_DoesNotMutateState()
@@ -596,6 +604,94 @@ namespace BigRetail.Map.Fixtures.Tests
             Assert.That(
                 result.FailedCell,
                 Is.EqualTo(new GridPosition(3, 2)));
+            Assert.That(state.FixtureCount, Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void TryPlaceFixture_FlexibleStorageAgainstWall_UsesOpenSide()
+        {
+            FixtureState state = new FixtureState();
+            HashSet<CellEdge> walls =
+                new HashSet<CellEdge>
+                {
+                    new CellEdge(
+                        new GridPosition(2, 3),
+                        CellEdgeDirection.SouthEast),
+                    new CellEdge(
+                        new GridPosition(3, 3),
+                        CellEdgeDirection.SouthEast)
+                };
+
+            FixturePlacementResult result =
+                CreateService(
+                        state,
+                        walls: walls,
+                        shelfAccess: FlexibleStorageAccess,
+                        shelfWidthInCells: 2,
+                        shelfDepthInCells: 1)
+                    .TryPlaceFixture(
+                        new FixtureInstanceId("backstock-wall-rack"),
+                        ShelfDefinitionId,
+                        new GridPosition(2, 2),
+                        FixtureOrientation.North);
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(state.ReservedAccessCellCount, Is.EqualTo(2));
+            Assert.That(state.ReservedAccessBoundaryCount, Is.EqualTo(2));
+            Assert.That(
+                state.IsAccessBoundaryReserved(
+                    new CellEdge(
+                        new GridPosition(2, 3),
+                        CellEdgeDirection.SouthEast)),
+                Is.False);
+            Assert.That(
+                state.IsAccessBoundaryReserved(
+                    new CellEdge(
+                        new GridPosition(2, 1),
+                        CellEdgeDirection.NorthWest)),
+                Is.True);
+        }
+
+
+        [Test]
+        public void TryPlaceFixture_FlexibleStorageWithBothSidesBlocked_IsRejected()
+        {
+            FixtureState state = new FixtureState();
+            HashSet<CellEdge> walls =
+                new HashSet<CellEdge>
+                {
+                    new CellEdge(
+                        new GridPosition(2, 3),
+                        CellEdgeDirection.SouthEast),
+                    new CellEdge(
+                        new GridPosition(3, 3),
+                        CellEdgeDirection.SouthEast),
+                    new CellEdge(
+                        new GridPosition(2, 1),
+                        CellEdgeDirection.NorthWest),
+                    new CellEdge(
+                        new GridPosition(3, 1),
+                        CellEdgeDirection.NorthWest)
+                };
+
+            FixturePlacementResult result =
+                CreateService(
+                        state,
+                        walls: walls,
+                        shelfAccess: FlexibleStorageAccess,
+                        shelfWidthInCells: 2,
+                        shelfDepthInCells: 1)
+                    .TryPlaceFixture(
+                        new FixtureInstanceId("backstock-trapped-rack"),
+                        ShelfDefinitionId,
+                        new GridPosition(2, 2),
+                        FixtureOrientation.North);
+
+            Assert.That(result.Succeeded, Is.False);
+            Assert.That(
+                result.Failure,
+                Is.EqualTo(FixturePlacementFailure.BlockedAccess));
             Assert.That(state.FixtureCount, Is.EqualTo(0));
         }
 

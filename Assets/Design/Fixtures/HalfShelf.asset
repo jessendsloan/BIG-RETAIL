@@ -27,7 +27,21 @@ MonoBehaviour:
   westSpriteAnchorCorner: 2
   repeatSpritePerOccupiedCell: 0
   worldPositionOffset: {x: 0, y: 0, z: 0}
+  merchandisingMaskSets:
+  - localDisplaySide: 2
+    northShelfMasks:
+    - {fileID: 21300000, guid: 35ea36c87b8e42df9c3830bdd4ba119f, type: 3}
+    - {fileID: 21300000, guid: 886e97a1666643cc894fcb686e01841c, type: 3}
+    - {fileID: 21300000, guid: 3becf00261cc4639a4f8d04fa59919bb, type: 3}
+    eastShelfMasks: []
+    southShelfMasks: []
+    westShelfMasks:
+    - {fileID: 21300000, guid: ef0f4b79d7024f41bfcb1aee3a940dc3, type: 3}
+    - {fileID: 21300000, guid: 9722afc3c2e64500948751fe05a17201, type: 3}
+    - {fileID: 21300000, guid: 1b755ded701e40259b29ada24862d506, type: 3}
   northAccess: 0
   eastAccess: 0
   southAccess: 3
   westAccess: 0
+  accessClearancePolicy: 0
+  backstockCapacityUnits: 0

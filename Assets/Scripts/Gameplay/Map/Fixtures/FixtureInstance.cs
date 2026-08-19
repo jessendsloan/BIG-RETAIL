@@ -31,11 +31,18 @@ namespace BigRetail.Map.Fixtures
         public IReadOnlyList<GridPosition> OccupiedCells =>
             Footprint.Cells;
 
+        /// <summary>
+        /// Access points that were usable when this fixture was placed and
+        /// are therefore protected from later construction.
+        /// </summary>
+        public IReadOnlyList<FixtureAccessPoint> ReservedAccessPoints { get; }
+
 
         internal FixtureInstance(
             FixtureInstanceId id,
             FixtureDefinition definition,
-            FixtureFootprint footprint)
+            FixtureFootprint footprint,
+            IReadOnlyList<FixtureAccessPoint> reservedAccessPoints)
         {
             if (!id.IsValid)
             {
@@ -54,6 +61,12 @@ namespace BigRetail.Map.Fixtures
                 ?? throw new ArgumentNullException(
                     nameof(footprint));
 
+            if (reservedAccessPoints == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(reservedAccessPoints));
+            }
+
             if (footprint.CellCount
                 != definition.OccupiedCellCount)
             {
@@ -63,6 +76,17 @@ namespace BigRetail.Map.Fixtures
             }
 
             Id = id;
+            FixtureAccessPoint[] accessPointSnapshot =
+                new FixtureAccessPoint[reservedAccessPoints.Count];
+
+            for (int index = 0;
+                 index < reservedAccessPoints.Count;
+                 index++)
+            {
+                accessPointSnapshot[index] = reservedAccessPoints[index];
+            }
+
+            ReservedAccessPoints = accessPointSnapshot;
         }
 
 

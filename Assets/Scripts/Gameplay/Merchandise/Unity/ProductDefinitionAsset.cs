@@ -47,6 +47,16 @@ namespace BigRetail.Merchandise.Unity
         private StockUnit stockUnit =
             StockUnit.Each;
 
+        [Tooltip("Temporary graybox cost. Permanent supplier prices belong to Supplier Offers.")]
+        [SerializeField]
+        [Min(0)]
+        private long wholesaleCaseCostCents;
+
+        [Tooltip("Temporary graybox shelf price used by the opening sales loop.")]
+        [SerializeField]
+        [Min(0)]
+        private long retailUnitPriceCents;
+
 
         public string DisplayName =>
             displayName;
@@ -91,16 +101,28 @@ namespace BigRetail.Merchandise.Unity
                     resolvedBrandId = brandDefinition.Id;
                 }
 
+                string resolvedProductLine =
+                    string.IsNullOrWhiteSpace(productLine)
+                        ? displayName
+                        : productLine;
+
+                string resolvedPackageForm =
+                    string.IsNullOrWhiteSpace(packageForm)
+                        ? stockUnit.ToString()
+                        : packageForm;
+
                 definition =
                     new ProductDefinition(
                         new ProductId(productId),
                         displayName,
                         resolvedBrandId,
-                        productLine,
+                        resolvedProductLine,
                         new ProductCategoryId(categoryId),
                         marketPosition,
-                        packageForm,
-                        stockUnit);
+                        resolvedPackageForm,
+                        stockUnit,
+                        wholesaleCaseCostCents,
+                        retailUnitPriceCents);
 
                 error = string.Empty;
                 return true;
@@ -139,6 +161,12 @@ namespace BigRetail.Merchandise.Unity
                 packageForm == null
                     ? string.Empty
                     : packageForm.Trim();
+
+            wholesaleCaseCostCents =
+                Math.Max(0, wholesaleCaseCostCents);
+
+            retailUnitPriceCents =
+                Math.Max(0, retailUnitPriceCents);
         }
 
 

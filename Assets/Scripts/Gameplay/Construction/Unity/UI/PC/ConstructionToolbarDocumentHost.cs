@@ -52,6 +52,25 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public FixtureMerchandisingInspectorView
+            FixtureMerchandisingInspectorView
+        {
+            get;
+            private set;
+        }
+
+        public SimulationClockView SimulationClockView
+        {
+            get;
+            private set;
+        }
+
+        public CampaignOpeningView CampaignOpeningView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
@@ -69,6 +88,15 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public bool HasDepartmentPickerView =>
             DepartmentPickerView != null;
+
+        public bool HasFixtureMerchandisingInspectorView =>
+            FixtureMerchandisingInspectorView != null;
+
+        public bool HasSimulationClockView =>
+            SimulationClockView != null;
+
+        public bool HasCampaignOpeningView =>
+            CampaignOpeningView != null;
 
         /// <summary>
         /// Returns true when a screen position is currently over a pickable
@@ -128,6 +156,13 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureDefinitionPickerViewReady;
 
         public event Action<DepartmentPickerView> DepartmentPickerViewReady;
+
+        public event Action<FixtureMerchandisingInspectorView>
+            FixtureMerchandisingInspectorViewReady;
+
+        public event Action<SimulationClockView> SimulationClockViewReady;
+
+        public event Action<CampaignOpeningView> CampaignOpeningViewReady;
 
         private int loadedVersion = -1;
 
@@ -198,6 +233,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && DoorDefinitionPickerView != null
                 && FixtureDefinitionPickerView != null
                 && DepartmentPickerView != null
+                && FixtureMerchandisingInspectorView != null
+                && SimulationClockView != null
+                && CampaignOpeningView != null
                 && loadedVersion == version)
             {
                 return;
@@ -233,6 +271,18 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new DepartmentPickerView(
                         root);
 
+                FixtureMerchandisingInspectorView =
+                    new FixtureMerchandisingInspectorView(
+                        root);
+
+                SimulationClockView =
+                    new SimulationClockView(
+                        root);
+
+                CampaignOpeningView =
+                    new CampaignOpeningView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -253,6 +303,15 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 DepartmentPickerViewReady?.Invoke(
                     DepartmentPickerView);
+
+                FixtureMerchandisingInspectorViewReady?.Invoke(
+                    FixtureMerchandisingInspectorView);
+
+                SimulationClockViewReady?.Invoke(
+                    SimulationClockView);
+
+                CampaignOpeningViewReady?.Invoke(
+                    CampaignOpeningView);
             }
             catch (Exception exception)
             {
@@ -304,6 +363,24 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 DepartmentPickerView.Dispose();
                 DepartmentPickerView = null;
+            }
+
+            if (FixtureMerchandisingInspectorView != null)
+            {
+                FixtureMerchandisingInspectorView.Dispose();
+                FixtureMerchandisingInspectorView = null;
+            }
+
+            if (SimulationClockView != null)
+            {
+                SimulationClockView.Dispose();
+                SimulationClockView = null;
+            }
+
+            if (CampaignOpeningView != null)
+            {
+                CampaignOpeningView.Dispose();
+                CampaignOpeningView = null;
             }
         }
     }

@@ -207,6 +207,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshDemolitionPicker(toolCoordinator.CurrentMode);
         }
 
+        private void HandleMerchandiseToolRequested()
+        {
+            isDemolitionPickerRequested = false;
+
+            ConstructionToolMode requestedMode =
+                toolCoordinator.CurrentMode
+                    == ConstructionToolMode.MerchandiseFixtures
+                        ? ConstructionToolMode.None
+                        : ConstructionToolMode.MerchandiseFixtures;
+
+            toolCoordinator.SetMode(requestedMode);
+            RefreshDemolitionPicker(toolCoordinator.CurrentMode);
+        }
+
 
         private void HandleDemolitionTargetRequested(
             ConstructionToolbarDemolitionTarget target)
@@ -329,6 +343,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.DepartmentsRequested +=
                 HandleDepartmentsRequested;
 
+            boundView.MerchandiseToolRequested +=
+                HandleMerchandiseToolRequested;
+
             boundView.DemolitionPickerRequested +=
                 HandleDemolitionPickerRequested;
 
@@ -368,6 +385,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.DepartmentsRequested -=
                 HandleDepartmentsRequested;
 
+            boundView.MerchandiseToolRequested -=
+                HandleMerchandiseToolRequested;
+
             boundView.DemolitionPickerRequested -=
                 HandleDemolitionPickerRequested;
 
@@ -395,6 +415,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SetSelectedSection(
                 ConstructionToolbarModeMapper.ToSection(
                     mode));
+
+            boundView.SetMerchandiseToolActive(
+                mode == ConstructionToolMode.MerchandiseFixtures);
         }
 
 
