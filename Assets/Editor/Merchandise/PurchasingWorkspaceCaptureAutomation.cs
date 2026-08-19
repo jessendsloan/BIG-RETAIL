@@ -1,4 +1,6 @@
 using System.IO;
+using BigRetail.Construction.Unity.UI.PC;
+using BigRetail.Purchasing.Unity;
 using BigRetail.Purchasing.Unity.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -24,6 +26,10 @@ namespace BigRetail.Editor.Merchandise
             "Logs/CommercialDirectoryBrands.png";
         private const string DirectorySuppliersCapturePath =
             "Logs/CommercialDirectorySuppliers.png";
+        private const string GameplayScenePath =
+            "Assets/Scenes/Gameplay.unity";
+        private const string GameplayCapturePath =
+            "Logs/PurchasingGameplay.png";
         private const string SessionKey =
             "BigRetail.PurchasingWorkspaceCapture.Active";
         private const int CaptureFrame = 30;
@@ -52,6 +58,7 @@ namespace BigRetail.Editor.Merchandise
                 PurchasingScenePath,
                 PurchasingCapturePath,
                 null,
+                openGameplayOverlay: false,
                 exitEditorWhenComplete: false);
         }
 
@@ -61,6 +68,7 @@ namespace BigRetail.Editor.Merchandise
                 PurchasingScenePath,
                 PurchasingCapturePath,
                 null,
+                openGameplayOverlay: false,
                 exitEditorWhenComplete: true);
         }
 
@@ -71,6 +79,7 @@ namespace BigRetail.Editor.Merchandise
                 DirectoryScenePath,
                 DirectoryBrandsCapturePath,
                 CommercialDirectorySection.Brands,
+                openGameplayOverlay: false,
                 exitEditorWhenComplete: false);
         }
 
@@ -81,6 +90,7 @@ namespace BigRetail.Editor.Merchandise
                 DirectoryScenePath,
                 DirectorySuppliersCapturePath,
                 CommercialDirectorySection.Suppliers,
+                openGameplayOverlay: false,
                 exitEditorWhenComplete: false);
         }
 
@@ -90,6 +100,7 @@ namespace BigRetail.Editor.Merchandise
                 DirectoryScenePath,
                 DirectoryBrandsCapturePath,
                 CommercialDirectorySection.Brands,
+                openGameplayOverlay: false,
                 exitEditorWhenComplete: true);
         }
 
@@ -99,6 +110,28 @@ namespace BigRetail.Editor.Merchandise
                 DirectoryScenePath,
                 DirectorySuppliersCapturePath,
                 CommercialDirectorySection.Suppliers,
+                openGameplayOverlay: false,
+                exitEditorWhenComplete: true);
+        }
+
+        [MenuItem("Big Retail/Merchandise/Capture Purchasing In Gameplay")]
+        public static void CaptureGameplayFromMenu()
+        {
+            BeginCapture(
+                GameplayScenePath,
+                GameplayCapturePath,
+                null,
+                openGameplayOverlay: true,
+                exitEditorWhenComplete: false);
+        }
+
+        public static void CaptureGameplayForAutomation()
+        {
+            BeginCapture(
+                GameplayScenePath,
+                GameplayCapturePath,
+                null,
+                openGameplayOverlay: true,
                 exitEditorWhenComplete: true);
         }
 
@@ -107,6 +140,7 @@ namespace BigRetail.Editor.Merchandise
             string scenePath,
             string capturePath,
             CommercialDirectorySection? directorySection,
+            bool openGameplayOverlay,
             bool exitEditorWhenComplete)
         {
             string absoluteCapturePath = GetAbsoluteCapturePath(capturePath);
@@ -121,6 +155,10 @@ namespace BigRetail.Editor.Merchandise
                 SessionKey + ".ExitEditor",
                 exitEditorWhenComplete);
             SessionState.SetString(SessionKey + ".CapturePath", capturePath);
+            SessionState.SetBool(
+                SessionKey + ".OpenGameplayOverlay",
+                openGameplayOverlay);
+            SessionState.SetBool(SessionKey + ".Failed", false);
             SessionState.SetInt(
                 SessionKey + ".DirectorySection",
                 directorySection.HasValue
@@ -150,7 +188,11 @@ namespace BigRetail.Editor.Merchandise
                 playFrame = 0;
                 screenshotRequested = false;
                 directorySectionApplied = false;
-                ConfigureCaptureTarget();
+
+                if (!ShouldOpenGameplayOverlay())
+                {
+                    ConfigureCaptureTarget();
+                }
                 EditorApplication.update -= HandlePlayModeUpdate;
                 EditorApplication.update += HandlePlayModeUpdate;
                 return;
@@ -174,6 +216,13 @@ namespace BigRetail.Editor.Merchandise
             if (!directorySectionApplied && playFrame >= 10)
             {
                 ApplyRequestedDirectorySection();
+                ApplyRequestedGameplayOverlay();
+
+                if (ShouldOpenGameplayOverlay())
+                {
+                    ConfigureCaptureTarget();
+                }
+
                 directorySectionApplied = true;
             }
 
@@ -203,11 +252,18 @@ namespace BigRetail.Editor.Merchandise
             SessionState.SetBool(SessionKey + ".ExitEditor", false);
             SessionState.EraseString(SessionKey + ".CapturePath");
             SessionState.EraseInt(SessionKey + ".DirectorySection");
+            bool failed = SessionState.GetBool(
+                SessionKey + ".Failed",
+                false);
+            SessionState.SetBool(SessionKey + ".Failed", false);
+            SessionState.SetBool(
+                SessionKey + ".OpenGameplayOverlay",
+                false);
 
             if (exitEditor)
             {
                 EditorApplication.Exit(
-                    File.Exists(absoluteCapturePath) ? 0 : 3);
+                    File.Exists(absoluteCapturePath) && !failed ? 0 : 3);
             }
         }
 
@@ -227,8 +283,21 @@ namespace BigRetail.Editor.Merchandise
 
         private static void ConfigureCaptureTarget()
         {
-            PanelRenderer panelRenderer =
-                Object.FindAnyObjectByType<PanelRenderer>();
+            PanelRenderer panelRenderer;
+
+            if (ShouldOpenGameplayOverlay())
+            {
+                GameObject workspace =
+                    GameObject.Find("PurchasingWorkspaceUI");
+                panelRenderer = workspace != null
+                    ? workspace.GetComponent<PanelRenderer>()
+                    : null;
+            }
+            else
+            {
+                panelRenderer =
+                    Object.FindAnyObjectByType<PanelRenderer>();
+            }
 
             if (panelRenderer == null || panelRenderer.panelSettings == null)
             {
@@ -310,6 +379,51 @@ namespace BigRetail.Editor.Merchandise
             }
 
             presenter.ShowSection((CommercialDirectorySection)sectionValue);
+        }
+
+        private static void ApplyRequestedGameplayOverlay()
+        {
+            if (!ShouldOpenGameplayOverlay())
+            {
+                return;
+            }
+
+            PurchasingGameplayOverlayController controller =
+                Object.FindAnyObjectByType<
+                    PurchasingGameplayOverlayController>();
+            PurchasingRuntimeHost runtimeHost =
+                Object.FindAnyObjectByType<PurchasingRuntimeHost>();
+
+            if (controller == null
+                || runtimeHost == null
+                || !runtimeHost.TryInitialize()
+                || runtimeHost.Catalog?.Products.Count != 12)
+            {
+                SessionState.SetBool(SessionKey + ".Failed", true);
+                Debug.LogError(
+                    "Gameplay Purchasing smoke check could not initialize the 12-product live runtime.");
+                return;
+            }
+
+            controller.Open();
+
+            if (!controller.IsOpen)
+            {
+                SessionState.SetBool(SessionKey + ".Failed", true);
+                Debug.LogError(
+                    "Gameplay Purchasing smoke check could not open the overlay.");
+                return;
+            }
+
+            Debug.Log(
+                "Gameplay Purchasing smoke check initialized the live 12-product runtime and opened its overlay.");
+        }
+
+        private static bool ShouldOpenGameplayOverlay()
+        {
+            return SessionState.GetBool(
+                SessionKey + ".OpenGameplayOverlay",
+                false);
         }
 
         private static void ReleaseCaptureTarget()

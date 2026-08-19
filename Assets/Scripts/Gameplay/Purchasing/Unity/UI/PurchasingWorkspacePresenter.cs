@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Economy.Domain;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
@@ -26,6 +27,9 @@ namespace BigRetail.Purchasing.Unity.UI
         [SerializeField]
         private CommercialCatalogAsset commercialCatalog;
 
+        [SerializeField]
+        private PurchasingRuntimeHost runtimeHost;
+
         private readonly Dictionary<ProductId, ProductDefinitionAsset>
             productAssets =
                 new Dictionary<ProductId, ProductDefinitionAsset>();
@@ -39,6 +43,9 @@ namespace BigRetail.Purchasing.Unity.UI
 
         private CommercialCatalog catalog;
         private PurchasingService purchasing;
+        private PurchasingService subscribedPurchasing;
+        private StoreCashState subscribedCash;
+        private CommercialCatalogAsset activeCommercialCatalog;
         private PurchasingWorkspaceView boundView;
         private string initializationError;
         private string searchText = string.Empty;
@@ -47,6 +54,9 @@ namespace BigRetail.Purchasing.Unity.UI
         private PurchasingReviewState reviewState;
         private IReadOnlyList<PlacedPurchaseOrder> lastPlacedBatch;
         private bool suppressDraftRefresh;
+
+
+        public event Action CloseRequested;
 
 
         private void Reset()
@@ -73,10 +83,14 @@ namespace BigRetail.Purchasing.Unity.UI
 
             documentHost.ViewReady += HandleViewReady;
 
-            if (purchasing != null)
+            if (runtimeHost != null)
             {
-                purchasing.DraftsChanged += HandleDraftsChanged;
+                runtimeHost.Initialized += HandleRuntimeInitialized;
+                runtimeHost.CommercialTimeChanged +=
+                    HandleCommercialTimeChanged;
             }
+
+            AttachStateEvents();
 
             if (documentHost.HasView)
             {
@@ -91,11 +105,14 @@ namespace BigRetail.Purchasing.Unity.UI
                 documentHost.ViewReady -= HandleViewReady;
             }
 
-            if (purchasing != null)
+            if (runtimeHost != null)
             {
-                purchasing.DraftsChanged -= HandleDraftsChanged;
+                runtimeHost.Initialized -= HandleRuntimeInitialized;
+                runtimeHost.CommercialTimeChanged -=
+                    HandleCommercialTimeChanged;
             }
 
+            DetachStateEvents();
             UnbindView();
         }
 
@@ -108,11 +125,32 @@ namespace BigRetail.Purchasing.Unity.UI
             selectedOffers.Clear();
             catalog = null;
             purchasing = null;
+            activeCommercialCatalog = null;
             initializationError = string.Empty;
             reviewState = PurchasingReviewState.None;
             lastPlacedBatch = null;
 
-            if (commercialCatalog == null)
+            if (runtimeHost != null)
+            {
+                if (!runtimeHost.IsInitialized)
+                {
+                    initializationError = string.IsNullOrEmpty(
+                            runtimeHost.InitializationError)
+                        ? "Purchasing is waiting for the live store session."
+                        : runtimeHost.InitializationError;
+                    return;
+                }
+
+                activeCommercialCatalog = runtimeHost.CatalogAsset;
+                catalog = runtimeHost.Catalog;
+                purchasing = runtimeHost.Purchasing;
+            }
+            else
+            {
+                activeCommercialCatalog = commercialCatalog;
+            }
+
+            if (activeCommercialCatalog == null)
             {
                 initializationError =
                     "No commercial catalog is assigned to Purchasing.";
@@ -120,28 +158,32 @@ namespace BigRetail.Purchasing.Unity.UI
                 return;
             }
 
-            if (!commercialCatalog.TryCreateCatalog(
+            if (catalog == null
+                && !activeCommercialCatalog.TryCreateCatalog(
                     out catalog,
                     out initializationError))
             {
-                Debug.LogError(initializationError, commercialCatalog);
+                Debug.LogError(initializationError, activeCommercialCatalog);
                 return;
             }
 
             if (!BuildPresentationMaps(out initializationError))
             {
-                Debug.LogError(initializationError, commercialCatalog);
+                Debug.LogError(initializationError, activeCommercialCatalog);
                 catalog = null;
                 return;
             }
 
-            purchasing = new PurchasingService(catalog);
+            if (purchasing == null)
+            {
+                purchasing = new PurchasingService(catalog);
+            }
         }
 
         private bool BuildPresentationMaps(out string error)
         {
             IReadOnlyList<BrandDefinitionAsset> authoredBrands =
-                commercialCatalog.BrandCatalog.Brands;
+                activeCommercialCatalog.BrandCatalog.Brands;
 
             for (int index = 0; index < authoredBrands.Count; index++)
             {
@@ -163,7 +205,7 @@ namespace BigRetail.Purchasing.Unity.UI
             }
 
             IReadOnlyList<ProductDefinitionAsset> authoredProducts =
-                commercialCatalog.ProductCatalog.Products;
+                activeCommercialCatalog.ProductCatalog.Products;
 
             for (int index = 0; index < authoredProducts.Count; index++)
             {
@@ -192,7 +234,7 @@ namespace BigRetail.Purchasing.Unity.UI
             }
 
             IReadOnlyList<SupplierDefinitionAsset> authoredSuppliers =
-                commercialCatalog.SupplierCatalog.Suppliers;
+                activeCommercialCatalog.SupplierCatalog.Suppliers;
 
             for (int index = 0; index < authoredSuppliers.Count; index++)
             {
@@ -243,6 +285,7 @@ namespace BigRetail.Purchasing.Unity.UI
             boundView.PlaceOrdersRequested += HandlePlaceOrdersRequested;
             boundView.ConfirmationCloseRequested +=
                 HandleConfirmationCloseRequested;
+            boundView.CloseRequested += HandleCloseRequested;
             RefreshView();
         }
 
@@ -263,6 +306,7 @@ namespace BigRetail.Purchasing.Unity.UI
             boundView.PlaceOrdersRequested -= HandlePlaceOrdersRequested;
             boundView.ConfirmationCloseRequested -=
                 HandleConfirmationCloseRequested;
+            boundView.CloseRequested -= HandleCloseRequested;
             boundView = null;
         }
 
@@ -367,8 +411,22 @@ namespace BigRetail.Purchasing.Unity.UI
             try
             {
                 suppressDraftRefresh = true;
-                lastPlacedBatch =
-                    purchasing.PlaceDrafts(LabCommercialTime);
+
+                if (runtimeHost != null)
+                {
+                    if (!runtimeHost.TryPlaceDrafts(
+                            out lastPlacedBatch,
+                            out string error))
+                    {
+                        throw new InvalidOperationException(error);
+                    }
+                }
+                else
+                {
+                    lastPlacedBatch =
+                        purchasing.PlaceDrafts(CurrentCommercialTime);
+                }
+
                 reviewState = PurchasingReviewState.Confirmation;
             }
             catch (InvalidOperationException exception)
@@ -389,6 +447,83 @@ namespace BigRetail.Purchasing.Unity.UI
             reviewState = PurchasingReviewState.None;
             lastPlacedBatch = null;
             RefreshView();
+        }
+
+        private void HandleCloseRequested()
+        {
+            CloseRequested?.Invoke();
+        }
+
+        private void HandleRuntimeInitialized(
+            PurchasingRuntimeHost initializedHost)
+        {
+            DetachStateEvents();
+            InitializeCatalog();
+            AttachStateEvents();
+            RefreshView();
+        }
+
+        private void HandleCommercialTimeChanged(
+            CommercialTime currentTime)
+        {
+            RefreshView();
+        }
+
+        private void HandleCashBalanceChanged()
+        {
+            RefreshView();
+        }
+
+        private void AttachStateEvents()
+        {
+            if (subscribedPurchasing != purchasing)
+            {
+                if (subscribedPurchasing != null)
+                {
+                    subscribedPurchasing.DraftsChanged -= HandleDraftsChanged;
+                }
+
+                subscribedPurchasing = purchasing;
+
+                if (subscribedPurchasing != null)
+                {
+                    subscribedPurchasing.DraftsChanged += HandleDraftsChanged;
+                }
+            }
+
+            StoreCashState nextCash = runtimeHost?.Cash;
+
+            if (subscribedCash == nextCash)
+            {
+                return;
+            }
+
+            if (subscribedCash != null)
+            {
+                subscribedCash.BalanceChanged -= HandleCashBalanceChanged;
+            }
+
+            subscribedCash = nextCash;
+
+            if (subscribedCash != null)
+            {
+                subscribedCash.BalanceChanged += HandleCashBalanceChanged;
+            }
+        }
+
+        private void DetachStateEvents()
+        {
+            if (subscribedPurchasing != null)
+            {
+                subscribedPurchasing.DraftsChanged -= HandleDraftsChanged;
+                subscribedPurchasing = null;
+            }
+
+            if (subscribedCash != null)
+            {
+                subscribedCash.BalanceChanged -= HandleCashBalanceChanged;
+                subscribedCash = null;
+            }
         }
 
         private void RefreshView()
@@ -422,8 +557,9 @@ namespace BigRetail.Purchasing.Unity.UI
                 selectedCategoryId,
                 selectedSupplierId,
                 grandTotalCents,
-                FormatCommercialTime(LabCommercialTime),
-                review);
+                FormatCommercialTime(CurrentCommercialTime),
+                review,
+                runtimeHost?.Cash?.BalanceCents);
         }
 
         private List<PurchasingFilterItem> BuildCategoryFilters()
@@ -574,8 +710,8 @@ namespace BigRetail.Purchasing.Unity.UI
                         offer.UnitCostCents,
                         FormatDeliveryEstimate(
                             supplier.DeliveryRule.EstimateDelivery(
-                                LabCommercialTime),
-                            LabCommercialTime),
+                                CurrentCommercialTime),
+                            CurrentCommercialTime),
                         purchasing.GetPurchasePackCount(offer.Id),
                         offer.Id == selectedOfferId));
             }
@@ -673,8 +809,8 @@ namespace BigRetail.Purchasing.Unity.UI
                         GetSupplierColor(supplier.Id),
                         FormatDeliveryEstimate(
                             supplier.DeliveryRule.EstimateDelivery(
-                                LabCommercialTime),
-                            LabCommercialTime),
+                                CurrentCommercialTime),
+                            CurrentCommercialTime),
                         supplier.MinimumOrderCents,
                         totalCents,
                         draft.GetAmountRemainingForMinimum(supplier),
@@ -742,9 +878,19 @@ namespace BigRetail.Purchasing.Unity.UI
                         draft.Lines));
             }
 
+            if (string.IsNullOrEmpty(blockingMessage)
+                && runtimeHost?.Cash != null
+                && runtimeHost.Cash.BalanceCents < grandTotalCents)
+            {
+                long shortfall =
+                    grandTotalCents - runtimeHost.Cash.BalanceCents;
+                blockingMessage =
+                    $"Store cash is short {FormatMoney(shortfall)} for this batch.";
+            }
+
             return new PurchasingReviewModel(
                 false,
-                $"PLACING {FormatCommercialTime(LabCommercialTime)}",
+                $"PLACING {FormatCommercialTime(CurrentCommercialTime)}",
                 orders,
                 grandTotalCents,
                 blockingMessage);
@@ -802,10 +948,22 @@ namespace BigRetail.Purchasing.Unity.UI
 
             return new PurchasingReviewModel(
                 true,
-                $"PLACED {FormatCommercialTime(LabCommercialTime)}",
+                $"PLACED {FormatCommercialTime(GetLastPlacementTime())}",
                 orders,
                 grandTotalCents,
                 string.Empty);
+        }
+
+        private CommercialTime CurrentCommercialTime =>
+            runtimeHost != null && runtimeHost.IsInitialized
+                ? runtimeHost.CurrentTime
+                : LabCommercialTime;
+
+        private CommercialTime GetLastPlacementTime()
+        {
+            return lastPlacedBatch != null && lastPlacedBatch.Count > 0
+                ? lastPlacedBatch[0].PlacedAt
+                : CurrentCommercialTime;
         }
 
 

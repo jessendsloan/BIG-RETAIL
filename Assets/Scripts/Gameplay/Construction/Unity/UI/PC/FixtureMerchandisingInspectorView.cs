@@ -352,7 +352,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             purchasingCashValueLabel.text =
                 FormatMoney(cashBalanceCents);
             purchasingPendingValueLabel.text =
-                $"Pending delivery: {pendingUnitCount} units";
+                pendingUnitCount > 0
+                    ? $"Ready to receive: {pendingUnitCount} units"
+                    : "Nothing ready to receive";
             receiveDeliveryButton.SetEnabled(canReceive);
         }
 
@@ -360,7 +362,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         {
             purchasingStatusLabel.text =
                 string.IsNullOrWhiteSpace(status)
-                    ? "Order cases, then receive them into rack inventory."
+                    ? "Place purchase orders, then receive arrived deliveries here."
                     : status;
         }
 

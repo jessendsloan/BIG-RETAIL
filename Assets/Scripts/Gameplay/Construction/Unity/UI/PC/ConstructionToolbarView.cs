@@ -47,6 +47,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string RedoButtonName = "redo-button";
         public const string MerchandiseToolButtonName =
             "merchandise-tool-button";
+        public const string PurchasingButtonName =
+            "purchasing-button";
         public const string StoreCashValueName =
             "store-cash-value";
         public const string SelectedClassName = "is-selected";
@@ -56,6 +58,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button fixturesButton;
         private readonly Button departmentsButton;
         private readonly Button merchandiseToolButton;
+        private readonly Button purchasingButton;
         private readonly Button foundationsButton;
         private readonly VisualElement foundationPicker;
         private readonly Button foundationDefaultButton;
@@ -93,6 +96,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, DepartmentPickerView.DepartmentsButtonName);
             merchandiseToolButton =
                 RequireButton(root, MerchandiseToolButtonName);
+            purchasingButton =
+                RequireButton(root, PurchasingButtonName);
             foundationsButton =
                 RequireButton(root, FoundationsButtonName);
             foundationPicker =
@@ -135,6 +140,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             departmentsButton.clicked += HandleDepartmentsRequested;
             merchandiseToolButton.clicked +=
                 HandleMerchandiseToolRequested;
+            purchasingButton.clicked += HandlePurchasingRequested;
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
             foundationDefaultButton.clicked +=
@@ -162,6 +168,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action<ConstructionToolbarSection> SectionRequested;
         public event Action DepartmentsRequested;
         public event Action MerchandiseToolRequested;
+        public event Action PurchasingRequested;
         public event Action DemolitionPickerRequested;
         public event Action<ConstructionToolbarDemolitionTarget>
             DemolitionTargetRequested;
@@ -313,6 +320,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             departmentsButton.clicked -= HandleDepartmentsRequested;
             merchandiseToolButton.clicked -=
                 HandleMerchandiseToolRequested;
+            purchasingButton.clicked -= HandlePurchasingRequested;
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
             foundationDefaultButton.clicked -=
@@ -378,6 +386,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleMerchandiseToolRequested()
         {
             MerchandiseToolRequested?.Invoke();
+        }
+
+        private void HandlePurchasingRequested()
+        {
+            PurchasingRequested?.Invoke();
         }
 
         private void HandleDemolishFoundationsRequested()

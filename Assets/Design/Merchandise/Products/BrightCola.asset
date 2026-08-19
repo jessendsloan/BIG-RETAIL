@@ -21,3 +21,5 @@ MonoBehaviour:
   packageForm: 20 oz Bottle
   catalogImage: {fileID: 0}
   stockUnit: 0
+  wholesaleCaseCostCents: 0
+  retailUnitPriceCents: 199

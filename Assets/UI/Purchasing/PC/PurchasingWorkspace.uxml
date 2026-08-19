@@ -29,13 +29,22 @@
                     text="MONDAY · 9:00 AM"
                     class="purchasing-mode-pill" />
                 <ui:Label
-                    text="Expected arrivals use the current store time"
+                    name="available-cash"
+                    text="AVAILABLE CASH · LAB"
                     class="purchasing-header__status-copy" />
             </ui:VisualElement>
+
+            <ui:Button
+                name="close-purchasing-button"
+                text="CLOSE"
+                tooltip="Return to the store"
+                class="purchasing-header__close-button" />
         </ui:VisualElement>
 
         <ui:VisualElement class="purchasing-body">
-            <ui:VisualElement class="purchasing-filters">
+            <ui:ScrollView
+                class="purchasing-filters"
+                mode="Vertical">
                 <ui:Label text="PRODUCTS" class="section-kicker" />
                 <ui:VisualElement
                     name="category-filters"
@@ -50,7 +59,7 @@
                 <ui:VisualElement
                     name="supplier-filters"
                     class="supplier-filter-list" />
-            </ui:VisualElement>
+            </ui:ScrollView>
 
             <ui:VisualElement class="purchasing-catalog">
                 <ui:VisualElement class="catalog-heading">

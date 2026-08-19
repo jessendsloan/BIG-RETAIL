@@ -170,6 +170,58 @@ namespace BigRetail.Purchasing.Domain.Tests
                 Is.Empty);
         }
 
+        [Test]
+        public void PlaceDrafts_RejectedPaymentLeavesEveryDraftUntouched()
+        {
+            ProductDefinition cola = CommercialCatalogTests.CreateCola();
+            SupplierDefinition big =
+                CommercialCatalogTests.CreateSupplier("BIG", "BIG Wholesale");
+            SupplierOfferDefinition offer =
+                CommercialCatalogTests.CreateOffer(
+                    "BIG-COLA",
+                    big.Id,
+                    cola.Id,
+                    12,
+                    1200);
+            PurchasingService purchasing =
+                new PurchasingService(
+                    CreateCatalog(
+                        cola,
+                        new[] { big },
+                        new[] { offer }));
+            purchasing.SetPurchasePackCount(offer.Id, 2);
+            long requestedPaymentCents = 0;
+
+            InvalidOperationException exception =
+                Assert.Throws<InvalidOperationException>(
+                    () => purchasing.PlaceDrafts(
+                        new CommercialTime(0, 9, 0),
+                        amountCents =>
+                        {
+                            requestedPaymentCents = amountCents;
+                            return false;
+                        }));
+
+            Assert.That(exception.Message, Does.Contain("enough cash"));
+            Assert.That(requestedPaymentCents, Is.EqualTo(2400));
+            Assert.That(
+                purchasing.TryGetDraft(
+                    big.Id,
+                    out DraftPurchaseOrder draft),
+                Is.True);
+            Assert.That(draft.TotalCents, Is.EqualTo(2400));
+            Assert.That(
+                new List<PlacedPurchaseOrder>(purchasing.EnumeratePlacedOrders()),
+                Is.Empty);
+
+            IReadOnlyList<PlacedPurchaseOrder> placed =
+                purchasing.PlaceDrafts(
+                    new CommercialTime(0, 9, 0),
+                    _ => true);
+
+            Assert.That(placed[0].OrderNumber, Is.EqualTo(1));
+        }
+
 
         private static CommercialCatalog CreateCatalog(
             ProductDefinition product,

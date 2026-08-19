@@ -7,7 +7,9 @@
         "BigRetail.Merchandise.Domain",
         "BigRetail.Merchandise.Unity",
         "BigRetail.Purchasing.Domain",
-        "BigRetail.Purchasing.Unity"
+        "BigRetail.Purchasing.Unity",
+        "BigRetail.Map.Unity",
+        "BigRetail.Simulation.Time.Domain"
     ],
     "includePlatforms": [
         "Editor"

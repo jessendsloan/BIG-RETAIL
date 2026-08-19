@@ -17,7 +17,8 @@ namespace BigRetail.Purchasing.Unity.UI
             SupplierId? selectedSupplierId,
             long grandTotalCents,
             string currentTimeSummary,
-            PurchasingReviewModel review)
+            PurchasingReviewModel review,
+            long? availableCashCents = null)
         {
             CategoryFilters = categoryFilters
                 ?? throw new ArgumentNullException(nameof(categoryFilters));
@@ -32,6 +33,7 @@ namespace BigRetail.Purchasing.Unity.UI
             GrandTotalCents = grandTotalCents;
             CurrentTimeSummary = currentTimeSummary ?? string.Empty;
             Review = review;
+            AvailableCashCents = availableCashCents;
         }
 
         public IReadOnlyList<PurchasingFilterItem> CategoryFilters { get; }
@@ -43,6 +45,7 @@ namespace BigRetail.Purchasing.Unity.UI
         public long GrandTotalCents { get; }
         public string CurrentTimeSummary { get; }
         public PurchasingReviewModel Review { get; }
+        public long? AvailableCashCents { get; }
     }
 
 

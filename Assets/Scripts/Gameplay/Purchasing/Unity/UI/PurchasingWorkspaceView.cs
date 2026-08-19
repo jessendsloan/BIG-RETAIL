@@ -22,6 +22,8 @@ namespace BigRetail.Purchasing.Unity.UI
         private const string DraftGrandTotalName = "draft-grand-total";
         private const string ReviewButtonName = "review-orders-button";
         private const string CommercialTimeName = "commercial-time";
+        private const string AvailableCashName = "available-cash";
+        private const string CloseButtonName = "close-purchasing-button";
         private const string ReviewOverlayName = "order-review-overlay";
         private const string ReviewKickerName = "order-review-kicker";
         private const string ReviewTitleName = "order-review-title";
@@ -50,6 +52,8 @@ namespace BigRetail.Purchasing.Unity.UI
         private readonly Label draftGrandTotal;
         private readonly Button reviewButton;
         private readonly Label commercialTime;
+        private readonly Label availableCash;
+        private readonly Button closeButton;
         private readonly VisualElement reviewOverlay;
         private readonly Label reviewKicker;
         private readonly Label reviewTitle;
@@ -85,6 +89,8 @@ namespace BigRetail.Purchasing.Unity.UI
             draftGrandTotal = Require<Label>(root, DraftGrandTotalName);
             reviewButton = Require<Button>(root, ReviewButtonName);
             commercialTime = Require<Label>(root, CommercialTimeName);
+            availableCash = Require<Label>(root, AvailableCashName);
+            closeButton = Require<Button>(root, CloseButtonName);
             reviewOverlay = Require<VisualElement>(root, ReviewOverlayName);
             reviewKicker = Require<Label>(root, ReviewKickerName);
             reviewTitle = Require<Label>(root, ReviewTitleName);
@@ -105,6 +111,7 @@ namespace BigRetail.Purchasing.Unity.UI
             placeOrdersButton.clicked += HandlePlaceOrdersRequested;
             confirmationCloseButton.clicked +=
                 HandleConfirmationCloseRequested;
+            closeButton.clicked += HandleCloseRequested;
             reviewButton.SetEnabled(false);
             reviewButton.tooltip = "Stage at least one case to review orders.";
         }
@@ -120,6 +127,7 @@ namespace BigRetail.Purchasing.Unity.UI
         public event Action ReviewBackRequested;
         public event Action PlaceOrdersRequested;
         public event Action ConfirmationCloseRequested;
+        public event Action CloseRequested;
 
 
         public void SetModel(PurchasingWorkspaceModel model)
@@ -144,6 +152,9 @@ namespace BigRetail.Purchasing.Unity.UI
                     : $"{model.Products.Count} products";
             draftGrandTotal.text = FormatMoney(model.GrandTotalCents);
             commercialTime.text = model.CurrentTimeSummary;
+            availableCash.text = model.AvailableCashCents.HasValue
+                ? $"AVAILABLE CASH · {FormatMoney(model.AvailableCashCents.Value)}"
+                : "EXPECTED ARRIVALS USE STORE TIME";
             reviewButton.SetEnabled(renderedDraftCount > 0);
             reviewButton.tooltip = renderedDraftCount > 0
                 ? "Review supplier orders and scheduled arrivals."
@@ -186,6 +197,7 @@ namespace BigRetail.Purchasing.Unity.UI
                 placeOrdersButton.clicked -= HandlePlaceOrdersRequested;
                 confirmationCloseButton.clicked -=
                     HandleConfirmationCloseRequested;
+                closeButton.clicked -= HandleCloseRequested;
                 ClearDynamicContent();
             }
             catch (InvalidOperationException)
@@ -408,7 +420,7 @@ namespace BigRetail.Purchasing.Unity.UI
 
             VisualElement packColumn = new VisualElement();
             packColumn.AddToClassList("selected-offer__metric");
-            packColumn.Add(MetricLabel("PURCHASE PACK", $"Case × {offer.PackQuantity}"));
+            packColumn.Add(MetricLabel("CASE PACK", $"Case × {offer.PackQuantity}"));
             panel.Add(packColumn);
 
             VisualElement unitColumn = new VisualElement();
@@ -771,6 +783,11 @@ namespace BigRetail.Purchasing.Unity.UI
         private void HandleConfirmationCloseRequested()
         {
             ConfirmationCloseRequested?.Invoke();
+        }
+
+        private void HandleCloseRequested()
+        {
+            CloseRequested?.Invoke();
         }
 
         private void BindButton(Button button, Action clickHandler)

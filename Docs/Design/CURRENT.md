@@ -4,9 +4,9 @@
 
 ## Current focus
 
-The opening **Products → Suppliers → Purchasing** commercial foundation now exists as authored data and a playable workspace through PO placement and supplier scheduling.
+The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.
 
-The supplier workspace currently stops after order placement and scheduling. Main now also has a separate opening-day graybox for cash, pending cases, receiving, backstock, fixtures, sales, and the live simulation clock. The next integration seam is to let the supplier-backed purchase orders drive those campaign systems instead of the temporary fixed-case shortcut.
+Purchasing uses the campaign clock and store cash, placed Supplier POs become scheduled deliveries, arrived deliveries can be received through the fixture-storage inspector, and received units enter the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
 ## Locked foundations
 
@@ -152,17 +152,23 @@ The supplier-backed opening implementation is flat and intentionally bounded:
 - exact arrival estimates derived from the current commercial time for same-day and next-day service, plus day-only estimates for fixed routes
 - a Review Orders sheet that enforces every staged Supplier minimum atomically
 - immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
-- a placement confirmation state that clears committed drafts without creating inventory
+- a placement confirmation state that clears committed drafts only after one atomic store-cash payment succeeds
+- a live delivery lifecycle of **Scheduled → Ready to Receive → Received**
+- delivery receiving through the existing fixture backstock / overflow inventory service
 - a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
 - stub-ready image slots on Product, Brand, and Supplier assets
-- isolated `PurchasingWorkspaceLab` and `CommercialDirectoryLab` scenes; no campaign or gameplay scene integration yet
+- isolated `PurchasingWorkspaceLab` and `CommercialDirectoryLab` scenes retained as focused review tools
+- the full Purchasing workspace installed as an open/close overlay in `Gameplay`
+- live campaign time and available store cash shown in the Purchasing header
+- the accepted 12-product opening catalog installed as the Gameplay merchandising catalog
+- rack-side purchasing replaced in the live UI by a **Supplier Deliveries** receiving panel
 
-Main independently provides the campaign-side systems needed for the next pass:
+The integrated campaign-side foundation provides:
 
 - a deterministic Monday-starting simulation clock installed in `Gameplay`
 - opening store cash and checkout revenue
 - fixture planograms, display inventory, physical backstock, stocking, and receiving
-- a temporary fixed-case ordering shortcut that spends cash immediately and creates pending units
+- a temporary fixed-case service retained only as a compatibility fallback; the live Gameplay UI no longer presents its product-order buttons
 - the opening campaign presentation and the first land-region ownership/progression foundation
 
 The temporary fixture ordering shortcut keeps wholesale case cost and retail unit price on the Product only for graybox compatibility. Permanent supplier prices, purchase-pack quantities, minimums, and delivery rules remain owned by Supplier Offers.
@@ -207,7 +213,7 @@ Supplier minimum and delivery rules are supplier-wide in this opening model. Pur
 
 ## Next design question
 
-Integrate and playtest the placement and scheduling pass against the campaign systems:
+Playtest the integrated loop in the actual campaign scene:
 
 - Is choosing the Product before the Supplier Offer natural?
 - Are pack size, unit cost, case price, and delivery timing legible enough to compare?
@@ -220,4 +226,4 @@ Integrate and playtest the placement and scheduling pass against the campaign sy
 - Does placement spend store cash atomically and reject an unaffordable batch without partially committing orders?
 - Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
 
-Replace the temporary fixed-case fixture ordering path only after the supplier-backed path proves clock, cash, delivery, and owned-inventory behavior in the gameplay scene.
+If this pass feels natural in play, the next implementation step is removing the dormant fixed-case compatibility service and deciding how the player is first introduced to Purchasing during the campaign opening.

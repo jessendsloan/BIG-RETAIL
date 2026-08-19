@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Construction.Unity.Tools;
+using BigRetail.Construction.Unity.UI.PC;
+using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
 using BigRetail.Purchasing.Unity;
 using BigRetail.Purchasing.Unity.UI;
+using BigRetail.Simulation.Time.Unity;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -52,6 +56,8 @@ namespace BigRetail.Editor.Merchandise
             LabSceneFolder + "/PurchasingWorkspaceLab.unity";
         private const string CommercialDirectoryLabScenePath =
             LabSceneFolder + "/CommercialDirectoryLab.unity";
+        private const string GameplayScenePath =
+            "Assets/Scenes/Gameplay.unity";
 
 
         private static readonly BrandSeed[] BrandSeeds =
@@ -162,6 +168,12 @@ namespace BigRetail.Editor.Merchandise
                 "Toothpaste", "PERSONAL-CARE", "Tube", "FreshMintToothpaste")
         };
 
+        private static readonly long[] OpeningRetailUnitPricesCents =
+        {
+            199, 149, 249, 179, 169, 299,
+            399, 449, 249, 399, 699, 399
+        };
+
 
         private static readonly SupplierSeed[] SupplierSeeds =
         {
@@ -253,6 +265,160 @@ namespace BigRetail.Editor.Merchandise
             EditorSceneManager.OpenScene(
                 CommercialDirectoryLabScenePath,
                 OpenSceneMode.Single);
+        }
+
+        [MenuItem(MenuRoot + "Integrate Purchasing Into Gameplay")]
+        public static void IntegratePurchasingIntoGameplay()
+        {
+            BuildCatalogAssets();
+            Scene scene = EditorSceneManager.OpenScene(
+                GameplayScenePath,
+                OpenSceneMode.Single);
+            CommercialCatalogAsset catalog =
+                AssetDatabase.LoadAssetAtPath<CommercialCatalogAsset>(
+                    CommercialCatalogPath);
+            ProductCatalogAsset productCatalog =
+                AssetDatabase.LoadAssetAtPath<ProductCatalogAsset>(
+                    ProductCatalogPath);
+            VisualTreeAsset visualTree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    PurchasingUxmlPath);
+            PanelSettings panelSettings =
+                AssetDatabase.LoadAssetAtPath<PanelSettings>(
+                    PanelSettingsPath);
+
+            if (catalog == null
+                || productCatalog == null
+                || visualTree == null
+                || panelSettings == null)
+            {
+                throw new InvalidOperationException(
+                    "Gameplay Purchasing integration is missing one or more authored assets.");
+            }
+
+            FixturePlanogramRuntimeHost planogramHost =
+                UnityEngine.Object.FindAnyObjectByType<
+                    FixturePlanogramRuntimeHost>(
+                    FindObjectsInactive.Include);
+            SimulationTimeRuntimeHost timeHost =
+                UnityEngine.Object.FindAnyObjectByType<
+                    SimulationTimeRuntimeHost>(
+                    FindObjectsInactive.Include);
+            ConstructionToolbarDocumentHost toolbarDocumentHost =
+                UnityEngine.Object.FindAnyObjectByType<
+                    ConstructionToolbarDocumentHost>(
+                    FindObjectsInactive.Include);
+            ConstructionToolCoordinator toolCoordinator =
+                UnityEngine.Object.FindAnyObjectByType<
+                    ConstructionToolCoordinator>(
+                    FindObjectsInactive.Include);
+            FixtureMerchandisingInspectorPresenter fixtureInspector =
+                UnityEngine.Object.FindAnyObjectByType<
+                    FixtureMerchandisingInspectorPresenter>(
+                    FindObjectsInactive.Include);
+
+            if (planogramHost == null
+                || timeHost == null
+                || toolbarDocumentHost == null
+                || toolCoordinator == null
+                || fixtureInspector == null)
+            {
+                throw new InvalidOperationException(
+                    "Gameplay is missing a required time, fixture, toolbar, or construction host.");
+            }
+
+            SetObjectReference(
+                planogramHost,
+                "productCatalogAsset",
+                productCatalog);
+
+            PurchasingRuntimeHost runtimeHost =
+                GetOrAddComponent<PurchasingRuntimeHost>(
+                    planogramHost.gameObject);
+            SetObjectReference(runtimeHost, "commercialCatalog", catalog);
+            SetObjectReference(runtimeHost, "timeHost", timeHost);
+            SetObjectReference(
+                runtimeHost,
+                "planogramRuntimeHost",
+                planogramHost);
+
+            GameObject workspaceObject =
+                FindSceneGameObject(scene, "PurchasingWorkspaceUI");
+
+            if (workspaceObject == null)
+            {
+                workspaceObject = new GameObject("PurchasingWorkspaceUI");
+                workspaceObject.transform.SetParent(
+                    toolbarDocumentHost.transform.parent,
+                    false);
+            }
+
+            workspaceObject.SetActive(true);
+            workspaceObject.transform.SetAsLastSibling();
+
+            PanelRenderer panelRenderer =
+                GetOrAddComponent<PanelRenderer>(workspaceObject);
+            panelRenderer.panelSettings = panelSettings;
+            panelRenderer.visualTreeAsset = visualTree;
+            panelRenderer.sortingOrder = 100;
+            EditorUtility.SetDirty(panelRenderer);
+
+            PurchasingWorkspaceDocumentHost purchasingDocumentHost =
+                GetOrAddComponent<PurchasingWorkspaceDocumentHost>(
+                    workspaceObject);
+            SetObjectReference(
+                purchasingDocumentHost,
+                "panelRenderer",
+                panelRenderer);
+
+            PurchasingWorkspacePresenter purchasingPresenter =
+                GetOrAddComponent<PurchasingWorkspacePresenter>(
+                    workspaceObject);
+            SetObjectReference(
+                purchasingPresenter,
+                "documentHost",
+                purchasingDocumentHost);
+            SetObjectReference(
+                purchasingPresenter,
+                "commercialCatalog",
+                catalog);
+            SetObjectReference(
+                purchasingPresenter,
+                "runtimeHost",
+                runtimeHost);
+
+            PurchasingGameplayOverlayController overlayController =
+                GetOrAddComponent<PurchasingGameplayOverlayController>(
+                    toolbarDocumentHost.gameObject);
+            SetObjectReference(
+                overlayController,
+                "toolbarDocumentHost",
+                toolbarDocumentHost);
+            SetObjectReference(
+                overlayController,
+                "toolCoordinator",
+                toolCoordinator);
+            SetObjectReference(
+                overlayController,
+                "purchasingWorkspace",
+                workspaceObject);
+            SetObjectReference(
+                overlayController,
+                "purchasingPresenter",
+                purchasingPresenter);
+
+            SetObjectReference(
+                fixtureInspector,
+                "purchasingRuntimeHost",
+                runtimeHost);
+
+            workspaceObject.SetActive(false);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene, GameplayScenePath);
+            AssetDatabase.SaveAssets();
+            Debug.Log(
+                "Integrated the live Purchasing workspace, supplier deliveries, and opening 12-product catalog into Gameplay.",
+                workspaceObject);
         }
 
         /// <summary>
@@ -373,6 +539,8 @@ namespace BigRetail.Editor.Merchandise
                 serialized.FindProperty("packageForm").stringValue = seed.PackageForm;
                 serialized.FindProperty("stockUnit").enumValueIndex =
                     (int)StockUnit.Each;
+                serialized.FindProperty("retailUnitPriceCents").longValue =
+                    OpeningRetailUnitPricesCents[index];
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(asset);
                 assets[index] = asset;
@@ -638,6 +806,65 @@ namespace BigRetail.Editor.Merchandise
 
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(owner);
+        }
+
+        private static void SetObjectReference(
+            UnityEngine.Object owner,
+            string propertyName,
+            UnityEngine.Object value)
+        {
+            SerializedObject serialized = new SerializedObject(owner);
+            SerializedProperty property =
+                serialized.FindProperty(propertyName);
+
+            if (property == null)
+            {
+                throw new InvalidOperationException(
+                    $"{owner.GetType().Name} has no serialized property '{propertyName}'.");
+            }
+
+            property.objectReferenceValue = value;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(owner);
+        }
+
+        private static T GetOrAddComponent<T>(
+            GameObject gameObject)
+            where T : Component
+        {
+            T component = gameObject.GetComponent<T>();
+
+            if (component == null)
+            {
+                component = gameObject.AddComponent<T>();
+            }
+
+            return component;
+        }
+
+        private static GameObject FindSceneGameObject(
+            Scene scene,
+            string objectName)
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int index = 0; index < roots.Length; index++)
+            {
+                Transform[] transforms =
+                    roots[index].GetComponentsInChildren<Transform>(true);
+
+                for (int childIndex = 0;
+                     childIndex < transforms.Length;
+                     childIndex++)
+                {
+                    if (transforms[childIndex].name == objectName)
+                    {
+                        return transforms[childIndex].gameObject;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static void EnsureFolder(string path)

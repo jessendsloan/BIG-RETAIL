@@ -109,6 +109,26 @@ namespace BigRetail.Purchasing.Domain
         public IReadOnlyList<PlacedPurchaseOrder> PlaceDrafts(
             CommercialTime placedAt)
         {
+            return PlaceDrafts(
+                placedAt,
+                _ => true);
+        }
+
+        /// <summary>
+        /// Validates and snapshots every supplier draft before asking the
+        /// campaign economy to commit one payment for the complete batch.
+        /// A rejected payment leaves every draft and order number untouched.
+        /// </summary>
+        public IReadOnlyList<PlacedPurchaseOrder> PlaceDrafts(
+            CommercialTime placedAt,
+            Func<long, bool> tryCommitPayment)
+        {
+            if (tryCommitPayment == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(tryCommitPayment));
+            }
+
             if (drafts.Count == 0)
             {
                 throw new InvalidOperationException(
@@ -132,6 +152,8 @@ namespace BigRetail.Purchasing.Domain
 
             List<PlacedPurchaseOrder> placedBatch =
                 new List<PlacedPurchaseOrder>(drafts.Count);
+            long batchTotalCents = 0;
+            long candidateOrderNumber = nextOrderNumber;
 
             foreach (DraftPurchaseOrder draft in EnumerateDrafts())
             {
@@ -139,15 +161,28 @@ namespace BigRetail.Purchasing.Domain
                     Catalog.Suppliers.GetRequired(draft.SupplierId);
                 PlacedPurchaseOrder order =
                     new PlacedPurchaseOrder(
-                        nextOrderNumber,
+                        candidateOrderNumber,
                         draft,
                         placedAt,
                         supplier.DeliveryRule.EstimateDelivery(placedAt));
-                nextOrderNumber = checked(nextOrderNumber + 1);
+                candidateOrderNumber = checked(candidateOrderNumber + 1);
+                batchTotalCents = checked(
+                    batchTotalCents + order.TotalCents);
                 placedBatch.Add(order);
-                placedOrders.Add(order);
             }
 
+            if (!tryCommitPayment(batchTotalCents))
+            {
+                throw new InvalidOperationException(
+                    "The store does not have enough cash for this order batch.");
+            }
+
+            for (int index = 0; index < placedBatch.Count; index++)
+            {
+                placedOrders.Add(placedBatch[index]);
+            }
+
+            nextOrderNumber = candidateOrderNumber;
             drafts.Clear();
             DraftsChanged?.Invoke();
             return placedBatch.AsReadOnly();

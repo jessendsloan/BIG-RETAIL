@@ -2382,6 +2382,7 @@ GameObject:
   - component: {fileID: 87599337}
   - component: {fileID: 87599339}
   - component: {fileID: 87599338}
+  - component: {fileID: 87599340}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
   m_TagString: Untagged
@@ -2627,6 +2628,7 @@ MonoBehaviour:
   fixtureRuntimeHost: {fileID: 2111000006}
   planogramRuntimeHost: {fileID: 2111000008}
   selectionHost: {fileID: 1508060594}
+  purchasingRuntimeHost: {fileID: 2111000010}
 --- !u!114 &87599337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2672,6 +2674,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.CampaignOpeningPresenter
   documentHost: {fileID: 87599325}
   timeHost: {fileID: 87599338}
+--- !u!114 &87599340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97270e7fd1245c842b22ec21434060ad, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.PurchasingGameplayOverlayController
+  toolbarDocumentHost: {fileID: 87599325}
+  toolCoordinator: {fileID: 1508060588}
+  purchasingWorkspace: {fileID: 1453580455}
+  purchasingPresenter: {fileID: 1453580456}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0
@@ -327619,6 +327637,7 @@ Transform:
   m_Children:
   - {fileID: 178694496}
   - {fileID: 87599324}
+  - {fileID: 1453580459}
   m_Father: {fileID: 775552527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1188209116
@@ -334823,6 +334842,126 @@ Transform:
   - {fileID: 41610161}
   m_Father: {fileID: 58175662}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -18}
+--- !u!1 &1453580455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1453580459}
+  - component: {fileID: 1453580458}
+  - component: {fileID: 1453580457}
+  - component: {fileID: 1453580456}
+  m_Layer: 0
+  m_Name: PurchasingWorkspaceUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1453580456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453580455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d9ac89856162d74a8aa7ca313acb613, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.UI.PurchasingWorkspacePresenter
+  documentHost: {fileID: 1453580457}
+  commercialCatalog: {fileID: 11400000, guid: 7563008cab1a1594c9c9b2ba6b0a066e, type: 2}
+  runtimeHost: {fileID: 2111000010}
+--- !u!114 &1453580457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453580455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d666b6e348e71541828008ec38f8fd5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.UI.PurchasingWorkspaceDocumentHost
+  panelRenderer: {fileID: 1453580458}
+--- !u!1931382934 &1453580458
+PanelRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453580455}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 100
+  m_MaskInteraction: 0
+  serializedVersion: 1
+  m_PanelSettings: {fileID: 11400000, guid: 80e77582b5173204a9d6896f1e8d8a7f, type: 2}
+  sourceAsset: {fileID: 9197481963319205126, guid: bdb4d9b95e0a5d94b90ceee03d59b18a, type: 3}
+  m_ParentUI: {fileID: 0}
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_Position: 0
+--- !u!4 &1453580459
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453580455}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1187853764}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1453595838
 GameObject:
   m_ObjectHideFlags: 0
@@ -336686,42 +336825,6 @@ MonoBehaviour:
   previewParent: {fileID: 0}
   demolitionColor: {r: 1, g: 0.2, b: 0.16, a: 0.82}
   sortingLayerName: Default
---- !u!114 &1508060594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1508060586}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 154192554246426791d0d98de892ccdf, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureMerchandisingSelectionHost
-  fixtureRuntimeHost: {fileID: 2111000006}
---- !u!114 &1508060595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1508060586}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4340f98d0bb344d78368c81d8ae486d5, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Fixtures.FixtureMerchandisingInputController
-  playerInput: {fileID: 933909789}
-  targetResolver: {fileID: 1234881117}
-  uiInputGate: {fileID: 87599331}
-  toolCoordinator: {fileID: 1508060588}
-  fixtureRuntimeHost: {fileID: 2111000006}
-  selectionHost: {fileID: 1508060594}
-  overlayViewSystem: {fileID: 2111000007}
-  fixtureViewSystem: {fileID: 2111000005}
-  hoverOutlineView: {fileID: 2111000009}
-  constructionActionMapName: Construction
-  confirmActionName: Confirm
 --- !u!114 &1508060591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336782,6 +336885,42 @@ MonoBehaviour:
   validColor: {r: 0.55, g: 0.9, b: 1, a: 0.75}
   invalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.82}
   sortingLayerName: Default
+--- !u!114 &1508060594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508060586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154192554246426791d0d98de892ccdf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixtureMerchandisingSelectionHost
+  fixtureRuntimeHost: {fileID: 2111000006}
+--- !u!114 &1508060595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508060586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4340f98d0bb344d78368c81d8ae486d5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Fixtures.FixtureMerchandisingInputController
+  playerInput: {fileID: 933909789}
+  targetResolver: {fileID: 1234881117}
+  uiInputGate: {fileID: 87599331}
+  toolCoordinator: {fileID: 1508060588}
+  fixtureRuntimeHost: {fileID: 2111000006}
+  selectionHost: {fileID: 1508060594}
+  overlayViewSystem: {fileID: 2111000007}
+  fixtureViewSystem: {fileID: 2111000005}
+  hoverOutlineView: {fileID: 2111000009}
+  constructionActionMapName: Construction
+  confirmActionName: Confirm
 --- !u!1 &1509157016
 GameObject:
   m_ObjectHideFlags: 0
@@ -438322,6 +438461,7 @@ GameObject:
   - component: {fileID: 2111000008}
   - component: {fileID: 2111000007}
   - component: {fileID: 2111000009}
+  - component: {fileID: 2111000010}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -438345,6 +438485,8 @@ MonoBehaviour:
   wallFinishAssets: {fileID: 11400000, guid: 4c45a1780b6138c4fa94569590cebe5c, type: 2}
   doorDefinitionAssets: {fileID: 11400000, guid: 396e59cca10e470898db1d160ccf5ab2, type: 2}
   foundationRuntimeHost: {fileID: 447959067}
+  firstExpansionPriceCents: 0
+  firstExpansionQualificationId: prototype.first_land_region
   logInitializationSummary: 1
 --- !u!114 &1863031835
 MonoBehaviour:
@@ -444816,7 +444958,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Fixtures.FixturePlanogramRuntimeHost
   fixtureRuntimeHost: {fileID: 2111000006}
-  productCatalogAsset: {fileID: 11400000, guid: 595c7a97dd9f6bc4dbc8b8c1a1aaa9d6, type: 2}
+  productCatalogAsset: {fileID: 11400000, guid: f252000f08ffa644eb231a3d72c07e46, type: 2}
 --- !u!114 &2111000009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -444832,6 +444974,21 @@ MonoBehaviour:
   fixtureViewSystem: {fileID: 2111000005}
   outlineColor: {r: 1, g: 0.72, b: 0.16, a: 0.96}
   outlineThickness: 0.032
+--- !u!114 &2111000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7807076f63b1e8042be9cdbcc556f609, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.PurchasingRuntimeHost
+  commercialCatalog: {fileID: 11400000, guid: 7563008cab1a1594c9c9b2ba6b0a066e, type: 2}
+  timeHost: {fileID: 87599338}
+  planogramRuntimeHost: {fileID: 2111000008}
 --- !u!1 &2111249051
 GameObject:
   m_ObjectHideFlags: 0

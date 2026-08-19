@@ -21,3 +21,5 @@ MonoBehaviour:
   packageForm: Pack
   catalogImage: {fileID: 0}
   stockUnit: 0
+  wholesaleCaseCostCents: 0
+  retailUnitPriceCents: 169
