@@ -1,6 +1,6 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-17
+**Last updated:** 2026-08-18
 
 ## Current focus
 
@@ -107,6 +107,22 @@ He is a recurring campaign spine with three simultaneous roles:
 
 BIG helped finance the player's beginning, owns the player's debt, and owns BIG Wholesale. Mr. BIG is charming, useful, slightly unfair, and profits from the player's dependence. The long-term relationship should shift from the player adapting to BIG toward BIG eventually wanting the player's business.
 
+## Progression design thread — exploratory
+
+A promising progression direction is preserved in `Patches/PermitParcelProgression.md`.
+
+Current hypothesis:
+
+- Avoid arbitrary XP-style department unlocks where possible.
+- Use **permits** as visible progression gates tied to concrete store requirements.
+- Keep **permit, infrastructure, and department** as separate concepts: permission/qualification → physical capability → commercial operation.
+- Let employees, suppliers, utilities, security, receiving, parking, and other systems become department requirements where appropriate rather than making one system the universal gate.
+- Consider dividing the eventual property into purchasable / unlockable **parcels or sections**, inspired by the territorial progression feel of Parcel Simulator, so the playable site itself grows with the retailer.
+- Do not treat 96 as a locked parcel count or geometry; parcel scale and shape remain open.
+- The existing `ConstructionAreaDefinition` already separates physical construction eligibility from ownership/progression/cost rules, which appears compatible with a future parcel layer.
+
+This is not yet a locked progression schedule and should not interrupt the current purchasing implementation target.
+
 ## Current implementation target
 
 Keep the first implementation **flat and small**.
@@ -127,6 +143,7 @@ The next content pass should map the accepted 12 opening SKUs across BIG Wholesa
 ## Deferred for later
 
 - Supplier Accounts & Relationships — preserved as a design patch in `Patches/SupplierAccountsAndRelationships.md`
+- Permit / Parcel progression details — preserved as a design patch in `Patches/PermitParcelProgression.md`
 - Negotiations
 - Contracts
 - Credit terms and invoices
