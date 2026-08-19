@@ -65,6 +65,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             private set;
         }
 
+        public CampaignOpeningView CampaignOpeningView
+        {
+            get;
+            private set;
+        }
+
         public bool HasView =>
             View != null;
 
@@ -88,6 +94,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         public bool HasSimulationClockView =>
             SimulationClockView != null;
+
+        public bool HasCampaignOpeningView =>
+            CampaignOpeningView != null;
 
         /// <summary>
         /// Returns true when a screen position is currently over a pickable
@@ -152,6 +161,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureMerchandisingInspectorViewReady;
 
         public event Action<SimulationClockView> SimulationClockViewReady;
+
+        public event Action<CampaignOpeningView> CampaignOpeningViewReady;
 
         private int loadedVersion = -1;
 
@@ -224,6 +235,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && DepartmentPickerView != null
                 && FixtureMerchandisingInspectorView != null
                 && SimulationClockView != null
+                && CampaignOpeningView != null
                 && loadedVersion == version)
             {
                 return;
@@ -267,6 +279,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     new SimulationClockView(
                         root);
 
+                CampaignOpeningView =
+                    new CampaignOpeningView(
+                        root);
+
                 loadedVersion =
                     version;
 
@@ -293,6 +309,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 SimulationClockViewReady?.Invoke(
                     SimulationClockView);
+
+                CampaignOpeningViewReady?.Invoke(
+                    CampaignOpeningView);
             }
             catch (Exception exception)
             {
@@ -356,6 +375,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 SimulationClockView.Dispose();
                 SimulationClockView = null;
+            }
+
+            if (CampaignOpeningView != null)
+            {
+                CampaignOpeningView.Dispose();
+                CampaignOpeningView = null;
             }
         }
     }

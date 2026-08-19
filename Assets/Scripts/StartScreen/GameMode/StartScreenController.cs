@@ -11,9 +11,9 @@ namespace BigRetail.UI.StartScreen
         [SerializeField]
         private GameSessionHost sessionHost;
 
-        public void StartStoryMode()
+        public void StartCampaignMode()
         {
-            StartMode(GameMode.Story);
+            StartMode(GameMode.Campaign);
         }
 
         public void StartSandboxMode()
@@ -28,7 +28,11 @@ namespace BigRetail.UI.StartScreen
 
         private void StartMode(GameMode mode)
         {
-            if (sessionHost == null)
+            GameSessionHost host = sessionHost != null
+                ? sessionHost
+                : GameSessionHost.Instance;
+
+            if (host == null)
             {
                 Debug.LogError(
                     "StartScreenController has no GameSessionHost assigned."
@@ -37,7 +41,7 @@ namespace BigRetail.UI.StartScreen
                 return;
             }
 
-            sessionHost.StartNewSession(mode);
+            host.StartNewSession(mode);
         }
     }
 }

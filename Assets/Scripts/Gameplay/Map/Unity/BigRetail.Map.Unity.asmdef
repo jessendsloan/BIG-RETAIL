@@ -12,7 +12,8 @@
         "BigRetail.Map.Foundations",
         "BigRetail.Map.Fixtures",
         "BigRetail.Merchandise.Domain",
-        "BigRetail.Merchandise.Unity"
+        "BigRetail.Merchandise.Unity",
+        "BigRetail.Session"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

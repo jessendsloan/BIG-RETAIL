@@ -10,12 +10,64 @@ namespace BigRetail.Core.Session
     public sealed class GameSessionHost : MonoBehaviour
     {
         private static GameSessionHost existingHost;
+        private bool isLoadingGameplay;
 
         [Header("Scene Configuration")]
         [SerializeField]
         private string gameplaySceneName = "Gameplay";
 
+        public static GameSessionHost Instance => existingHost;
+
+        public static bool HasActiveSession =>
+            existingHost != null && existingHost.CurrentSession != null;
+
+        /// <summary>
+        /// Direct Gameplay scene launches remain a sandbox so the established
+        /// construction and simulation workflow keeps working in the Editor.
+        /// </summary>
+        public static GameMode ActiveMode => HasActiveSession
+            ? existingHost.CurrentSession.Mode
+            : GameMode.Sandbox;
+
         public GameSession CurrentSession { get; private set; }
+
+        /// <summary>
+        /// Creates a real session around an already-loaded Gameplay scene.
+        /// This is used by controlled development launchers that intentionally
+        /// skip the player-facing start screen.
+        /// </summary>
+        public static GameSessionHost StartSessionInLoadedScene(GameMode mode)
+        {
+            if (!IsKnownMode(mode))
+            {
+                Debug.LogError(
+                    $"Cannot start an unknown Big Retail game mode: {mode}.");
+                return null;
+            }
+
+            GameSessionHost host = existingHost;
+
+            if (host == null)
+            {
+                GameObject hostObject = new GameObject(
+                    "GameSessionHost (Quick Start)");
+                host = hostObject.AddComponent<GameSessionHost>();
+
+                // Awake runs immediately in Play Mode. Keeping this fallback
+                // makes the ownership explicit for lifecycle-based tests and
+                // unusual Editor configurations as well.
+                existingHost ??= host;
+            }
+
+            host.CurrentSession = new GameSession(mode);
+            host.isLoadingGameplay = false;
+
+            Debug.Log(
+                $"Quick-started Big Retail in {mode} mode with the loaded scene.",
+                host);
+
+            return host;
+        }
 
         private void Awake()
         {
@@ -34,9 +86,14 @@ namespace BigRetail.Core.Session
 
         public void StartNewSession(GameMode mode)
         {
-            if (CurrentSession != null)
+            if (isLoadingGameplay)
             {
-                Debug.LogWarning("A Big Retail session already exists.");
+                return;
+            }
+
+            if (!IsKnownMode(mode))
+            {
+                Debug.LogError($"Cannot start an unknown Big Retail game mode: {mode}.");
                 return;
             }
 
@@ -50,10 +107,16 @@ namespace BigRetail.Core.Session
             }
 
             CurrentSession = new GameSession(mode);
+            isLoadingGameplay = true;
 
             Debug.Log($"Starting Big Retail session in {mode} mode.");
 
             SceneManager.LoadScene(gameplaySceneName);
+        }
+
+        private static bool IsKnownMode(GameMode mode)
+        {
+            return System.Enum.IsDefined(typeof(GameMode), mode);
         }
 
         private void OnDestroy()

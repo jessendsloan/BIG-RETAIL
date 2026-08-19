@@ -813,5 +813,86 @@
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
+
+        <ui:VisualElement
+            name="campaign-objective-card"
+            class="campaign-objective-card"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="CURRENT OBJECTIVE"
+                class="campaign-objective-card__caption"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="campaign-objective-title"
+                text="Make It a Store"
+                class="campaign-objective-card__title"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="campaign-objective-description"
+                text="Build a store shell with an entrance and room for merchandise."
+                class="campaign-objective-card__description"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <ui:VisualElement
+            name="campaign-opening-overlay"
+            class="campaign-opening-overlay"
+            picking-mode="Position">
+
+            <ui:VisualElement
+                class="campaign-opening-panel"
+                picking-mode="Position">
+
+                <ui:VisualElement
+                    class="campaign-opening-panel__portrait-frame"
+                    picking-mode="Ignore">
+                    <ui:VisualElement
+                        class="campaign-opening-panel__portrait"
+                        picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <ui:VisualElement
+                    class="campaign-opening-panel__content"
+                    picking-mode="Position">
+
+                    <ui:VisualElement
+                        class="campaign-opening-panel__header"
+                        picking-mode="Ignore">
+                        <ui:Label
+                            name="campaign-opening-speaker"
+                            text="MILTON BIG"
+                            class="campaign-opening-panel__speaker"
+                            picking-mode="Ignore" />
+                        <ui:Label
+                            name="campaign-opening-progress"
+                            text="1 / 3"
+                            class="campaign-opening-panel__progress"
+                            picking-mode="Ignore" />
+                    </ui:VisualElement>
+
+                    <ui:Label
+                        name="campaign-opening-dialogue"
+                        text="There she is."
+                        class="campaign-opening-panel__dialogue"
+                        picking-mode="Ignore" />
+
+                    <ui:VisualElement
+                        class="campaign-opening-panel__actions"
+                        picking-mode="Position">
+                        <ui:Button
+                            name="campaign-opening-skip"
+                            text="Skip Introduction"
+                            class="campaign-opening-panel__button campaign-opening-panel__button--secondary" />
+                        <ui:Button
+                            name="campaign-opening-continue"
+                            text="Continue"
+                            class="campaign-opening-panel__button campaign-opening-panel__button--primary" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -14,7 +14,8 @@ namespace BigRetail.Map.Construction
     /// Ownership, progression, cost, conflicts, and other rules
     /// may still reject a construction request.
     /// </summary>
-    public sealed class ConstructionAreaDefinition
+    public sealed class ConstructionAreaDefinition :
+        IConstructionCellEligibility
     {
         private readonly HashSet<GridPosition> eligibleCells;
 

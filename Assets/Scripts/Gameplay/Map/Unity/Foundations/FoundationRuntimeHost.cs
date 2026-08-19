@@ -81,7 +81,7 @@ namespace BigRetail.Map.Unity.Foundations
             if (mapHost == null
                 || !mapHost.IsInitialized
                 || mapHost.MapDefinition == null
-                || mapHost.ConstructionArea == null)
+                || mapHost.ConstructionEligibility == null)
             {
                 return false;
             }
@@ -92,7 +92,7 @@ namespace BigRetail.Map.Unity.Foundations
             FoundationConstruction =
                 new FoundationConstructionService(
                     mapHost.MapDefinition,
-                    mapHost.ConstructionArea,
+                    mapHost.ConstructionEligibility,
                     FoundationState,
                     this);
 

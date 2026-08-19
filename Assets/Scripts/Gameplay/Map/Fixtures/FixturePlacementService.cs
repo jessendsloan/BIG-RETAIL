@@ -12,7 +12,7 @@ namespace BigRetail.Map.Fixtures
     public sealed class FixturePlacementService
     {
         private readonly GridMapDefinition mapDefinition;
-        private readonly ConstructionAreaDefinition constructionArea;
+        private readonly IConstructionCellEligibility constructionArea;
         private readonly FixtureDefinitionCatalog definitionCatalog;
         private readonly FixtureState fixtureState;
         private readonly IFixturePlacementSurfaceQuery surfaceQuery;
@@ -20,7 +20,7 @@ namespace BigRetail.Map.Fixtures
 
         public FixturePlacementService(
             GridMapDefinition mapDefinition,
-            ConstructionAreaDefinition constructionArea,
+            IConstructionCellEligibility constructionArea,
             FixtureDefinitionCatalog definitionCatalog,
             FixtureState fixtureState,
             IFixturePlacementSurfaceQuery surfaceQuery)

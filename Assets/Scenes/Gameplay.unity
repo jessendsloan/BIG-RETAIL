@@ -2380,6 +2380,7 @@ GameObject:
   - component: {fileID: 87599335}
   - component: {fileID: 87599336}
   - component: {fileID: 87599337}
+  - component: {fileID: 87599339}
   - component: {fileID: 87599338}
   m_Layer: 0
   m_Name: ConstructionToolbarUI
@@ -2657,6 +2658,20 @@ MonoBehaviour:
   startingMinute: 0
   gameMinutesPerRealSecond: 1
   initialSpeed: 1
+--- !u!114 &87599339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87599323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf656a958ed74747a93efd4684a2abb5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.UI.PC.CampaignOpeningPresenter
+  documentHost: {fileID: 87599325}
+  timeHost: {fileID: 87599338}
 --- !u!1 &88762025
 GameObject:
   m_ObjectHideFlags: 0

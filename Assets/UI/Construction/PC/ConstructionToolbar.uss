@@ -5,8 +5,8 @@
 
 .store-cash-hud {
     position: absolute;
-    top: 28px;
-    left: 157px;
+    bottom: 24px;
+    left: 24px;
     width: 190px;
     height: 64px;
     padding-top: 7px;
@@ -42,7 +42,7 @@
 
 .simulation-clock {
     position: absolute;
-    top: 24px;
+    bottom: 24px;
     left: 50%;
     margin-left: -135px;
     width: 270px;
@@ -1250,4 +1250,168 @@
 
 .demolition-picker__icon--fixtures {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Fixtures.png");
+}
+
+.campaign-objective-card {
+    display: none;
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    width: 400px;
+    min-height: 88px;
+    margin-left: -200px;
+    padding-top: 10px;
+    padding-right: 16px;
+    padding-bottom: 11px;
+    padding-left: 18px;
+    flex-direction: column;
+    background-color: rgba(244, 240, 230, 0.96);
+    border-width: 1px;
+    border-left-width: 6px;
+    border-color: rgba(35, 43, 50, 0.30);
+    border-left-color: rgb(183, 137, 53);
+    border-radius: 9px;
+}
+
+.campaign-objective-card__caption {
+    height: 17px;
+    color: rgb(137, 96, 35);
+    font-size: 9px;
+    -unity-font-style: bold;
+    letter-spacing: 1.2px;
+}
+
+.campaign-objective-card__title {
+    height: 25px;
+    color: rgb(35, 54, 44);
+    font-size: 17px;
+    -unity-font-style: bold;
+}
+
+.campaign-objective-card__description {
+    min-height: 28px;
+    color: rgb(74, 79, 77);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.campaign-opening-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding-top: 24px;
+    align-items: center;
+    background-color: rgba(13, 18, 20, 0.20);
+}
+
+.campaign-opening-panel {
+    width: 840px;
+    min-height: 208px;
+    padding: 15px;
+    flex-direction: row;
+    background-color: rgba(42, 50, 53, 0.98);
+    border-width: 2px;
+    border-color: rgb(181, 137, 61);
+    border-radius: 12px;
+}
+
+.campaign-opening-panel__portrait-frame {
+    width: 176px;
+    height: 176px;
+    margin-right: 18px;
+    padding: 4px;
+    background-color: rgb(21, 25, 27);
+    border-width: 2px;
+    border-color: rgb(204, 164, 87);
+    border-radius: 7px;
+}
+
+.campaign-opening-panel__portrait {
+    flex-grow: 1;
+    background-image: url("project://database/Assets/Art/Campaign/MiltonBig.png");
+    -unity-background-scale-mode: scale-and-crop;
+    border-radius: 4px;
+}
+
+.campaign-opening-panel__content {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.campaign-opening-panel__header {
+    height: 32px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(216, 183, 115, 0.32);
+}
+
+.campaign-opening-panel__speaker {
+    flex-grow: 1;
+    color: rgb(234, 205, 142);
+    font-size: 19px;
+    -unity-font-style: bold;
+    letter-spacing: 1.5px;
+}
+
+.campaign-opening-panel__progress {
+    width: 52px;
+    color: rgba(245, 242, 232, 0.65);
+    font-size: 11px;
+    -unity-text-align: middle-right;
+}
+
+.campaign-opening-panel__dialogue {
+    flex-grow: 1;
+    min-height: 84px;
+    padding-top: 14px;
+    padding-right: 8px;
+    color: rgb(247, 244, 235);
+    font-size: 17px;
+    white-space: normal;
+}
+
+.campaign-opening-panel__actions {
+    height: 43px;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-end;
+}
+
+.campaign-opening-panel__button {
+    min-width: 150px;
+    height: 40px;
+    margin-left: 9px;
+    padding-left: 17px;
+    padding-right: 17px;
+    font-size: 13px;
+    -unity-font-style: bold;
+    border-radius: 6px;
+}
+
+.campaign-opening-panel__button--secondary {
+    color: rgba(247, 244, 235, 0.74);
+    background-color: rgba(255, 255, 255, 0.05);
+    border-width: 1px;
+    border-color: rgba(247, 244, 235, 0.24);
+}
+
+.campaign-opening-panel__button--secondary:hover {
+    color: rgb(247, 244, 235);
+    background-color: rgba(255, 255, 255, 0.11);
+}
+
+.campaign-opening-panel__button--primary {
+    color: rgb(32, 35, 33);
+    background-color: rgb(215, 177, 99);
+    border-width: 1px;
+    border-color: rgb(239, 209, 145);
+}
+
+.campaign-opening-panel__button--primary:hover {
+    background-color: rgb(230, 194, 116);
 }

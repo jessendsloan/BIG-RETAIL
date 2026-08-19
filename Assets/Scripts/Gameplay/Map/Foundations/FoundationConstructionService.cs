@@ -16,14 +16,14 @@ namespace BigRetail.Map.Foundations
         IFoundationSupportQuery
     {
         private readonly GridMapDefinition mapDefinition;
-        private readonly ConstructionAreaDefinition constructionArea;
+        private readonly IConstructionCellEligibility constructionArea;
         private readonly FoundationState foundationState;
         private readonly IFoundationRemovalValidator removalValidator;
 
 
         public FoundationConstructionService(
             GridMapDefinition mapDefinition,
-            ConstructionAreaDefinition constructionArea,
+            IConstructionCellEligibility constructionArea,
             FoundationState foundationState,
             IFoundationRemovalValidator removalValidator)
         {

@@ -118,7 +118,7 @@ namespace BigRetail.Map.Unity.Floors
             if (mapHost == null
                 || !mapHost.IsInitialized
                 || mapHost.MapDefinition == null
-                || mapHost.ConstructionArea == null
+                || mapHost.ConstructionEligibility == null
                 || foundationRuntimeHost == null
                 || !foundationRuntimeHost.TryInitialize()
                 || floorFinishAssets == null)
@@ -132,7 +132,7 @@ namespace BigRetail.Map.Unity.Floors
             FloorConstruction =
                 new FloorConstructionService(
                     mapHost.MapDefinition,
-                    mapHost.ConstructionArea,
+                    mapHost.ConstructionEligibility,
                     FloorState,
                     foundationRuntimeHost);
 
