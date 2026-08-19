@@ -236,7 +236,7 @@ Do **not** build these yet:
 - shortages or backorders
 - returns or damage
 - discontinuation
-- pallets or truckloads
+- pallet/truckload procurement quantities or capacity simulation (the opening per-PO pallet is a receiving-world representation)
 - private label
 - manufacturer-direct deals
 

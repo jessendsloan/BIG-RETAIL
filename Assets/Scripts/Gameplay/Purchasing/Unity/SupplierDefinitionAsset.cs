@@ -45,6 +45,13 @@ namespace BigRetail.Purchasing.Unity
         [SerializeField]
         private Color accentColor = new Color(0.18f, 0.39f, 0.48f, 1f);
 
+        [Tooltip(
+            "Optional isometric shipping carton used for this supplier's "
+            + "physical inbound loads. A supplier-colored graybox carton is "
+            + "generated when absent.")]
+        [SerializeField]
+        private Sprite deliveryBoxSprite;
+
 
         public string DisplayName =>
             displayName;
@@ -60,6 +67,12 @@ namespace BigRetail.Purchasing.Unity
 
         public Color AccentColor =>
             accentColor;
+
+        public Sprite DeliveryBoxSprite =>
+            deliveryBoxSprite;
+
+        public string SupplierIdValue =>
+            supplierId ?? string.Empty;
 
 
         public bool TryCreateDefinition(

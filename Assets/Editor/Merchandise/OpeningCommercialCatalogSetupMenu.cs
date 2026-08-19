@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Construction.Unity.UI.PC;
+using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.View;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
@@ -13,6 +15,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
 namespace BigRetail.Editor.Merchandise
@@ -316,15 +319,30 @@ namespace BigRetail.Editor.Merchandise
                 UnityEngine.Object.FindAnyObjectByType<
                     FixtureMerchandisingInspectorPresenter>(
                     FindObjectsInactive.Include);
+            GridMapHost mapHost =
+                UnityEngine.Object.FindAnyObjectByType<GridMapHost>(
+                    FindObjectsInactive.Include);
+            IsometricViewHost viewHost =
+                UnityEngine.Object.FindAnyObjectByType<IsometricViewHost>(
+                    FindObjectsInactive.Include);
+            GameObject mapVisuals =
+                FindSceneGameObject(scene, "MapVIsuals");
+            Tilemap coordinateTilemap =
+                mapVisuals != null
+                    ? mapVisuals.GetComponent<Tilemap>()
+                    : null;
 
             if (planogramHost == null
                 || timeHost == null
                 || toolbarDocumentHost == null
                 || toolCoordinator == null
-                || fixtureInspector == null)
+                || fixtureInspector == null
+                || mapHost == null
+                || viewHost == null
+                || coordinateTilemap == null)
             {
                 throw new InvalidOperationException(
-                    "Gameplay is missing a required time, fixture, toolbar, or construction host.");
+                    "Gameplay is missing a required time, map, fixture, toolbar, or construction host.");
             }
 
             SetObjectReference(
@@ -412,12 +430,32 @@ namespace BigRetail.Editor.Merchandise
                 "purchasingRuntimeHost",
                 runtimeHost);
 
+            InboundDeliveryViewSystem deliveryViewSystem =
+                GetOrAddComponent<InboundDeliveryViewSystem>(
+                    planogramHost.gameObject);
+            SetObjectReference(
+                deliveryViewSystem,
+                "purchasingRuntimeHost",
+                runtimeHost);
+            SetObjectReference(
+                deliveryViewSystem,
+                "mapHost",
+                mapHost);
+            SetObjectReference(
+                deliveryViewSystem,
+                "viewHost",
+                viewHost);
+            SetObjectReference(
+                deliveryViewSystem,
+                "coordinateTilemap",
+                coordinateTilemap);
+
             workspaceObject.SetActive(false);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, GameplayScenePath);
             AssetDatabase.SaveAssets();
             Debug.Log(
-                "Integrated the live Purchasing workspace, supplier deliveries, and opening 12-product catalog into Gameplay.",
+                "Integrated the live Purchasing workspace, visible supplier pallets, deliveries, and opening 12-product catalog into Gameplay.",
                 workspaceObject);
         }
 

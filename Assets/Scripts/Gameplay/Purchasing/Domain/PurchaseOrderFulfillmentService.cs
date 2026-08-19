@@ -143,6 +143,52 @@ namespace BigRetail.Purchasing.Domain
             }
         }
 
+        public IEnumerable<InboundDeliveryLoad>
+            EnumerateReadyDeliveries()
+        {
+            for (int index = 0; index < recordOrder.Count; index++)
+            {
+                FulfillmentRecord record = recordOrder[index];
+
+                if (record.Status
+                    == PurchaseOrderDeliveryStatus.ReadyToReceive)
+                {
+                    yield return new InboundDeliveryLoad(
+                        record.Order,
+                        record.RemainingUnitCount);
+                }
+            }
+        }
+
+        public PurchaseOrderReceivingResult ReceiveDelivery(
+            long orderNumber)
+        {
+            if (!records.TryGetValue(
+                    orderNumber,
+                    out FulfillmentRecord record))
+            {
+                throw new KeyNotFoundException(
+                    $"Purchase order '{orderNumber}' is not scheduled.");
+            }
+
+            if (record.Status
+                != PurchaseOrderDeliveryStatus.ReadyToReceive)
+            {
+                return default;
+            }
+
+            PurchaseOrderReceivingResult result =
+                ReceiveRecord(record);
+
+            if (result.ReceivedUnitCount > 0
+                || result.CompletedOrderCount > 0)
+            {
+                DeliveriesChanged?.Invoke();
+            }
+
+            return result;
+        }
+
         public PurchaseOrderReceivingResult ReceiveAvailableDeliveries()
         {
             int receivedUnitCount = 0;
@@ -161,37 +207,17 @@ namespace BigRetail.Purchasing.Domain
                     continue;
                 }
 
-                for (int lineIndex = 0;
-                     lineIndex < record.Lines.Count;
-                     lineIndex++)
-                {
-                    FulfillmentLine line = record.Lines[lineIndex];
-
-                    if (line.RemainingUnitCount <= 0)
-                    {
-                        continue;
-                    }
-
-                    if (receiver.TryReceive(
-                            line.ProductId,
-                            line.RemainingUnitCount))
-                    {
-                        receivedUnitCount = checked(
-                            receivedUnitCount + line.RemainingUnitCount);
-                        line.MarkReceived();
-                    }
-                    else
-                    {
-                        failedUnitCount = checked(
-                            failedUnitCount + line.RemainingUnitCount);
-                    }
-                }
-
-                if (record.RemainingUnitCount == 0)
-                {
-                    record.MarkReceived();
-                    completedOrderCount++;
-                }
+                PurchaseOrderReceivingResult recordResult =
+                    ReceiveRecord(record);
+                receivedUnitCount = checked(
+                    receivedUnitCount
+                    + recordResult.ReceivedUnitCount);
+                failedUnitCount = checked(
+                    failedUnitCount
+                    + recordResult.FailedUnitCount);
+                completedOrderCount = checked(
+                    completedOrderCount
+                    + recordResult.CompletedOrderCount);
             }
 
             if (receivedUnitCount > 0 || completedOrderCount > 0)
@@ -234,6 +260,54 @@ namespace BigRetail.Purchasing.Domain
             }
 
             return count;
+        }
+
+        private PurchaseOrderReceivingResult ReceiveRecord(
+            FulfillmentRecord record)
+        {
+            int receivedUnitCount = 0;
+            int failedUnitCount = 0;
+
+            for (int lineIndex = 0;
+                 lineIndex < record.Lines.Count;
+                 lineIndex++)
+            {
+                FulfillmentLine line = record.Lines[lineIndex];
+
+                if (line.RemainingUnitCount <= 0)
+                {
+                    continue;
+                }
+
+                if (receiver.TryReceive(
+                        line.ProductId,
+                        line.RemainingUnitCount))
+                {
+                    receivedUnitCount = checked(
+                        receivedUnitCount
+                        + line.RemainingUnitCount);
+                    line.MarkReceived();
+                }
+                else
+                {
+                    failedUnitCount = checked(
+                        failedUnitCount
+                        + line.RemainingUnitCount);
+                }
+            }
+
+            int completedOrderCount = 0;
+
+            if (record.RemainingUnitCount == 0)
+            {
+                record.MarkReceived();
+                completedOrderCount = 1;
+            }
+
+            return new PurchaseOrderReceivingResult(
+                receivedUnitCount,
+                failedUnitCount,
+                completedOrderCount);
         }
 
 

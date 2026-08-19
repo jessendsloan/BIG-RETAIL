@@ -438462,6 +438462,7 @@ GameObject:
   - component: {fileID: 2111000007}
   - component: {fileID: 2111000009}
   - component: {fileID: 2111000010}
+  - component: {fileID: 2111000011}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -444989,6 +444990,27 @@ MonoBehaviour:
   commercialCatalog: {fileID: 11400000, guid: 7563008cab1a1594c9c9b2ba6b0a066e, type: 2}
   timeHost: {fileID: 87599338}
   planogramRuntimeHost: {fileID: 2111000008}
+--- !u!114 &2111000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95eb4e53d571734419934771b2043dc7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.InboundDeliveryViewSystem
+  purchasingRuntimeHost: {fileID: 2111000010}
+  mapHost: {fileID: 1863031834}
+  viewHost: {fileID: 2111000001}
+  coordinateTilemap: {fileID: 463974780}
+  palletSprite: {fileID: 0}
+  viewParent: {fileID: 0}
+  sortingLayerName: Default
+  worldPositionOffset: {x: 0, y: -0.12, z: 0}
+  maximumStagingSlotCount: 6
 --- !u!1 &2111249051
 GameObject:
   m_ObjectHideFlags: 0

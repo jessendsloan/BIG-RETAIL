@@ -4,8 +4,11 @@
     "references": [
         "BigRetail.Economy.Domain",
         "BigRetail.Inventory.Domain",
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain",
         "BigRetail.Map.Fixtures",
         "BigRetail.Map.Unity",
+        "BigRetail.Map.View",
         "BigRetail.Merchandise.Domain",
         "BigRetail.Merchandise.Unity",
         "BigRetail.Purchasing.Domain",

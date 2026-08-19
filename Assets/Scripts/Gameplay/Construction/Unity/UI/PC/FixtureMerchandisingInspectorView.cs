@@ -358,6 +358,29 @@ namespace BigRetail.Construction.Unity.UI.PC
             receiveDeliveryButton.SetEnabled(canReceive);
         }
 
+        public void SetSupplierReceivingSummary(
+            long cashBalanceCents,
+            int readyPalletCount,
+            int readyUnitCount,
+            bool canReceive)
+        {
+            purchasingCashValueLabel.text =
+                FormatMoney(cashBalanceCents);
+
+            purchasingPendingValueLabel.text = readyPalletCount > 0
+                ? readyPalletCount == 1
+                    ? $"1 supplier pallet · {readyUnitCount} units"
+                    : $"{readyPalletCount} supplier pallets · {readyUnitCount} units"
+                : "Nothing ready to receive";
+
+            receiveDeliveryButton.text = readyPalletCount == 1
+                ? "Receive Supplier Pallet"
+                : readyPalletCount > 1
+                    ? $"Receive {readyPalletCount} Supplier Pallets"
+                    : "Receive Supplier Pallets";
+            receiveDeliveryButton.SetEnabled(canReceive);
+        }
+
         public void SetPurchasingStatus(string status)
         {
             purchasingStatusLabel.text =

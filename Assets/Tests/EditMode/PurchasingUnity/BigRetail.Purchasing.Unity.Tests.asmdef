@@ -8,6 +8,7 @@
         "BigRetail.Merchandise.Unity",
         "BigRetail.Purchasing.Domain",
         "BigRetail.Purchasing.Unity",
+        "BigRetail.Map.Domain",
         "BigRetail.Map.Unity",
         "BigRetail.Simulation.Time.Domain"
     ],

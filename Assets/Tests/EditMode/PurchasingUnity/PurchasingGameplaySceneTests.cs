@@ -29,6 +29,9 @@ namespace BigRetail.Purchasing.Unity.Tests
                 PurchasingRuntimeHost runtimeHost =
                     Object.FindAnyObjectByType<PurchasingRuntimeHost>(
                         FindObjectsInactive.Include);
+                InboundDeliveryViewSystem deliveryViewSystem =
+                    Object.FindAnyObjectByType<InboundDeliveryViewSystem>(
+                        FindObjectsInactive.Include);
                 FixturePlanogramRuntimeHost planogramHost =
                     Object.FindAnyObjectByType<FixturePlanogramRuntimeHost>(
                         FindObjectsInactive.Include);
@@ -39,6 +42,7 @@ namespace BigRetail.Purchasing.Unity.Tests
 
                 Assert.That(runtimeHost, Is.Not.Null);
                 Assert.That(runtimeHost.CatalogAsset, Is.Not.Null);
+                Assert.That(deliveryViewSystem, Is.Not.Null);
                 Assert.That(planogramHost, Is.Not.Null);
                 Assert.That(presenter, Is.Not.Null);
                 Assert.That(presenter.gameObject.activeSelf, Is.False);
@@ -60,6 +64,27 @@ namespace BigRetail.Purchasing.Unity.Tests
                     serializedPresenter.FindProperty("runtimeHost")
                         .objectReferenceValue,
                     Is.SameAs(runtimeHost));
+
+                SerializedObject serializedDeliveryView =
+                    new SerializedObject(deliveryViewSystem);
+                Assert.That(
+                    serializedDeliveryView
+                        .FindProperty("purchasingRuntimeHost")
+                        .objectReferenceValue,
+                    Is.SameAs(runtimeHost));
+                Assert.That(
+                    serializedDeliveryView.FindProperty("mapHost")
+                        .objectReferenceValue,
+                    Is.Not.Null);
+                Assert.That(
+                    serializedDeliveryView.FindProperty("viewHost")
+                        .objectReferenceValue,
+                    Is.Not.Null);
+                Assert.That(
+                    serializedDeliveryView
+                        .FindProperty("coordinateTilemap")
+                        .objectReferenceValue,
+                    Is.Not.Null);
             }
             finally
             {

@@ -395,7 +395,7 @@
 
                     <ui:Button
                         name="fixture-purchasing-receive-button"
-                        text="Receive Arrived Deliveries"
+                        text="Receive Supplier Pallets"
                         class="fixture-merchandising-inspector__receive-button"
                         tooltip="Move every arrived supplier delivery into store inventory." />
 

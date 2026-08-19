@@ -223,6 +223,17 @@ namespace BigRetail.Purchasing.Unity
             return Fulfillment.ReceiveAvailableDeliveries();
         }
 
+        public PurchaseOrderReceivingResult ReceiveDelivery(
+            long orderNumber)
+        {
+            if (!TryInitialize())
+            {
+                return default;
+            }
+
+            return Fulfillment.ReceiveDelivery(orderNumber);
+        }
+
         public static CommercialTime ToCommercialTime(
             SimulationDateTime simulationTime)
         {

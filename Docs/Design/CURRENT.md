@@ -1,12 +1,12 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-18
+**Last updated:** 2026-08-19
 
 ## Current focus
 
 The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.
 
-Purchasing uses the campaign clock and store cash, placed Supplier POs become scheduled deliveries, arrived deliveries can be received through the fixture-storage inspector, and received units enter the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
+Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries, each ready Supplier PO appears as its own 1 × 1 curbside pallet load, and receiving that pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
 ## Locked foundations
 
@@ -154,6 +154,8 @@ The supplier-backed opening implementation is flat and intentionally bounded:
 - immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
 - a placement confirmation state that clears committed drafts only after one atomic store-cash payment succeeds
 - a live delivery lifecycle of **Scheduled → Ready to Receive → Received**
+- one persistent curbside pallet view per ready Supplier PO, with a one-, two-, or three-carton stack summarizing its total case volume
+- supplier-colored placeholder cartons plus authored pallet and supplier-carton sprite slots
 - delivery receiving through the existing fixture backstock / overflow inventory service
 - a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
 - stub-ready image slots on Product, Brand, and Supplier assets
@@ -202,7 +204,7 @@ Supplier minimum and delivery rules are supplier-wide in this opening model. Pur
 - Negotiations
 - Contracts
 - Credit terms and invoices
-- Pallet / truckload procurement
+- Pallet / truckload procurement quantities and capacity simulation; the current pallet is a physical per-PO receiving prop
 - Supplier reliability simulation
 - Shortages / backorders
 - Returns / damage
@@ -225,5 +227,6 @@ Playtest the integrated loop in the actual campaign scene:
 - Does Purchasing use the live campaign clock rather than a lab-only Monday 9:00 AM value?
 - Does placement spend store cash atomically and reject an unaffordable batch without partially committing orders?
 - Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
+- When two Suppliers arrive, do their two separate curbside pallets make the receiving burden immediately legible?
 
 If this pass feels natural in play, the next implementation step is removing the dormant fixed-case compatibility service and deciding how the player is first introduced to Purchasing during the campaign opening.

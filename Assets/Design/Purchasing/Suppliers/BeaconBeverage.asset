@@ -22,3 +22,4 @@ MonoBehaviour:
   routeDays: 18
   logo: {fileID: 0}
   accentColor: {r: 0.2, g: 0.53, b: 0.29, a: 1}
+  deliveryBoxSprite: {fileID: 0}

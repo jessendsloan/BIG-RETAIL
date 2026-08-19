@@ -1021,8 +1021,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             PurchaseOrderFulfillmentService fulfillment =
                 purchasingRuntimeHost.Fulfillment;
-            boundView.SetPurchasingSummary(
+            boundView.SetSupplierReceivingSummary(
                 purchasingRuntimeHost.Cash?.BalanceCents ?? 0,
+                fulfillment.ReadyToReceiveOrderCount,
                 fulfillment.ReadyToReceiveUnitCount,
                 fulfillment.HasAvailableDeliveries);
 
@@ -1032,8 +1033,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 status = fulfillment.ReadyToReceiveOrderCount > 0
                     ? fulfillment.ReadyToReceiveOrderCount == 1
-                        ? "1 supplier delivery is ready at receiving."
-                        : $"{fulfillment.ReadyToReceiveOrderCount} supplier deliveries are ready at receiving."
+                        ? "1 supplier pallet is waiting at receiving."
+                        : $"{fulfillment.ReadyToReceiveOrderCount} supplier pallets are waiting at receiving."
                     : fulfillment.ScheduledOrderCount > 0
                         ? fulfillment.ScheduledOrderCount == 1
                             ? "1 supplier delivery is scheduled."
