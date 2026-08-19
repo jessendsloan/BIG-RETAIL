@@ -17,6 +17,16 @@ Their identity should appear consistently across the physical supply chain:
 
 The goal is both flavor and simulation readability. A busy Receiving area should communicate which company delivered which freight at a glance.
 
+## Visual reference archive
+
+The organized supplier art-reference archive lives at:
+
+[`VisualIdentity/Suppliers/`](VisualIdentity/Suppliers/)
+
+Each supplier receives its own folder there. The current opening identity boards are stored as lightweight WebP reference copies, and later production logo, compact-mark, box, and truck references can be added to the same supplier folder without turning the design hub into a flat image dump.
+
+This document remains the **design authority** for the visual system; the archive holds the visual references that express it.
+
 ## Core separation
 
 **Product branding and supplier branding are different layers.**
@@ -39,7 +49,7 @@ This allows the sales floor and the supply chain to feel like two connected comm
 
 # Opening supplier palettes
 
-These colors are the current art-direction starting point, not untouchable production values. They should be adjusted if sprite-scale readability or contrast testing requires it.
+These palette values now match the accepted opening identity boards. They are the current art-direction values, not untouchable production constants; they may still move if sprite-scale readability or contrast testing requires it.
 
 ## BIG Wholesale
 
@@ -47,9 +57,9 @@ These colors are the current art-direction starting point, not untouchable produ
 
 | Role | Color | Hex |
 |---|---|---|
-| Primary | Deep Burgundy | `#7A1F2B` |
-| Secondary | Warm Cream | `#F3E6CF` |
-| Accent | Gold | `#C89B3C` |
+| Primary | Burgundy | `#7A0E1A` |
+| Secondary | Cream | `#F4E9D6` |
+| Accent | Gold | `#D4AF37` |
 
 ### Visual language
 
@@ -58,6 +68,7 @@ These colors are the current art-direction starting point, not untouchable produ
 - Gold should be an accent, not the dominant carton color.
 - Shapes should feel confident, expensive, and slightly self-important.
 - Branding can be cleaner and more polished than the other opening suppliers.
+- Current compact-mark direction: a large **B** badge with the small crown motif.
 
 ### Shipping carton direction
 
@@ -88,9 +99,9 @@ A stack of BIG cartons should be identifiable primarily by the burgundy band and
 
 | Role | Color | Hex |
 |---|---|---|
-| Primary | Grocery Green | `#2F6B3F` |
-| Secondary | Warm Beige | `#E8DDC6` |
-| Accent | Burnt Orange | `#C77A2B` |
+| Primary | Grocery Green | `#3F6B3F` |
+| Secondary | Heritage Cream | `#E9E1D2` |
+| Accent | Market Orange | `#B66A2C` |
 
 ### Visual language
 
@@ -98,6 +109,7 @@ A stack of BIG cartons should be identifiable primarily by the burgundy band and
 - Clean horizontal bands and standardized labeling.
 - Professional grocery / food-distribution appearance.
 - Less visual ego than BIG; more emphasis on organization and reliability.
+- Current compact-mark direction: a **C** badge with a crate / plant motif.
 
 ### Shipping carton direction
 
@@ -107,13 +119,13 @@ Preferred starter treatment:
 - green horizontal band or corner marking;
 - compact Central Grocery Supply mark;
 - standardized product / quantity label;
-- small burnt-orange routing or category accent where useful.
+- small market-orange routing or category accent where useful.
 
 Central cartons should look like they belong in an organized regional distribution network.
 
 ### Vehicle direction
 
-- Green-and-beige fleet livery.
+- Green-and-cream fleet livery.
 - Straightforward rectangular graphics.
 - Orange used only as a small identifying accent.
 - Should look dependable and workmanlike rather than premium.
@@ -128,9 +140,9 @@ Central cartons should look like they belong in an organized regional distributi
 
 | Role | Color | Hex |
 |---|---|---|
-| Primary | Route Blue | `#1F5F8B` |
-| Secondary | Clean White | `#F7F9FA` |
-| Accent | Teal | `#2AA7A1` |
+| Primary | Beacon Blue | `#1674D1` |
+| Secondary | Beacon White | `#F8FBFF` |
+| Accent | Beacon Teal | `#21B7C7` |
 
 ### Visual language
 
@@ -138,6 +150,7 @@ Central cartons should look like they belong in an organized regional distributi
 - More energetic than Central.
 - Stripes, waves, or route-like directional graphics are appropriate.
 - The identity should suggest beverages without depicting a specific consumer brand.
+- Current compact-mark direction: a lighthouse / beacon **B** badge with rays and a wave motif.
 
 ### Shipping carton direction
 
@@ -193,11 +206,24 @@ This approach lets a small art set represent many Supplier Offers without making
 
 - Supplier identity should survive small isometric sprite scale.
 - Primary recognition should come from **large color regions and silhouette/pattern**, not tiny text.
+- The supplier logo / compact mark is the definitive answer to **who sent this?**; color is the fast peripheral cue.
 - Do not rely on color alone where a large logo mark, band orientation, or pattern can reinforce identity.
 - Keep the three opening primary colors strongly separated: **burgundy / green / blue**.
 - Product labels should remain readable against the supplier treatment.
 - Avoid covering most of a carton with saturated supplier color; kraft cardboard should remain a useful neutral base.
 - Supplier UI badges should reuse the same primary identity colors so world freight and management UI reinforce one another.
+
+## Standard carton communication grammar
+
+For normal opening shipping cases, use the same information hierarchy:
+
+**Kraft/cardboard base → supplier-colored band or tape → supplier logo / compact mark → supplier name where scale permits → small product/shipping label**
+
+Large-scale information answers **who supplied it?**
+
+Small-scale information answers **what is inside?**
+
+The exact text on tiny world sprites does not need to remain literally legible if the logo, color band, and product-label block still communicate the intended hierarchy.
 
 ## Suggested pattern distinction
 
@@ -205,7 +231,7 @@ Color is the first cue; pattern can become the second cue:
 
 - **BIG Wholesale:** broad solid band / oversized stamp
 - **Central Grocery Supply:** orderly horizontal band / standardized label block
-- **Beacon Beverage Distribution:** narrow route stripe / wave or directional motif
+- **Beacon Beverage Distribution:** route stripe / wave or directional motif
 
 This helps preserve recognition for players who have difficulty distinguishing colors and prevents the art from depending entirely on hue.
 
