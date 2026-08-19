@@ -1,40 +1,130 @@
-# Design Patch — Permit, Property Parcel & Department Progression
+# Design Patch — Permit, Land Region & Department Progression
 
-**Status:** Promising progression direction / Not yet locked
+**Status:** Partially locked progression direction / Full progression schedule not yet locked
 
-**Purpose:** Preserve the emerging progression model in which Big Retail grows by qualifying for permits, gaining access to more of the property, building the infrastructure required by a larger retailer, and then opening more sophisticated departments.
+**Purpose:** Preserve the progression model in which Big Retail grows by qualifying for permits, acquiring more of the property, building the infrastructure required by a larger retailer, and then opening more sophisticated departments.
 
-This patch is intentionally exploratory. It should inform later progression design, but it does not replace the current merchandise-circulation implementation target.
+This patch now contains several locked map/progression facts, but it does **not** yet define the final permit ladder or department unlock schedule. It should not replace the current merchandise-circulation implementation target.
 
-## Core hypothesis
+---
+
+## Locked property foundation
+
+The current Big Retail property is a **96 × 96 tile square**.
+
+That gives the full property:
+
+- **9,216 individual build tiles**;
+- divided evenly into a **3 × 3 grid of land regions**;
+- each land region is **32 × 32 tiles**;
+- each land region therefore contains **1,024 tiles**;
+- there are **9 total land regions**;
+- the player begins with **1 region**;
+- the remaining **8 regions** are acquired through progression.
+
+### Terminology
+
+Use these terms consistently:
+
+- **Tile** — one individual construction/grid cell.
+- **Land Region** — one 32 × 32 expansion block containing 1,024 tiles.
+- **Property** — the entire eventual 96 × 96, 9-region site.
+
+Avoid using `parcel` as the primary gameplay/design term for these chunks unless a later UI/narrative reason makes it useful. `Land Region` is clearer for implementation discussions.
+
+---
+
+## Starting region — the literal corner store
+
+The starting 32 × 32 land region is the **front corner region at the road intersection** on the current map.
+
+This is now the preferred opening geography because it makes the player's beginning literally a **corner store**.
+
+The player does not begin with the entire 96 × 96 construction area commercially available. Their owned/developed site is initially only this 1,024-tile corner region.
+
+The eventual mega-retailer therefore grows outward from the exact physical location of the original corner store. The opening footprint remains embedded in the final property as a visible history of the player's growth.
+
+This is an important presentation and progression payoff, not merely a technical subdivision.
+
+---
+
+## First land purchase — Milton tutorial handoff
+
+Milton "Mr. BIG" Big should guide the player's **first land-region acquisition**.
+
+The intent is tutorialization, not permanent control over expansion.
+
+The first purchase should teach the permanent interaction:
+
+**Select eligible adjacent land region → inspect price / requirements → purchase → owned construction area expands**
+
+This first purchase will likely happen during the early growth path toward Grocery, when the opening corner region can no longer comfortably support the next set of requirements.
+
+Milton's involvement fits his established role:
+
+- tutor;
+- safety net;
+- commercial opponent / facilitator.
+
+He can introduce the opportunity in-world because he knows the property/business situation, rather than because the game needs a disembodied tutorial box.
+
+After this first guided purchase, the land system should become player-directed.
+
+---
+
+## Player-directed acquisition after the tutorial
+
+After Milton teaches the first purchase, the player should generally be able to acquire additional land regions **at will when they are eligible and affordable**.
+
+The campaign should not require Milton to personally unlock or present every one of the remaining seven purchases.
+
+The player chooses how the property grows.
+
+A land region may be purchasable subject to concrete rules such as:
+
+- adjacency to currently owned property;
+- current permit / commercial qualification;
+- purchase price;
+- campaign availability where genuinely necessary;
+- other future ownership rules.
+
+The exact eligibility rule is not fully locked yet, but the design goal is clear:
+
+> **Land acquisition is a recurring management decision after the first tutorialized purchase, not a sequence of eight scripted rewards.**
+
+A newly acquired region does not prescribe its use.
+
+The player may devote it to:
+
+- parking;
+- sales floor;
+- receiving;
+- storage;
+- utilities;
+- employee facilities;
+- specialized department infrastructure;
+- circulation;
+- future expansion reserve.
+
+That allocation decision is the gameplay reward.
+
+---
+
+## Core progression hypothesis
 
 Big Retail should avoid arbitrary XP-style department unlocks where possible.
 
-A stronger progression chain may be:
+The stronger progression chain is:
 
-**Meet store requirements → qualify for permit → gain new construction / expansion rights → build supporting infrastructure → become capable of operating new departments → create new requirements at the next scale**
+**Operate current store → satisfy concrete requirements → qualify for permit / expansion capability → acquire additional land when needed → build supporting infrastructure → become capable of operating new departments → create new requirements at the next scale**
 
 The permit is therefore not the department itself.
 
-It is a visible progression gate that says the player's retail institution has become qualified to build or operate a more advanced class of store capability.
+It is a visible progression gate that says the player's retail institution has become qualified to build or operate a more advanced class of capability.
 
-## Why this fits Big Retail
+The thing being upgraded is the **commercial institution and property**.
 
-Big Retail is already built around one persistent property and the idea that every new capability consumes land, money, labor, utilities, receiving capacity, customer access, or attention.
-
-A permit-and-property progression model turns those existing systems into the progression requirements themselves.
-
-Instead of:
-
-> Reach Level 8 → Grocery unlocked
-
-The game can say, in effect:
-
-> This site now has the parking, receiving, utilities, operating history, and other qualifications needed for the next commercial permit.
-
-The player then physically expands the site and builds what the new retail capability requires.
-
-Progression becomes visible in the store rather than living only in a menu.
+---
 
 ## The Anno-like loop
 
@@ -42,19 +132,21 @@ The useful Anno comparison is structural rather than literal.
 
 Anno asks the player to satisfy requirements in order to move into a more capable economic tier.
 
-Big Retail could do the same through the store itself:
+Big Retail can do the same through the store itself:
 
 **Operate current store**
 → **Satisfy capacity / infrastructure / commercial requirements**
-→ **Qualify for next permit**
-→ **Acquire or unlock more property / construction rights**
+→ **Qualify for next permit or expansion capability**
+→ **Acquire more property as needed**
 → **Build new supporting systems**
 → **Open new department capability**
 → **Attract broader demand and create larger bottlenecks**
 → **Stabilize the larger store**
-→ **Qualify for the next expansion tier**
+→ **Repeat at the next scale**
 
-The thing being upgraded is not a population class. It is the commercial institution and property.
+Progression should therefore be visible in the physical store rather than living only in a menu.
+
+---
 
 ## Permits as progression gates
 
@@ -62,7 +154,7 @@ Permits should represent permission or qualification, not magical content licens
 
 A permit may unlock one or more of the following:
 
-- the right to acquire an adjacent property parcel;
+- permission to acquire additional land regions;
 - a larger allowed building footprint;
 - additional construction types;
 - specialized infrastructure;
@@ -71,7 +163,7 @@ A permit may unlock one or more of the following:
 - specialized service spaces;
 - future regulatory or professional requirements where appropriate.
 
-The exact permit names and tiers are not yet decided.
+The exact permit names and tiers are **not yet locked**.
 
 A permit should normally be earned through concrete, readable store facts rather than an abstract XP meter.
 
@@ -91,9 +183,11 @@ Possible qualification facts include:
 
 Not every permit should require every fact.
 
+---
+
 ## Permit → Infrastructure → Department
 
-The strongest version of the model keeps these concepts separate.
+Keep these concepts separate.
 
 ### Permit
 
@@ -105,55 +199,35 @@ The strongest version of the model keeps these concepts separate.
 
 ### Department
 
-**Have we built and staffed the commercial operation itself?**
+**Have we built, supplied, and staffed the commercial operation itself?**
 
 This avoids a permit functioning as a one-click department unlock.
 
-Example direction:
+### Grocery example direction
 
-### Grocery
+Grocery may ultimately require some combination of:
 
-Possible requirements might include:
-
-- an early food-retail or commercial-expansion permit;
-- sufficient customer parking / arrival capacity;
+- sufficient parking / arrival capacity;
 - adequate receiving access;
-- basic food storage capability;
-- required refrigeration or utility support for refrigerated categories;
-- suitable grocery fixtures;
-- access to appropriate suppliers;
-- enough general or trained labor to operate the department.
+- food storage capability;
+- refrigeration / utility support where appropriate;
+- suitable fixtures;
+- grocery supplier access;
+- enough labor;
+- enough land / building area;
+- an appropriate early permit or commercial qualification.
 
-The exact Grocery requirements are not locked. The important point is that Grocery appears because the store has become capable of supporting Grocery.
+The exact Grocery requirements remain open.
 
-### Electronics
+The important design law is that Grocery appears because the store has become **capable of supporting Grocery**, not because an arbitrary level number was reached.
 
-A later department might additionally care about:
+---
 
-- a more advanced commercial permit;
-- electrical / display capability;
-- security capability;
-- specialized fixtures;
-- supplier access;
-- employees capable of operating the department.
-
-### Pharmacy / advanced services
-
-A much later specialty department could require a stronger combination of:
-
-- specialized permit / authorization;
-- secure or restricted space;
-- professional staff;
-- supporting infrastructure;
-- sufficient store scale and customer demand.
-
-These examples establish the pattern, not final content requirements.
-
-## Employees are a requirement, not necessarily the whole progression ladder
+## Employees are a requirement, not the whole progression ladder
 
 An earlier idea considered making increasingly capable employees the direct equivalent of Anno population tiers.
 
-The current stronger direction is a mix:
+The stronger current direction is mixed:
 
 - **Permits** gate classes of expansion or construction.
 - **Property and infrastructure** determine what the site can physically support.
@@ -163,120 +237,71 @@ The current stronger direction is a mix:
 
 Specialized employees can therefore be required for specialized departments without forcing the entire progression game to revolve around an employee-tier ladder.
 
-General retail labor might operate the opening store, while later departments require trained associates, specialists, technicians, or professionals as appropriate.
+---
 
-## Property parcels / section unlocking
+## Relationship between permits and land regions
 
-A strong companion idea, inspired by the territorial progression feel of Parcel Simulator, is to divide the full property into **unlockable or purchasable sections** rather than handing the player the entire usable site immediately.
+The exact interaction is still open, but the likely direction is a **mixed model**.
 
-The player begins with a modest portion of the eventual retail property.
+Permits and land solve different problems:
 
-As the business qualifies for expansion, adjacent sections of the larger site can become available.
+- **Permit:** what the retailer is qualified or allowed to do.
+- **Money:** whether the retailer can afford the expansion.
+- **Land:** where the retailer can physically do it.
 
-This creates a physical progression story:
+Possible rules include:
 
-**tiny store on a small site**
-→ **neighborhood retailer**
-→ **supermarket footprint**
-→ **large-format store**
-→ **massive super-retail property**
+- early permit progression makes the first adjacent region purchasable;
+- later permits raise the number/class of regions the player may acquire;
+- some regions may simply become available once adjacent and affordable;
+- department requirements may themselves create the practical need for more land.
 
-The early store remains visible as a small part of the final institution.
+Do not hard-code every department unlock to a land purchase. The systems should interact without becoming identical.
 
-## Why parcels are valuable
-
-Property unlocking reinforces several existing Big Retail goals at once:
-
-- Growth is physically visible.
-- Land remains a scarce strategic resource.
-- The player cannot solve every early problem by spreading across an enormous empty map.
-- Each expansion creates an immediate parking-versus-building-versus-logistics decision.
-- Old layout decisions remain embedded in the final store.
-- The player develops attachment and spatial memory as the property grows.
-- A new parcel is a meaningful reward without needing an abstract currency beyond money / qualification.
-
-A newly acquired section does not prescribe its use.
-
-The player may choose to spend it on:
-
-- parking;
-- sales floor;
-- receiving;
-- storage;
-- utilities;
-- employee facilities;
-- specialized department infrastructure;
-- circulation;
-- future expansion reserve.
-
-That decision is the gameplay.
-
-## Relationship between permits and parcels
-
-Several structures are possible and remain open:
-
-### Model A — Permit unlocks parcel acquisition
-
-The player satisfies permit requirements, receives the next expansion permission, and may then purchase one or more adjacent property sections.
-
-### Model B — Property acquisition helps qualify for permit
-
-The player purchases land first, then develops enough capacity to qualify for the next commercial permit.
-
-### Model C — Mixed
-
-Some permits increase legal / construction capability while property sections are bought independently when adjacency, money, and campaign conditions allow.
-
-The mixed model may ultimately be strongest because permits and land solve different design problems, but this is not yet locked.
-
-## Parcel geometry is deliberately undecided
-
-Do not treat **96** as a locked parcel count or a final grid shape.
-
-The conversation that produced this idea included the possibility of dividing the map into sections, but the correct parcel size, count, shape, and progression cadence need to be chosen against the actual Big Retail map and construction scale.
-
-Possible structures could include:
-
-- a rectangular parcel grid;
-- larger authored expansion blocks;
-- irregular property sections shaped around roads / access;
-- a mostly regular grid with a few special edge parcels.
-
-The player should think in meaningful pieces of property, not hundreds of tedious micro-purchases.
+---
 
 ## Existing implementation seam
 
 The current map code already contains a useful conceptual separation.
 
-`ConstructionAreaDefinition` defines cells that are physically eligible for construction while explicitly noting that **ownership, progression, cost, conflicts, and other rules may still reject a construction request**.
+`Assets/Scripts/Gameplay/Map/Construction/ConstructionAreaDefinition.cs` defines cells that are physically eligible for construction while explicitly noting that **ownership, progression, cost, conflicts, and other rules may still reject a construction request**.
 
-That means a future parcel / ownership layer can potentially sit above the authored construction area rather than redefining physical map eligibility.
+This is a strong seam for the region system.
 
-This patch does not prescribe an implementation yet, but the existing boundary is compatible with the idea.
+A future ownership/progression layer can potentially sit above the authored construction area:
 
-## Example visible progression objective
+**GridMap / ConstructionArea**
+→ what physically exists and could ever be built on
 
-A permit can function as a clear near-term goal:
+**Land Region ownership**
+→ which 32 × 32 region(s) the player currently owns
 
-```text
-EXPANDED COMMERCIAL PERMIT
+**Progression / permit rules**
+→ which unowned adjacent region(s) may currently be purchased
 
-Parking Capacity        80 / 100
-Receiving Capability    Met
-Employee Facilities     Met
-Store Revenue            $38,400 / $40,000
-Grocery Department       Operational
+**Construction rules**
+→ whether a particular action is legal on an owned tile
 
-2 requirements remaining
-```
+This patch does not prescribe the final class architecture, but gameplay implementation should preserve this separation.
 
-The important emotional effect is that the player sees a concrete system requirement and immediately knows what kind of store improvement could move them forward.
+---
 
-If the missing requirement is parking, the progression problem becomes a real property problem:
+## Gameplay implementation handoff
 
-> Where do I put twenty more spaces without damaging the rest of the operation?
+If this system is prototyped now, the smallest useful vertical slice is:
 
-That is much more aligned with Big Retail than filling an XP bar.
+1. Represent the 96 × 96 property as nine authored 32 × 32 land regions.
+2. Mark the front corner region as owned at game start.
+3. Treat the other eight regions as unowned.
+4. Reject construction on unowned tiles even if those tiles belong to the broader `ConstructionAreaDefinition`.
+5. Expose at least one adjacent unowned region as purchasable for testing.
+6. Purchasing that region changes ownership and immediately makes its tiles eligible for normal construction rules.
+7. Keep price / permit qualification data-driven or replaceable; do not bake the final progression ladder into this first prototype.
+8. Do not implement eight scripted Milton events. Milton only needs to be compatible with tutorializing the first purchase later.
+
+This proves the permanent property boundary without prematurely solving the full campaign.
+
+---
 
 ## Design law candidate
 
@@ -284,36 +309,31 @@ That is much more aligned with Big Retail than filling an XP bar.
 
 Permits can provide the visible progression ladder while infrastructure, property, labor, suppliers, and demand provide the simulation requirements underneath it.
 
+---
+
 ## Explicitly not locked yet
 
 - exact permit names;
 - number of permit tiers;
-- which departments belong to each tier;
-- whether Grocery itself requires a named permit or is enabled by a more general commercial permit;
+- which departments belong to each permit tier;
+- exact Grocery permit / infrastructure requirements;
 - exact permit qualification numbers;
-- whether revenue / profit should ever be a hard requirement;
+- whether revenue / profit should ever be a hard permit requirement;
 - exact employee qualification system;
-- exact property parcel count;
-- exact parcel dimensions or shape;
-- whether parcels must be adjacent;
-- whether every permit unlocks land;
-- whether land is purchased with money, granted through campaign progression, or uses a mixed rule;
+- exact land-region purchase prices;
+- whether every future region must always be adjacent;
+- whether every permit exposes exactly one region or several;
+- exact order in which the remaining eight regions become available;
 - how sandbox mode exposes permits / land compared with story mode;
 - whether special departments need distinct regulatory permits versus general store-expansion permits.
 
-## Next design pass when revisited
+## Next progression-design pass
 
-The next useful progression-design session should answer three questions in order:
+The next useful design session should answer:
 
-1. **What are the broad stages of the store?**
-   - corner store;
-   - grocery / neighborhood market;
-   - supermarket;
-   - big-box / superstore;
-   - mega retail.
+1. **What exactly triggers / qualifies the first Grocery expansion?**
+2. **Which of the two regions adjacent to the starting corner can the player buy first — either one by choice, or one specific tutorial region?**
+3. **What are the broad permit / store stages after Grocery?**
+4. **At each stage, what new land, infrastructure, and department opportunities become possible?**
 
-2. **What property / infrastructure facts prove the store is ready to move from one stage to the next?**
-
-3. **What new permits, parcels, and department opportunities should each transition expose?**
-
-Only after those are clear should we choose exact permit names, parcel dimensions, or numeric thresholds.
+Only after those are clear should the full permit schedule be locked.
