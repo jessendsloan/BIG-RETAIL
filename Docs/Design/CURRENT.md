@@ -1,6 +1,6 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-17
+**Last updated:** 2026-08-18
 
 ## Current focus
 
@@ -20,6 +20,11 @@ The current immediate task is to turn the accepted opening Product/Brand set int
 - A supplier may be used as a filter/lens over the same product-oriented Purchasing workspace.
 - Fixtures declare what the store wants to merchandise; inventory records what the store actually has; stocking reconciles the two.
 - Stocking consumes inventory. It does not directly purchase inventory.
+- The current property is **96 × 96 tiles = 9,216 tiles**.
+- The property is subdivided into a **3 × 3 grid of nine 32 × 32 land regions**, each containing 1,024 tiles.
+- The player begins owning only the **front corner land region at the road intersection**, making the opening business literally a corner store.
+- The remaining eight land regions are progression/acquisition space.
+- Milton "Mr. BIG" Big should tutorialize the **first** land-region purchase; after that handoff, land acquisition should be player-directed when regions are eligible and affordable.
 
 ## Opening Product foundation
 
@@ -107,9 +112,36 @@ He is a recurring campaign spine with three simultaneous roles:
 
 BIG helped finance the player's beginning, owns the player's debt, and owns BIG Wholesale. Mr. BIG is charming, useful, slightly unfair, and profits from the player's dependence. The long-term relationship should shift from the player adapting to BIG toward BIG eventually wanting the player's business.
 
+His tutorial role now also includes guiding the player's **first property expansion purchase**, after which the permanent land-acquisition system becomes player-directed.
+
+## Progression design thread — partially locked
+
+The canonical progression patch is `Patches/PermitParcelProgression.md` (the filename is retained for continuity; the design terminology inside now uses **Land Region**).
+
+Locked property facts:
+
+- 96 × 96 total property.
+- 9,216 tiles total.
+- Nine equal 32 × 32 land regions arranged 3 × 3.
+- One front-corner region owned at game start.
+- Eight regions remain for later acquisition.
+- Milton guides the first purchase only.
+- Later eligible/affordable land acquisition is controlled by the player.
+
+Still exploratory:
+
+- Avoid arbitrary XP-style department unlocks where possible.
+- Use **permits** as visible progression gates tied to concrete store requirements.
+- Keep **permit, infrastructure, and department** as separate concepts: permission/qualification → physical capability → commercial operation.
+- Let employees, suppliers, utilities, security, receiving, parking, and other systems become department requirements where appropriate rather than making one system the universal gate.
+- The exact permit tiers, Grocery gate, land prices, region eligibility order, and permit-to-land relationship remain open.
+- The existing `ConstructionAreaDefinition` already separates physical construction eligibility from ownership/progression/cost rules and is the preferred seam for a future land-region ownership layer.
+
+This progression work should not interrupt the current purchasing implementation target unless a gameplay chat is explicitly tasked with prototyping land-region ownership.
+
 ## Current implementation target
 
-Keep the first implementation **flat and small**.
+Keep the first purchasing implementation **flat and small**.
 
 Do not build deep supplier-account progression yet.
 
@@ -127,6 +159,7 @@ The next content pass should map the accepted 12 opening SKUs across BIG Wholesa
 ## Deferred for later
 
 - Supplier Accounts & Relationships — preserved as a design patch in `Patches/SupplierAccountsAndRelationships.md`
+- Full permit / department progression schedule — continuing design lives in `Patches/PermitParcelProgression.md`
 - Negotiations
 - Contracts
 - Credit terms and invoices
