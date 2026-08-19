@@ -1212,6 +1212,10 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
 }
 
+.construction-toolbar__icon--sidewalks {
+    background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation_apron.png");
+}
+
 .construction-toolbar__icon--floors {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Floors.png");
 }
@@ -1238,6 +1242,10 @@
 
 .demolition-picker__icon--foundations {
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
+}
+
+.demolition-picker__icon--sidewalks {
+    background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation_apron.png");
 }
 
 .demolition-picker__icon--floors {

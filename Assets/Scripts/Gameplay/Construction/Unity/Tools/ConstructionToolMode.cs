@@ -16,6 +16,8 @@ namespace BigRetail.Construction.Unity.Tools
         BuildDoors = 7,
         BuildFixtures = 8,
         DemolishFixtures = 9,
-        MerchandiseFixtures = 10
+        MerchandiseFixtures = 10,
+        BuildSidewalks = 11,
+        DemolishSidewalks = 12
     }
 }

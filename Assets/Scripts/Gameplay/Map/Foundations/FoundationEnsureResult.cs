@@ -26,9 +26,12 @@ namespace BigRetail.Map.Foundations
 
         public int SkippedOutsideConstructionAreaCount { get; }
 
+        public int SkippedSidewalkCount { get; }
+
         public int SkippedCount =>
             SkippedOutsideMapCount
-            + SkippedOutsideConstructionAreaCount;
+            + SkippedOutsideConstructionAreaCount
+            + SkippedSidewalkCount;
 
         public int SatisfiedCount =>
             ChangedCount
@@ -47,6 +50,7 @@ namespace BigRetail.Map.Foundations
             int alreadyExistingCount,
             int skippedOutsideMapCount,
             int skippedOutsideConstructionAreaCount,
+            int skippedSidewalkCount,
             FoundationChangeFailure failure,
             GridPosition failedCell)
         {
@@ -58,6 +62,7 @@ namespace BigRetail.Map.Foundations
             SkippedOutsideMapCount = skippedOutsideMapCount;
             SkippedOutsideConstructionAreaCount =
                 skippedOutsideConstructionAreaCount;
+            SkippedSidewalkCount = skippedSidewalkCount;
             Failure = failure;
             FailedCell = failedCell;
         }
@@ -69,7 +74,8 @@ namespace BigRetail.Map.Foundations
             IReadOnlyList<GridPosition> changedCells,
             int alreadyExistingCount,
             int skippedOutsideMapCount,
-            int skippedOutsideConstructionAreaCount)
+            int skippedOutsideConstructionAreaCount,
+            int skippedSidewalkCount = 0)
         {
             return new FoundationEnsureResult(
                 true,
@@ -79,6 +85,7 @@ namespace BigRetail.Map.Foundations
                 alreadyExistingCount,
                 skippedOutsideMapCount,
                 skippedOutsideConstructionAreaCount,
+                skippedSidewalkCount,
                 FoundationChangeFailure.None,
                 default);
         }
@@ -95,6 +102,7 @@ namespace BigRetail.Map.Foundations
                 requestedCount,
                 uniqueCount,
                 default,
+                0,
                 0,
                 0,
                 0,

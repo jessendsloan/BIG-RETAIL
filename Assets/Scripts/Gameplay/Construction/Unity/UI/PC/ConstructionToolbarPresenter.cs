@@ -157,6 +157,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildFoundations;
                     break;
 
+                case ConstructionToolbarSection.Sidewalks:
+                    requestedMode =
+                        ConstructionToolMode.BuildSidewalks;
+                    break;
+
                 case ConstructionToolbarSection.Floors:
                     requestedMode =
                         ConstructionToolMode.BuildFloors;
@@ -229,6 +234,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 ConstructionToolbarDemolitionTarget.Foundations =>
                     ConstructionToolMode.DemolishFoundations,
+
+                ConstructionToolbarDemolitionTarget.Sidewalks =>
+                    ConstructionToolMode.DemolishSidewalks,
 
                 ConstructionToolbarDemolitionTarget.Floors =>
                     ConstructionToolMode.DemolishFloors,
@@ -467,6 +475,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             ConstructionToolMode mode)
         {
             return mode == ConstructionToolMode.DemolishFoundations
+                || mode == ConstructionToolMode.DemolishSidewalks
                 || mode == ConstructionToolMode.DemolishFloors
                 || mode == ConstructionToolMode.DemolishWalls
                 || mode == ConstructionToolMode.DemolishFixtures;
@@ -480,6 +489,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 ConstructionToolMode.DemolishFoundations =>
                     ConstructionToolbarDemolitionTarget.Foundations,
+
+                ConstructionToolMode.DemolishSidewalks =>
+                    ConstructionToolbarDemolitionTarget.Sidewalks,
 
                 ConstructionToolMode.DemolishFloors =>
                     ConstructionToolbarDemolitionTarget.Floors,

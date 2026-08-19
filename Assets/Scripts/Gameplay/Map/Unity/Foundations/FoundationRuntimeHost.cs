@@ -4,6 +4,7 @@ using BigRetail.Map.Domain;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Foundations;
 using BigRetail.Map.Unity.Floors;
+using BigRetail.Map.Unity.Sidewalks;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Foundations
@@ -26,6 +27,9 @@ namespace BigRetail.Map.Unity.Foundations
 
         [SerializeField]
         private FloorRuntimeHost floorRuntimeHost;
+
+        [SerializeField]
+        private SidewalkRuntimeHost sidewalkRuntimeHost;
 
         public bool IsInitialized { get; private set; }
 
@@ -94,7 +98,10 @@ namespace BigRetail.Map.Unity.Foundations
                     mapHost.MapDefinition,
                     mapHost.ConstructionEligibility,
                     FoundationState,
-                    this);
+                    this,
+                    sidewalkRuntimeHost != null
+                        ? sidewalkRuntimeHost
+                        : EmptySidewalkOccupancyQuery.Instance);
 
             IsInitialized = true;
             Initialized?.Invoke(this);
@@ -221,6 +228,15 @@ namespace BigRetail.Map.Unity.Foundations
                 Debug.LogWarning(
                     "FoundationRuntimeHost requires a FloorRuntimeHost " +
                     "reference to protect supported construction.",
+                    this);
+            }
+
+            if (sidewalkRuntimeHost == null)
+            {
+                Debug.LogWarning(
+                    "FoundationRuntimeHost requires a " +
+                    "SidewalkRuntimeHost reference to protect pedestrian " +
+                    "surface cells.",
                     this);
             }
         }

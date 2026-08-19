@@ -169,6 +169,90 @@ namespace BigRetail.Map.Construction.Tests
         }
 
 
+        [Test]
+        public void BoundaryLayout_DividesPropertyIntoNineVisibleLots()
+        {
+            TestContext context = CreateContext();
+            HashSet<CellEdge> edges =
+                new HashSet<CellEdge>();
+
+            foreach (LandRegionBoundarySegment segment in
+                     LandRegionBoundaryLayout.EnumerateSegments(
+                         context.Catalog))
+            {
+                edges.Add(segment.Edge);
+            }
+
+            Assert.That(
+                edges.Count,
+                Is.EqualTo(
+                    LandRegionBoundaryLayout
+                        .InternalBoundarySegmentCount));
+            Assert.That(edges.Count, Is.EqualTo(384));
+        }
+
+
+        [Test]
+        public void BuyingAdjacentLot_RemovesOnlyItsSharedFence()
+        {
+            TestContext context = CreateContext();
+            LandRegionOwnershipState ownership =
+                new LandRegionOwnershipState(context.Catalog);
+
+            ownership.Own(LandRegionCatalog.FrontCornerRegionId);
+
+            Assert.That(
+                CountVisibleBoundaries(
+                    context.Catalog,
+                    ownership),
+                Is.EqualTo(384));
+
+            ownership.Own(new LandRegionId(1, 0));
+
+            Assert.That(
+                CountVisibleBoundaries(
+                    context.Catalog,
+                    ownership),
+                Is.EqualTo(352));
+        }
+
+
+        [Test]
+        public void OwningEntireProperty_RemovesAllInternalFences()
+        {
+            TestContext context = CreateContext();
+            LandRegionOwnershipState ownership =
+                new LandRegionOwnershipState(context.Catalog);
+
+            ownership.OwnAll();
+
+            Assert.That(
+                CountVisibleBoundaries(
+                    context.Catalog,
+                    ownership),
+                Is.Zero);
+        }
+
+
+        private static int CountVisibleBoundaries(
+            LandRegionCatalog catalog,
+            LandRegionOwnershipState ownership)
+        {
+            int visibleCount = 0;
+
+            foreach (LandRegionBoundarySegment segment in
+                     LandRegionBoundaryLayout.EnumerateSegments(catalog))
+            {
+                if (segment.ShouldDisplay(ownership))
+                {
+                    visibleCount++;
+                }
+            }
+
+            return visibleCount;
+        }
+
+
         private static TestContext CreateContext()
         {
             List<GridPosition> cells =

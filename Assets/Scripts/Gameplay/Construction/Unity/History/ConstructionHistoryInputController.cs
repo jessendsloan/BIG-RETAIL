@@ -1,5 +1,6 @@
 using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Foundations;
+using BigRetail.Construction.Unity.Sidewalks;
 using BigRetail.Construction.Unity.Walls;
 using BigRetail.Map.Construction;
 using UnityEngine;
@@ -69,6 +70,14 @@ namespace BigRetail.Construction.Unity.History
         [SerializeField]
         private FloorDemolitionToolController
             floorDemolitionTool;
+
+        [SerializeField]
+        private SidewalkConstructionToolController
+            sidewalkConstructionTool;
+
+        [SerializeField]
+        private SidewalkDemolitionToolController
+            sidewalkDemolitionTool;
 
 
         [Header("Diagnostics")]
@@ -195,7 +204,9 @@ namespace BigRetail.Construction.Unity.History
                 || wallConstructionTool.IsPlanningRun
                 || wallDemolitionTool.IsPlanningRun
                 || floorConstructionTool.IsPlanningArea
-                || floorDemolitionTool.IsPlanningArea;
+                || floorDemolitionTool.IsPlanningArea
+                || sidewalkConstructionTool.IsPlanningArea
+                || sidewalkDemolitionTool.IsPlanningArea;
         }
 
 
@@ -212,6 +223,8 @@ namespace BigRetail.Construction.Unity.History
             wallDemolitionTool.CancelCurrentGesture();
             floorConstructionTool.CancelCurrentGesture();
             floorDemolitionTool.CancelCurrentGesture();
+            sidewalkConstructionTool.CancelCurrentGesture();
+            sidewalkDemolitionTool.CancelCurrentGesture();
 
             LogWarning(
                 "Cancelled an unfinished construction gesture before " +
@@ -429,6 +442,26 @@ namespace BigRetail.Construction.Unity.History
                 Debug.LogError(
                     "ConstructionHistoryInputController has no " +
                     "FloorDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (sidewalkConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "SidewalkConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (sidewalkDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionHistoryInputController has no " +
+                    "SidewalkDemolitionToolController assigned.",
                     this);
 
                 isValid = false;
