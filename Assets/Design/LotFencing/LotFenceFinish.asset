@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c2f7ab51a04f2f9bf6c70f4d4b95b9, type: 3}
+  m_Name: LotFenceFinish
+  m_EditorClassIdentifier: BigRetail.Map.Unity::BigRetail.Map.Unity.Walls.WallFinishAsset
+  finishId: lot-fence
+  risingLeft: {fileID: 21300000, guid: ab89ff20b8a541c3bce9c843f5d8e4ac, type: 3}
+  risingRight: {fileID: 21300000, guid: 99783d7116674342a3734800090176ba, type: 3}
+  lowRisingLeft: {fileID: 0}
+  lowRisingRight: {fileID: 0}
+  catalogIcon: {fileID: 0}

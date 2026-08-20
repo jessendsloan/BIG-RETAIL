@@ -4,6 +4,7 @@ using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Fixtures;
 using BigRetail.Construction.Unity.Foundations;
 using BigRetail.Construction.Unity.Receiving;
+using BigRetail.Construction.Unity.Sidewalks;
 using BigRetail.Construction.Unity.Walls;
 using UnityEngine;
 
@@ -29,6 +30,17 @@ namespace BigRetail.Construction.Unity.Tools
             foundationDemolitionTool;
 
 
+        [Header("Sidewalk Tools")]
+
+        [SerializeField]
+        private SidewalkConstructionToolController
+            sidewalkConstructionTool;
+
+        [SerializeField]
+        private SidewalkDemolitionToolController
+            sidewalkDemolitionTool;
+
+
         [Header("Wall Tools")]
 
         [SerializeField]
@@ -40,11 +52,15 @@ namespace BigRetail.Construction.Unity.Tools
             wallDemolitionTool;
 
 
-        [Header("Door Tools")]
+        [Header("Door And Window Tools")]
 
         [SerializeField]
         private DoorConstructionToolController
             doorConstructionTool;
+
+        [SerializeField]
+        private WindowConstructionToolController
+            windowConstructionTool;
 
 
         [Header("Floor Tools")]
@@ -117,6 +133,18 @@ namespace BigRetail.Construction.Unity.Tools
                     HandleFoundationDemolitionActivityChanged;
             }
 
+            if (sidewalkConstructionTool != null)
+            {
+                sidewalkConstructionTool.ToolActiveChanged +=
+                    HandleSidewalkConstructionActivityChanged;
+            }
+
+            if (sidewalkDemolitionTool != null)
+            {
+                sidewalkDemolitionTool.ToolActiveChanged +=
+                    HandleSidewalkDemolitionActivityChanged;
+            }
+
             if (wallConstructionTool != null)
             {
                 wallConstructionTool.ToolActiveChanged +=
@@ -133,6 +161,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 doorConstructionTool.ToolActiveChanged +=
                     HandleDoorConstructionActivityChanged;
+            }
+
+            if (windowConstructionTool != null)
+            {
+                windowConstructionTool.ToolActiveChanged +=
+                    HandleWindowConstructionActivityChanged;
             }
 
             if (floorConstructionTool != null)
@@ -209,9 +243,24 @@ namespace BigRetail.Construction.Unity.Tools
                         .CancelCurrentGesture();
                     break;
 
+                case ConstructionToolMode.BuildSidewalks:
+                    sidewalkConstructionTool
+                        .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.DemolishSidewalks:
+                    sidewalkDemolitionTool
+                        .CancelCurrentGesture();
+                    break;
+
                 case ConstructionToolMode.BuildWalls:
                     wallConstructionTool
                         .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.BuildWindows:
+                    windowConstructionTool
+                        .ClearPlacementPreview();
                     break;
 
                 case ConstructionToolMode.DemolishWalls:
@@ -272,6 +321,28 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        [ContextMenu("Activate Sidewalk Construction")]
+        public void ActivateSidewalkConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildSidewalks);
+            }
+        }
+
+
+        [ContextMenu("Activate Sidewalk Demolition")]
+        public void ActivateSidewalkDemolition()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.DemolishSidewalks);
+            }
+        }
+
+
         [ContextMenu("Activate Wall Construction")]
         public void ActivateWallConstruction()
         {
@@ -279,6 +350,17 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 SetMode(
                     ConstructionToolMode.BuildWalls);
+            }
+        }
+
+
+        [ContextMenu("Activate Window Construction")]
+        public void ActivateWindowConstruction()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.BuildWindows);
             }
         }
 
@@ -401,6 +483,14 @@ namespace BigRetail.Construction.Unity.Tools
                     mode
                     == ConstructionToolMode.DemolishFoundations);
 
+                SetSidewalkConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildSidewalks);
+
+                SetSidewalkDemolitionActive(
+                    mode
+                    == ConstructionToolMode.DemolishSidewalks);
+
                 SetWallConstructionActive(
                     mode
                     == ConstructionToolMode.BuildWalls);
@@ -408,6 +498,10 @@ namespace BigRetail.Construction.Unity.Tools
                 SetWallDemolitionActive(
                     mode
                     == ConstructionToolMode.DemolishWalls);
+
+                SetWindowConstructionActive(
+                    mode
+                    == ConstructionToolMode.BuildWindows);
 
                 SetDoorConstructionActive(
                     mode
@@ -481,6 +575,34 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void SetSidewalkConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                sidewalkConstructionTool.ActivateTool();
+            }
+            else
+            {
+                sidewalkConstructionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetSidewalkDemolitionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                sidewalkDemolitionTool.ActivateTool();
+            }
+            else
+            {
+                sidewalkDemolitionTool.DeactivateTool();
+            }
+        }
+
+
         private void SetWallConstructionActive(
             bool shouldBeActive)
         {
@@ -519,6 +641,20 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 doorConstructionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetWindowConstructionActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                windowConstructionTool.ActivateTool();
+            }
+            else
+            {
+                windowConstructionTool.DeactivateTool();
             }
         }
 
@@ -648,6 +784,62 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleSidewalkConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildSidewalks,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildSidewalks)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
+        private void HandleSidewalkDemolitionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.DemolishSidewalks,
+                    forceRefresh: false);
+
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.DemolishSidewalks)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private void HandleWallConstructionActivityChanged(
             bool isActive)
         {
@@ -723,6 +915,33 @@ namespace BigRetail.Construction.Unity.Tools
 
             if (CurrentMode
                 == ConstructionToolMode.BuildDoors)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
+        private void HandleWindowConstructionActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode
+                || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.BuildWindows,
+                    forceRefresh: false);
+                return;
+            }
+
+            if (CurrentMode
+                == ConstructionToolMode.BuildWindows)
             {
                 ApplyMode(
                     ConstructionToolMode.None,
@@ -892,6 +1111,26 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (sidewalkConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "SidewalkConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (sidewalkDemolitionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no " +
+                    "SidewalkDemolitionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             if (wallConstructionTool == null)
             {
                 Debug.LogError(
@@ -917,6 +1156,16 @@ namespace BigRetail.Construction.Unity.Tools
                 Debug.LogError(
                     "ConstructionToolCoordinator has no "
                     + "DoorConstructionToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (windowConstructionTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no "
+                    + "WindowConstructionToolController assigned.",
                     this);
 
                 isValid = false;
@@ -1006,6 +1255,18 @@ namespace BigRetail.Construction.Unity.Tools
                     HandleFoundationDemolitionActivityChanged;
             }
 
+            if (sidewalkConstructionTool != null)
+            {
+                sidewalkConstructionTool.ToolActiveChanged -=
+                    HandleSidewalkConstructionActivityChanged;
+            }
+
+            if (sidewalkDemolitionTool != null)
+            {
+                sidewalkDemolitionTool.ToolActiveChanged -=
+                    HandleSidewalkDemolitionActivityChanged;
+            }
+
             if (wallConstructionTool != null)
             {
                 wallConstructionTool.ToolActiveChanged -=
@@ -1022,6 +1283,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 doorConstructionTool.ToolActiveChanged -=
                     HandleDoorConstructionActivityChanged;
+            }
+
+            if (windowConstructionTool != null)
+            {
+                windowConstructionTool.ToolActiveChanged -=
+                    HandleWindowConstructionActivityChanged;
             }
 
             if (floorConstructionTool != null)

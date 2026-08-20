@@ -1,9 +1,14 @@
 using System;
 using System.Reflection;
+using BigRetail.Map.Unity.Doors;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
+using BigRetail.Map.Walls;
 using NUnit.Framework;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace BigRetail.Map.Unity.Tests
@@ -18,6 +23,10 @@ namespace BigRetail.Map.Unity.Tests
             "BigRetail.Construction.Unity.Tools." +
             "ConstructionToolMode, Assembly-CSharp";
 
+        private const string CoordinatorTypeName =
+            "BigRetail.Construction.Unity.Tools." +
+            "ConstructionToolCoordinator, Assembly-CSharp";
+
         private const string SectionTypeName =
             "BigRetail.Construction.Unity.UI.PC." +
             "ConstructionToolbarSection, Assembly-CSharp";
@@ -25,6 +34,10 @@ namespace BigRetail.Map.Unity.Tests
         private const string ViewTypeName =
             "BigRetail.Construction.Unity.UI.PC." +
             "ConstructionToolbarView, Assembly-CSharp";
+
+        private const string WindowConstructionToolControllerTypeName =
+            "BigRetail.Construction.Unity.Doors." +
+            "WindowConstructionToolController, Assembly-CSharp";
 
         private const string DocumentHostTypeName =
             "BigRetail.Construction.Unity.UI.PC." +
@@ -73,6 +86,279 @@ namespace BigRetail.Map.Unity.Tests
             Assert.That(
                 section.ToString(),
                 Is.EqualTo("Foundations"));
+        }
+
+
+        [Test]
+        public void BuildSidewalks_MapsToSidewalksToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildSidewalks")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Sidewalks"));
+        }
+
+
+        [Test]
+        public void BuildWindows_MapsToWindowsToolbarSection()
+        {
+            Type mapperType =
+                RequireType(MapperTypeName);
+
+            Type modeType =
+                RequireType(ModeTypeName);
+
+            MethodInfo toSection =
+                mapperType.GetMethod(
+                    "ToSection",
+                    BindingFlags.Public
+                    | BindingFlags.Static);
+
+            object section =
+                toSection.Invoke(
+                    null,
+                    new object[]
+                    {
+                        Enum.Parse(
+                            modeType,
+                            "BuildWindows")
+                    });
+
+            Assert.That(
+                section.ToString(),
+                Is.EqualTo("Windows"));
+        }
+
+
+        [Test]
+        public void WindowTool_UsesDoorStylePlacementLifecycle()
+        {
+            Type controllerType =
+                RequireType(
+                    WindowConstructionToolControllerTypeName);
+
+            Assert.That(
+                controllerType.GetProperty(
+                    "HasPlacementPreview",
+                    BindingFlags.Public
+                    | BindingFlags.Instance),
+                Is.Not.Null);
+
+            Assert.That(
+                controllerType.GetMethod(
+                    "ClearPlacementPreview",
+                    BindingFlags.Public
+                    | BindingFlags.Instance),
+                Is.Not.Null);
+        }
+
+
+        [Test]
+        public void GameplayScene_WiresWindowWallEdgeTarget()
+        {
+            Scene scene =
+                EditorSceneManager.OpenScene(
+                    "Assets/Scenes/Gameplay.unity",
+                    OpenSceneMode.Additive);
+
+            try
+            {
+                Type controllerType =
+                    RequireType(
+                        WindowConstructionToolControllerTypeName);
+
+                Component controller =
+                    FindComponentInScene(
+                        scene,
+                        controllerType);
+
+                Assert.That(
+                    controller,
+                    Is.Not.Null);
+
+                FieldInfo wallTargetResolver =
+                    controllerType.GetField(
+                        "wallTargetResolver",
+                        BindingFlags.NonPublic
+                        | BindingFlags.Instance);
+
+                Assert.That(
+                    wallTargetResolver,
+                    Is.Not.Null);
+
+                Assert.That(
+                    wallTargetResolver.GetValue(controller),
+                    Is.Not.Null);
+
+                Assert.That(
+                    controllerType.GetField(
+                            "placementPreviewView",
+                            BindingFlags.NonPublic
+                            | BindingFlags.Instance)
+                        .GetValue(controller),
+                    Is.Not.Null);
+
+                Assert.That(
+                    controllerType.GetField(
+                            "windowDefinition",
+                            BindingFlags.NonPublic
+                            | BindingFlags.Instance)
+                        .GetValue(controller),
+                    Is.Not.Null);
+
+                Type coordinatorType =
+                    RequireType(
+                        CoordinatorTypeName);
+
+                Component coordinator =
+                    FindComponentInScene(
+                        scene,
+                        coordinatorType);
+
+                Assert.That(
+                    coordinator,
+                    Is.Not.Null);
+
+                Assert.That(
+                    coordinatorType.GetField(
+                            "windowConstructionTool",
+                            BindingFlags.NonPublic
+                            | BindingFlags.Instance)
+                        .GetValue(coordinator),
+                    Is.SameAs(controller));
+            }
+            finally
+            {
+                EditorSceneManager.CloseScene(
+                    scene,
+                    removeScene: true);
+            }
+        }
+
+
+        [Test]
+        public void WindowDefinition_UsesDedicatedDirectionalMasksAtOneTileWidth()
+        {
+            DoorDefinitionAsset windowDefinition =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<
+                    DoorDefinitionAsset>(
+                    "Assets/Design/Doors/FixedWindow.asset");
+
+            Assert.That(
+                windowDefinition,
+                Is.Not.Null);
+
+            Assert.DoesNotThrow(
+                windowDefinition.ValidateConfiguration);
+
+            Assert.That(
+                windowDefinition.Id.Value,
+                Is.EqualTo("FIXED-WINDOW"));
+
+            Assert.That(windowDefinition.SegmentCount, Is.EqualTo(1));
+            Assert.That(windowDefinition.HasPassageSegments, Is.False);
+
+            DoorDefinition domainDefinition =
+                windowDefinition.CreateDomainDefinition();
+
+            Assert.That(
+                domainDefinition.PassageSegmentCount,
+                Is.EqualTo(0));
+
+            Assert.That(
+                windowDefinition.TryGetDoorwaySprites(
+                    WallDisplaySlope.RisingLeft,
+                    out DoorwaySprites risingLeft),
+                Is.True);
+
+            Assert.That(
+                windowDefinition.TryGetDoorwaySprites(
+                    WallDisplaySlope.RisingRight,
+                    out DoorwaySprites risingRight),
+                Is.True);
+
+            Assert.That(
+                risingLeft.Frame,
+                Is.Not.SameAs(risingLeft.Aperture));
+
+            Assert.That(
+                risingRight.Frame,
+                Is.Not.SameAs(risingRight.Aperture));
+
+            Assert.That(
+                UnityEditor.AssetDatabase.GetAssetPath(
+                    risingLeft.Aperture),
+                Is.EqualTo(
+                    "Assets/Art/WallSegmentArt/Windows/"
+                    + "Window_RisingLeft_Mask.png"));
+
+            Assert.That(
+                UnityEditor.AssetDatabase.GetAssetPath(
+                    risingRight.Aperture),
+                Is.EqualTo(
+                    "Assets/Art/WallSegmentArt/Windows/"
+                    + "Window_RisingRight_Mask.png"));
+
+            Assert.That(
+                risingLeft.Frame.pixelsPerUnit,
+                Is.EqualTo(94f));
+
+            Assert.That(
+                risingRight.Frame.pixelsPerUnit,
+                Is.EqualTo(94f));
+
+            Assert.That(
+                risingLeft.Aperture.pixelsPerUnit,
+                Is.EqualTo(94f));
+
+            Assert.That(
+                risingRight.Aperture.pixelsPerUnit,
+                Is.EqualTo(94f));
+
+            Assert.That(
+                risingLeft.Frame.bounds.size.x,
+                Is.EqualTo(0.5f).Within(0.001f));
+
+            Assert.That(
+                risingRight.Frame.bounds.size.x,
+                Is.EqualTo(0.5f).Within(0.001f));
+
+            Assert.That(
+                risingLeft.Aperture.bounds.size,
+                Is.EqualTo(risingLeft.Frame.bounds.size));
+
+            Assert.That(
+                risingRight.Aperture.bounds.size,
+                Is.EqualTo(risingRight.Frame.bounds.size));
+
+            Assert.That(
+                risingLeft.Aperture.pivot,
+                Is.EqualTo(risingLeft.Frame.pivot));
+
+            Assert.That(
+                risingRight.Aperture.pivot,
+                Is.EqualTo(risingRight.Frame.pivot));
         }
 
         [Test]
@@ -242,6 +528,15 @@ namespace BigRetail.Map.Unity.Tests
                     name = "door-definition-picker-items"
                 };
 
+            Button windowButton =
+                new Button
+                {
+                    name = "windows-button"
+                };
+
+            itemsContainer.Add(
+                windowButton);
+
             panel.Add(
                 itemsContainer);
             root.Add(
@@ -284,6 +579,11 @@ namespace BigRetail.Map.Unity.Tests
                 Assert.That(
                     button,
                     Is.Not.Null);
+
+                Assert.That(
+                    root.Q<Button>("windows-button"),
+                    Is.SameAs(windowButton));
+
                 Assert.That(
                     button.tooltip,
                     Is.EqualTo("Automatic Front Door"));
@@ -396,6 +696,35 @@ namespace BigRetail.Map.Unity.Tests
                     {
                         Enum.Parse(
                             sectionType,
+                            "Sidewalks")
+                    });
+
+                Assert.That(
+                    root.Q<Button>("foundations-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<VisualElement>("foundation-picker")
+                        .style.display.value,
+                    Is.EqualTo(DisplayStyle.Flex));
+
+                Assert.That(
+                    root.Q<Button>("sidewalks-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<Button>("foundation-default-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+
+                setSelectedSection.Invoke(
+                    view,
+                    new[]
+                    {
+                        Enum.Parse(
+                            sectionType,
                             "Walls")
                     });
 
@@ -413,6 +742,92 @@ namespace BigRetail.Map.Unity.Tests
             {
                 view.Dispose();
             }
+        }
+
+
+        [Test]
+        public void WindowsSection_SelectsDoorsParentAndWindowChild()
+        {
+            Type viewType =
+                RequireType(ViewTypeName);
+
+            Type sectionType =
+                RequireType(SectionTypeName);
+
+            VisualElement root =
+                CreateToolbarRoot();
+
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(
+                    viewType,
+                    root);
+
+            try
+            {
+                viewType.GetMethod(
+                        "SetSelectedSection",
+                        BindingFlags.Public
+                        | BindingFlags.Instance)
+                    .Invoke(
+                        view,
+                        new[]
+                        {
+                            Enum.Parse(
+                                sectionType,
+                                "Windows")
+                        });
+
+                Assert.That(
+                    root.Q<Button>("doors-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<Button>("windows-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+
+                Assert.That(
+                    root.Q<Button>("walls-button")
+                        .ClassListContains("is-selected"),
+                    Is.False);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
+        public void WindowButton_LivesInsideDoorPicker()
+        {
+            VisualTreeAsset toolbarAsset =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<
+                    VisualTreeAsset>(
+                    "Assets/UI/Construction/PC/ConstructionToolbar.uxml");
+
+            Assert.That(
+                toolbarAsset,
+                Is.Not.Null);
+
+            VisualElement root =
+                toolbarAsset.CloneTree();
+
+            Button windowButton =
+                root.Q<Button>("windows-button");
+
+            VisualElement doorItems =
+                root.Q<VisualElement>(
+                    "door-definition-picker-items");
+
+            Assert.That(
+                windowButton,
+                Is.Not.Null);
+
+            Assert.That(
+                windowButton.parent,
+                Is.SameAs(doorItems));
         }
 
 
@@ -811,14 +1226,18 @@ namespace BigRetail.Map.Unity.Tests
                 };
             foundationPicker.Add(
                 CreateButton("foundation-default-button"));
+            foundationPicker.Add(
+                CreateButton("sidewalks-button"));
             root.Add(foundationPicker);
             root.Add(CreateButton("walls-button"));
+            root.Add(CreateButton("windows-button"));
             root.Add(CreateButton("doors-button"));
             root.Add(CreateButton("fixtures-button"));
             root.Add(CreateButton("foundations-button"));
             root.Add(CreateButton("floors-button"));
             root.Add(CreateButton("demolition-button"));
             root.Add(CreateButton("demolish-foundations-button"));
+            root.Add(CreateButton("demolish-sidewalks-button"));
             root.Add(CreateButton("demolish-floors-button"));
             root.Add(CreateButton("demolish-walls-button"));
             root.Add(CreateButton("demolish-fixtures-button"));
@@ -862,6 +1281,32 @@ namespace BigRetail.Map.Unity.Tests
             {
                 name = name
             };
+        }
+
+
+        private static Component FindComponentInScene(
+            Scene scene,
+            Type componentType)
+        {
+            GameObject[] roots =
+                scene.GetRootGameObjects();
+
+            for (int index = 0;
+                 index < roots.Length;
+                 index++)
+            {
+                Component component =
+                    roots[index].GetComponentInChildren(
+                        componentType,
+                        includeInactive: true);
+
+                if (component != null)
+                {
+                    return component;
+                }
+            }
+
+            return null;
         }
 
 

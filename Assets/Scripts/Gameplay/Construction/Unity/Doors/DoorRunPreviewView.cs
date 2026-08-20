@@ -110,20 +110,37 @@ namespace BigRetail.Construction.Unity.Doors
         public void ShowPlan(
             WallVertexRunPlanResult plan)
         {
-            if (!plan.Succeeded
-                || !mapHost.IsInitialized
-                || mapHost.DoorConstruction == null
-                || mapHost.WallFinishes == null
-                || definitionSelection == null
-                || !definitionSelection.IsInitialized
-                || targetResolver.ViewProjection == null)
+            if (definitionSelection == null
+                || !definitionSelection.IsInitialized)
             {
                 Hide();
                 return;
             }
 
-            DoorDefinitionAsset definitionAsset =
-                definitionSelection.SelectedDefinitionAsset;
+            ShowPlan(
+                plan,
+                definitionSelection.SelectedDefinitionAsset);
+        }
+
+
+        /// <summary>
+        /// Shows an assembly preview without changing the player's selected
+        /// door. The window tool uses this overload for its fixed definition.
+        /// </summary>
+        public void ShowPlan(
+            WallVertexRunPlanResult plan,
+            DoorDefinitionAsset definitionAsset)
+        {
+            if (!plan.Succeeded
+                || !mapHost.IsInitialized
+                || mapHost.DoorConstruction == null
+                || mapHost.WallFinishes == null
+                || definitionAsset == null
+                || targetResolver.ViewProjection == null)
+            {
+                Hide();
+                return;
+            }
 
             DoorAssemblyChangeResult evaluation =
                 mapHost.DoorConstruction.EvaluatePlacement(

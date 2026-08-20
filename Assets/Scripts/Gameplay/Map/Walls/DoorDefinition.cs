@@ -4,11 +4,12 @@ using System.Collections.Generic;
 namespace BigRetail.Map.Walls
 {
     /// <summary>
-    /// Engine-free geometry contract for one door model.
+    /// Engine-free geometry contract for one wall-mounted assembly.
     ///
     /// Segment indices are ordered from the first supplied wall edge to the
     /// last. Passage indices identify the portions future navigation may
-    /// cross; the remaining segments stay structural barriers.
+    /// cross; the remaining segments stay structural barriers. A definition
+    /// with no passage indices is a non-passable feature such as a window.
     /// </summary>
     public sealed class DoorDefinition
     {
@@ -50,13 +51,6 @@ namespace BigRetail.Map.Walls
             if (passageSegmentIndices == null)
             {
                 throw new ArgumentNullException(
-                    nameof(passageSegmentIndices));
-            }
-
-            if (passageSegmentIndices.Count == 0)
-            {
-                throw new ArgumentException(
-                    "A door definition requires at least one passage segment.",
                     nameof(passageSegmentIndices));
             }
 
