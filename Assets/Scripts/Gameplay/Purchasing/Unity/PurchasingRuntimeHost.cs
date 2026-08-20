@@ -4,6 +4,7 @@ using BigRetail.Economy.Domain;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Purchasing.Domain;
+using BigRetail.Receiving.Unity;
 using BigRetail.Simulation.Time.Domain;
 using BigRetail.Simulation.Time.Unity;
 using UnityEngine;
@@ -27,6 +28,9 @@ namespace BigRetail.Purchasing.Unity
         [SerializeField]
         private FixturePlanogramRuntimeHost planogramRuntimeHost;
 
+        [SerializeField]
+        private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
+
         private SimulationClock subscribedClock;
 
 
@@ -48,6 +52,80 @@ namespace BigRetail.Purchasing.Unity
             planogramRuntimeHost?.Cash;
 
         public CommercialTime CurrentTime { get; private set; }
+
+        public int StagedReadyOrderCount
+        {
+            get
+            {
+                int count = 0;
+
+                if (Fulfillment == null
+                    || receivingAreaRuntimeHost?.State == null)
+                {
+                    return count;
+                }
+
+                foreach (
+                    InboundDeliveryLoad load
+                    in Fulfillment.EnumerateReadyDeliveries())
+                {
+                    if (receivingAreaRuntimeHost.State.TryGetReservation(
+                            load.OrderNumber,
+                            out _))
+                    {
+                        count++;
+                    }
+                }
+
+                return count;
+            }
+        }
+
+        public int StagedReadyUnitCount
+        {
+            get
+            {
+                long unitCount = 0;
+
+                if (Fulfillment == null
+                    || receivingAreaRuntimeHost?.State == null)
+                {
+                    return 0;
+                }
+
+                foreach (
+                    InboundDeliveryLoad load
+                    in Fulfillment.EnumerateReadyDeliveries())
+                {
+                    if (!receivingAreaRuntimeHost.State.TryGetReservation(
+                            load.OrderNumber,
+                            out _))
+                    {
+                        continue;
+                    }
+
+                    unitCount += load.RemainingUnitCount;
+
+                    if (unitCount >= int.MaxValue)
+                    {
+                        return int.MaxValue;
+                    }
+                }
+
+                return (int)unitCount;
+            }
+        }
+
+        public int WaitingForReceivingSpaceOrderCount =>
+            Fulfillment == null
+                ? 0
+                : Math.Max(
+                    0,
+                    Fulfillment.ReadyToReceiveOrderCount
+                    - StagedReadyOrderCount);
+
+        public bool HasStagedDeliveries =>
+            StagedReadyOrderCount > 0;
 
 
         public event Action<PurchasingRuntimeHost> Initialized;
@@ -220,13 +298,65 @@ namespace BigRetail.Purchasing.Unity
                 return default;
             }
 
-            return Fulfillment.ReceiveAvailableDeliveries();
+            if (receivingAreaRuntimeHost?.State == null)
+            {
+                return default;
+            }
+
+            List<long> stagedOrderNumbers = new List<long>();
+
+            foreach (
+                InboundDeliveryLoad load
+                in Fulfillment.EnumerateReadyDeliveries())
+            {
+                if (receivingAreaRuntimeHost.State.TryGetReservation(
+                        load.OrderNumber,
+                        out _))
+                {
+                    stagedOrderNumbers.Add(load.OrderNumber);
+                }
+            }
+
+            int receivedUnitCount = 0;
+            int failedUnitCount = 0;
+            int completedOrderCount = 0;
+
+            for (int index = 0;
+                 index < stagedOrderNumbers.Count;
+                 index++)
+            {
+                PurchaseOrderReceivingResult orderResult =
+                    Fulfillment.ReceiveDelivery(
+                        stagedOrderNumbers[index]);
+                receivedUnitCount = checked(
+                    receivedUnitCount
+                    + orderResult.ReceivedUnitCount);
+                failedUnitCount = checked(
+                    failedUnitCount
+                    + orderResult.FailedUnitCount);
+                completedOrderCount = checked(
+                    completedOrderCount
+                    + orderResult.CompletedOrderCount);
+            }
+
+            return new PurchaseOrderReceivingResult(
+                receivedUnitCount,
+                failedUnitCount,
+                completedOrderCount);
         }
 
         public PurchaseOrderReceivingResult ReceiveDelivery(
             long orderNumber)
         {
             if (!TryInitialize())
+            {
+                return default;
+            }
+
+            if (receivingAreaRuntimeHost?.State == null
+                || !receivingAreaRuntimeHost.State.TryGetReservation(
+                    orderNumber,
+                    out _))
             {
                 return default;
             }

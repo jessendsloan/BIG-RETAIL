@@ -731,6 +731,39 @@
                 picking-mode="Ignore" />
         </ui:Button>
 
+        <ui:Button
+            name="receiving-area-button"
+            class="construction-toolbar__button receiving-area-button"
+            tooltip="Receiving Area">
+            <ui:Label
+                text="RCV"
+                class="construction-toolbar__text-icon receiving-area-button__label"
+                picking-mode="Ignore" />
+        </ui:Button>
+
+        <ui:VisualElement
+            name="receiving-area-panel"
+            class="receiving-area-panel"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="RECEIVING AREA"
+                class="receiving-area-panel__title"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="receiving-area-capacity"
+                text="NO RECEIVING SPACE"
+                class="receiving-area-panel__capacity"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="receiving-area-instruction"
+                text="Drag on finished floor to add. Start on Receiving space to erase."
+                class="receiving-area-panel__instruction"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
+
         <ui:VisualElement
             name="construction-toolbar"
             class="construction-toolbar"

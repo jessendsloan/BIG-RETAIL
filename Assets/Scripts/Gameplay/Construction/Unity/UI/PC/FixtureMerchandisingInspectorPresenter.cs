@@ -6,6 +6,8 @@ using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Purchasing.Domain;
 using BigRetail.Purchasing.Unity;
+using BigRetail.Receiving.Domain;
+using BigRetail.Receiving.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -35,6 +37,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private PurchasingRuntimeHost purchasingRuntimeHost;
 
+        [SerializeField]
+        private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
+
 
         private FixtureMerchandisingInspectorView boundView;
         private ConstructionToolbarView boundToolbarView;
@@ -45,6 +50,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private StoreCashState subscribedCash;
         private FixtureSalesService subscribedSales;
         private FixtureCheckoutService subscribedCheckout;
+        private ReceivingAreaState subscribedReceivingState;
         private bool productsAreBound;
         private string purchasingStatus;
 
@@ -84,6 +90,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandleSupplierDeliveriesChanged;
             }
 
+            if (receivingAreaRuntimeHost != null)
+            {
+                receivingAreaRuntimeHost.Initialized +=
+                    HandleReceivingRuntimeInitialized;
+            }
+
             AttachToPlanogramState();
             AttachToDisplayInventory();
             AttachToBackstock();
@@ -91,6 +103,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToCash();
             AttachToSales();
             AttachToCheckout();
+            AttachToReceivingState();
 
             if (documentHost.HasView)
             {
@@ -135,6 +148,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandleSupplierDeliveriesChanged;
             }
 
+            if (receivingAreaRuntimeHost != null)
+            {
+                receivingAreaRuntimeHost.Initialized -=
+                    HandleReceivingRuntimeInitialized;
+            }
+
             DetachFromPlanogramState();
             DetachFromDisplayInventory();
             DetachFromBackstock();
@@ -142,6 +161,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             DetachFromCash();
             DetachFromSales();
             DetachFromCheckout();
+            DetachFromReceivingState();
             UnbindToolbarView();
             UnbindView();
         }
@@ -224,6 +244,21 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         private void HandleSupplierDeliveriesChanged()
+        {
+            if (IsSelectedStorageFixture())
+            {
+                RefreshView();
+            }
+        }
+
+        private void HandleReceivingRuntimeInitialized(
+            ReceivingAreaRuntimeHost initializedHost)
+        {
+            AttachToReceivingState();
+            RefreshView();
+        }
+
+        private void HandleReceivingStateChanged()
         {
             if (IsSelectedStorageFixture())
             {
@@ -1023,18 +1058,24 @@ namespace BigRetail.Construction.Unity.UI.PC
                 purchasingRuntimeHost.Fulfillment;
             boundView.SetSupplierReceivingSummary(
                 purchasingRuntimeHost.Cash?.BalanceCents ?? 0,
-                fulfillment.ReadyToReceiveOrderCount,
-                fulfillment.ReadyToReceiveUnitCount,
-                fulfillment.HasAvailableDeliveries);
+                purchasingRuntimeHost.StagedReadyOrderCount,
+                purchasingRuntimeHost.StagedReadyUnitCount,
+                purchasingRuntimeHost.HasStagedDeliveries);
 
             string status = purchasingStatus;
 
             if (string.IsNullOrWhiteSpace(status))
             {
-                status = fulfillment.ReadyToReceiveOrderCount > 0
-                    ? fulfillment.ReadyToReceiveOrderCount == 1
-                        ? "1 supplier pallet is waiting at receiving."
-                        : $"{fulfillment.ReadyToReceiveOrderCount} supplier pallets are waiting at receiving."
+                status = purchasingRuntimeHost.StagedReadyOrderCount > 0
+                    ? purchasingRuntimeHost.StagedReadyOrderCount == 1
+                        ? "1 supplier pallet is staged in Receiving."
+                        : $"{purchasingRuntimeHost.StagedReadyOrderCount} supplier pallets are staged in Receiving."
+                    : purchasingRuntimeHost
+                        .WaitingForReceivingSpaceOrderCount > 0
+                        ? purchasingRuntimeHost
+                            .WaitingForReceivingSpaceOrderCount == 1
+                            ? "1 arrived supplier order is waiting for Receiving space."
+                            : $"{purchasingRuntimeHost.WaitingForReceivingSpaceOrderCount} arrived supplier orders are waiting for Receiving space."
                     : fulfillment.ScheduledOrderCount > 0
                         ? fulfillment.ScheduledOrderCount == 1
                             ? "1 supplier delivery is scheduled."
@@ -1043,6 +1084,44 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             boundView.SetPurchasingStatus(status);
+        }
+
+        private void AttachToReceivingState()
+        {
+            ReceivingAreaState nextState = receivingAreaRuntimeHost != null
+                && receivingAreaRuntimeHost.IsInitialized
+                    ? receivingAreaRuntimeHost.State
+                    : null;
+
+            if (subscribedReceivingState == nextState)
+            {
+                return;
+            }
+
+            DetachFromReceivingState();
+            subscribedReceivingState = nextState;
+
+            if (subscribedReceivingState != null)
+            {
+                subscribedReceivingState.AreaChanged +=
+                    HandleReceivingStateChanged;
+                subscribedReceivingState.ReservationsChanged +=
+                    HandleReceivingStateChanged;
+            }
+        }
+
+        private void DetachFromReceivingState()
+        {
+            if (subscribedReceivingState == null)
+            {
+                return;
+            }
+
+            subscribedReceivingState.AreaChanged -=
+                HandleReceivingStateChanged;
+            subscribedReceivingState.ReservationsChanged -=
+                HandleReceivingStateChanged;
+            subscribedReceivingState = null;
         }
 
         private string ResolveProductName(ProductId productId)

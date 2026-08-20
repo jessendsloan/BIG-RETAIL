@@ -3,6 +3,7 @@ using BigRetail.Construction.Unity.Doors;
 using BigRetail.Construction.Unity.Floors;
 using BigRetail.Construction.Unity.Fixtures;
 using BigRetail.Construction.Unity.Foundations;
+using BigRetail.Construction.Unity.Receiving;
 using BigRetail.Construction.Unity.Walls;
 using UnityEngine;
 
@@ -66,6 +67,12 @@ namespace BigRetail.Construction.Unity.Tools
         [SerializeField]
         private FixtureDemolitionToolController
             fixtureDemolitionTool;
+
+
+        [Header("Operations Tools")]
+
+        [SerializeField]
+        private ReceivingAreaToolController receivingAreaTool;
 
 
         [Header("Starting State")]
@@ -151,6 +158,12 @@ namespace BigRetail.Construction.Unity.Tools
                 fixtureDemolitionTool.ToolActiveChanged +=
                     HandleFixtureDemolitionActivityChanged;
             }
+
+            if (receivingAreaTool != null)
+            {
+                receivingAreaTool.ToolActiveChanged +=
+                    HandleReceivingAreaActivityChanged;
+            }
         }
 
 
@@ -229,6 +242,10 @@ namespace BigRetail.Construction.Unity.Tools
                 case ConstructionToolMode.DemolishFixtures:
                     fixtureDemolitionTool
                         .CancelCurrentGesture();
+                    break;
+
+                case ConstructionToolMode.PlanReceivingArea:
+                    receivingAreaTool.CancelCurrentGesture();
                     break;
             }
         }
@@ -332,6 +349,17 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        [ContextMenu("Activate Receiving Area Planning")]
+        public void ActivateReceivingAreaPlanning()
+        {
+            if (RequirePlayMode())
+            {
+                SetMode(
+                    ConstructionToolMode.PlanReceivingArea);
+            }
+        }
+
+
         [ContextMenu("Deactivate Construction Tools")]
         public void DeactivateConstructionTools()
         {
@@ -400,6 +428,10 @@ namespace BigRetail.Construction.Unity.Tools
                 SetFixtureDemolitionActive(
                     mode
                     == ConstructionToolMode.DemolishFixtures);
+
+                SetReceivingAreaActive(
+                    mode
+                    == ConstructionToolMode.PlanReceivingArea);
 
                 CurrentMode = mode;
             }
@@ -543,6 +575,20 @@ namespace BigRetail.Construction.Unity.Tools
             else
             {
                 fixtureDemolitionTool.DeactivateTool();
+            }
+        }
+
+
+        private void SetReceivingAreaActive(
+            bool shouldBeActive)
+        {
+            if (shouldBeActive)
+            {
+                receivingAreaTool.ActivateTool();
+            }
+            else
+            {
+                receivingAreaTool.DeactivateTool();
             }
         }
 
@@ -797,6 +843,31 @@ namespace BigRetail.Construction.Unity.Tools
         }
 
 
+        private void HandleReceivingAreaActivityChanged(
+            bool isActive)
+        {
+            if (isApplyingMode || !isInitialized)
+            {
+                return;
+            }
+
+            if (isActive)
+            {
+                ApplyMode(
+                    ConstructionToolMode.PlanReceivingArea,
+                    forceRefresh: false);
+                return;
+            }
+
+            if (CurrentMode == ConstructionToolMode.PlanReceivingArea)
+            {
+                ApplyMode(
+                    ConstructionToolMode.None,
+                    forceRefresh: false);
+            }
+        }
+
+
         private bool ValidateReferences()
         {
             bool isValid = true;
@@ -891,6 +962,16 @@ namespace BigRetail.Construction.Unity.Tools
                 isValid = false;
             }
 
+            if (receivingAreaTool == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolCoordinator has no "
+                    + "ReceivingAreaToolController assigned.",
+                    this);
+
+                isValid = false;
+            }
+
             return isValid;
         }
 
@@ -965,6 +1046,12 @@ namespace BigRetail.Construction.Unity.Tools
             {
                 fixtureDemolitionTool.ToolActiveChanged -=
                     HandleFixtureDemolitionActivityChanged;
+            }
+
+            if (receivingAreaTool != null)
+            {
+                receivingAreaTool.ToolActiveChanged -=
+                    HandleReceivingAreaActivityChanged;
             }
         }
     }

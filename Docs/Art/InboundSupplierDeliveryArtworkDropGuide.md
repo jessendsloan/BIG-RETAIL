@@ -31,7 +31,7 @@ The project imports these images as single sprites with transparency, no mipmaps
 
 Use **Big Retail → Merchandise → Refresh Supplier Delivery Load Artwork** if an empty slot ever needs to be restored from the standard filenames. Existing non-empty artwork assignments are preserved.
 
-The renderer normalizes the complete load to one staging tile. Matching canvas dimensions and pallet placement across all twelve PNGs prevents visual movement when the selected tier changes.
+The renderer normalizes the complete load to one Receiving Area cell. Matching canvas dimensions and pallet placement across all twelve PNGs prevents visual movement when the selected tier changes.
 
 ## Current gameplay rules
 
@@ -42,6 +42,6 @@ The renderer normalizes the complete load to one staging tile. Matching canvas d
 | 8–11 | Load 3 |
 | 12+ | Load 4 |
 
-Each ready supplier PO owns a separate pallet and staging cell. Receiving that PO removes its load and passes its exact units into the existing rack/overflow inventory path.
+Each ready supplier PO owns a separate pallet and reserves one free player-designated Receiving Area cell. Orders beyond the painted capacity wait until a berth becomes available. Receiving that PO removes its load and passes its exact units into the existing rack/overflow inventory path.
 
-This is intentionally a presentation layer, not full pallet-capacity or truckload procurement simulation. It leaves room for a later receiving zone and employee hauling job without replacing the purchase-order model.
+This is intentionally one-PO-per-berth presentation, not full pallet-capacity or truckload procurement simulation. It leaves room for later docks, supplier vehicles, unloading labor, and employee hauling without replacing the purchase-order model.

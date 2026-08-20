@@ -1,18 +1,12 @@
 {
-    "name": "BigRetail.Purchasing.Unity.Tests",
+    "name": "BigRetail.Receiving.Domain.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "BigRetail.Merchandise.Domain",
-        "BigRetail.Merchandise.Unity",
-        "BigRetail.Purchasing.Domain",
-        "BigRetail.Purchasing.Unity",
-        "BigRetail.Receiving.Domain",
-        "BigRetail.Receiving.Unity",
+        "BigRetail.Map.Construction",
         "BigRetail.Map.Domain",
-        "BigRetail.Map.Unity",
-        "BigRetail.Simulation.Time.Domain"
+        "BigRetail.Receiving.Domain"
     ],
     "includePlatforms": [
         "Editor"

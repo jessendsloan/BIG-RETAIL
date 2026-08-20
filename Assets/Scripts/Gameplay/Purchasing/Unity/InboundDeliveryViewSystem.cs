@@ -6,6 +6,8 @@ using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using BigRetail.Purchasing.Domain;
+using BigRetail.Receiving.Domain;
+using BigRetail.Receiving.Unity;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
@@ -13,7 +15,7 @@ using UnityEngine.Tilemaps;
 namespace BigRetail.Purchasing.Unity
 {
     /// <summary>
-    /// Projects ready supplier purchase orders into one-tile curbside loads.
+    /// Projects ready supplier purchase orders into designated Receiving cells.
     /// Each purchase order selects one of four authored supplier-load sprites;
     /// receiving the order removes its load through the fulfillment event.
     /// </summary>
@@ -32,7 +34,7 @@ namespace BigRetail.Purchasing.Unity
         private PurchasingRuntimeHost purchasingRuntimeHost;
 
         [SerializeField]
-        private GridMapHost mapHost;
+        private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
 
         [SerializeField]
         private IsometricViewHost viewHost;
@@ -59,19 +61,11 @@ namespace BigRetail.Purchasing.Unity
         private Vector3 worldPositionOffset =
             new Vector3(0f, -0.12f, 0f);
 
-        [SerializeField]
-        [Min(1)]
-        private int maximumStagingSlotCount = 6;
-
-
-        private readonly Dictionary<long, GridPosition> assignedSlots =
-            new Dictionary<long, GridPosition>();
         private readonly Dictionary<long, GameObject> views =
             new Dictionary<long, GameObject>();
-        private readonly List<GridPosition> stagingSlots =
-            new List<GridPosition>();
 
         private InboundDeliveryPlaceholderSprites placeholderSprites;
+        private ReceivingAreaState subscribedReceivingState;
         private bool hasStarted;
 
 
@@ -79,7 +73,9 @@ namespace BigRetail.Purchasing.Unity
             views.Count;
 
         public int StagingSlotCount =>
-            stagingSlots.Count;
+            receivingAreaRuntimeHost != null
+                ? receivingAreaRuntimeHost.OperationalCellCount
+                : 0;
 
 
         private void Awake()
@@ -100,9 +96,10 @@ namespace BigRetail.Purchasing.Unity
                     HandleDeliveriesChanged;
             }
 
-            if (mapHost != null)
+            if (receivingAreaRuntimeHost != null)
             {
-                mapHost.Initialized += HandleMapInitialized;
+                receivingAreaRuntimeHost.Initialized +=
+                    HandleReceivingAreaInitialized;
             }
 
             if (viewHost != null)
@@ -115,7 +112,7 @@ namespace BigRetail.Purchasing.Unity
 
             if (hasStarted)
             {
-                ResolveStagingSlots();
+                AttachReceivingState();
                 RebuildViews();
             }
         }
@@ -132,7 +129,7 @@ namespace BigRetail.Purchasing.Unity
 
             placeholderSprites =
                 new InboundDeliveryPlaceholderSprites();
-            ResolveStagingSlots();
+            AttachReceivingState();
             RebuildViews();
         }
 
@@ -146,9 +143,10 @@ namespace BigRetail.Purchasing.Unity
                     HandleDeliveriesChanged;
             }
 
-            if (mapHost != null)
+            if (receivingAreaRuntimeHost != null)
             {
-                mapHost.Initialized -= HandleMapInitialized;
+                receivingAreaRuntimeHost.Initialized -=
+                    HandleReceivingAreaInitialized;
             }
 
             if (viewHost != null)
@@ -160,8 +158,7 @@ namespace BigRetail.Purchasing.Unity
             }
 
             ClearViews();
-            assignedSlots.Clear();
-            stagingSlots.Clear();
+            DetachReceivingState();
         }
 
         private void OnDestroy()
@@ -175,7 +172,16 @@ namespace BigRetail.Purchasing.Unity
             long orderNumber,
             out GridPosition slot)
         {
-            return assignedSlots.TryGetValue(orderNumber, out slot);
+            if (receivingAreaRuntimeHost != null
+                && receivingAreaRuntimeHost.State != null)
+            {
+                return receivingAreaRuntimeHost.State.TryGetReservation(
+                    orderNumber,
+                    out slot);
+            }
+
+            slot = default;
+            return false;
         }
 
         public void RebuildViews()
@@ -186,15 +192,14 @@ namespace BigRetail.Purchasing.Unity
                 || purchasingRuntimeHost == null
                 || !purchasingRuntimeHost.IsInitialized
                 || purchasingRuntimeHost.Fulfillment == null
+                || receivingAreaRuntimeHost == null
+                || !receivingAreaRuntimeHost.IsInitialized
+                || receivingAreaRuntimeHost.State == null
+                || receivingAreaRuntimeHost.Reservations == null
                 || viewHost == null
                 || !viewHost.IsInitialized)
             {
                 return;
-            }
-
-            if (stagingSlots.Count == 0)
-            {
-                ResolveStagingSlots();
             }
 
             List<InboundDeliveryLoad> loads =
@@ -208,13 +213,21 @@ namespace BigRetail.Purchasing.Unity
                 loads.Add(load);
             }
 
-            SynchronizeAssignments(loads);
+            List<long> readyOrderNumbers = new List<long>(loads.Count);
+
+            for (int index = 0; index < loads.Count; index++)
+            {
+                readyOrderNumbers.Add(loads[index].OrderNumber);
+            }
+
+            receivingAreaRuntimeHost.Reservations.Synchronize(
+                readyOrderNumbers);
 
             for (int index = 0; index < loads.Count; index++)
             {
                 InboundDeliveryLoad load = loads[index];
 
-                if (!assignedSlots.TryGetValue(
+                if (!receivingAreaRuntimeHost.State.TryGetReservation(
                         load.OrderNumber,
                         out GridPosition slot))
                 {
@@ -239,9 +252,15 @@ namespace BigRetail.Purchasing.Unity
             RebuildViews();
         }
 
-        private void HandleMapInitialized(GridMapHost initializedHost)
+        private void HandleReceivingAreaInitialized(
+            ReceivingAreaRuntimeHost initializedHost)
         {
-            ResolveStagingSlots();
+            AttachReceivingState();
+            RebuildViews();
+        }
+
+        private void HandleReceivingAreaChanged()
+        {
             RebuildViews();
         }
 
@@ -259,92 +278,39 @@ namespace BigRetail.Purchasing.Unity
             RebuildViews();
         }
 
-        private void ResolveStagingSlots()
+        private void AttachReceivingState()
         {
-            stagingSlots.Clear();
+            ReceivingAreaState nextState =
+                receivingAreaRuntimeHost != null
+                && receivingAreaRuntimeHost.IsInitialized
+                    ? receivingAreaRuntimeHost.State
+                    : null;
 
-            if (mapHost == null
-                || !mapHost.IsInitialized
-                || mapHost.MapDefinition == null
-                || mapHost.LandRegions == null)
+            if (subscribedReceivingState == nextState)
             {
                 return;
             }
 
-            IReadOnlyList<GridPosition> resolved =
-                InboundDeliveryStagingSlotResolver.Resolve(
-                    mapHost.MapDefinition,
-                    mapHost.LandRegions.PropertyMinimumCell,
-                    Mathf.Max(1, maximumStagingSlotCount));
+            DetachReceivingState();
+            subscribedReceivingState = nextState;
 
-            for (int index = 0; index < resolved.Count; index++)
+            if (subscribedReceivingState != null)
             {
-                stagingSlots.Add(resolved[index]);
-            }
-
-            if (stagingSlots.Count == 0)
-            {
-                Debug.LogWarning(
-                    "Inbound deliveries could not find curbside staging "
-                    + "cells outside the front property corner.",
-                    this);
+                subscribedReceivingState.AreaChanged +=
+                    HandleReceivingAreaChanged;
             }
         }
 
-        private void SynchronizeAssignments(
-            IReadOnlyList<InboundDeliveryLoad> loads)
+        private void DetachReceivingState()
         {
-            HashSet<long> readyOrderNumbers = new HashSet<long>();
-
-            for (int index = 0; index < loads.Count; index++)
+            if (subscribedReceivingState == null)
             {
-                readyOrderNumbers.Add(loads[index].OrderNumber);
+                return;
             }
 
-            List<long> releasedOrders = new List<long>();
-
-            foreach (long orderNumber in assignedSlots.Keys)
-            {
-                if (!readyOrderNumbers.Contains(orderNumber))
-                {
-                    releasedOrders.Add(orderNumber);
-                }
-            }
-
-            for (int index = 0; index < releasedOrders.Count; index++)
-            {
-                assignedSlots.Remove(releasedOrders[index]);
-            }
-
-            HashSet<GridPosition> occupiedSlots =
-                new HashSet<GridPosition>(assignedSlots.Values);
-
-            for (int loadIndex = 0;
-                 loadIndex < loads.Count;
-                 loadIndex++)
-            {
-                InboundDeliveryLoad load = loads[loadIndex];
-
-                if (assignedSlots.ContainsKey(load.OrderNumber))
-                {
-                    continue;
-                }
-
-                for (int slotIndex = 0;
-                     slotIndex < stagingSlots.Count;
-                     slotIndex++)
-                {
-                    GridPosition slot = stagingSlots[slotIndex];
-
-                    if (!occupiedSlots.Add(slot))
-                    {
-                        continue;
-                    }
-
-                    assignedSlots.Add(load.OrderNumber, slot);
-                    break;
-                }
-            }
+            subscribedReceivingState.AreaChanged -=
+                HandleReceivingAreaChanged;
+            subscribedReceivingState = null;
         }
 
         private GameObject CreateLoadView(
@@ -532,25 +498,20 @@ namespace BigRetail.Purchasing.Unity
         private bool ValidateReferences()
         {
             bool valid = purchasingRuntimeHost != null
-                && mapHost != null
+                && receivingAreaRuntimeHost != null
                 && viewHost != null
                 && coordinateTilemap != null;
 
             if (!valid)
             {
                 Debug.LogError(
-                    "InboundDeliveryViewSystem requires Purchasing, map, "
-                    + "isometric-view, and coordinate-Tilemap references.",
+                    "InboundDeliveryViewSystem requires Purchasing, the "
+                    + "Receiving Area runtime, isometric view, and coordinate "
+                    + "Tilemap references.",
                     this);
             }
 
             return valid;
-        }
-
-        private void OnValidate()
-        {
-            maximumStagingSlotCount =
-                Mathf.Max(1, maximumStagingSlotCount);
         }
     }
 

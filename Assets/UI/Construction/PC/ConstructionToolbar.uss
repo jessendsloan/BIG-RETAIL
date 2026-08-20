@@ -1025,6 +1025,63 @@
     margin-left: 0;
 }
 
+.receiving-area-button {
+    position: absolute;
+    top: 28px;
+    left: 197px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.receiving-area-button__label {
+    font-size: 15px;
+    letter-spacing: 0.6px;
+}
+
+.receiving-area-panel {
+    display: none;
+    position: absolute;
+    top: 24px;
+    left: 269px;
+    width: 390px;
+    min-height: 94px;
+    padding-top: 11px;
+    padding-right: 15px;
+    padding-bottom: 12px;
+    padding-left: 17px;
+    flex-direction: column;
+    background-color: rgba(244, 240, 230, 0.97);
+    border-width: 1px;
+    border-left-width: 6px;
+    border-color: rgba(35, 43, 50, 0.28);
+    border-left-color: rgb(35, 139, 125);
+    border-radius: 9px;
+}
+
+.receiving-area-panel__title {
+    height: 22px;
+    color: rgb(25, 102, 93);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 1.2px;
+}
+
+.receiving-area-panel__capacity {
+    height: 28px;
+    color: rgb(35, 43, 50);
+    font-size: 19px;
+    -unity-font-style: bold;
+}
+
+.receiving-area-panel__instruction {
+    min-height: 32px;
+    color: rgb(70, 77, 75);
+    font-size: 14px;
+    white-space: normal;
+}
+
 .construction-toolbar__text-icon {
     font-size: 22px;
     -unity-font-style: bold;

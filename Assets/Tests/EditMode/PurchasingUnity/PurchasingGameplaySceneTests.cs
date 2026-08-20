@@ -1,5 +1,6 @@
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Purchasing.Unity.UI;
+using BigRetail.Receiving.Unity;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -32,6 +33,12 @@ namespace BigRetail.Purchasing.Unity.Tests
                 InboundDeliveryViewSystem deliveryViewSystem =
                     Object.FindAnyObjectByType<InboundDeliveryViewSystem>(
                         FindObjectsInactive.Include);
+                ReceivingAreaRuntimeHost receivingAreaRuntimeHost =
+                    Object.FindAnyObjectByType<ReceivingAreaRuntimeHost>(
+                        FindObjectsInactive.Include);
+                ReceivingAreaViewSystem receivingAreaViewSystem =
+                    Object.FindAnyObjectByType<ReceivingAreaViewSystem>(
+                        FindObjectsInactive.Include);
                 FixturePlanogramRuntimeHost planogramHost =
                     Object.FindAnyObjectByType<FixturePlanogramRuntimeHost>(
                         FindObjectsInactive.Include);
@@ -43,6 +50,8 @@ namespace BigRetail.Purchasing.Unity.Tests
                 Assert.That(runtimeHost, Is.Not.Null);
                 Assert.That(runtimeHost.CatalogAsset, Is.Not.Null);
                 Assert.That(deliveryViewSystem, Is.Not.Null);
+                Assert.That(receivingAreaRuntimeHost, Is.Not.Null);
+                Assert.That(receivingAreaViewSystem, Is.Not.Null);
                 Assert.That(planogramHost, Is.Not.Null);
                 Assert.That(presenter, Is.Not.Null);
                 Assert.That(presenter.gameObject.activeSelf, Is.False);
@@ -73,11 +82,35 @@ namespace BigRetail.Purchasing.Unity.Tests
                         .objectReferenceValue,
                     Is.SameAs(runtimeHost));
                 Assert.That(
-                    serializedDeliveryView.FindProperty("mapHost")
+                    serializedDeliveryView
+                        .FindProperty("receivingAreaRuntimeHost")
+                        .objectReferenceValue,
+                    Is.SameAs(receivingAreaRuntimeHost));
+                Assert.That(
+                    serializedDeliveryView.FindProperty("viewHost")
+                        .objectReferenceValue,
+                    Is.Not.Null);
+
+                SerializedObject serializedRuntimeHost =
+                    new SerializedObject(runtimeHost);
+                Assert.That(
+                    serializedRuntimeHost
+                        .FindProperty("receivingAreaRuntimeHost")
+                        .objectReferenceValue,
+                    Is.SameAs(receivingAreaRuntimeHost));
+
+                SerializedObject serializedReceivingView =
+                    new SerializedObject(receivingAreaViewSystem);
+                Assert.That(
+                    serializedReceivingView.FindProperty("runtimeHost")
+                        .objectReferenceValue,
+                    Is.SameAs(receivingAreaRuntimeHost));
+                Assert.That(
+                    serializedReceivingView.FindProperty("overlayTilemap")
                         .objectReferenceValue,
                     Is.Not.Null);
                 Assert.That(
-                    serializedDeliveryView.FindProperty("viewHost")
+                    serializedReceivingView.FindProperty("markerTile")
                         .objectReferenceValue,
                     Is.Not.Null);
                 Assert.That(

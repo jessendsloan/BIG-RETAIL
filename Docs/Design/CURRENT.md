@@ -6,7 +6,7 @@
 
 The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.
 
-Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries, each ready Supplier PO appears as its own 1 × 1 curbside pallet load, and receiving that pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
+Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries. Each ready Supplier PO claims one free 1 × 1 berth in a player-painted **Receiving Area**; orders that do not fit wait for Receiving space. Receiving a staged pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
 
@@ -170,7 +170,11 @@ The supplier-backed opening implementation is flat and intentionally bounded:
 - immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
 - a placement confirmation state that clears committed drafts only after one atomic store-cash payment succeeds
 - a live delivery lifecycle of **Scheduled → Ready to Receive → Received**
-- one persistent curbside pallet view per ready Supplier PO, selecting one of four complete supplier-load sprites from its total case volume
+- a player-painted Receiving Area on owned, finished, unobstructed floor, with one cell functioning as one Supplier PO pallet berth
+- stable berth reservations for ready Supplier POs; overflow orders wait until Receiving space becomes available
+- occupied Receiving cells protected from erasure until their pallet has been received
+- an **RCV** construction-rail tool, management overlay, couch-readable capacity status, and waiting-order feedback
+- one persistent pallet view per staged Supplier PO, selecting one of four complete supplier-load sprites from its total case volume
 - authored BIG Wholesale load art plus clearly named Central Grocery and Beacon Beverage replacement stubs across all four tiers
 - delivery receiving through the existing fixture backstock / overflow inventory service
 - a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
@@ -179,7 +183,7 @@ The supplier-backed opening implementation is flat and intentionally bounded:
 - the full Purchasing workspace installed as an open/close overlay in `Gameplay`
 - live campaign time and available store cash shown in the Purchasing header
 - the accepted 12-product opening catalog installed as the Gameplay merchandising catalog
-- rack-side purchasing replaced in the live UI by a **Supplier Deliveries** receiving panel
+- rack-side purchasing replaced in the live UI by a **Supplier Deliveries** receiving panel that only receives pallets actually staged in Receiving
 
 The integrated campaign-side foundation provides:
 
@@ -244,13 +248,18 @@ Playtest the integrated loop in the actual campaign scene:
 - Does Purchasing use the live campaign clock rather than a lab-only Monday 9:00 AM value?
 - Does placement spend store cash atomically and reject an unaffordable batch without partially committing orders?
 - Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
-- When two Suppliers arrive, do their two separate curbside pallets make the receiving burden immediately legible?
+- Is painting and erasing the Receiving Area understandable with mouse and controller input?
+- Does **occupied / total** Receiving capacity make the physical bottleneck legible from the couch?
+- When two Suppliers arrive, do their two separate pallets and occupied berths make the receiving burden immediately legible?
+- When Receiving is full, is it clear that additional ready Supplier POs are waiting for space rather than lost?
 
-The next implementation step is replacing the curbside staging assumption with
-a player-designated **Receiving Area** that gives ready Supplier POs physical
-capacity and a valid target inside the store operation. Removing the dormant
-fixed-case compatibility service and deciding how Purchasing is first introduced
-remain follow-up campaign-integration work.
+The next step is a hands-on Gameplay review of the new Receiving Area at the
+campaign's intended camera distance and UI scale. Delivery access, supplier
+vehicles, unloading labor, travel paths, and richer dock logic remain later
+extensions; they should build on the current **ready PO → reserved berth →
+received inventory** seam rather than replace it. Removing the dormant fixed-case
+compatibility service and deciding how Purchasing is first introduced remain
+follow-up campaign-integration work.
 
 Parallel story question:
 

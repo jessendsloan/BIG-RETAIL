@@ -2,8 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BigRetail.CameraControl;
+using BigRetail.Map.Domain;
+using BigRetail.Map.Unity;
+using BigRetail.Map.Unity.Floors;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Purchasing.Domain;
 using BigRetail.Purchasing.Unity;
+using BigRetail.Receiving.Domain;
+using BigRetail.Receiving.Unity;
 using BigRetail.Simulation.Time.Domain;
 using BigRetail.Simulation.Time.Unity;
 using UnityEditor;
@@ -13,8 +19,9 @@ using UnityEngine;
 namespace BigRetail.Editor.Merchandise
 {
     /// <summary>
-    /// Stages one BIG and one Central order in Gameplay, advances both to
-    /// receiving, and captures their separate curbside pallet views.
+    /// Paints a two-berth Receiving Area, stages one BIG and one Central
+    /// order in Gameplay, advances both to receiving, and captures their
+    /// separate pallet views.
     /// </summary>
     [InitializeOnLoad]
     public static class InboundDeliveryCaptureAutomation
@@ -23,6 +30,8 @@ namespace BigRetail.Editor.Merchandise
             "Assets/Scenes/Gameplay.unity";
         private const string CapturePath =
             "Logs/InboundSupplierPallets.png";
+        private const string SmokeResultPath =
+            "Logs/ReceivingRuntimeSmoke.txt";
         private const string SessionKey =
             "BigRetail.InboundDeliveryCapture.Active";
         private const int StageFrame = 10;
@@ -64,6 +73,14 @@ namespace BigRetail.Editor.Merchandise
             if (File.Exists(absoluteCapturePath))
             {
                 File.Delete(absoluteCapturePath);
+            }
+
+            string absoluteSmokeResultPath =
+                GetAbsoluteSmokeResultPath();
+
+            if (File.Exists(absoluteSmokeResultPath))
+            {
+                File.Delete(absoluteSmokeResultPath);
             }
 
             SessionState.SetBool(SessionKey, true);
@@ -163,10 +180,20 @@ namespace BigRetail.Editor.Merchandise
             SimulationTimeRuntimeHost timeRuntime =
                 UnityEngine.Object.FindAnyObjectByType<
                     SimulationTimeRuntimeHost>();
+            ReceivingAreaRuntimeHost receivingRuntime =
+                UnityEngine.Object.FindAnyObjectByType<
+                    ReceivingAreaRuntimeHost>();
 
             if (purchasingRuntime == null
                 || timeRuntime == null
+                || receivingRuntime == null
+                || !receivingRuntime.TryInitialize()
                 || !purchasingRuntime.TryInitialize())
+            {
+                return false;
+            }
+
+            if (!TryDesignateReceivingArea(receivingRuntime))
             {
                 return false;
             }
@@ -211,6 +238,109 @@ namespace BigRetail.Editor.Merchandise
                     SimulationSpeed.Paused));
 
             return true;
+        }
+
+        private static bool TryDesignateReceivingArea(
+            ReceivingAreaRuntimeHost receivingRuntime)
+        {
+            if (receivingRuntime.State.CellCount >= 2)
+            {
+                return true;
+            }
+
+            FloorRuntimeHost floorRuntime =
+                UnityEngine.Object.FindAnyObjectByType<FloorRuntimeHost>();
+            FoundationRuntimeHost foundationRuntime =
+                UnityEngine.Object.FindAnyObjectByType<
+                    FoundationRuntimeHost>();
+            GridMapHost mapRuntime =
+                UnityEngine.Object.FindAnyObjectByType<GridMapHost>();
+
+            if (floorRuntime?.FloorState == null
+                || foundationRuntime?.FoundationConstruction == null
+                || mapRuntime?.MapDefinition == null
+                || mapRuntime.ConstructionEligibility == null)
+            {
+                return false;
+            }
+
+            List<GridPosition> candidates = new List<GridPosition>();
+
+            foreach (
+                GridPosition cell
+                in mapRuntime.MapDefinition.EnumerateValidCells())
+            {
+                if (mapRuntime.ConstructionEligibility.IsEligible(cell)
+                    && !receivingRuntime.IsObstructed(cell))
+                {
+                    candidates.Add(cell);
+                }
+            }
+
+            candidates.Sort(CompareCells);
+
+            if (candidates.Count < 2)
+            {
+                Fail(
+                    "Inbound supplier pallet capture could not find two "
+                    + "valid Receiving Area cells.");
+                return false;
+            }
+
+            GridPosition[] receivingCells =
+            {
+                candidates[0],
+                candidates[1]
+            };
+            foundationRuntime.FoundationConstruction
+                .TryEnsureFoundations(receivingCells);
+            floorRuntime.FloorConstruction
+                .TryEnsureFloors(receivingCells);
+
+            if (!floorRuntime.FloorState.HasFloor(receivingCells[0])
+                || !floorRuntime.FloorState.HasFloor(receivingCells[1]))
+            {
+                Fail(
+                    "Inbound supplier pallet capture could not prepare "
+                    + "two finished floor cells for Receiving.");
+                return false;
+            }
+
+            ReceivingAreaChangeResult result =
+                receivingRuntime.Designations.TryAddArea(
+                    receivingCells);
+
+            if (!result.Succeeded)
+            {
+                Fail(
+                    "Inbound supplier pallet capture could not designate "
+                    + $"Receiving: {result.Failure}.");
+                return false;
+            }
+
+            ReceivingAreaViewSystem receivingView =
+                UnityEngine.Object.FindAnyObjectByType<
+                    ReceivingAreaViewSystem>();
+            receivingView?.SetManagementVisible(true);
+            return true;
+        }
+
+        private static int CompareCells(
+            GridPosition left,
+            GridPosition right)
+        {
+            int levelComparison = left.Level.CompareTo(right.Level);
+
+            if (levelComparison != 0)
+            {
+                return levelComparison;
+            }
+
+            int yComparison = left.Y.CompareTo(right.Y);
+
+            return yComparison != 0
+                ? yComparison
+                : left.X.CompareTo(right.X);
         }
 
         private static void SetSupplierDraft(
@@ -273,7 +403,7 @@ namespace BigRetail.Editor.Merchandise
             {
                 Fail(
                     "Two supplier orders did not produce two distinct "
-                    + "curbside pallet loads.");
+                    + "Receiving Area pallet loads.");
                 return false;
             }
 
@@ -329,6 +459,18 @@ namespace BigRetail.Editor.Merchandise
 
         private static bool TryCaptureCamera()
         {
+            if (Application.isBatchMode)
+            {
+                const string message =
+                    "PASS: two supplier purchase orders occupied two "
+                    + "distinct player-designated Receiving Area cells.";
+                File.WriteAllText(
+                    GetAbsoluteSmokeResultPath(),
+                    message);
+                Debug.Log(message);
+                return true;
+            }
+
             Camera sceneCamera = Camera.main;
 
             if (sceneCamera == null)
@@ -409,8 +551,11 @@ namespace BigRetail.Editor.Merchandise
 
             if (exitEditor)
             {
+                bool artifactExists = Application.isBatchMode
+                    ? File.Exists(GetAbsoluteSmokeResultPath())
+                    : File.Exists(GetAbsoluteCapturePath());
                 EditorApplication.Exit(
-                    !failed && File.Exists(GetAbsoluteCapturePath())
+                    !failed && artifactExists
                         ? 0
                         : 3);
             }
@@ -418,6 +563,13 @@ namespace BigRetail.Editor.Merchandise
 
         private static void Fail(string message)
         {
+            if (SessionState.GetBool(
+                    SessionKey + ".Failed",
+                    false))
+            {
+                return;
+            }
+
             SessionState.SetBool(SessionKey + ".Failed", true);
             Debug.LogError(message);
         }
@@ -429,6 +581,15 @@ namespace BigRetail.Editor.Merchandise
                     Application.dataPath,
                     "..",
                     CapturePath));
+        }
+
+        private static string GetAbsoluteSmokeResultPath()
+        {
+            return Path.GetFullPath(
+                Path.Combine(
+                    Application.dataPath,
+                    "..",
+                    SmokeResultPath));
         }
     }
 }
