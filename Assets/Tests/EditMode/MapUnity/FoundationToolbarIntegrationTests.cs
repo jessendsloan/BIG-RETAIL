@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using BigRetail.Map.Unity.Doors;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Map.Unity.Walls;
@@ -1153,6 +1155,115 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        [Test]
+        public void GameplayUi_IconButtonsProvideVisibleContext()
+        {
+            VisualTreeAsset toolbarAsset =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    "Assets/UI/Construction/PC/ConstructionToolbar.uxml");
+
+            Assert.That(toolbarAsset, Is.Not.Null);
+
+            VisualElement root = toolbarAsset.CloneTree();
+            int iconOnlyButtonCount = 0;
+
+            root.Query<Button>().ForEach(
+                button =>
+                {
+                    if (!string.IsNullOrWhiteSpace(button.text))
+                    {
+                        return;
+                    }
+
+                    iconOnlyButtonCount++;
+
+                    Assert.That(
+                        button.tooltip,
+                        Is.Not.Null.And.Not.Empty,
+                        $"Icon button '{button.name}' needs contextual text.");
+                });
+
+            Assert.That(
+                iconOnlyButtonCount,
+                Is.GreaterThanOrEqualTo(20));
+
+            Assert.That(
+                root.Q<VisualElement>("control-hint"),
+                Is.Not.Null);
+
+            Assert.That(
+                root.Q<Label>("control-hint-title"),
+                Is.Not.Null);
+
+            Assert.That(
+                root.Q<Label>("control-hint-description"),
+                Is.Not.Null);
+        }
+
+
+        [Test]
+        public void GameplayUi_UsesReadableTypographyHierarchy()
+        {
+            const string stylePath =
+                "Assets/UI/Construction/PC/ConstructionToolbar.uss";
+
+            string styleText = File.ReadAllText(stylePath);
+            MatchCollection fontSizes = Regex.Matches(
+                styleText,
+                @"font-size:\s*(\d+)px;");
+
+            Assert.That(
+                fontSizes.Count,
+                Is.GreaterThanOrEqualTo(40));
+
+            int minimumFontSize = int.MaxValue;
+            int maximumFontSize = int.MinValue;
+
+            foreach (Match fontSize in fontSizes)
+            {
+                int pixelHeight = int.Parse(
+                    fontSize.Groups[1].Value);
+
+                minimumFontSize = Math.Min(
+                    minimumFontSize,
+                    pixelHeight);
+
+                maximumFontSize = Math.Max(
+                    maximumFontSize,
+                    pixelHeight);
+
+                Assert.That(
+                    pixelHeight,
+                    Is.GreaterThanOrEqualTo(15),
+                    "Gameplay UI text must remain readable at the "
+                    + "authored 1080p reference size.");
+            }
+
+            Assert.That(
+                minimumFontSize,
+                Is.LessThanOrEqualTo(18),
+                "Captions and supporting copy should remain compact.");
+
+            Assert.That(
+                maximumFontSize,
+                Is.GreaterThanOrEqualTo(26),
+                "Primary values and actions should remain prominent.");
+
+            StringAssert.Contains(
+                "bottom: 118px;",
+                styleText,
+                "The control hint should stay in its dedicated HUD dock.");
+
+            StringAssert.Contains(
+                ".construction-toolbar-screen.is-reduced-motion",
+                styleText);
+
+            StringAssert.Contains(
+                "transition-duration: 0ms;",
+                styleText);
+        }
+
+
         private static VisualElement CreateToolbarRoot()
         {
             VisualElement root =
@@ -1210,6 +1321,26 @@ namespace BigRetail.Map.Unity.Tests
                 {
                     name = "store-cash-value"
                 });
+
+            VisualElement controlHint =
+                new VisualElement
+                {
+                    name = "control-hint"
+                };
+
+            controlHint.Add(
+                new Label
+                {
+                    name = "control-hint-title"
+                });
+
+            controlHint.Add(
+                new Label
+                {
+                    name = "control-hint-description"
+                });
+
+            root.Add(controlHint);
 
             return root;
         }
