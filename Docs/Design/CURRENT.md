@@ -8,6 +8,8 @@ The opening **Products → Suppliers → Purchasing → Delivery → Receiving**
 
 Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries, each ready Supplier PO appears as its own 1 × 1 curbside pallet load, and receiving that pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
+A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
+
 ## Locked foundations
 
 - Big Retail is a one-store retail management simulation where scale creates new bottlenecks rather than functioning as a simple level-up.
@@ -15,6 +17,7 @@ Purchasing uses the campaign clock and store cash. Placed Supplier POs become sc
 - Products/SKUs exist independently of suppliers.
 - Brands and Products are separate concepts from Suppliers.
 - A supplier can offer the same SKU differently from another supplier through price, purchase-pack size, delivery timing, minimums, and assortment.
+- Supplier visual identity is also separate from consumer Product/Brand identity. Trucks, shipping cases, receiving labels, and supplier UI carry supplier identity while the merchandise keeps its consumer branding.
 - Purchasing should ultimately be one persistent management workspace that grows with the retailer rather than being replaced by a different late-game system.
 - Purchasing is the transaction surface; Suppliers are not a second duplicate shopping system.
 - A supplier may be used as a filter/lens over the same product-oriented Purchasing workspace.
@@ -75,6 +78,7 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Very flexible, very dependable, expensive.
 - No meaningful early minimum.
 - Functions as the player's safety net and emergency supplier.
+- Visual starting identity: **burgundy / cream / gold**.
 
 ### Central Grocery Supply
 - Grocery-focused regional distributor.
@@ -82,6 +86,7 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Cheaper than BIG Wholesale.
 - Moderate minimum order.
 - Rewards planning.
+- Visual starting identity: **green / beige / burnt orange**.
 
 ### Beacon Beverage Distribution
 - Beverage specialist.
@@ -89,6 +94,9 @@ Brands are recurring shelf-world identities. Supplier identity remains separate.
 - Fixed route days, currently Tuesday and Friday.
 - Least flexible of the opening three.
 - Rewards specialization and calendar planning.
+- Visual starting identity: **blue / white / teal**.
+
+The canonical supplier art-direction guide is `SupplierVisualIdentity.md`. Exact production colors may still move after sprite-scale testing; the identity system and color separation are accepted.
 
 ## Supplier balancing law
 
@@ -102,9 +110,9 @@ Once a supplier is commercially available, the player should generally be able t
 
 ## Narrative integration
 
-Milton "Mr. BIG" Big is more than a supplier character.
+The canonical character/campaign document is `MiltonBig.md`.
 
-He is a recurring campaign spine with three simultaneous roles:
+Milton "Mr. BIG" Big is more than a supplier character. He is the recurring human spine of the campaign with three simultaneous roles:
 
 - Tutor
 - Safety net
@@ -112,7 +120,15 @@ He is a recurring campaign spine with three simultaneous roles:
 
 BIG helped finance the player's beginning, owns the player's debt, and owns BIG Wholesale. Mr. BIG is charming, useful, slightly unfair, and profits from the player's dependence. The long-term relationship should shift from the player adapting to BIG toward BIG eventually wanting the player's business.
 
-His tutorial role now also includes guiding the player's **first property expansion purchase**, after which the permanent land-acquisition system becomes player-directed.
+His tutorial function should usually arrive through real business offers and systems rather than detached tutorial narration. He should teach because he is financing, selling, providing, or recommending something.
+
+His tutorial role also includes guiding the player's **first property expansion purchase**, after which the permanent land-acquisition system becomes player-directed.
+
+The approved visual canon is a huge, bald, impeccably suited, cigar-smoking business magnate with a warm but commercially predatory presence. The approved portrait represents him around the moment he crossed his first billion dollars.
+
+Preferred voice direction is selective character VO: written dialogue carries most content while reusable voiced tags, laughs, greetings, and rare major fully voiced lines establish the sound of Milton Big.
+
+The campaign probably needs a real climax before releasing the player into the continuing sandbox. The exact plot remains open, but the climax should pay off the Milton/player leverage arc rather than introduce an unrelated final threat. The preferred end-state is that the player has built enough retail power to negotiate with, resist, outgrow, or redefine a major deal with Milton as a peer.
 
 ## Progression design thread — partially locked
 
@@ -201,6 +217,7 @@ Supplier minimum and delivery rules are supplier-wide in this opening model. Pur
 
 - Supplier Accounts & Relationships — preserved as a design patch in `Patches/SupplierAccountsAndRelationships.md`
 - Full permit / department progression schedule — continuing design lives in `Patches/PermitParcelProgression.md`
+- Exact Milton/campaign climax plot — broad climax principle is preserved in `MiltonBig.md`
 - Negotiations
 - Contracts
 - Credit terms and invoices
@@ -229,4 +246,12 @@ Playtest the integrated loop in the actual campaign scene:
 - Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
 - When two Suppliers arrive, do their two separate curbside pallets make the receiving burden immediately legible?
 
-If this pass feels natural in play, the next implementation step is removing the dormant fixed-case compatibility service and deciding how the player is first introduced to Purchasing during the campaign opening.
+The next implementation step is replacing the curbside staging assumption with
+a player-designated **Receiving Area** that gives ready Supplier POs physical
+capacity and a valid target inside the store operation. Removing the dormant
+fixed-case compatibility service and deciding how Purchasing is first introduced
+remain follow-up campaign-integration work.
+
+Parallel story question:
+
+- What are the exact first 20–30 minutes of the campaign, from Milton's opportunity through the player's first functioning retail loop?
