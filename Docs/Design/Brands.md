@@ -165,4 +165,6 @@ A player should eventually be able to recognize a brand family before reading ev
 
 Only the opening brand identities above are active.
 
+The read-only Commercial Directory presents these Brands with their identity, optional logo, and opening Products. This is a reference surface only; it does not add brand progression, loyalty, negotiations, or management mechanics.
+
 Do not create full brand catalogs yet. Additional SKUs should be added when the Product Line / department design calls for them.

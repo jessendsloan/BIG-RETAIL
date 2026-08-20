@@ -1,0 +1,22 @@
+{
+    "name": "BigRetail.Receiving.Unity",
+    "rootNamespace": "BigRetail.Receiving.Unity",
+    "references": [
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain",
+        "BigRetail.Map.Floors",
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Map.Unity",
+        "BigRetail.Map.View",
+        "BigRetail.Receiving.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

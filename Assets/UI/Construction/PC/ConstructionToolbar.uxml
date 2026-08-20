@@ -355,12 +355,12 @@
                     picking-mode="Position">
 
                     <ui:Label
-                        text="Case Purchasing"
+                        text="Supplier Deliveries"
                         class="fixture-merchandising-inspector__subtitle"
                         picking-mode="Ignore" />
 
                     <ui:Label
-                        text="Case orders spend store cash immediately. Receive the pending shipment when you are ready; supplier timing and delivery workers come later."
+                        text="Purchase orders arrive on the supplier schedule. Receive arrived deliveries into store storage here."
                         class="fixture-merchandising-inspector__purchasing-note"
                         picking-mode="Ignore" />
 
@@ -385,23 +385,23 @@
                         class="fixture-merchandising-inspector__purchasing-summary"
                         picking-mode="Ignore">
                         <ui:Label
-                            text="Pending delivery"
+                            text="Ready at receiving"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-purchasing-pending-value"
-                            text="No cases ordered"
+                            text="Nothing ready to receive"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--pending" />
                     </ui:VisualElement>
 
                     <ui:Button
                         name="fixture-purchasing-receive-button"
-                        text="Receive Pending Delivery"
+                        text="Receive Supplier Pallets"
                         class="fixture-merchandising-inspector__receive-button"
-                        tooltip="Convert every pending case order into real inbound inventory." />
+                        tooltip="Move every arrived supplier delivery into store inventory." />
 
                     <ui:Label
                         name="fixture-purchasing-status"
-                        text="Place a case order to begin."
+                        text="Place purchase orders to schedule supplier deliveries."
                         class="fixture-merchandising-inspector__purchasing-status"
                         picking-mode="Ignore" />
                 </ui:VisualElement>
@@ -748,6 +748,49 @@
                 class="construction-toolbar__icon construction-toolbar__icon--departments"
                 picking-mode="Ignore" />
         </ui:Button>
+
+        <ui:Button
+            name="purchasing-button"
+            class="construction-toolbar__button purchasing-button"
+            tooltip="Purchasing">
+            <ui:Label
+                text="PO"
+                class="construction-toolbar__text-icon"
+                picking-mode="Ignore" />
+        </ui:Button>
+
+        <ui:Button
+            name="receiving-area-button"
+            class="construction-toolbar__button receiving-area-button"
+            tooltip="Receiving Area">
+            <ui:Label
+                text="RCV"
+                class="construction-toolbar__text-icon receiving-area-button__label"
+                picking-mode="Ignore" />
+        </ui:Button>
+
+        <ui:VisualElement
+            name="receiving-area-panel"
+            class="receiving-area-panel"
+            picking-mode="Ignore">
+
+            <ui:Label
+                text="RECEIVING AREA"
+                class="receiving-area-panel__title"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="receiving-area-capacity"
+                text="NO RECEIVING SPACE"
+                class="receiving-area-panel__capacity"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="receiving-area-instruction"
+                text="Drag on finished floor to add. Start on Receiving space to erase."
+                class="receiving-area-panel__instruction"
+                picking-mode="Ignore" />
+        </ui:VisualElement>
 
         <ui:VisualElement
             name="construction-toolbar"

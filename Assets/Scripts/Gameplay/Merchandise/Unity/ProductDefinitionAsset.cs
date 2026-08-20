@@ -24,19 +24,60 @@ namespace BigRetail.Merchandise.Unity
         private string displayName;
 
         [SerializeField]
+        private BrandDefinitionAsset brand;
+
+        [SerializeField]
+        private string productLine;
+
+        [SerializeField]
         private string categoryId;
+
+        [SerializeField]
+        private MarketPosition marketPosition =
+            MarketPosition.Standard;
+
+        [SerializeField]
+        private string packageForm;
+
+        [Tooltip("Optional package image. A branded stub is shown when absent.")]
+        [SerializeField]
+        private Sprite catalogImage;
 
         [SerializeField]
         private StockUnit stockUnit =
             StockUnit.Each;
 
+        [Tooltip("Temporary graybox cost. Permanent supplier prices belong to Supplier Offers.")]
         [SerializeField]
         [Min(0)]
         private long wholesaleCaseCostCents;
 
+        [Tooltip("Temporary graybox shelf price used by the opening sales loop.")]
         [SerializeField]
         [Min(0)]
         private long retailUnitPriceCents;
+
+
+        public string DisplayName =>
+            displayName;
+
+        public BrandDefinitionAsset Brand =>
+            brand;
+
+        public string ProductLine =>
+            productLine;
+
+        public string CategoryId =>
+            categoryId;
+
+        public MarketPosition MarketPosition =>
+            marketPosition;
+
+        public string PackageForm =>
+            packageForm;
+
+        public Sprite CatalogImage =>
+            catalogImage;
 
 
         public bool TryCreateDefinition(
@@ -45,11 +86,40 @@ namespace BigRetail.Merchandise.Unity
         {
             try
             {
+                BrandId resolvedBrandId = BrandId.Unbranded;
+
+                if (brand != null)
+                {
+                    if (!brand.TryCreateDefinition(
+                            out BrandDefinition brandDefinition,
+                            out error))
+                    {
+                        definition = null;
+                        return false;
+                    }
+
+                    resolvedBrandId = brandDefinition.Id;
+                }
+
+                string resolvedProductLine =
+                    string.IsNullOrWhiteSpace(productLine)
+                        ? displayName
+                        : productLine;
+
+                string resolvedPackageForm =
+                    string.IsNullOrWhiteSpace(packageForm)
+                        ? stockUnit.ToString()
+                        : packageForm;
+
                 definition =
                     new ProductDefinition(
                         new ProductId(productId),
                         displayName,
+                        resolvedBrandId,
+                        resolvedProductLine,
                         new ProductCategoryId(categoryId),
+                        marketPosition,
+                        resolvedPackageForm,
                         stockUnit,
                         wholesaleCaseCostCents,
                         retailUnitPriceCents);
@@ -81,6 +151,16 @@ namespace BigRetail.Merchandise.Unity
                 displayName == null
                     ? string.Empty
                     : displayName.Trim();
+
+            productLine =
+                productLine == null
+                    ? string.Empty
+                    : productLine.Trim();
+
+            packageForm =
+                packageForm == null
+                    ? string.Empty
+                    : packageForm.Trim();
 
             wholesaleCaseCostCents =
                 Math.Max(0, wholesaleCaseCostCents);

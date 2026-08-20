@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c73acb32f0f8423fa91a98bd42872a1a, type: 3}
+  m_Name: CleanMaxPaperTowels
+  m_EditorClassIdentifier: BigRetail.Merchandise.Unity::BigRetail.Merchandise.Unity.ProductDefinitionAsset
+  productId: CLEANMAX-PAPER-TOWELS-ROLL
+  displayName: CleanMax Paper Towels
+  brand: {fileID: 11400000, guid: a2c0673d6028c8a4e870a77065e6a408, type: 2}
+  productLine: Paper Towels
+  categoryId: HOUSEHOLD
+  marketPosition: 1
+  packageForm: Roll
+  catalogImage: {fileID: 0}
+  stockUnit: 0
+  wholesaleCaseCostCents: 0
+  retailUnitPriceCents: 249
