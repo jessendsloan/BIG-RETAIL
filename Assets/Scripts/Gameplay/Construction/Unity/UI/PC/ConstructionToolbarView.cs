@@ -63,8 +63,16 @@ namespace BigRetail.Construction.Unity.UI.PC
             "receiving-area-instruction";
         public const string StoreCashValueName =
             "store-cash-value";
+        public const string ControlHintName =
+            "control-hint";
+        public const string ControlHintTitleName =
+            "control-hint-title";
+        public const string ControlHintDescriptionName =
+            "control-hint-description";
         public const string SelectedClassName = "is-selected";
+        public const string VisibleClassName = "is-visible";
 
+        private readonly VisualElement root;
         private readonly Button wallsButton;
         private readonly Button windowsButton;
         private readonly Button doorsButton;
@@ -98,6 +106,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button undoButton;
         private readonly Button redoButton;
         private readonly Label storeCashValueLabel;
+        private readonly VisualElement controlHint;
+        private readonly Label controlHintTitle;
+        private readonly Label controlHintDescription;
+
+        private Button hoveredButton;
+        private Button focusedButton;
 
         private bool isDisposed;
 
@@ -108,6 +122,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 throw new ArgumentNullException(nameof(root));
             }
 
+            this.root = root;
             wallsButton = RequireButton(root, WallsButtonName);
             windowsButton = RequireButton(root, WindowsButtonName);
             doorsButton = RequireButton(root, DoorsButtonName);
@@ -164,6 +179,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             redoButton = RequireButton(root, RedoButtonName);
             storeCashValueLabel =
                 RequireLabel(root, StoreCashValueName);
+            controlHint =
+                RequireElement(root, ControlHintName);
+            controlHintTitle =
+                RequireLabel(root, ControlHintTitleName);
+            controlHintDescription =
+                RequireLabel(root, ControlHintDescriptionName);
 
             wallsButton.clicked += HandleWallsRequested;
             windowsButton.clicked += HandleWindowsRequested;
@@ -200,6 +221,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             cameraViewWestButton.clicked += HandleCameraViewWestRequested;
             undoButton.clicked += HandleUndoRequested;
             redoButton.clicked += HandleRedoRequested;
+
+            root.RegisterCallback<PointerEnterEvent>(
+                HandlePointerEnter,
+                TrickleDown.TrickleDown);
+            root.RegisterCallback<PointerLeaveEvent>(
+                HandlePointerLeave,
+                TrickleDown.TrickleDown);
+            root.RegisterCallback<FocusInEvent>(
+                HandleFocusIn);
+            root.RegisterCallback<FocusOutEvent>(
+                HandleFocusOut);
         }
 
         public event Action<ConstructionToolbarSection> SectionRequested;
@@ -430,6 +462,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             undoButton.clicked -= HandleUndoRequested;
             redoButton.clicked -= HandleRedoRequested;
 
+            root.UnregisterCallback<PointerEnterEvent>(
+                HandlePointerEnter,
+                TrickleDown.TrickleDown);
+            root.UnregisterCallback<PointerLeaveEvent>(
+                HandlePointerLeave,
+                TrickleDown.TrickleDown);
+            root.UnregisterCallback<FocusInEvent>(
+                HandleFocusIn);
+            root.UnregisterCallback<FocusOutEvent>(
+                HandleFocusOut);
+
+            hoveredButton = null;
+            focusedButton = null;
+
             isDisposed = true;
         }
 
@@ -577,6 +623,187 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleRedoRequested()
         {
             RedoRequested?.Invoke();
+        }
+
+        private void HandlePointerEnter(
+            PointerEnterEvent pointerEvent)
+        {
+            Button button = pointerEvent.target as Button;
+
+            if (button == null
+                || hoveredButton == button)
+            {
+                return;
+            }
+
+            hoveredButton = button;
+            RefreshControlHint();
+        }
+
+        private void HandlePointerLeave(
+            PointerLeaveEvent pointerEvent)
+        {
+            Button sourceButton = pointerEvent.target as Button;
+
+            if (sourceButton == null
+                || hoveredButton != sourceButton)
+            {
+                return;
+            }
+
+            hoveredButton = null;
+            RefreshControlHint();
+        }
+
+        private void HandleFocusIn(
+            FocusInEvent focusEvent)
+        {
+            focusedButton =
+                FindButton(focusEvent.target as VisualElement);
+
+            RefreshControlHint();
+        }
+
+        private void HandleFocusOut(
+            FocusOutEvent focusEvent)
+        {
+            Button sourceButton =
+                FindButton(focusEvent.target as VisualElement);
+
+            Button destinationButton =
+                FindButton(focusEvent.relatedTarget as VisualElement);
+
+            if (sourceButton == null
+                || focusedButton != sourceButton
+                || destinationButton == sourceButton)
+            {
+                return;
+            }
+
+            focusedButton = destinationButton;
+            RefreshControlHint();
+        }
+
+        private void RefreshControlHint()
+        {
+            Button button = hoveredButton ?? focusedButton;
+
+            if (button == null
+                || !TryResolveControlHint(
+                    button,
+                    out string title,
+                    out string description))
+            {
+                HideControlHint();
+                return;
+            }
+
+            controlHintTitle.text = title;
+            controlHintDescription.text = description;
+            controlHint.EnableInClassList(VisibleClassName, true);
+        }
+
+        private void HideControlHint()
+        {
+            controlHint.EnableInClassList(VisibleClassName, false);
+        }
+
+        private static bool TryResolveControlHint(
+            Button button,
+            out string title,
+            out string description)
+        {
+            string knownTitle = GetKnownControlTitle(button.name);
+            string tooltip = button.tooltip?.Trim();
+            string buttonText = button.text?.Trim();
+
+            title = !string.IsNullOrWhiteSpace(knownTitle)
+                ? knownTitle
+                : !string.IsNullOrWhiteSpace(buttonText)
+                    ? buttonText
+                    : tooltip;
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                description = null;
+                return false;
+            }
+
+            bool hasKnownTitle =
+                !string.IsNullOrWhiteSpace(knownTitle);
+
+            description = hasKnownTitle
+                ? tooltip
+                : !string.IsNullOrWhiteSpace(buttonText)
+                    ? tooltip
+                    : $"Select {title.TrimEnd('.', '!', '?')}.";
+
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                description = $"Activate {title.TrimEnd('.', '!', '?')}.";
+            }
+
+            return true;
+        }
+
+        private static string GetKnownControlTitle(
+            string buttonName)
+        {
+            return buttonName switch
+            {
+                "simulation-speed-pause" => "Pause",
+                "simulation-speed-one" => "Normal speed",
+                "simulation-speed-two" => "Double speed",
+                "simulation-speed-four" => "Quadruple speed",
+                "fixture-merchandising-close-button" => "Close inspector",
+                FoundationDefaultButtonName => "Foundation",
+                SidewalksButtonName => "Sidewalk",
+                WindowsButtonName => "Window",
+                "fixture-rotate-button" => "Rotate fixture",
+                DemolishFoundationsButtonName => "Remove foundations",
+                DemolishSidewalksButtonName => "Remove sidewalks",
+                DemolishFloorsButtonName => "Remove floors",
+                DemolishWallsButtonName => "Remove walls",
+                DemolishFixturesButtonName => "Remove fixtures",
+                CameraViewWestButtonName => "West view",
+                CameraViewNorthButtonName => "North view",
+                CameraViewSouthButtonName => "South view",
+                CameraViewEastButtonName => "East view",
+                WallViewDownButtonName => "Walls down",
+                WallViewCutawayButtonName => "Cutaway walls",
+                WallViewUpButtonName => "Walls up",
+                DepartmentPickerView.DepartmentsButtonName => "Departments",
+                MerchandiseToolButtonName => "Merchandise",
+                "purchasing-button" => "Purchasing",
+                ReceivingAreaButtonName => "Receiving Area",
+                FoundationsButtonName => "Foundations",
+                FloorsButtonName => "Floors",
+                WallsButtonName => "Walls",
+                DoorsButtonName => "Doors and windows",
+                FixturesButtonName => "Fixtures",
+                DemolitionButtonName => "Demolition",
+                UndoButtonName => "Undo",
+                RedoButtonName => "Redo",
+                _ => null
+            };
+        }
+
+        private static Button FindButton(
+            VisualElement element)
+        {
+            VisualElement current = element;
+
+            while (current != null)
+            {
+                if (current is Button button)
+                {
+                    return button;
+                }
+
+                current = current.parent;
+            }
+
+            return null;
         }
 
         private static Button RequireButton(VisualElement root, string buttonName)

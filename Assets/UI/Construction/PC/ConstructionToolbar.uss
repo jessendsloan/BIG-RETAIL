@@ -1,14 +1,15 @@
 .construction-toolbar-screen {
     flex-grow: 1;
     position: relative;
+    font-size: 18px;
 }
 
 .store-cash-hud {
     position: absolute;
     bottom: 24px;
     left: 24px;
-    width: 190px;
-    height: 64px;
+    width: 240px;
+    min-height: 82px;
     padding-top: 7px;
     padding-right: 14px;
     padding-bottom: 7px;
@@ -24,18 +25,18 @@
 }
 
 .store-cash-hud__caption {
-    height: 18px;
+    min-height: 22px;
     color: rgb(95, 99, 96);
-    font-size: 10px;
+    font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
     letter-spacing: 1px;
 }
 
 .store-cash-hud__value {
-    height: 28px;
+    min-height: 34px;
     color: rgb(35, 54, 44);
-    font-size: 20px;
+    font-size: 26px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
 }
@@ -44,9 +45,9 @@
     position: absolute;
     bottom: 24px;
     left: 50%;
-    margin-left: -135px;
-    width: 270px;
-    min-height: 78px;
+    margin-left: -260px;
+    width: 520px;
+    min-height: 82px;
     flex-direction: row;
     align-items: stretch;
     padding: 7px;
@@ -57,7 +58,7 @@
 }
 
 .simulation-clock__readout {
-    width: 126px;
+    width: 236px;
     flex-grow: 0;
     flex-shrink: 0;
     justify-content: center;
@@ -67,9 +68,9 @@
 }
 
 .simulation-clock__day {
-    height: 18px;
-    color: rgba(35, 43, 50, 0.72);
-    font-size: 10px;
+    min-height: 24px;
+    color: rgb(62, 70, 75);
+    font-size: 18px;
     letter-spacing: 0.5px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
@@ -80,7 +81,8 @@
     position: absolute;
     top: 18px;
     right: 18px;
-    width: 500px;
+    bottom: 18px;
+    width: 560px;
     padding: 20px;
     flex-direction: column;
     background-color: rgba(248, 245, 237, 0.98);
@@ -90,7 +92,7 @@
 }
 
 .fixture-merchandising-inspector__header {
-    min-height: 60px;
+    min-height: 64px;
     margin-top: -20px;
     margin-right: -20px;
     margin-bottom: 14px;
@@ -109,19 +111,19 @@
 
 .fixture-merchandising-inspector__title {
     flex-grow: 1;
-    height: 36px;
+    min-height: 36px;
     color: rgb(249, 247, 241);
-    font-size: 20px;
+    font-size: 24px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
 }
 
 .fixture-merchandising-inspector__close-button {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     color: rgb(249, 247, 241);
-    font-size: 25px;
+    font-size: 26px;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     border-radius: 6px;
@@ -132,7 +134,7 @@
 }
 
 .fixture-merchandising-inspector__status {
-    min-height: 46px;
+    min-height: 56px;
     margin-top: 0;
     margin-bottom: 13px;
     padding-top: 9px;
@@ -140,7 +142,7 @@
     padding-bottom: 9px;
     padding-left: 12px;
     color: rgb(64, 70, 74);
-    font-size: 14px;
+    font-size: 18px;
     white-space: normal;
     background-color: rgba(255, 255, 255, 0.62);
     border-width: 1px;
@@ -181,7 +183,7 @@
     padding-bottom: 8px;
     padding-left: 10px;
     color: rgb(82, 86, 88);
-    font-size: 14px;
+    font-size: 20px;
     background-color: rgba(76, 108, 119, 0.09);
     border-width: 1px;
     border-color: rgba(76, 108, 119, 0.18);
@@ -189,12 +191,12 @@
 }
 
 .fixture-merchandising-inspector__preview-badge {
-    min-height: 30px;
+    min-height: 34px;
     margin-bottom: 13px;
     padding-left: 10px;
     padding-right: 10px;
     color: rgb(111, 77, 20);
-    font-size: 11px;
+    font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     background-color: rgba(228, 191, 103, 0.22);
@@ -204,14 +206,14 @@
 }
 
 .fixture-merchandising-inspector__storage-note {
-    min-height: 58px;
+    min-height: 72px;
     margin-bottom: 13px;
     padding-top: 10px;
     padding-right: 12px;
     padding-bottom: 10px;
     padding-left: 12px;
     color: rgb(64, 70, 74);
-    font-size: 13px;
+    font-size: 17px;
     white-space: normal;
     background-color: rgba(255, 255, 255, 0.62);
     border-width: 1px;
@@ -240,7 +242,7 @@
 }
 
 .fixture-merchandising-inspector__storage-content-row {
-    min-height: 28px;
+    min-height: 36px;
     padding-left: 9px;
     padding-right: 9px;
     flex-direction: row;
@@ -252,19 +254,19 @@
 
 .fixture-merchandising-inspector__storage-content-name {
     color: rgb(64, 70, 74);
-    font-size: 13px;
+    font-size: 17px;
 }
 
 .fixture-merchandising-inspector__storage-content-quantity {
     color: rgb(51, 64, 69);
-    font-size: 13px;
+    font-size: 17px;
     -unity-font-style: bold;
 }
 
 .fixture-merchandising-inspector__storage-empty {
-    min-height: 30px;
-    color: rgba(64, 70, 74, 0.68);
-    font-size: 13px;
+    min-height: 36px;
+    color: rgb(74, 80, 83);
+    font-size: 17px;
     -unity-text-align: middle-center;
 }
 
@@ -282,10 +284,10 @@
 }
 
 .fixture-merchandising-inspector__purchasing-note {
-    min-height: 48px;
+    min-height: 62px;
     margin-bottom: 9px;
     color: rgb(74, 72, 66);
-    font-size: 12px;
+    font-size: 17px;
     white-space: normal;
 }
 
@@ -297,14 +299,14 @@
 }
 
 .fixture-merchandising-inspector__purchase-button {
-    width: 216px;
-    height: 42px;
+    width: 250px;
+    min-height: 52px;
     margin-right: 6px;
     margin-bottom: 6px;
     padding-left: 9px;
     padding-right: 7px;
     color: rgb(35, 43, 50);
-    font-size: 12px;
+    font-size: 17px;
     background-color: rgba(250, 249, 245, 0.96);
     border-width: 1px;
     border-left-width: 6px;
@@ -317,7 +319,7 @@
 }
 
 .fixture-merchandising-inspector__purchasing-summary {
-    min-height: 34px;
+    min-height: 40px;
     margin-bottom: 7px;
     padding-left: 8px;
     padding-right: 8px;
@@ -336,13 +338,13 @@
 
 .fixture-merchandising-inspector__summary-value--cash {
     color: rgb(49, 91, 53);
-    font-size: 15px;
+    font-size: 22px;
 }
 
 .fixture-merchandising-inspector__receive-button {
-    height: 44px;
+    min-height: 54px;
     color: rgb(249, 247, 241);
-    font-size: 13px;
+    font-size: 18px;
     -unity-font-style: bold;
     background-color: rgb(69, 84, 91);
     border-width: 1px;
@@ -355,10 +357,10 @@
 }
 
 .fixture-merchandising-inspector__purchasing-status {
-    min-height: 28px;
+    min-height: 38px;
     margin-top: 6px;
     color: rgb(82, 86, 88);
-    font-size: 11px;
+    font-size: 16px;
     white-space: normal;
     -unity-text-align: middle-center;
 }
@@ -377,7 +379,7 @@
 }
 
 .fixture-merchandising-inspector__summary-row {
-    min-height: 32px;
+    min-height: 40px;
     padding-left: 8px;
     padding-right: 8px;
     flex-direction: row;
@@ -393,11 +395,11 @@
 .fixture-merchandising-inspector__summary-label,
 .fixture-merchandising-inspector__summary-value {
     color: rgb(52, 58, 62);
-    font-size: 13px;
+    font-size: 17px;
 }
 
 .fixture-merchandising-inspector__summary-label {
-    width: 170px;
+    width: 200px;
 }
 
 .fixture-merchandising-inspector__summary-value {
@@ -427,10 +429,10 @@
 
 .fixture-merchandising-inspector__debug-button {
     display: none;
-    height: 34px;
+    min-height: 44px;
     margin-top: 8px;
     color: rgb(106, 76, 26);
-    font-size: 11px;
+    font-size: 16px;
     background-color: rgba(228, 191, 103, 0.16);
     border-width: 1px;
     border-color: rgba(143, 103, 31, 0.24);
@@ -442,7 +444,7 @@
 }
 
 .fixture-merchandising-inspector__automation-row {
-    min-height: 64px;
+    min-height: 82px;
     margin-top: 12px;
     padding-top: 9px;
     padding-right: 10px;
@@ -463,23 +465,23 @@
 
 .fixture-merchandising-inspector__automation-title {
     color: rgb(35, 43, 50);
-    font-size: 13px;
+    font-size: 18px;
     -unity-font-style: bold;
 }
 
 .fixture-merchandising-inspector__automation-note {
     margin-top: 3px;
     color: rgb(91, 96, 99);
-    font-size: 11px;
+    font-size: 16px;
 }
 
 .fixture-merchandising-inspector__automation-button {
-    width: 140px;
-    height: 40px;
+    width: 170px;
+    min-height: 50px;
     margin-left: 10px;
     padding-left: 8px;
     padding-right: 8px;
-    font-size: 11px;
+    font-size: 16px;
     color: rgb(68, 74, 78);
     background-color: rgba(255, 255, 255, 0.68);
     border-width: 1px;
@@ -494,14 +496,14 @@
 }
 
 .fixture-merchandising-inspector__shelf-label {
-    min-height: 34px;
+    min-height: 44px;
     margin-bottom: 9px;
     padding-top: 8px;
     padding-right: 10px;
     padding-bottom: 8px;
     padding-left: 12px;
     color: rgb(35, 43, 50);
-    font-size: 14px;
+    font-size: 18px;
     -unity-font-style: bold;
     background-color: rgba(76, 108, 119, 0.12);
     border-width: 1px;
@@ -512,7 +514,7 @@
 }
 
 .fixture-merchandising-inspector__color-legend {
-    min-height: 28px;
+    min-height: 38px;
     margin-top: 0;
     margin-bottom: 10px;
     padding-top: 5px;
@@ -520,7 +522,7 @@
     padding-bottom: 5px;
     padding-left: 9px;
     color: rgb(82, 86, 88);
-    font-size: 11px;
+    font-size: 16px;
     -unity-text-align: middle-left;
     background-color: rgba(228, 191, 103, 0.16);
     border-width: 1px;
@@ -547,14 +549,14 @@
 }
 
 .fixture-merchandising-inspector__product-button {
-    width: 140px;
-    height: 50px;
+    width: 170px;
+    min-height: 56px;
     margin-right: 6px;
     margin-bottom: 6px;
     padding-left: 10px;
     padding-right: 7px;
     color: rgb(35, 43, 50);
-    font-size: 13px;
+    font-size: 17px;
     background-color: rgba(250, 249, 245, 0.96);
     border-width: 1px;
     border-left-width: 6px;
@@ -586,11 +588,11 @@
 }
 
 .fixture-merchandising-inspector__step-button {
-    width: 48px;
-    height: 44px;
+    width: 52px;
+    height: 50px;
     padding: 0;
     color: rgb(249, 247, 241);
-    font-size: 22px;
+    font-size: 26px;
     background-color: rgb(69, 84, 91);
     border-width: 1px;
     border-color: rgb(52, 64, 69);
@@ -599,20 +601,20 @@
 
 .fixture-merchandising-inspector__width-label {
     flex-grow: 1;
-    height: 44px;
+    min-height: 50px;
     margin-left: 10px;
     margin-right: 10px;
     color: rgb(35, 43, 50);
-    font-size: 14px;
+    font-size: 18px;
     -unity-text-align: middle-center;
 }
 
 .fixture-merchandising-inspector__primary-button,
 .fixture-merchandising-inspector__secondary-button {
-    height: 50px;
+    min-height: 56px;
     margin-top: 7px;
     color: rgb(35, 43, 50);
-    font-size: 14px;
+    font-size: 18px;
     border-width: 1px;
     border-color: rgba(35, 43, 50, 0.24);
     border-radius: 7px;
@@ -644,33 +646,35 @@
 .fixture-merchandising-inspector__primary-button:disabled,
 .fixture-merchandising-inspector__secondary-button:disabled,
 .fixture-merchandising-inspector__automation-button:disabled {
-    opacity: 0.48;
+    opacity: 0.62;
 }
 
 .simulation-clock__time {
-    height: 31px;
+    min-height: 34px;
     color: rgb(35, 43, 50);
-    font-size: 22px;
+    font-size: 28px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
 }
 
 .simulation-clock__speeds {
-    flex-grow: 1;
+    width: 240px;
+    flex-grow: 0;
+    flex-shrink: 0;
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    padding-left: 6px;
+    padding-left: 8px;
 }
 
 .simulation-clock__speed {
-    width: 27px;
-    height: 46px;
+    width: 48px;
+    height: 52px;
     margin-left: 1px;
     margin-right: 1px;
     padding: 0;
     color: rgba(35, 43, 50, 0.76);
-    font-size: 11px;
+    font-size: 18px;
     background-color: rgba(255, 255, 255, 0.48);
     border-width: 1px;
     border-color: rgba(35, 43, 50, 0.14);
@@ -696,7 +700,7 @@
     display: none;
     position: absolute;
     left: 104px;
-    min-width: 304px;
+    min-width: 330px;
     flex-direction: column;
     align-items: center;
     padding-top: 8px;
@@ -720,7 +724,7 @@
     position: absolute;
     top: 24px;
     left: 104px;
-    min-width: 296px;
+    min-width: 330px;
     flex-direction: column;
     align-items: center;
     padding-top: 8px;
@@ -734,10 +738,10 @@
 }
 
 .department-picker__title {
-    height: 20px;
+    min-height: 28px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
-    font-size: 12px;
+    font-size: 20px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
@@ -749,8 +753,8 @@
 }
 
 .department-picker__button {
-    width: 82px;
-    height: 92px;
+    width: 92px;
+    height: 106px;
     margin-left: 4px;
     margin-right: 4px;
     padding: 3px;
@@ -778,18 +782,18 @@
 }
 
 .department-picker__icon {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
     -unity-background-scale-mode: scale-to-fit;
 }
 
 .department-picker__label {
-    height: 24px;
+    min-height: 32px;
     margin-top: 3px;
     flex-shrink: 0;
     color: rgb(35, 43, 50);
-    font-size: 10px;
+    font-size: 16px;
     -unity-text-align: middle-center;
     white-space: normal;
 }
@@ -825,7 +829,7 @@
     margin-left: 8px;
     padding: 0;
     color: rgb(35, 43, 50);
-    font-size: 28px;
+    font-size: 24px;
     -unity-font-style: bold;
     background-color: rgba(255, 255, 255, 0.46);
     border-width: 2px;
@@ -859,10 +863,10 @@
 }
 
 .demolition-picker__title {
-    height: 20px;
+    min-height: 28px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
-    font-size: 12px;
+    font-size: 20px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
@@ -908,10 +912,10 @@
 }
 
 .finish-picker__title {
-    height: 20px;
+    min-height: 28px;
     margin-bottom: 5px;
     color: rgb(35, 43, 50);
-    font-size: 12px;
+    font-size: 20px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
@@ -1063,7 +1067,7 @@
 .receiving-area-panel__title {
     height: 22px;
     color: rgb(25, 102, 93);
-    font-size: 14px;
+    font-size: 16px;
     -unity-font-style: bold;
     letter-spacing: 1.2px;
 }
@@ -1078,7 +1082,7 @@
 .receiving-area-panel__instruction {
     min-height: 32px;
     color: rgb(70, 77, 75);
-    font-size: 14px;
+    font-size: 16px;
     white-space: normal;
 }
 
@@ -1154,7 +1158,7 @@
 }
 
 .construction-toolbar__button:disabled {
-    opacity: 0.32;
+    opacity: 0.55;
 }
 
 .construction-toolbar__button--history {
@@ -1342,9 +1346,9 @@
     position: absolute;
     top: 24px;
     left: 50%;
-    width: 400px;
-    min-height: 88px;
-    margin-left: -200px;
+    width: 560px;
+    min-height: 120px;
+    margin-left: -280px;
     padding-top: 10px;
     padding-right: 16px;
     padding-bottom: 11px;
@@ -1359,24 +1363,24 @@
 }
 
 .campaign-objective-card__caption {
-    height: 17px;
+    min-height: 22px;
     color: rgb(137, 96, 35);
-    font-size: 9px;
+    font-size: 16px;
     -unity-font-style: bold;
     letter-spacing: 1.2px;
 }
 
 .campaign-objective-card__title {
-    height: 25px;
+    min-height: 32px;
     color: rgb(35, 54, 44);
-    font-size: 17px;
+    font-size: 24px;
     -unity-font-style: bold;
 }
 
 .campaign-objective-card__description {
-    min-height: 28px;
+    min-height: 48px;
     color: rgb(74, 79, 77);
-    font-size: 12px;
+    font-size: 19px;
     white-space: normal;
 }
 
@@ -1393,9 +1397,9 @@
 }
 
 .campaign-opening-panel {
-    width: 840px;
-    min-height: 208px;
-    padding: 15px;
+    width: 1020px;
+    min-height: 270px;
+    padding: 18px;
     flex-direction: row;
     background-color: rgba(42, 50, 53, 0.98);
     border-width: 2px;
@@ -1404,9 +1408,9 @@
 }
 
 .campaign-opening-panel__portrait-frame {
-    width: 176px;
-    height: 176px;
-    margin-right: 18px;
+    width: 220px;
+    height: 220px;
+    margin-right: 20px;
     padding: 4px;
     background-color: rgb(21, 25, 27);
     border-width: 2px;
@@ -1427,7 +1431,7 @@
 }
 
 .campaign-opening-panel__header {
-    height: 32px;
+    min-height: 42px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -1438,48 +1442,48 @@
 .campaign-opening-panel__speaker {
     flex-grow: 1;
     color: rgb(234, 205, 142);
-    font-size: 19px;
+    font-size: 24px;
     -unity-font-style: bold;
     letter-spacing: 1.5px;
 }
 
 .campaign-opening-panel__progress {
-    width: 52px;
-    color: rgba(245, 242, 232, 0.65);
-    font-size: 11px;
+    width: 62px;
+    color: rgb(226, 228, 224);
+    font-size: 16px;
     -unity-text-align: middle-right;
 }
 
 .campaign-opening-panel__dialogue {
     flex-grow: 1;
-    min-height: 84px;
+    min-height: 116px;
     padding-top: 14px;
     padding-right: 8px;
     color: rgb(247, 244, 235);
-    font-size: 17px;
+    font-size: 22px;
     white-space: normal;
 }
 
 .campaign-opening-panel__actions {
-    height: 43px;
+    min-height: 56px;
     flex-direction: row;
     align-items: stretch;
     justify-content: flex-end;
 }
 
 .campaign-opening-panel__button {
-    min-width: 150px;
-    height: 40px;
+    min-width: 190px;
+    min-height: 52px;
     margin-left: 9px;
     padding-left: 17px;
     padding-right: 17px;
-    font-size: 13px;
+    font-size: 18px;
     -unity-font-style: bold;
     border-radius: 6px;
 }
 
 .campaign-opening-panel__button--secondary {
-    color: rgba(247, 244, 235, 0.74);
+    color: rgb(235, 236, 232);
     background-color: rgba(255, 255, 255, 0.05);
     border-width: 1px;
     border-color: rgba(247, 244, 235, 0.24);
@@ -1499,4 +1503,181 @@
 
 .campaign-opening-panel__button--primary:hover {
     background-color: rgb(230, 194, 116);
+}
+
+/* A fixed information dock keeps hover and focus context out of tool panels. */
+.control-hint {
+    position: absolute;
+    bottom: 118px;
+    left: 24px;
+    width: 440px;
+    min-height: 90px;
+    padding-top: 9px;
+    padding-right: 16px;
+    padding-bottom: 11px;
+    padding-left: 17px;
+    flex-direction: column;
+    opacity: 0;
+    translate: 0 7px;
+    background-color: rgba(31, 42, 47, 0.98);
+    border-width: 2px;
+    border-left-width: 7px;
+    border-color: rgb(16, 27, 31);
+    border-left-color: rgb(224, 178, 84);
+    border-radius: 10px;
+    transition-property: opacity, translate;
+    transition-duration: 90ms, 120ms;
+    transition-timing-function: ease-out;
+}
+
+.control-hint.is-visible {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.control-hint__caption {
+    min-height: 18px;
+    color: rgb(234, 198, 123);
+    font-size: 15px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.control-hint__title {
+    min-height: 26px;
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+    -unity-font-style: bold;
+}
+
+.control-hint__description {
+    min-height: 32px;
+    color: rgb(232, 237, 238);
+    font-size: 17px;
+    white-space: normal;
+}
+
+/* A clear, non-color-only interaction state for every gameplay control. */
+.construction-toolbar__button,
+.finish-picker__button,
+.wall-finish-picker__button,
+.demolition-picker__button,
+.department-picker__button,
+.fixture-picker__rotate-button,
+.camera-rotation-controls__button,
+.wall-view-controls__button,
+.simulation-clock__speed,
+.fixture-merchandising-inspector__close-button,
+.fixture-merchandising-inspector__purchase-button,
+.fixture-merchandising-inspector__receive-button,
+.fixture-merchandising-inspector__product-button,
+.fixture-merchandising-inspector__step-button,
+.fixture-merchandising-inspector__primary-button,
+.fixture-merchandising-inspector__secondary-button,
+.fixture-merchandising-inspector__automation-button,
+.campaign-opening-panel__button {
+    transition-property: background-color, border-color, scale;
+    transition-duration: 90ms, 90ms, 120ms;
+    transition-timing-function: ease-out;
+}
+
+.construction-toolbar__button:hover,
+.finish-picker__button:hover,
+.wall-finish-picker__button:hover,
+.demolition-picker__button:hover,
+.department-picker__button:hover,
+.fixture-picker__rotate-button:hover,
+.camera-rotation-controls__button:hover,
+.wall-view-controls__button:hover,
+.simulation-clock__speed:hover {
+    scale: 1.06 1.06;
+    background-color: rgba(24, 88, 99, 0.18);
+}
+
+.construction-toolbar__button:focus,
+.merchandise-tool-button:focus,
+.finish-picker__button:focus,
+.wall-finish-picker__button:focus,
+.demolition-picker__button:focus,
+.department-picker__button:focus,
+.fixture-picker__rotate-button:focus,
+.camera-rotation-controls__button:focus,
+.wall-view-controls__button:focus,
+.simulation-clock__speed:focus,
+.fixture-merchandising-inspector__close-button:focus,
+.fixture-merchandising-inspector__purchase-button:focus,
+.fixture-merchandising-inspector__receive-button:focus,
+.fixture-merchandising-inspector__product-button:focus,
+.fixture-merchandising-inspector__step-button:focus,
+.fixture-merchandising-inspector__primary-button:focus,
+.fixture-merchandising-inspector__secondary-button:focus,
+.fixture-merchandising-inspector__automation-button:focus,
+.campaign-opening-panel__button:focus {
+    scale: 1.06 1.06;
+    background-color: rgba(24, 88, 99, 0.24);
+    border-width: 3px;
+    border-color: rgb(13, 77, 89);
+}
+
+.construction-toolbar__button:focus,
+.merchandise-tool-button:focus,
+.finish-picker__button:focus,
+.wall-finish-picker__button:focus,
+.demolition-picker__button:focus,
+.department-picker__button:focus,
+.fixture-picker__rotate-button:focus,
+.camera-rotation-controls__button:focus,
+.wall-view-controls__button:focus,
+.simulation-clock__speed:focus {
+    color: rgb(35, 43, 50);
+    background-color: rgb(244, 240, 230);
+}
+
+.simulation-clock__speed.is-selected:focus {
+    color: rgb(255, 255, 255);
+    background-color: rgb(64, 83, 90);
+    border-color: rgb(234, 190, 103);
+}
+
+.fixture-merchandising-inspector__close-button:focus,
+.fixture-merchandising-inspector__receive-button:focus,
+.fixture-merchandising-inspector__step-button:focus,
+.fixture-merchandising-inspector__primary-button:focus,
+.campaign-opening-panel__button--secondary:focus {
+    color: rgb(255, 255, 255);
+    background-color: rgb(54, 66, 72);
+    border-color: rgb(234, 190, 103);
+}
+
+.campaign-opening-panel__button--primary:focus {
+    color: rgb(32, 35, 33);
+    background-color: rgb(230, 194, 116);
+    border-color: rgb(18, 75, 85);
+}
+
+.construction-toolbar__button:active,
+.finish-picker__button:active,
+.wall-finish-picker__button:active,
+.demolition-picker__button:active,
+.department-picker__button:active,
+.fixture-picker__rotate-button:active,
+.camera-rotation-controls__button:active,
+.wall-view-controls__button:active,
+.simulation-clock__speed:active {
+    scale: 0.96 0.96;
+}
+
+/* This root class is the integration seam for the accessibility settings
+   screen: it removes all decorative transition motion without changing state. */
+.construction-toolbar-screen.is-reduced-motion .control-hint,
+.construction-toolbar-screen.is-reduced-motion .construction-toolbar__button,
+.construction-toolbar-screen.is-reduced-motion .finish-picker__button,
+.construction-toolbar-screen.is-reduced-motion .wall-finish-picker__button,
+.construction-toolbar-screen.is-reduced-motion .demolition-picker__button,
+.construction-toolbar-screen.is-reduced-motion .department-picker__button,
+.construction-toolbar-screen.is-reduced-motion .fixture-picker__rotate-button,
+.construction-toolbar-screen.is-reduced-motion .camera-rotation-controls__button,
+.construction-toolbar-screen.is-reduced-motion .wall-view-controls__button,
+.construction-toolbar-screen.is-reduced-motion .simulation-clock__speed {
+    transition-duration: 0ms;
 }
