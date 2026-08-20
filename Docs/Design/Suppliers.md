@@ -65,6 +65,22 @@ Central teaches the player that planning ahead improves margin.
 
 Beacon teaches that specialist suppliers can be the cheapest choice while demanding the most planning.
 
+## Supplier visual identity
+
+The opening suppliers should be recognizable as companies in both the management UI and the physical supply chain.
+
+The canonical art-direction starting point is `SupplierVisualIdentity.md`.
+
+Opening identity colors are deliberately separated:
+
+- **BIG Wholesale:** burgundy / cream / gold
+- **Central Grocery Supply:** green / beige / burnt orange
+- **Beacon Beverage Distribution:** blue / white / teal
+
+Supplier identity belongs primarily to the **shipping layer** — trucks, outer cases/cartons, receiving labels, and supplier UI badges. Consumer packaging keeps the identity of the Product / Brand regardless of which supplier delivered it.
+
+The opening implementation should prefer reusable carton art plus supplier color / marking layers and a product label rather than bespoke shipping-box art for every Supplier Offer.
+
 ## Required overlap
 
 Starting suppliers must have overlapping SKUs so supplier choice is meaningful.
