@@ -89,6 +89,8 @@ namespace BigRetail.Map.Unity.Walls
         private int unityCellZ;
         private WallFinishPresentationResolver finishResolver;
         private DoorPresentationResolver doorResolver;
+        private WallFinishAsset boundaryFenceFinish;
+        private bool isBoundaryFence;
         private SpriteMask apertureMask;
         private SortingGroup sortingGroup;
         private Vector3 apertureAssemblyWorldPosition;
@@ -126,6 +128,9 @@ namespace BigRetail.Map.Unity.Walls
                 ?? throw new ArgumentNullException(
                     nameof(doorResolver));
 
+            isBoundaryFence = false;
+            boundaryFenceFinish = null;
+
             Edge = edge;
             this.logicalLevel = logicalLevel;
             this.unityCellZ = unityCellZ;
@@ -138,6 +143,55 @@ namespace BigRetail.Map.Unity.Walls
                 $"Wall {Edge.AnchorCell.X}, "
                 + $"{Edge.AnchorCell.Y}, "
                 + $"Level {Edge.AnchorCell.Level} — "
+                + $"{Edge.CanonicalDirection}";
+
+            IsInitialized = true;
+        }
+
+
+        /// <summary>
+        /// Configures this prefab as a visual Lot fence without registering a
+        /// structural wall. The presentation shares wall art and projection,
+        /// but it never enters wall construction, demolition, doors, saves,
+        /// or wall-visibility state.
+        /// </summary>
+        public void InitializeBoundaryFence(
+            CellEdge edge,
+            Tilemap coordinateTilemap,
+            int logicalLevel,
+            int unityCellZ,
+            IsometricViewProjection projection,
+            WallFinishAsset fenceFinish)
+        {
+            ValidatePresentation();
+            EnsureSortingGroup();
+
+            this.coordinateTilemap =
+                coordinateTilemap
+                ?? throw new ArgumentNullException(
+                    nameof(coordinateTilemap));
+
+            boundaryFenceFinish =
+                fenceFinish
+                ?? throw new ArgumentNullException(
+                    nameof(fenceFinish));
+
+            boundaryFenceFinish.ValidateConfiguration();
+
+            Edge = edge;
+            this.logicalLevel = logicalLevel;
+            this.unityCellZ = unityCellZ;
+            isBoundaryFence = true;
+            finishResolver = null;
+            doorResolver = null;
+
+            ApplyProjection(
+                projection,
+                WallPresentationHeight.Full);
+
+            gameObject.name =
+                $"Lot Fence {Edge.AnchorCell.X}, "
+                + $"{Edge.AnchorCell.Y} — "
                 + $"{Edge.CanonicalDirection}";
 
             IsInitialized = true;
@@ -236,9 +290,11 @@ namespace BigRetail.Map.Unity.Walls
             WallPresentationHeight presentationHeight)
         {
             WallFinishAsset visibleFinish =
-                finishResolver.ResolveAsset(
-                    Edge,
-                    worldPose.ViewerFacingCell);
+                isBoundaryFence
+                    ? boundaryFenceFinish
+                    : finishResolver.ResolveAsset(
+                        Edge,
+                        worldPose.ViewerFacingCell);
 
             CurrentFinish =
                 visibleFinish;
@@ -252,12 +308,17 @@ namespace BigRetail.Map.Unity.Walls
             CurrentHeight =
                 presentationHeight;
 
+            DoorAssembly assembly = null;
+            DoorDefinitionAsset doorDefinitionAsset = null;
+            int panelIndex = -1;
+
             IsDoorPanel =
-                doorResolver.TryResolvePanel(
+                !isBoundaryFence
+                && doorResolver.TryResolvePanel(
                     Edge,
-                    out DoorAssembly assembly,
-                    out DoorDefinitionAsset doorDefinitionAsset,
-                    out int panelIndex);
+                    out assembly,
+                    out doorDefinitionAsset,
+                    out panelIndex);
 
             CurrentDoorAssemblyId =
                 IsDoorPanel

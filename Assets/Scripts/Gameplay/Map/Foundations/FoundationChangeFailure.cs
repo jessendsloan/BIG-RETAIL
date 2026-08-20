@@ -23,6 +23,11 @@ namespace BigRetail.Map.Foundations
         OutsideConstructionArea,
 
         /// <summary>
+        /// A sidewalk reserves the requested cell for pedestrian use.
+        /// </summary>
+        SidewalkOccupied,
+
+        /// <summary>
         /// Removing the requested Foundation would leave a Floor or Wall
         /// without structural support.
         /// </summary>

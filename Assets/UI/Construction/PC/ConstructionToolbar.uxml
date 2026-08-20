@@ -492,6 +492,15 @@
                         class="finish-picker__icon foundation-picker__icon--default"
                         picking-mode="Ignore" />
                 </ui:Button>
+
+                <ui:Button
+                    name="sidewalks-button"
+                    class="finish-picker__button"
+                    tooltip="Sidewalk">
+                    <ui:VisualElement
+                        class="finish-picker__icon foundation-picker__icon--sidewalks"
+                        picking-mode="Ignore" />
+                </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -540,7 +549,17 @@
             <ui:VisualElement
                 name="door-definition-picker-items"
                 class="finish-picker__items"
-                picking-mode="Position" />
+                picking-mode="Position">
+
+                <ui:Button
+                    name="windows-button"
+                    class="finish-picker__button"
+                    tooltip="Windows">
+                    <ui:VisualElement
+                        class="finish-picker__icon finish-picker__icon--windows"
+                        picking-mode="Ignore" />
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <ui:VisualElement
@@ -590,6 +609,15 @@
                     tooltip="Demolish foundations">
                     <ui:VisualElement
                         class="demolition-picker__icon demolition-picker__icon--foundations"
+                        picking-mode="Ignore" />
+                </ui:Button>
+
+                <ui:Button
+                    name="demolish-sidewalks-button"
+                    class="demolition-picker__button"
+                    tooltip="Demolish sidewalks">
+                    <ui:VisualElement
+                        class="demolition-picker__icon demolition-picker__icon--sidewalks"
                         picking-mode="Ignore" />
                 </ui:Button>
 

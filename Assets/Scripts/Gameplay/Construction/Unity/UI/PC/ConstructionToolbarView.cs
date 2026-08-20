@@ -12,9 +12,11 @@ namespace BigRetail.Construction.Unity.UI.PC
     public sealed class ConstructionToolbarView : IDisposable
     {
         public const string WallsButtonName = "walls-button";
+        public const string WindowsButtonName = "windows-button";
         public const string DoorsButtonName = "doors-button";
         public const string FixturesButtonName = "fixtures-button";
         public const string FoundationsButtonName = "foundations-button";
+        public const string SidewalksButtonName = "sidewalks-button";
         public const string FoundationPickerName = "foundation-picker";
         public const string FoundationDefaultButtonName =
             "foundation-default-button";
@@ -22,6 +24,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string DemolitionButtonName = "demolition-button";
         public const string DemolishFoundationsButtonName =
             "demolish-foundations-button";
+        public const string DemolishSidewalksButtonName =
+            "demolish-sidewalks-button";
         public const string DemolishFloorsButtonName =
             "demolish-floors-button";
         public const string DemolishWallsButtonName =
@@ -52,16 +56,19 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string SelectedClassName = "is-selected";
 
         private readonly Button wallsButton;
+        private readonly Button windowsButton;
         private readonly Button doorsButton;
         private readonly Button fixturesButton;
         private readonly Button departmentsButton;
         private readonly Button merchandiseToolButton;
         private readonly Button foundationsButton;
+        private readonly Button sidewalksButton;
         private readonly VisualElement foundationPicker;
         private readonly Button foundationDefaultButton;
         private readonly Button floorsButton;
         private readonly Button demolitionButton;
         private readonly Button demolishFoundationsButton;
+        private readonly Button demolishSidewalksButton;
         private readonly Button demolishFloorsButton;
         private readonly Button demolishWallsButton;
         private readonly Button demolishFixturesButton;
@@ -87,6 +94,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton = RequireButton(root, WallsButtonName);
+            windowsButton = RequireButton(root, WindowsButtonName);
             doorsButton = RequireButton(root, DoorsButtonName);
             fixturesButton = RequireButton(root, FixturesButtonName);
             departmentsButton =
@@ -95,6 +103,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, MerchandiseToolButtonName);
             foundationsButton =
                 RequireButton(root, FoundationsButtonName);
+            sidewalksButton = RequireButton(root, SidewalksButtonName);
             foundationPicker =
                 RequireElement(root, FoundationPickerName);
             foundationDefaultButton =
@@ -103,6 +112,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             demolitionButton = RequireButton(root, DemolitionButtonName);
             demolishFoundationsButton =
                 RequireButton(root, DemolishFoundationsButtonName);
+            demolishSidewalksButton =
+                RequireButton(root, DemolishSidewalksButtonName);
             demolishFloorsButton =
                 RequireButton(root, DemolishFloorsButtonName);
             demolishWallsButton =
@@ -130,6 +141,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireLabel(root, StoreCashValueName);
 
             wallsButton.clicked += HandleWallsRequested;
+            windowsButton.clicked += HandleWindowsRequested;
             doorsButton.clicked += HandleDoorsRequested;
             fixturesButton.clicked += HandleFixturesRequested;
             departmentsButton.clicked += HandleDepartmentsRequested;
@@ -137,12 +149,15 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleMerchandiseToolRequested;
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
+            sidewalksButton.clicked += HandleSidewalksRequested;
             foundationDefaultButton.clicked +=
                 HandleFoundationsRequested;
             floorsButton.clicked += HandleFloorsRequested;
             demolitionButton.clicked += HandleDemolitionPickerRequested;
             demolishFoundationsButton.clicked +=
                 HandleDemolishFoundationsRequested;
+            demolishSidewalksButton.clicked +=
+                HandleDemolishSidewalksRequested;
             demolishFloorsButton.clicked += HandleDemolishFloorsRequested;
             demolishWallsButton.clicked += HandleDemolishWallsRequested;
             demolishFixturesButton.clicked +=
@@ -174,10 +189,18 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetSelectedSection(ConstructionToolbarSection section)
         {
             bool isFoundationSelected =
-                section == ConstructionToolbarSection.Foundations;
+                section == ConstructionToolbarSection.Foundations
+                || section == ConstructionToolbarSection.Sidewalks;
+
+            bool isDoorSelected =
+                section == ConstructionToolbarSection.Doors
+                || section == ConstructionToolbarSection.Windows;
 
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
-            SetSelected(doorsButton, section == ConstructionToolbarSection.Doors);
+            SetSelected(
+                windowsButton,
+                section == ConstructionToolbarSection.Windows);
+            SetSelected(doorsButton, isDoorSelected);
             SetSelected(
                 fixturesButton,
                 section == ConstructionToolbarSection.Fixtures);
@@ -185,8 +208,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                 foundationsButton,
                 isFoundationSelected);
             SetSelected(
+                sidewalksButton,
+                section == ConstructionToolbarSection.Sidewalks);
+            SetSelected(
                 foundationDefaultButton,
-                isFoundationSelected);
+                section == ConstructionToolbarSection.Foundations);
             foundationPicker.style.display =
                 isFoundationSelected
                     ? DisplayStyle.Flex
@@ -227,6 +253,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             SetSelected(
                 demolishFoundationsButton,
                 target == ConstructionToolbarDemolitionTarget.Foundations);
+            SetSelected(
+                demolishSidewalksButton,
+                target == ConstructionToolbarDemolitionTarget.Sidewalks);
             SetSelected(
                 demolishFloorsButton,
                 target == ConstructionToolbarDemolitionTarget.Floors);
@@ -308,6 +337,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton.clicked -= HandleWallsRequested;
+            windowsButton.clicked -= HandleWindowsRequested;
             doorsButton.clicked -= HandleDoorsRequested;
             fixturesButton.clicked -= HandleFixturesRequested;
             departmentsButton.clicked -= HandleDepartmentsRequested;
@@ -315,12 +345,15 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleMerchandiseToolRequested;
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
+            sidewalksButton.clicked -= HandleSidewalksRequested;
             foundationDefaultButton.clicked -=
                 HandleFoundationsRequested;
             floorsButton.clicked -= HandleFloorsRequested;
             demolitionButton.clicked -= HandleDemolitionPickerRequested;
             demolishFoundationsButton.clicked -=
                 HandleDemolishFoundationsRequested;
+            demolishSidewalksButton.clicked -=
+                HandleDemolishSidewalksRequested;
             demolishFloorsButton.clicked -= HandleDemolishFloorsRequested;
             demolishWallsButton.clicked -= HandleDemolishWallsRequested;
             demolishFixturesButton.clicked -=
@@ -342,6 +375,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleWallsRequested()
         {
             SectionRequested?.Invoke(ConstructionToolbarSection.Walls);
+        }
+
+        private void HandleWindowsRequested()
+        {
+            SectionRequested?.Invoke(
+                ConstructionToolbarSection.Windows);
         }
 
         private void HandleDoorsRequested()
@@ -373,6 +412,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleDepartmentsRequested()
         {
             DepartmentsRequested?.Invoke();
+        }
+
+        private void HandleSidewalksRequested()
+        {
+            SectionRequested?.Invoke(
+                ConstructionToolbarSection.Sidewalks);
         }
 
         private void HandleMerchandiseToolRequested()
@@ -489,6 +534,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             throw new InvalidOperationException(
                 $"Construction toolbar is missing required element '{elementName}'.");
+        }
+
+        private void HandleDemolishSidewalksRequested()
+        {
+            DemolitionTargetRequested?.Invoke(
+                ConstructionToolbarDemolitionTarget.Sidewalks);
         }
 
         private static Label RequireLabel(

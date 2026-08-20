@@ -9,6 +9,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         Foundations,
         Floors,
         Walls,
-        Fixtures
+        Fixtures,
+        Sidewalks
     }
 }

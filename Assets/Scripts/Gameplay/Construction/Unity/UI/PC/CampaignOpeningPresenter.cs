@@ -206,8 +206,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 case CampaignOpeningBeat.Opportunity:
                     pageNumber = 1;
                     dialogue =
-                        "There she is. Not much to look at today—but that’s "
-                        + "why you’re here.";
+                        "So, you want to open a store, huh? All right. You "
+                        + "can use one of my lots. Let’s see what you make "
+                        + "of it.";
                     break;
 
                 case CampaignOpeningBeat.Financing:

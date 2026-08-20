@@ -1,0 +1,17 @@
+{
+    "name": "BigRetail.Map.Sidewalks",
+    "rootNamespace": "BigRetail.Map.Sidewalks",
+    "references": [
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

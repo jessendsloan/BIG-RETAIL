@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Foundations;
 using BigRetail.Map.Unity.Doors;
@@ -60,6 +61,12 @@ namespace BigRetail.Map.Unity.Walls
         private WallSegmentView wallSegmentPrefab;
 
         [Tooltip(
+            "Optional future fence artwork. While empty, Lot boundaries "
+            + "use the catalog's default wall finish as a visual stub.")]
+        [SerializeField]
+        private WallFinishAsset landRegionFenceFinish;
+
+        [Tooltip(
             "Parent Transform for instantiated wall views. "
             + "When empty, this component's Transform is used.")]
         [SerializeField]
@@ -74,6 +81,10 @@ namespace BigRetail.Map.Unity.Walls
             wallViews =
                 new Dictionary<CellEdge, WallSegmentView>();
 
+        private readonly Dictionary<CellEdge, WallSegmentView>
+            landRegionFenceViews =
+                new Dictionary<CellEdge, WallSegmentView>();
+
         private readonly Dictionary<DoorAssemblyId, DoorAssemblyView>
             doorAssemblyViews =
                 new Dictionary<DoorAssemblyId, DoorAssemblyView>();
@@ -82,6 +93,9 @@ namespace BigRetail.Map.Unity.Walls
         private WallFinishService subscribedFinishService;
         private DoorAssemblyState subscribedDoorAssemblyState;
         private FoundationState subscribedFoundationState;
+        private LandRegionCatalog subscribedLandRegionCatalog;
+        private LandRegionOwnershipState subscribedLandRegionOwnership;
+        private WallFinishAsset activeLandRegionFenceFinish;
         private WallFinishPresentationResolver finishResolver;
         private DoorPresentationResolver doorResolver;
         private FoundationCutawayMap foundationCutawayMap;
@@ -152,6 +166,11 @@ namespace BigRetail.Map.Unity.Walls
                     mapHost.WallFinishAssets,
                     mapHost.DoorAssemblies,
                     mapHost.DoorDefinitionAssets);
+
+                AttachToLandRegionOwnership(
+                    mapHost.LandRegions,
+                    mapHost.LandRegionOwnership,
+                    mapHost.WallFinishAssets);
             }
 
             if (foundationRuntimeHost != null
@@ -185,6 +204,7 @@ namespace BigRetail.Map.Unity.Walls
 
             DetachFromRuntimeModel();
             DetachFromFoundationState();
+            DetachFromLandRegionOwnership();
             ClearAllViews();
         }
 
@@ -238,6 +258,11 @@ namespace BigRetail.Map.Unity.Walls
                 initializedHost.WallFinishAssets,
                 initializedHost.DoorAssemblies,
                 initializedHost.DoorDefinitionAssets);
+
+            AttachToLandRegionOwnership(
+                initializedHost.LandRegions,
+                initializedHost.LandRegionOwnership,
+                initializedHost.WallFinishAssets);
         }
 
 
@@ -381,6 +406,72 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void AttachToLandRegionOwnership(
+            LandRegionCatalog catalog,
+            LandRegionOwnershipState ownership,
+            WallFinishAssetCatalog finishAssets)
+        {
+            if (catalog == null
+                || ownership == null
+                || finishAssets == null)
+            {
+                Debug.LogError(
+                    "WallViewSystem received incomplete Lot fence "
+                    + "presentation services.",
+                    this);
+                return;
+            }
+
+            if (subscribedLandRegionCatalog == catalog
+                && subscribedLandRegionOwnership == ownership)
+            {
+                RebuildLandRegionFenceViews();
+                return;
+            }
+
+            DetachFromLandRegionOwnership();
+
+            subscribedLandRegionCatalog =
+                catalog;
+
+            subscribedLandRegionOwnership =
+                ownership;
+
+            activeLandRegionFenceFinish =
+                landRegionFenceFinish != null
+                    ? landRegionFenceFinish
+                    : finishAssets.DefaultFinish;
+
+            activeLandRegionFenceFinish.ValidateConfiguration();
+
+            subscribedLandRegionOwnership.RegionOwned +=
+                HandleLandRegionOwned;
+
+            RebuildLandRegionFenceViews();
+        }
+
+
+        private void DetachFromLandRegionOwnership()
+        {
+            if (subscribedLandRegionOwnership != null)
+            {
+                subscribedLandRegionOwnership.RegionOwned -=
+                    HandleLandRegionOwned;
+            }
+
+            subscribedLandRegionCatalog =
+                null;
+
+            subscribedLandRegionOwnership =
+                null;
+
+            activeLandRegionFenceFinish =
+                null;
+
+            ClearLandRegionFenceViews();
+        }
+
+
         private void AttachToFoundationState(
             FoundationState foundationState)
         {
@@ -497,6 +588,16 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void HandleLandRegionOwned(
+            LandRegionId regionId)
+        {
+            // Purchases are deliberately rare. Rebuilding this small visual
+            // set keeps the ownership rule obvious and prevents stale shared
+            // fence segments without coupling fences to structural walls.
+            RebuildLandRegionFenceViews();
+        }
+
+
         private void RebuildAllViews()
         {
             ClearAllViews();
@@ -590,12 +691,118 @@ namespace BigRetail.Map.Unity.Walls
         }
 
 
+        private void RebuildLandRegionFenceViews()
+        {
+            ClearLandRegionFenceViews();
+
+            if (subscribedLandRegionCatalog == null
+                || subscribedLandRegionOwnership == null
+                || activeLandRegionFenceFinish == null
+                || viewHost == null
+                || viewHost.Projection == null)
+            {
+                return;
+            }
+
+            foreach (LandRegionBoundarySegment segment in
+                     LandRegionBoundaryLayout.EnumerateSegments(
+                         subscribedLandRegionCatalog))
+            {
+                if (segment.ShouldDisplay(
+                        subscribedLandRegionOwnership))
+                {
+                    CreateLandRegionFenceView(
+                        segment.Edge);
+                }
+            }
+        }
+
+
+        private void CreateLandRegionFenceView(
+            CellEdge edge)
+        {
+            if (edge.FirstCell.Level != logicalLevel
+                || landRegionFenceViews.ContainsKey(edge))
+            {
+                return;
+            }
+
+            WallSegmentView view =
+                Instantiate(
+                    wallSegmentPrefab,
+                    wallViewParent);
+
+            try
+            {
+                view.InitializeBoundaryFence(
+                    edge,
+                    coordinateTilemap,
+                    logicalLevel,
+                    unityCellZ,
+                    viewHost.Projection,
+                    activeLandRegionFenceFinish);
+
+                landRegionFenceViews.Add(
+                    edge,
+                    view);
+            }
+            catch (Exception exception)
+            {
+                if (view != null)
+                {
+                    Destroy(view.gameObject);
+                }
+
+                Debug.LogException(
+                    exception,
+                    this);
+            }
+        }
+
+
+        private void RefreshAllLandRegionFencePresentations()
+        {
+            if (viewHost == null
+                || viewHost.Projection == null)
+            {
+                return;
+            }
+
+            foreach (WallSegmentView view in
+                     landRegionFenceViews.Values)
+            {
+                if (view != null)
+                {
+                    view.ApplyProjection(
+                        viewHost.Projection,
+                        WallPresentationHeight.Full);
+                }
+            }
+        }
+
+
+        private void ClearLandRegionFenceViews()
+        {
+            foreach (WallSegmentView view in
+                     landRegionFenceViews.Values)
+            {
+                if (view != null)
+                {
+                    Destroy(view.gameObject);
+                }
+            }
+
+            landRegionFenceViews.Clear();
+        }
+
+
         private void HandleOrientationChanged(
             IsometricViewOrientation previousOrientation,
             IsometricViewOrientation currentOrientation)
         {
             RebuildFoundationCutawayMap();
             RefreshAllWallPresentations();
+            RefreshAllLandRegionFencePresentations();
         }
 
 

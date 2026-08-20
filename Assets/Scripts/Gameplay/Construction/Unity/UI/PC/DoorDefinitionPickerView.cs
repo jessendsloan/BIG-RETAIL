@@ -220,10 +220,11 @@ namespace BigRetail.Construction.Unity.UI.PC
 
                 binding.Button.clicked -=
                     binding.ClickHandler;
+
+                binding.Button.RemoveFromHierarchy();
             }
 
             buttonBindings.Clear();
-            itemsContainer.Clear();
         }
 
 

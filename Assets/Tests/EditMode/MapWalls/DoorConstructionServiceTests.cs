@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
@@ -13,6 +14,9 @@ namespace BigRetail.Map.Walls.Tests
 
         private static readonly DoorDefinitionId AutomaticFrontDoorId =
             new DoorDefinitionId("automatic-front-door");
+
+        private static readonly DoorDefinitionId FixedWindowId =
+            new DoorDefinitionId("fixed-window");
 
 
         [Test]
@@ -179,6 +183,40 @@ namespace BigRetail.Map.Walls.Tests
             Assert.That(
                 result.Assembly.Definition.IsPassageSegment(0),
                 Is.True);
+        }
+
+
+        [Test]
+        public void TryPlaceAssembly_FixedWindow_RemainsNonPassable()
+        {
+            CellEdge[] run =
+                CreateRun(
+                    CellEdgeDirection.NorthWest,
+                    1);
+
+            DoorAssemblyState state =
+                new DoorAssemblyState();
+
+            DoorAssemblyChangeResult result =
+                CreateService(state, run)
+                    .TryPlaceAssembly(
+                        new DoorAssemblyId("window-1"),
+                        FixedWindowId,
+                        run);
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(result.SegmentCount, Is.EqualTo(1));
+            Assert.That(
+                result.Assembly.Definition.IsPassageSegment(0),
+                Is.False);
+            Assert.That(state.OccupiedEdgeCount, Is.EqualTo(1));
+            Assert.That(state.ReservedPassageCellCount, Is.EqualTo(0));
+            Assert.That(
+                state.IsPassageCellReserved(run[0].FirstCell),
+                Is.False);
+            Assert.That(
+                state.IsPassageCellReserved(run[0].SecondCell),
+                Is.False);
         }
 
 
@@ -605,7 +643,11 @@ namespace BigRetail.Map.Walls.Tests
                         new DoorDefinition(
                             AutomaticFrontDoorId,
                             4,
-                            new[] { 1, 2 })
+                            new[] { 1, 2 }),
+                        new DoorDefinition(
+                            FixedWindowId,
+                            1,
+                            Array.Empty<int>())
                     });
 
             return new DoorConstructionService(
