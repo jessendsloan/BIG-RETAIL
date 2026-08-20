@@ -1,6 +1,6 @@
 # Big Retail — Merchandise Circulation Implementation Order
 
-**Status:** Current implementation plan
+**Status:** Checkpoints 1–5 accepted; Checkpoint 6 placement and scheduling implemented in the Purchasing lab, with campaign economy integration pending
 **Domain:** Products / Brands / Suppliers / Purchasing / Receiving / Stocking
 
 ## Goal
@@ -22,7 +22,8 @@ The opening implementation stays intentionally flat. Deeper supplier-account and
 - A Brand is the consumer identity attached to a SKU.
 - A Supplier Offer connects a Supplier to a SKU under specific commercial terms.
 - The same SKU may have multiple Supplier Offers.
-- Wholesale price, purchase-pack size, minimums, and delivery timing belong to Supplier Offers, not Products.
+- Wholesale price, purchase-pack size, and availability belong to Supplier Offers, not Products.
+- Opening minimums and delivery timing are Supplier-wide terms resolved through each Offer.
 - Purchasing is the transaction surface.
 - Suppliers are not a second duplicate shopping system; a Supplier can later act as a filter / management context over Purchasing.
 - Customer purchase motive is not a fixed Product Role. The Product describes what the item is; customer / trip logic later explains why it is wanted.
@@ -32,6 +33,8 @@ The opening implementation stays intentionally flat. Deeper supplier-account and
 ---
 
 # Checkpoint 1 — Brands + Products
+
+**Implementation status:** Complete
 
 Create the authored consumer-world foundation before procurement.
 
@@ -67,6 +70,8 @@ The checkpoint is complete when the game can reliably enumerate the real opening
 
 # Checkpoint 2 — Suppliers
 
+**Implementation status:** Complete
+
 Create the three opening Supplier definitions.
 
 ## SupplierDefinition
@@ -90,6 +95,8 @@ Do not implement supplier relationship tiers, contracts, negotiation, or account
 ---
 
 # Checkpoint 3 — Supplier Offer Matrix
+
+**Implementation status:** Complete with v0.1 playtest balance
 
 Connect the Product world to the Supplier world.
 
@@ -124,6 +131,8 @@ Stop and inspect this matrix before building Purchasing. The first economy shoul
 
 # Checkpoint 4 — Draft Purchase Orders
 
+**Implementation status:** Complete
+
 Create runtime purchasing state only after Supplier Offers exist.
 
 ## Runtime concepts
@@ -149,6 +158,8 @@ Do not build final UI yet.
 ---
 
 # Checkpoint 5 — Gray-Box Product-First Purchasing UI
+
+**Implementation status:** Accepted in the isolated Purchasing lab
 
 Build one functional Purchasing workspace before polishing it.
 
@@ -191,6 +202,8 @@ Playtest this gray-box interaction before visual polish.
 
 # Checkpoint 6 — Place and Schedule Orders
 
+**Implementation status:** Placement and scheduling implemented in the isolated lab; campaign money commitment remains an integration boundary
+
 Turn a Draft PO into a real order.
 
 Opening state flow:
@@ -203,6 +216,16 @@ Define only what the opening game needs:
 - money is paid / committed according to the current simple economy
 - Supplier minimum validation is enforced
 - delivery time is calculated from the Supplier's rule and the current weekday / time
+
+The isolated lab currently anchors its commercial clock at **Monday, 9:00 AM** so every opening Supplier's temporal consequence can be reviewed together. Campaign integration will provide the real current time and money authority.
+
+Opening scheduling currently uses only authored promises:
+
+- same-day service adds its lead hours;
+- next-day service advances one calendar day at the same time;
+- fixed routes select the next authored route day without inventing an arrival hour.
+
+An order placed on a route day rolls to the following route until explicit route cutoffs are authored. Cutoff times should not be guessed or hidden in presentation code.
 
 Examples:
 

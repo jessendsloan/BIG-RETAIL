@@ -12,6 +12,7 @@ namespace BigRetail.Merchandise.Domain
     public sealed class ProductCatalog
     {
         private readonly Dictionary<ProductId, ProductDefinition> definitions;
+        private readonly List<ProductDefinition> orderedDefinitions;
 
 
         public int Count =>
@@ -29,6 +30,7 @@ namespace BigRetail.Merchandise.Domain
 
             this.definitions =
                 new Dictionary<ProductId, ProductDefinition>();
+            orderedDefinitions = new List<ProductDefinition>();
 
             foreach (ProductDefinition definition in definitions)
             {
@@ -50,6 +52,7 @@ namespace BigRetail.Merchandise.Domain
                 this.definitions.Add(
                     definition.Id,
                     definition);
+                orderedDefinitions.Add(definition);
             }
         }
 
@@ -85,9 +88,11 @@ namespace BigRetail.Merchandise.Domain
 
         public IEnumerable<ProductDefinition> EnumerateDefinitions()
         {
-            foreach (ProductDefinition definition in definitions.Values)
+            for (int index = 0;
+                 index < orderedDefinitions.Count;
+                 index++)
             {
-                yield return definition;
+                yield return orderedDefinitions[index];
             }
         }
     }

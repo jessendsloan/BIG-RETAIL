@@ -125,7 +125,12 @@ namespace BigRetail.Simulation.Time.Domain.Tests
                 source.CaptureState();
 
             SimulationClock restored =
-                CreateClock();
+                new SimulationClock(
+                    1,
+                    8,
+                    0,
+                    SimulationSpeed.OneTimes,
+                    1d);
 
             restored.RestoreState(snapshot);
             restored.Advance(0.25d);

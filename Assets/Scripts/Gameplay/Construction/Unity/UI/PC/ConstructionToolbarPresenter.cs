@@ -2,6 +2,9 @@ using BigRetail.CameraControl;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
+using BigRetail.Purchasing.Unity;
+using BigRetail.Receiving.Domain;
+using BigRetail.Receiving.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -27,6 +30,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private ConstructionToolCoordinator toolCoordinator;
 
+        [SerializeField]
+        private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
+
+        [SerializeField]
+        private PurchasingRuntimeHost purchasingRuntimeHost;
+
 
         [Header("View Services")]
 
@@ -41,6 +50,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private ConstructionUiInputGate uiInputGate;
         private bool referencesAreValid;
         private bool isDemolitionPickerRequested;
+        private ReceivingAreaState subscribedReceivingState;
 
 
         private void Reset()
@@ -82,6 +92,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             toolCoordinator.ModeChanged +=
                 HandleModeChanged;
 
+            receivingAreaRuntimeHost.Initialized +=
+                HandleReceivingRuntimeInitialized;
+
+            purchasingRuntimeHost.Initialized +=
+                HandlePurchasingRuntimeInitialized;
+            purchasingRuntimeHost.DeliveriesChanged +=
+                HandleDeliveriesChanged;
+
             wallViewSystem.DisplayModeChanged +=
                 HandleWallDisplayModeChanged;
 
@@ -93,6 +111,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 BindView(
                     documentHost.View);
             }
+
+            AttachReceivingState();
         }
 
 
@@ -108,6 +128,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 toolCoordinator.ModeChanged -=
                     HandleModeChanged;
+            }
+
+            if (receivingAreaRuntimeHost != null)
+            {
+                receivingAreaRuntimeHost.Initialized -=
+                    HandleReceivingRuntimeInitialized;
+            }
+
+            if (purchasingRuntimeHost != null)
+            {
+                purchasingRuntimeHost.Initialized -=
+                    HandlePurchasingRuntimeInitialized;
+                purchasingRuntimeHost.DeliveriesChanged -=
+                    HandleDeliveriesChanged;
             }
 
             if (uiInputGate != null)
@@ -129,6 +163,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             UnbindView();
+            DetachReceivingState();
         }
 
 
@@ -231,6 +266,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshDemolitionPicker(toolCoordinator.CurrentMode);
         }
 
+        private void HandleReceivingAreaRequested()
+        {
+            isDemolitionPickerRequested = false;
+
+            ConstructionToolMode requestedMode =
+                toolCoordinator.CurrentMode
+                    == ConstructionToolMode.PlanReceivingArea
+                        ? ConstructionToolMode.None
+                        : ConstructionToolMode.PlanReceivingArea;
+
+            toolCoordinator.SetMode(requestedMode);
+            RefreshDemolitionPicker(toolCoordinator.CurrentMode);
+        }
+
 
         private void HandleDemolitionTargetRequested(
             ConstructionToolbarDemolitionTarget target)
@@ -277,6 +326,29 @@ namespace BigRetail.Construction.Unity.UI.PC
                 mode);
 
             RefreshDemolitionPicker(mode);
+        }
+
+        private void HandleReceivingRuntimeInitialized(
+            ReceivingAreaRuntimeHost initializedHost)
+        {
+            AttachReceivingState();
+            RefreshReceivingStatus();
+        }
+
+        private void HandlePurchasingRuntimeInitialized(
+            PurchasingRuntimeHost initializedHost)
+        {
+            RefreshReceivingStatus();
+        }
+
+        private void HandleDeliveriesChanged()
+        {
+            RefreshReceivingStatus();
+        }
+
+        private void HandleReceivingStateChanged()
+        {
+            RefreshReceivingStatus();
         }
 
 
@@ -359,6 +431,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.MerchandiseToolRequested +=
                 HandleMerchandiseToolRequested;
 
+            boundView.ReceivingAreaRequested +=
+                HandleReceivingAreaRequested;
+
             boundView.DemolitionPickerRequested +=
                 HandleDemolitionPickerRequested;
 
@@ -382,6 +457,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             RefreshCameraViewOrientation(
                 viewRotationController.CurrentOrientation);
+
+            RefreshReceivingStatus();
         }
 
 
@@ -400,6 +477,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.MerchandiseToolRequested -=
                 HandleMerchandiseToolRequested;
+
+            boundView.ReceivingAreaRequested -=
+                HandleReceivingAreaRequested;
 
             boundView.DemolitionPickerRequested -=
                 HandleDemolitionPickerRequested;
@@ -431,6 +511,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.SetMerchandiseToolActive(
                 mode == ConstructionToolMode.MerchandiseFixtures);
+
+            boundView.SetReceivingAreaActive(
+                mode == ConstructionToolMode.PlanReceivingArea);
         }
 
 
@@ -473,6 +556,70 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.SetCameraViewOrientation(
                 orientation);
+        }
+
+        private void RefreshReceivingStatus()
+        {
+            if (boundView == null)
+            {
+                return;
+            }
+
+            int operationalCells =
+                receivingAreaRuntimeHost != null
+                    ? receivingAreaRuntimeHost.OperationalCellCount
+                    : 0;
+            int occupiedCells =
+                receivingAreaRuntimeHost?.State?.ReservationCount ?? 0;
+            int waitingDeliveries =
+                purchasingRuntimeHost != null
+                    ? purchasingRuntimeHost
+                        .WaitingForReceivingSpaceOrderCount
+                    : 0;
+
+            boundView.SetReceivingAreaStatus(
+                operationalCells,
+                occupiedCells,
+                waitingDeliveries);
+        }
+
+        private void AttachReceivingState()
+        {
+            ReceivingAreaState nextState =
+                receivingAreaRuntimeHost != null
+                && receivingAreaRuntimeHost.IsInitialized
+                    ? receivingAreaRuntimeHost.State
+                    : null;
+
+            if (subscribedReceivingState == nextState)
+            {
+                return;
+            }
+
+            DetachReceivingState();
+            subscribedReceivingState = nextState;
+
+            if (subscribedReceivingState != null)
+            {
+                subscribedReceivingState.AreaChanged +=
+                    HandleReceivingStateChanged;
+                subscribedReceivingState.ReservationsChanged +=
+                    HandleReceivingStateChanged;
+            }
+        }
+
+        private void DetachReceivingState()
+        {
+            if (subscribedReceivingState == null)
+            {
+                return;
+            }
+
+            subscribedReceivingState.AreaChanged -=
+                HandleReceivingStateChanged;
+            subscribedReceivingState.ReservationsChanged -=
+                HandleReceivingStateChanged;
+            subscribedReceivingState = null;
         }
 
 
@@ -531,6 +678,26 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "ConstructionToolCoordinator assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (receivingAreaRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "ReceivingAreaRuntimeHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (purchasingRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "PurchasingRuntimeHost assigned.",
                     this);
 
                 isValid = false;

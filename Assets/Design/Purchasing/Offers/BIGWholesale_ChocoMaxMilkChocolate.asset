@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f069f12c087bf7641bce3af9879b80df, type: 3}
+  m_Name: BIGWholesale_ChocoMaxMilkChocolate
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.SupplierOfferDefinitionAsset
+  offerId: BIG-CHOCOMAX-MILK-CHOCOLATE-BAR
+  supplier: {fileID: 11400000, guid: a3a2800d532be344c80508e780ecb2d2, type: 2}
+  product: {fileID: 11400000, guid: 68760f5393661fd4dab68f5525d945ab, type: 2}
+  purchasePackQuantity: 24
+  packPriceCents: 1680
+  isAvailable: 1

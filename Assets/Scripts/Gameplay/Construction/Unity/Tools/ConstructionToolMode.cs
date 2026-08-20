@@ -19,6 +19,7 @@ namespace BigRetail.Construction.Unity.Tools
         MerchandiseFixtures = 10,
         BuildSidewalks = 11,
         DemolishSidewalks = 12,
-        BuildWindows = 13
+        BuildWindows = 13,
+        PlanReceivingArea = 14
     }
 }

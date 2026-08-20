@@ -4,9 +4,9 @@
 
 ## Current focus
 
-Designing the merchandise circulation system, especially the seam between **Products, Suppliers, Purchasing, Receiving, Fixtures, and Stocking**.
+The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.
 
-The current immediate task is to turn the accepted opening Product/Brand set into real Supplier Offers so the purchasing prototype can operate on an actual starting economy instead of placeholders.
+Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries. Each ready Supplier PO claims one free 1 × 1 berth in a player-painted **Receiving Area**; orders that do not fit wait for Receiving space. Receiving a staged pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
 
@@ -153,15 +153,49 @@ Still exploratory:
 - The exact permit tiers, Grocery gate, land prices, region eligibility order, and permit-to-land relationship remain open.
 - The existing `ConstructionAreaDefinition` already separates physical construction eligibility from ownership/progression/cost rules and is the preferred seam for a future land-region ownership layer.
 
-This progression work should not interrupt the current purchasing implementation target unless a gameplay chat is explicitly tasked with prototyping land-region ownership.
+This progression work should not interrupt the current purchasing integration target unless a gameplay chat is explicitly tasked with prototyping land-region ownership.
 
-## Current implementation target
+## Current implementation state
 
-Keep the first purchasing implementation **flat and small**.
+The supplier-backed opening implementation is flat and intentionally bounded:
 
-Do not build deep supplier-account progression yet.
+- 10 authored Brands
+- 12 authored opening Products / SKUs
+- 3 authored Suppliers
+- 24 authored Supplier Offers
+- one runtime Draft Purchase Order per Supplier
+- a product-first Purchasing workspace with search, category filters, a Supplier lens, offer comparisons, pack quantities, draft totals, and minimum-order feedback
+- exact arrival estimates derived from the current commercial time for same-day and next-day service, plus day-only estimates for fixed routes
+- a Review Orders sheet that enforces every staged Supplier minimum atomically
+- immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
+- a placement confirmation state that clears committed drafts only after one atomic store-cash payment succeeds
+- a live delivery lifecycle of **Scheduled → Ready to Receive → Received**
+- a player-painted Receiving Area on owned, finished, unobstructed floor, with one cell functioning as one Supplier PO pallet berth
+- stable berth reservations for ready Supplier POs; overflow orders wait until Receiving space becomes available
+- occupied Receiving cells protected from erasure until their pallet has been received
+- an **RCV** construction-rail tool, management overlay, couch-readable capacity status, and waiting-order feedback
+- one persistent pallet view per staged Supplier PO, selecting one of four complete supplier-load sprites from its total case volume
+- authored BIG Wholesale load art plus clearly named Central Grocery and Beacon Beverage replacement stubs across all four tiers
+- delivery receiving through the existing fixture backstock / overflow inventory service
+- a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
+- stub-ready image slots on Product, Brand, and Supplier assets
+- isolated `PurchasingWorkspaceLab` and `CommercialDirectoryLab` scenes retained as focused review tools
+- the full Purchasing workspace installed as an open/close overlay in `Gameplay`
+- live campaign time and available store cash shown in the Purchasing header
+- the accepted 12-product opening catalog installed as the Gameplay merchandising catalog
+- rack-side purchasing replaced in the live UI by a **Supplier Deliveries** receiving panel that only receives pallets actually staged in Receiving
 
-The immediate commercial foundation should prove:
+The integrated campaign-side foundation provides:
+
+- a deterministic Monday-starting simulation clock installed in `Gameplay`
+- opening store cash and checkout revenue
+- fixture planograms, display inventory, physical backstock, stocking, and receiving
+- a temporary fixed-case service retained only as a compatibility fallback; the live Gameplay UI no longer presents its product-order buttons
+- the opening campaign presentation and the first land-region ownership/progression foundation
+
+The temporary fixture ordering shortcut keeps wholesale case cost and retail unit price on the Product only for graybox compatibility. Permanent supplier prices, purchase-pack quantities, minimums, and delivery rules remain owned by Supplier Offers.
+
+The implemented seam proves:
 
 1. Product / SKU
 2. Brand identity attached to each SKU
@@ -169,8 +203,19 @@ The immediate commercial foundation should prove:
 4. Supplier Offer
 5. Multiple suppliers offering overlapping SKUs differently
 6. Supplier-specific Draft Purchase Orders behind one product-oriented Purchasing workflow
+7. Review, minimum validation, placement, and Supplier-rule scheduling
 
-The next content pass should map the accepted 12 opening SKUs across BIG Wholesale, Central Grocery Supply, and Beacon Beverage Distribution, then assign opening pack sizes, prices, minimum implications, and delivery consequences.
+### Opening assortment map
+
+| Supplier | Opening assortment | Count |
+|---|---|---:|
+| BIG Wholesale | All opening SKUs | 12 |
+| Central Grocery Supply | All opening SKUs except Spark Batteries and FreshMint Toothpaste | 10 |
+| Beacon Beverage Distribution | Bright Cola and ClearSpring Water | 2 |
+
+Opening balance values are **v0.1 playtest numbers**, not permanent economic law. The exact pack and price matrix lives in `Suppliers.md`.
+
+Supplier minimum and delivery rules are supplier-wide in this opening model. Purchase pack, pack price, effective unit cost, and availability belong to each Supplier Offer.
 
 ## Deferred for later
 
@@ -180,7 +225,7 @@ The next content pass should map the accepted 12 opening SKUs across BIG Wholesa
 - Negotiations
 - Contracts
 - Credit terms and invoices
-- Pallet / truckload procurement
+- Pallet / truckload procurement quantities and capacity simulation; the current pallet is a physical per-PO receiving prop
 - Supplier reliability simulation
 - Shortages / backorders
 - Returns / damage
@@ -191,15 +236,30 @@ The next content pass should map the accepted 12 opening SKUs across BIG Wholesa
 
 ## Next design question
 
-Define the **opening supplier catalogs / Supplier Offers** against the real 12-SKU assortment:
+Playtest the integrated loop in the actual campaign scene:
 
-- Which of the 12 SKUs does BIG Wholesale carry?
-- Which does Central Grocery Supply carry?
-- Which does Beacon Beverage Distribution carry?
-- Where should offers overlap so supplier choice is meaningful?
-- What opening case/pack sizes and relative price levels create the intended Cost / Flexibility / Assurance tradeoff?
+- Is choosing the Product before the Supplier Offer natural?
+- Are pack size, unit cost, case price, and delivery timing legible enough to compare?
+- Does the Supplier lens feel like a useful filter rather than a duplicate store?
+- Are multiple staged Supplier POs understandable before review?
+- Do the v0.1 offers make BIG feel flexible and expensive, Central planned and economical, and Beacon specialized and schedule-bound?
+- Does the review sheet make **when each order arrives** obvious enough to drive the Supplier decision?
+- Does an unmet Supplier minimum explain clearly why placement is blocked?
+- Does Purchasing use the live campaign clock rather than a lab-only Monday 9:00 AM value?
+- Does placement spend store cash atomically and reject an unaffordable batch without partially committing orders?
+- Do scheduled arrivals become receivable inventory through the existing backstock/receiving seam?
+- Is painting and erasing the Receiving Area understandable with mouse and controller input?
+- Does **occupied / total** Receiving capacity make the physical bottleneck legible from the couch?
+- When two Suppliers arrive, do their two separate pallets and occupied berths make the receiving burden immediately legible?
+- When Receiving is full, is it clear that additional ready Supplier POs are waiting for space rather than lost?
 
-Once this is locked, the purchasing prototype has real content to transact with.
+The next step is a hands-on Gameplay review of the new Receiving Area at the
+campaign's intended camera distance and UI scale. Delivery access, supplier
+vehicles, unloading labor, travel paths, and richer dock logic remain later
+extensions; they should build on the current **ready PO → reserved berth →
+received inventory** seam rather than replace it. Removing the dormant fixed-case
+compatibility service and deciding how Purchasing is first introduced remain
+follow-up campaign-integration work.
 
 Parallel story question:
 

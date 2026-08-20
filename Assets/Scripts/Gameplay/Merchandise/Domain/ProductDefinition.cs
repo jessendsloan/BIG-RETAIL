@@ -12,9 +12,22 @@ namespace BigRetail.Merchandise.Domain
     {
         public ProductId Id { get; }
         public string DisplayName { get; }
+        public BrandId BrandId { get; }
+        public string ProductLine { get; }
         public ProductCategoryId CategoryId { get; }
+        public MarketPosition MarketPosition { get; }
+        public string PackageForm { get; }
         public StockUnit StockUnit { get; }
+
+        /// <summary>
+        /// Temporary graybox purchasing value retained for the existing
+        /// fixture workflow. Supplier purchasing prices live on Supplier Offers.
+        /// </summary>
         public long WholesaleCaseCostCents { get; }
+
+        /// <summary>
+        /// Temporary graybox shelf price retained for the opening gameplay loop.
+        /// </summary>
         public long RetailUnitPriceCents { get; }
 
 
@@ -26,7 +39,11 @@ namespace BigRetail.Merchandise.Domain
             : this(
                 id,
                 displayName,
+                BrandId.Unbranded,
+                displayName,
                 categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
                 stockUnit,
                 wholesaleCaseCostCents: 0,
                 retailUnitPriceCents: 0)
@@ -42,7 +59,11 @@ namespace BigRetail.Merchandise.Domain
             : this(
                 id,
                 displayName,
+                BrandId.Unbranded,
+                displayName,
                 categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
                 stockUnit,
                 wholesaleCaseCostCents,
                 retailUnitPriceCents: 0)
@@ -53,6 +74,54 @@ namespace BigRetail.Merchandise.Domain
             ProductId id,
             string displayName,
             ProductCategoryId categoryId,
+            StockUnit stockUnit,
+            long wholesaleCaseCostCents,
+            long retailUnitPriceCents)
+            : this(
+                id,
+                displayName,
+                BrandId.Unbranded,
+                displayName,
+                categoryId,
+                MarketPosition.Standard,
+                stockUnit.ToString(),
+                stockUnit,
+                wholesaleCaseCostCents,
+                retailUnitPriceCents)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            BrandId brandId,
+            string productLine,
+            ProductCategoryId categoryId,
+            MarketPosition marketPosition,
+            string packageForm,
+            StockUnit stockUnit)
+            : this(
+                id,
+                displayName,
+                brandId,
+                productLine,
+                categoryId,
+                marketPosition,
+                packageForm,
+                stockUnit,
+                wholesaleCaseCostCents: 0,
+                retailUnitPriceCents: 0)
+        {
+        }
+
+        public ProductDefinition(
+            ProductId id,
+            string displayName,
+            BrandId brandId,
+            string productLine,
+            ProductCategoryId categoryId,
+            MarketPosition marketPosition,
+            string packageForm,
             StockUnit stockUnit,
             long wholesaleCaseCostCents,
             long retailUnitPriceCents)
@@ -76,6 +145,37 @@ namespace BigRetail.Merchandise.Domain
                 throw new ArgumentException(
                     "A product definition requires a valid category identifier.",
                     nameof(categoryId));
+            }
+
+            if (!brandId.IsValid)
+            {
+                throw new ArgumentException(
+                    "A product definition requires a valid brand identifier.",
+                    nameof(brandId));
+            }
+
+            if (string.IsNullOrWhiteSpace(productLine))
+            {
+                throw new ArgumentException(
+                    "A product definition requires a product line.",
+                    nameof(productLine));
+            }
+
+            if (!Enum.IsDefined(
+                    typeof(MarketPosition),
+                    marketPosition))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(marketPosition),
+                    marketPosition,
+                    "The market position is not supported.");
+            }
+
+            if (string.IsNullOrWhiteSpace(packageForm))
+            {
+                throw new ArgumentException(
+                    "A product definition requires a customer package or form.",
+                    nameof(packageForm));
             }
 
             if (!Enum.IsDefined(
@@ -106,7 +206,11 @@ namespace BigRetail.Merchandise.Domain
 
             Id = id;
             DisplayName = displayName.Trim();
+            BrandId = brandId;
+            ProductLine = productLine.Trim();
             CategoryId = categoryId;
+            MarketPosition = marketPosition;
+            PackageForm = packageForm.Trim();
             StockUnit = stockUnit;
             WholesaleCaseCostCents = wholesaleCaseCostCents;
             RetailUnitPriceCents = retailUnitPriceCents;

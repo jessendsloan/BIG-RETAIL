@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75f1fe0629629c4b8b74424516cd585, type: 3}
+  m_Name: BIGWholesale
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.SupplierDefinitionAsset
+  supplierId: BIG
+  displayName: BIG Wholesale
+  specialty: Broadline emergency wholesaler
+  description: Small packs, no minimum, and same-day certainty at the highest price.
+  minimumOrderCents: 0
+  deliveryKind: 0
+  sameDayLeadHours: 3
+  routeDays: 0
+  logo: {fileID: 0}
+  accentColor: {r: 0.82, g: 0.2, b: 0.15, a: 1}
+  deliveryLoad1Sprite: {fileID: 21300000, guid: 08d49fec7f9b8cd49a31b247a5810aaa, type: 3}
+  deliveryLoad2Sprite: {fileID: 21300000, guid: 1dc11b5106c176a489a88ed2f8ad7162, type: 3}
+  deliveryLoad3Sprite: {fileID: 21300000, guid: a6c35ce5b30f53a4697a416a1674071b, type: 3}
+  deliveryLoad4Sprite: {fileID: 21300000, guid: 3baaf00c20cee3e45a1de7da91a1cfb9, type: 3}

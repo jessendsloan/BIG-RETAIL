@@ -924,6 +924,47 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void ReceivingArea_ReflectsActiveStateAndCapacity()
+        {
+            Type viewType = RequireType(ViewTypeName);
+            VisualElement root = CreateToolbarRoot();
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(viewType, root);
+
+            try
+            {
+                viewType.GetMethod(
+                        "SetReceivingAreaActive",
+                        BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(view, new object[] { true });
+                viewType.GetMethod(
+                        "SetReceivingAreaStatus",
+                        BindingFlags.Public | BindingFlags.Instance)
+                    .Invoke(view, new object[] { 3, 1, 2 });
+
+                Assert.That(
+                    root.Q<Button>("receiving-area-button")
+                        .ClassListContains("is-selected"),
+                    Is.True);
+                Assert.That(
+                    root.Q<VisualElement>("receiving-area-panel")
+                        .style.display.value,
+                    Is.EqualTo(DisplayStyle.Flex));
+                Assert.That(
+                    root.Q<Label>("receiving-area-capacity").text,
+                    Is.EqualTo("3 PALLET SPACES · 1 OCCUPIED"));
+                Assert.That(
+                    root.Q<Label>("receiving-area-instruction").text,
+                    Does.Contain("2 supplier orders"));
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
         public void CashHud_FormatsAuthoritativeCentBalance()
         {
             Type viewType =
@@ -1271,6 +1312,24 @@ namespace BigRetail.Map.Unity.Tests
 
             root.Add(CreateButton("departments-button"));
             root.Add(CreateButton("merchandise-tool-button"));
+            root.Add(CreateButton("purchasing-button"));
+            root.Add(CreateButton("receiving-area-button"));
+            VisualElement receivingAreaPanel =
+                new VisualElement
+                {
+                    name = "receiving-area-panel"
+                };
+            receivingAreaPanel.Add(
+                new Label
+                {
+                    name = "receiving-area-capacity"
+                });
+            receivingAreaPanel.Add(
+                new Label
+                {
+                    name = "receiving-area-instruction"
+                });
+            root.Add(receivingAreaPanel);
             VisualElement foundationPicker =
                 new VisualElement
                 {

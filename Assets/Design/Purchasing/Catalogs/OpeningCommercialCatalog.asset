@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7f880338928daa40b3946230a80467c, type: 3}
+  m_Name: OpeningCommercialCatalog
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.CommercialCatalogAsset
+  brandCatalog: {fileID: 11400000, guid: daeac0b1b56e02d4eb448998c87d79bb, type: 2}
+  productCatalog: {fileID: 11400000, guid: f252000f08ffa644eb231a3d72c07e46, type: 2}
+  supplierCatalog: {fileID: 11400000, guid: a5a09175590c1d945befc27b8643a917, type: 2}
+  supplierOfferCatalog: {fileID: 11400000, guid: c4bb8aaea4ee5b04fbd6da8955027e1b, type: 2}

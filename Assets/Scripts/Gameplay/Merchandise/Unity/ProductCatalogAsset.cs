@@ -20,6 +20,10 @@ namespace BigRetail.Merchandise.Unity
             Array.Empty<ProductDefinitionAsset>();
 
 
+        public IReadOnlyList<ProductDefinitionAsset> Products =>
+            products;
+
+
         public bool TryCreateCatalog(
             out ProductCatalog catalog,
             out string error)
