@@ -1067,7 +1067,7 @@
 .receiving-area-panel__title {
     height: 22px;
     color: rgb(25, 102, 93);
-    font-size: 14px;
+    font-size: 16px;
     -unity-font-style: bold;
     letter-spacing: 1.2px;
 }
@@ -1082,7 +1082,7 @@
 .receiving-area-panel__instruction {
     min-height: 32px;
     color: rgb(70, 77, 75);
-    font-size: 14px;
+    font-size: 16px;
     white-space: normal;
 }
 

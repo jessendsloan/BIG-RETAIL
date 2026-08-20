@@ -752,7 +752,7 @@
         <ui:Button
             name="purchasing-button"
             class="construction-toolbar__button purchasing-button"
-            tooltip="Purchasing">
+            tooltip="Review suppliers and place purchase orders.">
             <ui:Label
                 text="PO"
                 class="construction-toolbar__text-icon"
@@ -762,7 +762,7 @@
         <ui:Button
             name="receiving-area-button"
             class="construction-toolbar__button receiving-area-button"
-            tooltip="Receiving Area">
+            tooltip="Paint receiving space for incoming deliveries.">
             <ui:Label
                 text="RCV"
                 class="construction-toolbar__text-icon receiving-area-button__label"

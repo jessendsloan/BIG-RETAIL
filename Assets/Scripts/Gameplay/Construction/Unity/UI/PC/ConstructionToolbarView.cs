@@ -774,6 +774,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 WallViewUpButtonName => "Walls up",
                 DepartmentPickerView.DepartmentsButtonName => "Departments",
                 MerchandiseToolButtonName => "Merchandise",
+                "purchasing-button" => "Purchasing",
+                ReceivingAreaButtonName => "Receiving Area",
                 FoundationsButtonName => "Foundations",
                 FloorsButtonName => "Floors",
                 WallsButtonName => "Walls",
