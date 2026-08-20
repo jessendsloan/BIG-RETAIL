@@ -70,6 +70,36 @@ namespace BigRetail.Purchasing.Unity.Tests
                 Is.EqualTo(new long[] { 1200, 2100, 1920 }));
         }
 
+        [Test]
+        public void OpeningSuppliers_HaveFourDeliveryLoadSprites()
+        {
+            string[] supplierPaths =
+            {
+                "Assets/Design/Purchasing/Suppliers/BIGWholesale.asset",
+                "Assets/Design/Purchasing/Suppliers/CentralGrocery.asset",
+                "Assets/Design/Purchasing/Suppliers/BeaconBeverage.asset"
+            };
+
+            for (int supplierIndex = 0;
+                 supplierIndex < supplierPaths.Length;
+                 supplierIndex++)
+            {
+                SupplierDefinitionAsset supplier =
+                    AssetDatabase.LoadAssetAtPath<SupplierDefinitionAsset>(
+                        supplierPaths[supplierIndex]);
+
+                Assert.That(supplier, Is.Not.Null, supplierPaths[supplierIndex]);
+
+                for (int loadTier = 1; loadTier <= 4; loadTier++)
+                {
+                    Assert.That(
+                        supplier.GetDeliveryLoadSprite(loadTier),
+                        Is.Not.Null,
+                        $"{supplier.name} load tier {loadTier}");
+                }
+            }
+        }
+
 
         private static CommercialCatalog LoadCatalog()
         {

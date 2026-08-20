@@ -48,6 +48,8 @@ namespace BigRetail.Editor.Merchandise
             PurchasingCatalogFolder + "/OpeningSupplierOfferCatalog.asset";
         private const string CommercialCatalogPath =
             PurchasingCatalogFolder + "/OpeningCommercialCatalog.asset";
+        private const string DeliveryLoadArtFolder =
+            "Assets/Art/Purchasing/DeliveryPallets";
         private const string PurchasingUxmlPath =
             "Assets/UI/Purchasing/PC/PurchasingWorkspace.uxml";
         private const string CommercialDirectoryUxmlPath =
@@ -184,18 +186,21 @@ namespace BigRetail.Editor.Merchandise
                 "BIG", "BIG Wholesale", "Broadline emergency wholesaler",
                 "Small packs, no minimum, and same-day certainty at the highest price.",
                 0, SupplierDeliveryKind.SameDay, 3, SupplierWeekday.None,
-                "BIGWholesale", new Color(0.82f, 0.20f, 0.15f, 1f)),
+                "BIGWholesale", "BigWholesale",
+                new Color(0.82f, 0.20f, 0.15f, 1f)),
             new SupplierSeed(
                 "CENTRAL", "Central Grocery Supply", "Regional grocery distributor",
                 "Larger packs and better margins when the store plans for tomorrow.",
                 10000, SupplierDeliveryKind.NextDay, 0, SupplierWeekday.None,
-                "CentralGrocery", new Color(0.12f, 0.42f, 0.50f, 1f)),
+                "CentralGrocery", "CentralGrocery",
+                new Color(0.12f, 0.42f, 0.50f, 1f)),
             new SupplierSeed(
                 "BEACON", "Beacon Beverage Distribution", "Beverage route specialist",
                 "The best beverage economics on a fixed Tuesday and Friday route.",
                 7500, SupplierDeliveryKind.WeeklyRoute, 0,
                 SupplierWeekday.Tuesday | SupplierWeekday.Friday,
-                "BeaconBeverage", new Color(0.20f, 0.53f, 0.29f, 1f))
+                "BeaconBeverage", "BeaconBeverage",
+                new Color(0.20f, 0.53f, 0.29f, 1f))
         };
 
 
@@ -238,6 +243,30 @@ namespace BigRetail.Editor.Merchandise
                 "Built the opening catalog: 10 brands, 12 products, "
                 + "3 suppliers, and 24 supplier offers.",
                 catalog);
+        }
+
+        [MenuItem(MenuRoot + "Refresh Supplier Delivery Load Artwork")]
+        public static void RefreshSupplierDeliveryLoadArtwork()
+        {
+            ConfigureSupplierDeliverySpriteImporters();
+            SupplierDefinitionAsset[] suppliers = BuildSuppliers();
+            AssetDatabase.SaveAssets();
+
+            Selection.activeObject = suppliers[0];
+            EditorGUIUtility.PingObject(suppliers[0]);
+            Debug.Log(
+                "Assigned the four opening delivery-load tiers to BIG, "
+                + "Central, and Beacon. Existing artwork assignments were "
+                + "preserved.",
+                suppliers[0]);
+        }
+
+        /// <summary>
+        /// Batch-mode entry point used when importing delivery artwork.
+        /// </summary>
+        public static void RefreshSupplierDeliveryLoadArtworkForAutomation()
+        {
+            RefreshSupplierDeliveryLoadArtwork();
         }
 
         [MenuItem(MenuRoot + "Open Purchasing Workspace Lab")]
@@ -480,6 +509,7 @@ namespace BigRetail.Editor.Merchandise
             EnsureFolder(SupplierFolder);
             EnsureFolder(OfferFolder);
             EnsureFolder(PurchasingCatalogFolder);
+            ConfigureSupplierDeliverySpriteImporters();
 
             BrandDefinitionAsset[] brands = BuildBrands();
             ProductDefinitionAsset[] products = BuildProducts(brands);
@@ -553,6 +583,93 @@ namespace BigRetail.Editor.Merchandise
             return assets;
         }
 
+        private static void ConfigureSupplierDeliverySpriteImporters()
+        {
+            for (int supplierIndex = 0;
+                 supplierIndex < SupplierSeeds.Length;
+                 supplierIndex++)
+            {
+                SupplierSeed seed = SupplierSeeds[supplierIndex];
+
+                for (int loadTier = 1; loadTier <= 4; loadTier++)
+                {
+                    string path = GetDeliveryLoadArtPath(seed, loadTier);
+                    TextureImporter importer =
+                        AssetImporter.GetAtPath(path) as TextureImporter;
+
+                    if (importer == null)
+                    {
+                        continue;
+                    }
+
+                    TextureImporterSettings importerSettings =
+                        new TextureImporterSettings();
+                    importer.ReadTextureSettings(importerSettings);
+
+                    bool requiresImport =
+                        importer.textureType != TextureImporterType.Sprite
+                        || importer.spriteImportMode != SpriteImportMode.Single
+                        || importerSettings.spriteAlignment
+                            != (int)SpriteAlignment.Custom
+                        || importerSettings.spritePivot
+                            != new Vector2(0.5f, 0f)
+                        || !importer.alphaIsTransparency
+                        || importer.mipmapEnabled;
+
+                    if (!requiresImport)
+                    {
+                        continue;
+                    }
+
+                    importer.textureType = TextureImporterType.Sprite;
+                    importerSettings.spriteAlignment =
+                        (int)SpriteAlignment.Custom;
+                    importerSettings.spritePivot = new Vector2(0.5f, 0f);
+                    importer.SetTextureSettings(importerSettings);
+                    importer.spriteImportMode = SpriteImportMode.Single;
+                    importer.spritePixelsPerUnit = 100f;
+                    importer.alphaIsTransparency = true;
+                    importer.mipmapEnabled = false;
+                    importer.filterMode = FilterMode.Bilinear;
+                    importer.SaveAndReimport();
+                }
+            }
+        }
+
+        private static void AssignAvailableDeliveryLoadSprites(
+            SerializedObject serializedSupplier,
+            SupplierSeed seed)
+        {
+            for (int loadTier = 1; loadTier <= 4; loadTier++)
+            {
+                SerializedProperty property =
+                    serializedSupplier.FindProperty(
+                        $"deliveryLoad{loadTier}Sprite");
+
+                if (property == null
+                    || property.objectReferenceValue != null)
+                {
+                    continue;
+                }
+
+                Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(
+                    GetDeliveryLoadArtPath(seed, loadTier));
+
+                if (sprite != null)
+                {
+                    property.objectReferenceValue = sprite;
+                }
+            }
+        }
+
+        private static string GetDeliveryLoadArtPath(
+            SupplierSeed seed,
+            int loadTier)
+        {
+            return $"{DeliveryLoadArtFolder}/"
+                + $"{seed.DeliveryLoadFilePrefix}PalletLoad{loadTier}.png";
+        }
+
         private static ProductDefinitionAsset[] BuildProducts(
             IReadOnlyList<BrandDefinitionAsset> brands)
         {
@@ -616,6 +733,8 @@ namespace BigRetail.Editor.Merchandise
                 {
                     serialized.FindProperty("accentColor").colorValue = seed.Color;
                 }
+
+                AssignAvailableDeliveryLoadSprites(serialized, seed);
 
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(asset);
@@ -991,6 +1110,7 @@ namespace BigRetail.Editor.Merchandise
                 int sameDayLeadHours,
                 SupplierWeekday routeDays,
                 string fileName,
+                string deliveryLoadFilePrefix,
                 Color color)
             {
                 Id = id;
@@ -1002,6 +1122,7 @@ namespace BigRetail.Editor.Merchandise
                 SameDayLeadHours = sameDayLeadHours;
                 RouteDays = routeDays;
                 FileName = fileName;
+                DeliveryLoadFilePrefix = deliveryLoadFilePrefix;
                 Color = color;
             }
 
@@ -1014,6 +1135,7 @@ namespace BigRetail.Editor.Merchandise
             public int SameDayLeadHours { get; }
             public SupplierWeekday RouteDays { get; }
             public string FileName { get; }
+            public string DeliveryLoadFilePrefix { get; }
             public Color Color { get; }
         }
 

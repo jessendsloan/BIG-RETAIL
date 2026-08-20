@@ -154,8 +154,8 @@ The supplier-backed opening implementation is flat and intentionally bounded:
 - immutable placed PO records with frozen lines, prices, placement time, and scheduled delivery estimate
 - a placement confirmation state that clears committed drafts only after one atomic store-cash payment succeeds
 - a live delivery lifecycle of **Scheduled → Ready to Receive → Received**
-- one persistent curbside pallet view per ready Supplier PO, with a one-, two-, or three-carton stack summarizing its total case volume
-- supplier-colored placeholder cartons plus authored pallet and supplier-carton sprite slots
+- one persistent curbside pallet view per ready Supplier PO, selecting one of four complete supplier-load sprites from its total case volume
+- authored BIG Wholesale load art plus clearly named Central Grocery and Beacon Beverage replacement stubs across all four tiers
 - delivery receiving through the existing fixture backstock / overflow inventory service
 - a read-only Commercial Directory that switches between the 10 opening Brands and 3 opening Suppliers, deriving each card's opening assortment from the real catalog
 - stub-ready image slots on Product, Brand, and Supplier assets

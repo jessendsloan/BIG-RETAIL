@@ -99,8 +99,10 @@ namespace BigRetail.Purchasing.Domain.Tests
         [TestCase(4, 2)]
         [TestCase(7, 2)]
         [TestCase(8, 3)]
-        [TestCase(40, 3)]
-        public void VisibleBoxCount_UsesSmallMediumLargeCaseTiers(
+        [TestCase(11, 3)]
+        [TestCase(12, 4)]
+        [TestCase(40, 4)]
+        public void VisibleBoxCount_UsesFourOrderSizeTiers(
             int caseCount,
             int expectedBoxCount)
         {

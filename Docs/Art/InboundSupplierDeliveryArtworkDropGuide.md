@@ -1,55 +1,47 @@
 # Inbound Supplier Delivery Artwork Drop Guide
 
-The first physical delivery slice uses one **1 × 1 pallet per supplier purchase order**. The purchase order remains the exact manifest; its visible carton stack is a readable summary of the order's total case count.
+The first physical delivery slice uses one **1 × 1 pallet per supplier purchase order**. The purchase order remains the exact manifest; one of four complete pallet-load sprites provides a readable summary of its total case count.
 
-## Art needed
+## Opening sprite set
 
-Four transparent PNG sprites are enough for the finished opening pass:
+Each supplier owns four transparent PNGs containing the complete pallet and carton arrangement:
 
-1. `InboundPallet.png` — one shared empty 1 × 1 isometric pallet.
-2. `BIGWholesaleCarton.png` — BIG Wholesale shipping carton.
-3. `CentralGroceryCarton.png` — Central Grocery Supply shipping carton.
-4. `BeaconBeverageCarton.png` — Beacon Beverage Distribution shipping carton.
+- `BigWholesalePalletLoad1.png` through `BigWholesalePalletLoad4.png`
+- `CentralGroceryPalletLoad1.png` through `CentralGroceryPalletLoad4.png`
+- `BeaconBeveragePalletLoad1.png` through `BeaconBeveragePalletLoad4.png`
 
-The game builds the stack. Do not draw separate one-box, two-box, or three-box pallet images.
+BIG Wholesale currently has its authored opening set. Central and Beacon use clearly named copies of the BIG artwork as temporary stubs. Replace those PNGs in place when their artwork is ready; their Unity references will remain intact.
 
 ## Composition
 
+- Keep all four tiers on the same transparent canvas with the pallet grounded at the same location.
 - Match the game's current isometric camera angle.
-- Keep the complete object inside a tightly cropped transparent canvas.
-- Show one closed shipping carton, not a consumer product package.
-- Keep all three supplier cartons at the same apparent dimensions and viewpoint.
-- Supplier markings should remain readable at normal gameplay zoom without relying on tiny text.
-- Use each supplier's identity colors, but preserve enough light/dark contrast to read against pavement and store flooring.
+- Tier 1 should show one carton, tier 2 two cartons, tier 3 three cartons, and tier 4 four cartons.
+- Supplier markings should remain recognizable at normal gameplay zoom without relying on tiny text.
+- Use each supplier's identity colors while preserving enough contrast to read against pavement and store flooring.
 - Avoid baked ground shadows extending far outside the object. A compact contact shadow is acceptable.
 
 ## Unity import and assignment
 
-- Texture Type: `Sprite (2D and UI)`
-- Sprite Mode: `Single`
-- Mesh Type: `Full Rect`
-- Filter Mode: match the accepted game-art treatment
-- Compression: `None` while reviewing
-- Pivot: bottom center, placed at the visual ground contact point
-
-Assign `InboundPallet.png` to **Inbound Delivery View System → Pallet Sprite** in `Gameplay`.
-
-Assign each supplier carton to **Delivery Box Sprite** on its supplier asset:
+The project imports these images as single sprites with transparency, no mipmaps, and a bottom-center pivot. The opening supplier assets expose four **Delivery Load** artwork slots:
 
 - `Assets/Design/Purchasing/Suppliers/BIGWholesale.asset`
 - `Assets/Design/Purchasing/Suppliers/CentralGrocery.asset`
 - `Assets/Design/Purchasing/Suppliers/BeaconBeverage.asset`
 
-The renderer normalizes sprite width, so the PNGs do not need identical pixel dimensions. Matching canvas scale and pivot placement will still make review easier.
+Use **Big Retail → Merchandise → Refresh Supplier Delivery Load Artwork** if an empty slot ever needs to be restored from the standard filenames. Existing non-empty artwork assignments are preserved.
+
+The renderer normalizes the complete load to one staging tile. Matching canvas dimensions and pallet placement across all twelve PNGs prevents visual movement when the selected tier changes.
 
 ## Current gameplay rules
 
-| Purchase-order case count | Visible cartons |
+| Purchase-order case count | Supplier-load sprite |
 |---:|---:|
-| 1–3 | 1 |
-| 4–7 | 2 |
-| 8+ | 3 |
+| 1–3 | Load 1 |
+| 4–7 | Load 2 |
+| 8–11 | Load 3 |
+| 12+ | Load 4 |
 
-Each ready supplier PO owns a separate pallet and staging cell. Receiving that PO removes its pallet and passes its exact units into the existing rack/overflow inventory path.
+Each ready supplier PO owns a separate pallet and staging cell. Receiving that PO removes its load and passes its exact units into the existing rack/overflow inventory path.
 
 This is intentionally a presentation layer, not full pallet-capacity or truckload procurement simulation. It leaves room for a later receiving zone and employee hauling job without replacing the purchase-order model.

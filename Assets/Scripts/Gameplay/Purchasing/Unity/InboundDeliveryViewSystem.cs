@@ -14,13 +14,14 @@ namespace BigRetail.Purchasing.Unity
 {
     /// <summary>
     /// Projects ready supplier purchase orders into one-tile curbside loads.
-    /// Each purchase order owns one pallet and one to three visible cartons;
+    /// Each purchase order selects one of four authored supplier-load sprites;
     /// receiving the order removes its load through the fulfillment event.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(-40)]
     public sealed class InboundDeliveryViewSystem : MonoBehaviour
     {
+        private const float AuthoredLoadTargetWidth = 0.95f;
         private const float PalletTargetWidth = 0.9f;
         private const float BoxTargetWidth = 0.7f;
         private const float BoxVerticalStep = 0.29f;
@@ -359,9 +360,10 @@ namespace BigRetail.Purchasing.Unity
                 supplierAsset != null
                     ? supplierAsset.AccentColor
                     : Color.white;
-            Sprite authoredBox =
+            Sprite authoredLoad =
                 supplierAsset != null
-                    ? supplierAsset.DeliveryBoxSprite
+                    ? supplierAsset.GetDeliveryLoadSprite(
+                        load.VisibleBoxCount)
                     : null;
 
             GameObject root = new GameObject(
@@ -380,8 +382,22 @@ namespace BigRetail.Purchasing.Unity
             sortingGroup.sortingOrder =
                 WallRenderOrderResolver.ResolveCell(displayCell);
 
-            SpriteRenderer palletRenderer =
-                CreateRenderer(
+            SpriteRenderer loadRenderer;
+
+            if (authoredLoad != null)
+            {
+                loadRenderer = CreateRenderer(
+                    root.transform,
+                    $"Supplier Load Tier {load.VisibleBoxCount}",
+                    authoredLoad,
+                    Color.white,
+                    AuthoredLoadTargetWidth,
+                    Vector3.zero,
+                    sortingOrder: 0);
+            }
+            else
+            {
+                loadRenderer = CreateRenderer(
                     root.transform,
                     "Pallet",
                     palletSprite != null
@@ -392,33 +408,32 @@ namespace BigRetail.Purchasing.Unity
                     Vector3.zero,
                     sortingOrder: 0);
 
-            for (int index = 0;
-                 index < load.VisibleBoxCount;
-                 index++)
-            {
-                float horizontalOffset = index == 1
-                    ? 0.035f
-                    : index == 2
-                        ? -0.025f
-                        : 0f;
-                Vector3 localPosition =
-                    new Vector3(
-                        horizontalOffset,
-                        0.09f + index * BoxVerticalStep,
-                        0f);
+                for (int index = 0;
+                     index < load.VisibleBoxCount;
+                     index++)
+                {
+                    float horizontalOffset = index == 1
+                        ? 0.035f
+                        : index == 2
+                            ? -0.025f
+                            : index == 3
+                                ? 0.025f
+                                : 0f;
+                    Vector3 localPosition =
+                        new Vector3(
+                            horizontalOffset,
+                            0.09f + index * BoxVerticalStep,
+                            0f);
 
-                CreateRenderer(
-                    root.transform,
-                    $"Supplier Carton {index + 1}",
-                    authoredBox != null
-                        ? authoredBox
-                        : placeholderSprites.Box,
-                    authoredBox != null
-                        ? Color.white
-                        : supplierColor,
-                    BoxTargetWidth,
-                    localPosition,
-                    sortingOrder: index + 1);
+                    CreateRenderer(
+                        root.transform,
+                        $"Supplier Carton {index + 1}",
+                        placeholderSprites.Box,
+                        supplierColor,
+                        BoxTargetWidth,
+                        localPosition,
+                        sortingOrder: index + 1);
+                }
             }
 
             InboundDeliveryLoadView loadView =
@@ -430,7 +445,7 @@ namespace BigRetail.Purchasing.Unity
                 load.RemainingUnitCount,
                 load.VisibleBoxCount,
                 slot,
-                palletRenderer);
+                loadRenderer);
             return root;
         }
 
@@ -557,7 +572,10 @@ namespace BigRetail.Purchasing.Unity
 
         public GridPosition StagingCell { get; private set; }
 
-        public SpriteRenderer PalletRenderer { get; private set; }
+        public SpriteRenderer LoadRenderer { get; private set; }
+
+        public SpriteRenderer PalletRenderer =>
+            LoadRenderer;
 
 
         internal void Initialize(
@@ -567,7 +585,7 @@ namespace BigRetail.Purchasing.Unity
             int remainingUnitCount,
             int visibleBoxCount,
             GridPosition stagingCell,
-            SpriteRenderer palletRenderer)
+            SpriteRenderer loadRenderer)
         {
             OrderNumber = orderNumber;
             SupplierId = supplierId;
@@ -575,7 +593,7 @@ namespace BigRetail.Purchasing.Unity
             RemainingUnitCount = remainingUnitCount;
             VisibleBoxCount = visibleBoxCount;
             StagingCell = stagingCell;
-            PalletRenderer = palletRenderer;
+            LoadRenderer = loadRenderer;
         }
     }
 }

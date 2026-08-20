@@ -6,12 +6,14 @@ namespace BigRetail.Purchasing.Domain
     /// <summary>
     /// Read-only physical receiving projection of one supplier purchase
     /// order. The purchase order remains the exact commercial manifest while
-    /// VisibleBoxCount compresses its case volume into a readable world prop.
+    /// VisibleBoxCount compresses its case volume into one of four readable
+    /// supplier-load art tiers.
     /// </summary>
     public sealed class InboundDeliveryLoad
     {
         private const int SmallLoadMaximumCaseCount = 3;
         private const int MediumLoadMaximumCaseCount = 7;
+        private const int LargeLoadMaximumCaseCount = 11;
 
 
         public PlacedPurchaseOrder PurchaseOrder { get; }
@@ -84,9 +86,14 @@ namespace BigRetail.Purchasing.Domain
                 return 1;
             }
 
-            return purchasePackCount <= MediumLoadMaximumCaseCount
-                ? 2
-                : 3;
+            if (purchasePackCount <= MediumLoadMaximumCaseCount)
+            {
+                return 2;
+            }
+
+            return purchasePackCount <= LargeLoadMaximumCaseCount
+                ? 3
+                : 4;
         }
     }
 }

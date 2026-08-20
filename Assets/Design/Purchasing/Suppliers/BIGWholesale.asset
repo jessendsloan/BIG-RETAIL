@@ -22,4 +22,7 @@ MonoBehaviour:
   routeDays: 0
   logo: {fileID: 0}
   accentColor: {r: 0.82, g: 0.2, b: 0.15, a: 1}
-  deliveryBoxSprite: {fileID: 0}
+  deliveryLoad1Sprite: {fileID: 21300000, guid: 08d49fec7f9b8cd49a31b247a5810aaa, type: 3}
+  deliveryLoad2Sprite: {fileID: 21300000, guid: 1dc11b5106c176a489a88ed2f8ad7162, type: 3}
+  deliveryLoad3Sprite: {fileID: 21300000, guid: a6c35ce5b30f53a4697a416a1674071b, type: 3}
+  deliveryLoad4Sprite: {fileID: 21300000, guid: 3baaf00c20cee3e45a1de7da91a1cfb9, type: 3}

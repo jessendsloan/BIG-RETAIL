@@ -6,7 +6,7 @@ namespace BigRetail.Purchasing.Unity
 {
     /// <summary>
     /// Small runtime art fallback that keeps the delivery slice playable
-    /// before authored pallet and supplier-carton sprites are assigned.
+    /// when an authored supplier-load tier has not been assigned.
     /// </summary>
     internal sealed class InboundDeliveryPlaceholderSprites : IDisposable
     {

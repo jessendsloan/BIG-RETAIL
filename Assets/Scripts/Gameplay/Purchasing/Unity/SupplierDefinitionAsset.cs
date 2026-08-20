@@ -45,12 +45,23 @@ namespace BigRetail.Purchasing.Unity
         [SerializeField]
         private Color accentColor = new Color(0.18f, 0.39f, 0.48f, 1f);
 
-        [Tooltip(
-            "Optional isometric shipping carton used for this supplier's "
-            + "physical inbound loads. A supplier-colored graybox carton is "
-            + "generated when absent.")]
+        [Header("Inbound Delivery Artwork")]
+
+        [Tooltip("Complete pallet-and-carton sprite for a tier-one order.")]
         [SerializeField]
-        private Sprite deliveryBoxSprite;
+        private Sprite deliveryLoad1Sprite;
+
+        [Tooltip("Complete pallet-and-carton sprite for a tier-two order.")]
+        [SerializeField]
+        private Sprite deliveryLoad2Sprite;
+
+        [Tooltip("Complete pallet-and-carton sprite for a tier-three order.")]
+        [SerializeField]
+        private Sprite deliveryLoad3Sprite;
+
+        [Tooltip("Complete pallet-and-carton sprite for a tier-four order.")]
+        [SerializeField]
+        private Sprite deliveryLoad4Sprite;
 
 
         public string DisplayName =>
@@ -68,11 +79,30 @@ namespace BigRetail.Purchasing.Unity
         public Color AccentColor =>
             accentColor;
 
-        public Sprite DeliveryBoxSprite =>
-            deliveryBoxSprite;
-
         public string SupplierIdValue =>
             supplierId ?? string.Empty;
+
+
+        public Sprite GetDeliveryLoadSprite(int loadTier)
+        {
+            switch (loadTier)
+            {
+                case 1:
+                    return deliveryLoad1Sprite;
+
+                case 2:
+                    return deliveryLoad2Sprite;
+
+                case 3:
+                    return deliveryLoad3Sprite;
+
+                case 4:
+                    return deliveryLoad4Sprite;
+
+                default:
+                    return null;
+            }
+        }
 
 
         public bool TryCreateDefinition(
