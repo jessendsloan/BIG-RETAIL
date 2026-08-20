@@ -381,6 +381,32 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        [Test]
+        public void AuthoredCatalog_ContainsNonPassableFixedWindow()
+        {
+            DoorDefinitionAssetCatalog catalog =
+                UnityEditor.AssetDatabase.LoadAssetAtPath<
+                    DoorDefinitionAssetCatalog>(
+                    "Assets/Design/Doors/DoorDefinitionCatalog.asset");
+
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(
+                catalog.TryGetAsset(
+                    new DoorDefinitionId("fixed-window"),
+                    out DoorDefinitionAsset asset),
+                Is.True);
+            Assert.That(asset.SegmentCount, Is.EqualTo(1));
+            Assert.That(asset.HasPassageSegments, Is.False);
+            Assert.That(
+                asset.PresentationStyle,
+                Is.EqualTo(DoorPresentationStyle.StaticDoorway));
+            Assert.That(asset.HasCompleteDoorwayVisuals, Is.True);
+            Assert.That(
+                asset.CreateDomainDefinition().PassageSegmentCount,
+                Is.EqualTo(0));
+        }
+
+
         private DoorDefinitionAsset CreateDefinitionAsset(
             string definitionId,
             int segmentCount,

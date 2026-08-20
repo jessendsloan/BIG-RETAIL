@@ -94,6 +94,10 @@ namespace BigRetail.Map.Unity.Doors
         public int SegmentCount =>
             segmentCount;
 
+        public bool HasPassageSegments =>
+            passageSegmentIndices != null
+            && passageSegmentIndices.Length > 0;
+
         public Sprite CatalogIcon =>
             catalogIcon;
 

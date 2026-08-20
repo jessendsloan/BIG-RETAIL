@@ -16,6 +16,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 ConstructionToolMode.BuildWalls =>
                     ConstructionToolbarSection.Walls,
 
+                ConstructionToolMode.BuildWindows =>
+                    ConstructionToolbarSection.Windows,
+
                 ConstructionToolMode.BuildDoors =>
                     ConstructionToolbarSection.Doors,
 

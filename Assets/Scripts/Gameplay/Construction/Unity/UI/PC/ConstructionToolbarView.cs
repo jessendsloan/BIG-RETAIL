@@ -12,6 +12,7 @@ namespace BigRetail.Construction.Unity.UI.PC
     public sealed class ConstructionToolbarView : IDisposable
     {
         public const string WallsButtonName = "walls-button";
+        public const string WindowsButtonName = "windows-button";
         public const string DoorsButtonName = "doors-button";
         public const string FixturesButtonName = "fixtures-button";
         public const string FoundationsButtonName = "foundations-button";
@@ -55,6 +56,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string SelectedClassName = "is-selected";
 
         private readonly Button wallsButton;
+        private readonly Button windowsButton;
         private readonly Button doorsButton;
         private readonly Button fixturesButton;
         private readonly Button departmentsButton;
@@ -92,6 +94,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton = RequireButton(root, WallsButtonName);
+            windowsButton = RequireButton(root, WindowsButtonName);
             doorsButton = RequireButton(root, DoorsButtonName);
             fixturesButton = RequireButton(root, FixturesButtonName);
             departmentsButton =
@@ -138,6 +141,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireLabel(root, StoreCashValueName);
 
             wallsButton.clicked += HandleWallsRequested;
+            windowsButton.clicked += HandleWindowsRequested;
             doorsButton.clicked += HandleDoorsRequested;
             fixturesButton.clicked += HandleFixturesRequested;
             departmentsButton.clicked += HandleDepartmentsRequested;
@@ -185,10 +189,18 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetSelectedSection(ConstructionToolbarSection section)
         {
             bool isFoundationSelected =
-                section == ConstructionToolbarSection.Foundations;
+                section == ConstructionToolbarSection.Foundations
+                || section == ConstructionToolbarSection.Sidewalks;
+
+            bool isDoorSelected =
+                section == ConstructionToolbarSection.Doors
+                || section == ConstructionToolbarSection.Windows;
 
             SetSelected(wallsButton, section == ConstructionToolbarSection.Walls);
-            SetSelected(doorsButton, section == ConstructionToolbarSection.Doors);
+            SetSelected(
+                windowsButton,
+                section == ConstructionToolbarSection.Windows);
+            SetSelected(doorsButton, isDoorSelected);
             SetSelected(
                 fixturesButton,
                 section == ConstructionToolbarSection.Fixtures);
@@ -200,7 +212,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 section == ConstructionToolbarSection.Sidewalks);
             SetSelected(
                 foundationDefaultButton,
-                isFoundationSelected);
+                section == ConstructionToolbarSection.Foundations);
             foundationPicker.style.display =
                 isFoundationSelected
                     ? DisplayStyle.Flex
@@ -325,6 +337,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             wallsButton.clicked -= HandleWallsRequested;
+            windowsButton.clicked -= HandleWindowsRequested;
             doorsButton.clicked -= HandleDoorsRequested;
             fixturesButton.clicked -= HandleFixturesRequested;
             departmentsButton.clicked -= HandleDepartmentsRequested;
@@ -362,6 +375,12 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleWallsRequested()
         {
             SectionRequested?.Invoke(ConstructionToolbarSection.Walls);
+        }
+
+        private void HandleWindowsRequested()
+        {
+            SectionRequested?.Invoke(
+                ConstructionToolbarSection.Windows);
         }
 
         private void HandleDoorsRequested()

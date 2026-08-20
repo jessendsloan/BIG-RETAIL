@@ -26,6 +26,21 @@ namespace BigRetail.Map.Walls.Tests
 
 
         [Test]
+        public void FixedWindowDefinition_HasNoPassageSegments()
+        {
+            DoorDefinition definition =
+                new DoorDefinition(
+                    new DoorDefinitionId("fixed-window"),
+                    1,
+                    Array.Empty<int>());
+
+            Assert.That(definition.SegmentCount, Is.EqualTo(1));
+            Assert.That(definition.PassageSegmentCount, Is.EqualTo(0));
+            Assert.That(definition.IsPassageSegment(0), Is.False);
+        }
+
+
+        [Test]
         public void Constructor_DuplicatePassageIndex_IsRejected()
         {
             Assert.That(

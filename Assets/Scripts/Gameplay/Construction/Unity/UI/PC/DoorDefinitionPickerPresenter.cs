@@ -126,12 +126,16 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 if (!definitionSelectionHost.SelectDefinition(
                         new DoorDefinitionId(
-                            definitionId)))
+                        definitionId)))
                 {
                     Debug.LogWarning(
                         $"Door definition '{definitionId}' could not be selected.",
                         this);
+                    return;
                 }
+
+                toolCoordinator.SetMode(
+                    ConstructionToolMode.BuildDoors);
             }
             catch (Exception exception)
             {
@@ -145,8 +149,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleModeChanged(
             ConstructionToolMode mode)
         {
-            RefreshVisibility(
-                mode);
+            RefreshView();
         }
 
 
@@ -160,7 +163,10 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             EnsureCatalogIsBound();
             boundView.SetSelectedDefinition(
-                definitionId.Value);
+                toolCoordinator.CurrentMode
+                    == ConstructionToolMode.BuildWindows
+                    ? null
+                    : definitionId.Value);
         }
 
 
@@ -223,7 +229,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             EnsureCatalogIsBound();
 
             boundView.SetSelectedDefinition(
-                definitionSelectionHost.SelectedDefinitionId.Value);
+                toolCoordinator.CurrentMode
+                    == ConstructionToolMode.BuildWindows
+                    ? null
+                    : definitionSelectionHost.SelectedDefinitionId.Value);
         }
 
 
@@ -236,7 +245,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             boundView.SetVisible(
-                mode == ConstructionToolMode.BuildDoors);
+                mode == ConstructionToolMode.BuildDoors
+                || mode == ConstructionToolMode.BuildWindows);
         }
 
 
@@ -257,6 +267,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                 in definitionSelectionHost.EnumerateAvailableDefinitions())
             {
                 if (definitionAsset == null)
+                {
+                    continue;
+                }
+
+                if (!definitionAsset.HasPassageSegments)
                 {
                     continue;
                 }

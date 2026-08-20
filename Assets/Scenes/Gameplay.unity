@@ -336652,6 +336652,7 @@ MonoBehaviour:
   wallConstructionTool: {fileID: 1588797417}
   wallDemolitionTool: {fileID: 542041195}
   doorConstructionTool: {fileID: 2112000002}
+  windowConstructionTool: {fileID: 2112000004}
   floorConstructionTool: {fileID: 1747614301}
   floorDemolitionTool: {fileID: 2110000102}
   fixtureConstructionTool: {fileID: 1508060591}
@@ -445039,6 +445040,7 @@ GameObject:
   - component: {fileID: 2112000001}
   - component: {fileID: 2112000002}
   - component: {fileID: 2112000003}
+  - component: {fileID: 2112000004}
   m_Layer: 0
   m_Name: DoorConstructionTool
   m_TagString: Untagged
@@ -445100,6 +445102,30 @@ MonoBehaviour:
   mapHost: {fileID: 1863031834}
   startingDefinition: {fileID: 11400000, guid: 35d30cd7ad89474480fabc487ab81afb, type: 2}
   logSelectionChanges: 1
+--- !u!114 &2112000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6c737227fe7410aa42d7bad73023924, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Construction.Unity.Doors.WindowConstructionToolController
+  playerInput: {fileID: 933909789}
+  constructionActionMapName: Construction
+  confirmActionName: Confirm
+  cancelActionName: Cancel
+  targetResolver: {fileID: 2082405065}
+  wallTargetResolver: {fileID: 2082405063}
+  placementPreviewView: {fileID: 2112000012}
+  mapHost: {fileID: 1863031834}
+  historyHost: {fileID: 746913718}
+  windowDefinition: {fileID: 11400000, guid: f5a92e9e287b4a068aa24b3e81ccf39d, type: 2}
+  startActive: 0
+  logPlacementResults: 1
 --- !u!1 &2112000010
 GameObject:
   m_ObjectHideFlags: 0

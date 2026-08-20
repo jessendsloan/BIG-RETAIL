@@ -152,6 +152,11 @@ namespace BigRetail.Construction.Unity.UI.PC
                         ConstructionToolMode.BuildWalls;
                     break;
 
+                case ConstructionToolbarSection.Windows:
+                    requestedMode =
+                        ConstructionToolMode.BuildWindows;
+                    break;
+
                 case ConstructionToolbarSection.Foundations:
                     requestedMode =
                         ConstructionToolMode.BuildFoundations;

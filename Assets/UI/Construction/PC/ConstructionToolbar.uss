@@ -1200,6 +1200,10 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Walls.png");
 }
 
+.finish-picker__icon--windows {
+    background-image: url("project://database/Assets/Art/WallSegmentArt/Windows/Window_RisingLeft.png");
+}
+
 .foundation-picker__icon--default {
     background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation.png");
 }
@@ -1212,7 +1216,7 @@
     background-image: url("project://database/Assets/Art/UI/Construction/Icons/Icon_Foundations.png");
 }
 
-.construction-toolbar__icon--sidewalks {
+.foundation-picker__icon--sidewalks {
     background-image: url("project://database/Assets/Art/GroundTileArt/Foundations/groundtile_foundation_apron.png");
 }
 

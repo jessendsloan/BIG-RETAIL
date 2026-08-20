@@ -13,6 +13,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         Doors,
         Fixtures,
         Demolition,
-        Sidewalks
+        Sidewalks,
+        Windows
     }
 }
