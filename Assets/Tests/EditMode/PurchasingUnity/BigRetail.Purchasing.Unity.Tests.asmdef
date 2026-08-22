@@ -12,7 +12,8 @@
         "BigRetail.Receiving.Unity",
         "BigRetail.Map.Domain",
         "BigRetail.Map.Unity",
-        "BigRetail.Simulation.Time.Domain"
+        "BigRetail.Simulation.Time.Domain",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"

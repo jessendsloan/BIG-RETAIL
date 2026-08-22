@@ -1087,9 +1087,26 @@
 }
 
 .construction-toolbar__text-icon {
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+    -unity-text-align: middle-center;
     font-size: 22px;
     -unity-font-style: bold;
     color: rgb(35, 43, 50);
+    background-color: rgba(244, 240, 230, 0.97);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-color: rgba(35, 43, 50, 0.28);
+    border-right-color: rgba(35, 43, 50, 0.28);
+    border-bottom-color: rgba(35, 43, 50, 0.28);
+    border-left-color: rgba(35, 43, 50, 0.28);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
 }
 
 .construction-toolbar__group {

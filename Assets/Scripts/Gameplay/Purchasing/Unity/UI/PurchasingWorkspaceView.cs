@@ -42,6 +42,7 @@ namespace BigRetail.Purchasing.Unity.UI
 
         private const string SelectedClassName = "is-selected";
 
+        private readonly VisualElement root;
         private readonly TextField searchField;
         private readonly VisualElement categoryFilters;
         private readonly VisualElement supplierFilters;
@@ -79,6 +80,7 @@ namespace BigRetail.Purchasing.Unity.UI
                 throw new ArgumentNullException(nameof(root));
             }
 
+            this.root = root;
             searchField = Require<TextField>(root, SearchFieldName);
             categoryFilters = Require<VisualElement>(root, CategoryFiltersName);
             supplierFilters = Require<VisualElement>(root, SupplierFiltersName);
@@ -129,6 +131,25 @@ namespace BigRetail.Purchasing.Unity.UI
         public event Action ConfirmationCloseRequested;
         public event Action CloseRequested;
 
+
+        public void SetVisible(bool isVisible)
+        {
+            if (!isVisible)
+            {
+                Focusable focusedElement =
+                    root.panel?.focusController?.focusedElement;
+
+                if (focusedElement is VisualElement focusedVisual
+                    && root.Contains(focusedVisual))
+                {
+                    focusedElement.Blur();
+                }
+            }
+
+            root.style.display = isVisible
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+        }
 
         public void SetModel(PurchasingWorkspaceModel model)
         {
