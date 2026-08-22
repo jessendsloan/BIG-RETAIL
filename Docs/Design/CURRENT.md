@@ -2,6 +2,9 @@
 
 **Last updated:** 2026-08-19
 
+For the deliberately short active-work queue, see `NOW.md`. This document
+records the broader accepted design and implementation state.
+
 ## Current focus
 
 The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.

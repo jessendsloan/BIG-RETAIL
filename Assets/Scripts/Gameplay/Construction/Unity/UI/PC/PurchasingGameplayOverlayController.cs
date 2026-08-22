@@ -26,11 +26,10 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private ConstructionToolbarView boundToolbarView;
         private ConstructionToolMode previousToolMode;
+        private bool isOpen;
 
 
-        public bool IsOpen =>
-            purchasingWorkspace != null
-            && purchasingWorkspace.activeSelf;
+        public bool IsOpen => isOpen;
 
 
         private void Reset()
@@ -73,8 +72,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (purchasingPresenter != null)
             {
                 purchasingPresenter.CloseRequested -= Close;
+                purchasingPresenter.SetWorkspaceVisible(false);
             }
 
+            isOpen = false;
             UnbindToolbarView();
         }
 
@@ -93,7 +94,13 @@ namespace BigRetail.Construction.Unity.UI.PC
                 toolCoordinator.SetMode(ConstructionToolMode.None);
             }
 
-            purchasingWorkspace.SetActive(true);
+            isOpen = true;
+            purchasingPresenter?.SetWorkspaceVisible(true);
+
+            if (!purchasingWorkspace.activeSelf)
+            {
+                purchasingWorkspace.SetActive(true);
+            }
         }
 
         public void Close()
@@ -103,7 +110,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            purchasingWorkspace.SetActive(false);
+            isOpen = false;
+            purchasingPresenter?.SetWorkspaceVisible(false);
 
             if (toolCoordinator != null)
             {
