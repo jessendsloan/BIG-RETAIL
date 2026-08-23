@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Domain;
+using BigRetail.Receiving.Domain;
 using NUnit.Framework;
 
 namespace BigRetail.Receiving.Domain.Tests
@@ -172,6 +173,32 @@ namespace BigRetail.Receiving.Domain.Tests
 
             Assert.That(state.TryGetReservation(1001, out _), Is.False);
             Assert.That(state.TryGetReservation(1002, out _), Is.True);
+        }
+
+        [Test]
+        public void Reservations_DistinguishSupplierAndEquipmentSequences()
+        {
+            service.TryAddArea(new[] { FirstCell, SecondCell });
+            ReceivingAreaReservationService reservations =
+                new ReceivingAreaReservationService(
+                    state,
+                    cell => true);
+            ReceivingLoadId supplier =
+                ReceivingLoadId.SupplierOrder(1);
+            ReceivingLoadId equipment =
+                ReceivingLoadId.EquipmentOrder(1);
+
+            int staged = reservations.Synchronize(
+                new[] { supplier, equipment });
+
+            Assert.That(staged, Is.EqualTo(2));
+            Assert.That(
+                state.TryGetReservation(supplier, out GridPosition first),
+                Is.True);
+            Assert.That(
+                state.TryGetReservation(equipment, out GridPosition second),
+                Is.True);
+            Assert.That(first, Is.Not.EqualTo(second));
         }
 
 

@@ -587,6 +587,44 @@
                     class="fixture-picker__rotate-button"
                     tooltip="Rotate the selected fixture clockwise (R)." />
             </ui:VisualElement>
+
+            <ui:Label
+                name="fixture-equipment-selected"
+                text="Selected fixture"
+                class="fixture-equipment__selected"
+                picking-mode="Ignore" />
+
+            <ui:Label
+                name="fixture-equipment-summary"
+                text="OWNED 0 · PLANNED 0 · ORDERED 0"
+                class="fixture-equipment__summary"
+                picking-mode="Ignore" />
+
+            <ui:VisualElement
+                class="fixture-equipment__actions"
+                picking-mode="Position">
+
+                <ui:Button
+                    name="fixture-plan-mode-button"
+                    text="PLAN LAYOUT"
+                    class="fixture-equipment__button" />
+
+                <ui:Button
+                    name="fixture-order-plans-button"
+                    text="EQUIPMENT CATALOG"
+                    class="fixture-equipment__button fixture-equipment__button--primary" />
+
+                <ui:Button
+                    name="fixture-install-plans-button"
+                    text="INSTALL READY"
+                    class="fixture-equipment__button" />
+            </ui:VisualElement>
+
+            <ui:Label
+                name="fixture-equipment-status"
+                text="Plan freely, then order the equipment your layout needs."
+                class="fixture-equipment__status"
+                picking-mode="Ignore" />
         </ui:VisualElement>
 
         <ui:VisualElement
@@ -760,6 +798,16 @@
         </ui:Button>
 
         <ui:Button
+            name="equipment-catalog-button"
+            class="construction-toolbar__button equipment-catalog-button"
+            tooltip="Browse and order physical store equipment.">
+            <ui:Label
+                text="EQP"
+                class="construction-toolbar__text-icon equipment-catalog-button__label"
+                picking-mode="Ignore" />
+        </ui:Button>
+
+        <ui:Button
             name="receiving-area-button"
             class="construction-toolbar__button receiving-area-button"
             tooltip="Paint receiving space for incoming deliveries.">
@@ -772,7 +820,7 @@
         <ui:VisualElement
             name="receiving-area-panel"
             class="receiving-area-panel"
-            picking-mode="Ignore">
+            picking-mode="Position">
 
             <ui:Label
                 text="RECEIVING AREA"
@@ -790,6 +838,17 @@
                 text="Drag on finished floor to add. Start on Receiving space to erase."
                 class="receiving-area-panel__instruction"
                 picking-mode="Ignore" />
+
+            <ui:Label
+                name="receiving-equipment-status"
+                text="NO BIG EQUIPMENT PALLETS STAGED"
+                class="receiving-area-panel__equipment-status"
+                picking-mode="Ignore" />
+
+            <ui:Button
+                name="receiving-equipment-button"
+                text="RECEIVE BIG EQUIPMENT"
+                class="receiving-area-panel__equipment-button" />
         </ui:VisualElement>
 
         <ui:VisualElement

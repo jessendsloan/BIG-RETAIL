@@ -23,6 +23,7 @@ namespace BigRetail.Purchasing.Unity
     [DefaultExecutionOrder(-40)]
     public sealed class InboundDeliveryViewSystem : MonoBehaviour
     {
+        private const string ReceivingLoadSource = "supplier-orders";
         private const float AuthoredLoadTargetWidth = 0.95f;
         private const float PalletTargetWidth = 0.9f;
         private const float BoxTargetWidth = 0.7f;
@@ -158,6 +159,8 @@ namespace BigRetail.Purchasing.Unity
             }
 
             ClearViews();
+            receivingAreaRuntimeHost?.ClearReadyLoads(
+                ReceivingLoadSource);
             DetachReceivingState();
         }
 
@@ -213,15 +216,19 @@ namespace BigRetail.Purchasing.Unity
                 loads.Add(load);
             }
 
-            List<long> readyOrderNumbers = new List<long>(loads.Count);
+            List<ReceivingLoadId> readyLoadIds =
+                new List<ReceivingLoadId>(loads.Count);
 
             for (int index = 0; index < loads.Count; index++)
             {
-                readyOrderNumbers.Add(loads[index].OrderNumber);
+                readyLoadIds.Add(
+                    ReceivingLoadId.SupplierOrder(
+                        loads[index].OrderNumber));
             }
 
-            receivingAreaRuntimeHost.Reservations.Synchronize(
-                readyOrderNumbers);
+            receivingAreaRuntimeHost.SetReadyLoads(
+                ReceivingLoadSource,
+                readyLoadIds);
 
             for (int index = 0; index < loads.Count; index++)
             {

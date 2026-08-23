@@ -36,6 +36,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private PurchasingRuntimeHost purchasingRuntimeHost;
 
+        [SerializeField]
+        private FixtureEquipmentRuntimeHost equipmentRuntimeHost;
+
 
         [Header("View Services")]
 
@@ -100,6 +103,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             purchasingRuntimeHost.DeliveriesChanged +=
                 HandleDeliveriesChanged;
 
+            equipmentRuntimeHost.Initialized +=
+                HandleEquipmentRuntimeInitialized;
+            equipmentRuntimeHost.StateChanged +=
+                HandleEquipmentStateChanged;
+
             wallViewSystem.DisplayModeChanged +=
                 HandleWallDisplayModeChanged;
 
@@ -142,6 +150,14 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandlePurchasingRuntimeInitialized;
                 purchasingRuntimeHost.DeliveriesChanged -=
                     HandleDeliveriesChanged;
+            }
+
+            if (equipmentRuntimeHost != null)
+            {
+                equipmentRuntimeHost.Initialized -=
+                    HandleEquipmentRuntimeInitialized;
+                equipmentRuntimeHost.StateChanged -=
+                    HandleEquipmentStateChanged;
             }
 
             if (uiInputGate != null)
@@ -346,6 +362,39 @@ namespace BigRetail.Construction.Unity.UI.PC
             RefreshReceivingStatus();
         }
 
+        private void HandleEquipmentRuntimeInitialized(
+            FixtureEquipmentRuntimeHost initializedHost)
+        {
+            RefreshReceivingStatus();
+        }
+
+        private void HandleEquipmentStateChanged()
+        {
+            RefreshReceivingStatus();
+        }
+
+        private void HandleEquipmentReceivingRequested()
+        {
+            try
+            {
+                int received =
+                    equipmentRuntimeHost.ReceiveStagedEquipment();
+
+                if (received == 0)
+                {
+                    Debug.LogWarning(
+                        "No equipment pallet is staged in an operational Receiving Area.",
+                        this);
+                }
+
+                RefreshReceivingStatus();
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogException(exception, this);
+            }
+        }
+
         private void HandleReceivingStateChanged()
         {
             RefreshReceivingStatus();
@@ -434,6 +483,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.ReceivingAreaRequested +=
                 HandleReceivingAreaRequested;
 
+            boundView.EquipmentReceivingRequested +=
+                HandleEquipmentReceivingRequested;
+
             boundView.DemolitionPickerRequested +=
                 HandleDemolitionPickerRequested;
 
@@ -480,6 +532,9 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.ReceivingAreaRequested -=
                 HandleReceivingAreaRequested;
+
+            boundView.EquipmentReceivingRequested -=
+                HandleEquipmentReceivingRequested;
 
             boundView.DemolitionPickerRequested -=
                 HandleDemolitionPickerRequested;
@@ -576,11 +631,29 @@ namespace BigRetail.Construction.Unity.UI.PC
                     ? purchasingRuntimeHost
                         .WaitingForReceivingSpaceOrderCount
                     : 0;
+            int stagedEquipmentShipments =
+                equipmentRuntimeHost != null
+                && equipmentRuntimeHost.IsInitialized
+                    ? equipmentRuntimeHost.StagedReadyCount
+                    : 0;
+            int waitingEquipmentShipments =
+                equipmentRuntimeHost != null
+                && equipmentRuntimeHost.IsInitialized
+                    ? System.Math.Max(
+                        0,
+                        equipmentRuntimeHost.ReadyToReceiveCount
+                            - stagedEquipmentShipments)
+                    : 0;
+
+            waitingDeliveries = checked(
+                waitingDeliveries + waitingEquipmentShipments);
 
             boundView.SetReceivingAreaStatus(
                 operationalCells,
                 occupiedCells,
-                waitingDeliveries);
+                waitingDeliveries,
+                stagedEquipmentShipments,
+                waitingEquipmentShipments);
         }
 
         private void AttachReceivingState()
@@ -698,6 +771,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 Debug.LogError(
                     "ConstructionToolbarPresenter has no "
                     + "PurchasingRuntimeHost assigned.",
+                    this);
+
+                isValid = false;
+            }
+
+            if (equipmentRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "ConstructionToolbarPresenter has no "
+                    + "FixtureEquipmentRuntimeHost assigned.",
                     this);
 
                 isValid = false;

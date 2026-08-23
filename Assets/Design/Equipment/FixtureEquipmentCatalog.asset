@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c536f5c8f19f7c04994de6cbefcb0d1a, type: 3}
+  m_Name: FixtureEquipmentCatalog
+  m_EditorClassIdentifier: BigRetail.Purchasing.Unity::BigRetail.Purchasing.Unity.FixtureEquipmentCatalogAsset
+  entries:
+  - fixtureDefinition: {fileID: 11400000, guid: d8f72c9adc644bca8471d2f8aac8593d, type: 2}
+    unitPriceCents: 32000
+    deliveryLeadTimeGameMinutes: 120
+    startingOwnedQuantity: 0
+    categoryName: Operations
+  - fixtureDefinition: {fileID: 11400000, guid: c4c46f5f3f8842f3a5f9d8c37433de8e, type: 2}
+    unitPriceCents: 85000
+    deliveryLeadTimeGameMinutes: 120
+    startingOwnedQuantity: 0
+    categoryName: Front End
+  - fixtureDefinition: {fileID: 11400000, guid: 81ce839906cd45b191da888f89fe7280, type: 2}
+    unitPriceCents: 16000
+    deliveryLeadTimeGameMinutes: 120
+    startingOwnedQuantity: 0
+    categoryName: Sales Floor
+  - fixtureDefinition: {fileID: 11400000, guid: 10927b214b5401849ab96a5e31ff13f0, type: 2}
+    unitPriceCents: 24000
+    deliveryLeadTimeGameMinutes: 120
+    startingOwnedQuantity: 0
+    categoryName: Sales Floor

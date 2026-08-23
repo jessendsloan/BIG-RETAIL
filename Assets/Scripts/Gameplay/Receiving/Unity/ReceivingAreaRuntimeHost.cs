@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Fixtures;
@@ -26,6 +27,11 @@ namespace BigRetail.Receiving.Unity
 
         [SerializeField]
         private FixtureRuntimeHost fixtureRuntimeHost;
+
+        private readonly Dictionary<string, ReceivingLoadId[]>
+            readyLoadsBySource =
+                new Dictionary<string, ReceivingLoadId[]>(
+                    StringComparer.Ordinal);
 
 
         public bool IsInitialized { get; private set; }
@@ -70,6 +76,8 @@ namespace BigRetail.Receiving.Unity
 
 
         public event Action<ReceivingAreaRuntimeHost> Initialized;
+
+        public event Action ReservationsSynchronized;
 
 
         private void OnEnable()
@@ -143,6 +151,45 @@ namespace BigRetail.Receiving.Unity
             return true;
         }
 
+        public void SetReadyLoads(
+            string source,
+            IReadOnlyList<ReceivingLoadId> readyLoadIds)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                throw new ArgumentException(
+                    "A Receiving load set requires a source.",
+                    nameof(source));
+            }
+
+            if (readyLoadIds == null)
+            {
+                throw new ArgumentNullException(nameof(readyLoadIds));
+            }
+
+            ReceivingLoadId[] snapshot =
+                new ReceivingLoadId[readyLoadIds.Count];
+
+            for (int index = 0; index < readyLoadIds.Count; index++)
+            {
+                snapshot[index] = readyLoadIds[index];
+            }
+
+            readyLoadsBySource[source.Trim()] = snapshot;
+            SynchronizeReadyLoads();
+        }
+
+        public void ClearReadyLoads(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source)
+                || !readyLoadsBySource.Remove(source.Trim()))
+            {
+                return;
+            }
+
+            SynchronizeReadyLoads();
+        }
+
         public bool HasFloor(
             GridPosition cell)
         {
@@ -181,6 +228,39 @@ namespace BigRetail.Receiving.Unity
             FixtureRuntimeHost initializedHost)
         {
             TryInitialize();
+        }
+
+        private void SynchronizeReadyLoads()
+        {
+            if (!TryInitialize() || Reservations == null)
+            {
+                return;
+            }
+
+            List<string> sources =
+                new List<string>(readyLoadsBySource.Keys);
+            sources.Sort(StringComparer.Ordinal);
+
+            List<ReceivingLoadId> combined =
+                new List<ReceivingLoadId>();
+
+            for (int sourceIndex = 0;
+                 sourceIndex < sources.Count;
+                 sourceIndex++)
+            {
+                ReceivingLoadId[] sourceLoads =
+                    readyLoadsBySource[sources[sourceIndex]];
+
+                for (int loadIndex = 0;
+                     loadIndex < sourceLoads.Length;
+                     loadIndex++)
+                {
+                    combined.Add(sourceLoads[loadIndex]);
+                }
+            }
+
+            Reservations.Synchronize(combined);
+            ReservationsSynchronized?.Invoke();
         }
 
         private void OnDisable()

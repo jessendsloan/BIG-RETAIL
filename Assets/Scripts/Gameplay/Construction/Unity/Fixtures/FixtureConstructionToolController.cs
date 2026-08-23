@@ -4,6 +4,7 @@ using BigRetail.Construction.Unity.History;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Purchasing.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -49,6 +50,9 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         [SerializeField]
         private FixtureDefinitionSelectionHost definitionSelection;
+
+        [SerializeField]
+        private FixtureEquipmentRuntimeHost equipmentRuntimeHost;
 
         [Header("Starting State")]
 
@@ -208,7 +212,8 @@ namespace BigRetail.Construction.Unity.Fixtures
             if (!HasPlacementPreview || !previewView.IsPlacementValid)
             {
                 LogWarning(
-                    $"Fixture placement rejected: {previewView.CurrentFailure}.");
+                    $"Fixture placement rejected: {previewView.CurrentFailure}. "
+                    + previewView.CurrentEquipmentConstraint);
                 return false;
             }
 
@@ -225,25 +230,66 @@ namespace BigRetail.Construction.Unity.Fixtures
             FixtureInstanceId instanceId =
                 new FixtureInstanceId(Guid.NewGuid().ToString("N"));
 
-            FixturePlacementResult result =
-                runtimeHost.FixturePlacement.TryPlaceFixture(
+            if (!equipmentRuntimeHost.TryInitialize())
+            {
+                Debug.LogError(
+                    "Fixture equipment is unavailable; placement cannot transfer an owned module.",
+                    this);
+                return false;
+            }
+
+            if (equipmentRuntimeHost.IsPlanMode)
+            {
+                FixtureEquipmentPlanResult planResult =
+                    equipmentRuntimeHost.Planning.TryCreatePlan(
+                        instanceId,
+                        currentDefinitionId,
+                        currentCell,
+                        currentOrientation);
+
+                if (!planResult.Succeeded)
+                {
+                    LogWarning(
+                        $"Fixture plan rejected: {planResult.Failure}; placement {planResult.PlacementFailure}.");
+                    previewDirty = true;
+                    RefreshPlacementPreview(forceRefresh: true);
+                    return false;
+                }
+
+                if (logPlacementResults)
+                {
+                    Debug.Log(
+                        $"Planned '{currentDefinitionId}' for later equipment installation.",
+                        this);
+                }
+
+                ClearPlacementPreview();
+                return true;
+            }
+
+            FixtureEquipmentInstallationResult installationResult =
+                equipmentRuntimeHost.Installation.TryInstallOwnedFixture(
                     instanceId,
                     currentDefinitionId,
                     currentCell,
                     currentOrientation);
 
-            if (!result.Succeeded)
+            FixturePlacementResult result =
+                installationResult.Placement;
+
+            if (!installationResult.Succeeded)
             {
                 LogWarning(
-                    $"Fixture placement rejected: {result.Failure}. Cell: {result.FailedCell}.");
+                    $"Fixture installation rejected: {installationResult.Failure}. "
+                    + $"Placement: {result.Failure}. Cell: {result.FailedCell}.");
                 previewDirty = true;
                 RefreshPlacementPreview(forceRefresh: true);
                 return false;
             }
 
             historyHost.History.Record(
-                new ReversibleFixtureEditAction(
-                    runtimeHost.FixturePlacement,
+                new ReversibleFixtureEquipmentEditAction(
+                    equipmentRuntimeHost.Installation,
                     result.Edit));
 
             if (logPlacementResults)
@@ -383,6 +429,9 @@ namespace BigRetail.Construction.Unity.Fixtures
             isValid &= RequireReference(runtimeHost, "FixtureRuntimeHost");
             isValid &= RequireReference(historyHost, "ConstructionHistoryHost");
             isValid &= RequireReference(definitionSelection, "FixtureDefinitionSelectionHost");
+            isValid &= RequireReference(
+                equipmentRuntimeHost,
+                "FixtureEquipmentRuntimeHost");
             return isValid;
         }
 
