@@ -53,6 +53,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             "merchandise-tool-button";
         public const string PurchasingButtonName =
             "purchasing-button";
+        public const string EquipmentCatalogButtonName =
+            "equipment-catalog-button";
         public const string ReceivingAreaButtonName =
             "receiving-area-button";
         public const string ReceivingAreaPanelName =
@@ -61,6 +63,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             "receiving-area-capacity";
         public const string ReceivingAreaInstructionName =
             "receiving-area-instruction";
+        public const string ReceivingEquipmentStatusName =
+            "receiving-equipment-status";
+        public const string ReceivingEquipmentButtonName =
+            "receiving-equipment-button";
         public const string StoreCashValueName =
             "store-cash-value";
         public const string ControlHintName =
@@ -80,10 +86,13 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly Button departmentsButton;
         private readonly Button merchandiseToolButton;
         private readonly Button purchasingButton;
+        private readonly Button equipmentCatalogButton;
         private readonly Button receivingAreaButton;
         private readonly VisualElement receivingAreaPanel;
         private readonly Label receivingAreaCapacityLabel;
         private readonly Label receivingAreaInstructionLabel;
+        private readonly Label receivingEquipmentStatusLabel;
+        private readonly Button receivingEquipmentButton;
         private readonly Button foundationsButton;
         private readonly Button sidewalksButton;
         private readonly VisualElement foundationPicker;
@@ -133,6 +142,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireButton(root, MerchandiseToolButtonName);
             purchasingButton =
                 RequireButton(root, PurchasingButtonName);
+            equipmentCatalogButton =
+                RequireButton(root, EquipmentCatalogButtonName);
             receivingAreaButton =
                 RequireButton(root, ReceivingAreaButtonName);
             receivingAreaPanel =
@@ -141,6 +152,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RequireLabel(root, ReceivingAreaCapacityName);
             receivingAreaInstructionLabel =
                 RequireLabel(root, ReceivingAreaInstructionName);
+            receivingEquipmentStatusLabel =
+                RequireLabel(root, ReceivingEquipmentStatusName);
+            receivingEquipmentButton =
+                RequireButton(root, ReceivingEquipmentButtonName);
             foundationsButton =
                 RequireButton(root, FoundationsButtonName);
             sidewalksButton = RequireButton(root, SidewalksButtonName);
@@ -194,8 +209,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             merchandiseToolButton.clicked +=
                 HandleMerchandiseToolRequested;
             purchasingButton.clicked += HandlePurchasingRequested;
+            equipmentCatalogButton.clicked +=
+                HandleEquipmentCatalogRequested;
             receivingAreaButton.clicked +=
                 HandleReceivingAreaRequested;
+            receivingEquipmentButton.clicked +=
+                HandleEquipmentReceivingRequested;
             foundationsButton.clicked +=
                 HandleFoundationsRequested;
             sidewalksButton.clicked += HandleSidewalksRequested;
@@ -238,7 +257,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action DepartmentsRequested;
         public event Action MerchandiseToolRequested;
         public event Action PurchasingRequested;
+        public event Action EquipmentCatalogRequested;
         public event Action ReceivingAreaRequested;
+        public event Action EquipmentReceivingRequested;
         public event Action DemolitionPickerRequested;
         public event Action<ConstructionToolbarDemolitionTarget>
             DemolitionTargetRequested;
@@ -304,7 +325,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         public void SetReceivingAreaStatus(
             int operationalCellCount,
             int occupiedCellCount,
-            int waitingDeliveryCount)
+            int waitingDeliveryCount,
+            int stagedEquipmentShipmentCount,
+            int waitingEquipmentShipmentCount)
         {
             receivingAreaCapacityLabel.text = operationalCellCount == 0
                 ? "NO RECEIVING SPACE"
@@ -314,11 +337,28 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             receivingAreaInstructionLabel.text = waitingDeliveryCount > 0
                 ? waitingDeliveryCount == 1
-                    ? "1 supplier order is waiting for an open space."
-                    : $"{waitingDeliveryCount} supplier orders are waiting "
+                    ? "1 delivery is waiting for an open space."
+                    : $"{waitingDeliveryCount} deliveries are waiting "
                         + "for open spaces."
                 : "Drag on finished floor to add. Start on Receiving "
                     + "space to erase.";
+
+            receivingEquipmentStatusLabel.text =
+                stagedEquipmentShipmentCount > 0
+                    ? stagedEquipmentShipmentCount == 1
+                        ? "1 BIG EQUIPMENT PALLET READY"
+                        : $"{stagedEquipmentShipmentCount} BIG EQUIPMENT PALLETS READY"
+                    : waitingEquipmentShipmentCount > 0
+                        ? waitingEquipmentShipmentCount == 1
+                            ? "1 BIG EQUIPMENT DELIVERY WAITING FOR SPACE"
+                            : $"{waitingEquipmentShipmentCount} BIG EQUIPMENT DELIVERIES WAITING FOR SPACE"
+                        : "NO BIG EQUIPMENT PALLETS STAGED";
+
+            receivingEquipmentButton.SetEnabled(
+                stagedEquipmentShipmentCount > 0);
+            receivingEquipmentButton.text = stagedEquipmentShipmentCount > 0
+                ? $"RECEIVE BIG EQUIPMENT ({stagedEquipmentShipmentCount})"
+                : "RECEIVE BIG EQUIPMENT";
         }
 
         public void SetCashBalance(long balanceCents)
@@ -434,8 +474,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             merchandiseToolButton.clicked -=
                 HandleMerchandiseToolRequested;
             purchasingButton.clicked -= HandlePurchasingRequested;
+            equipmentCatalogButton.clicked -=
+                HandleEquipmentCatalogRequested;
             receivingAreaButton.clicked -=
                 HandleReceivingAreaRequested;
+            receivingEquipmentButton.clicked -=
+                HandleEquipmentReceivingRequested;
             foundationsButton.clicked -=
                 HandleFoundationsRequested;
             sidewalksButton.clicked -= HandleSidewalksRequested;
@@ -537,9 +581,19 @@ namespace BigRetail.Construction.Unity.UI.PC
             PurchasingRequested?.Invoke();
         }
 
+        private void HandleEquipmentCatalogRequested()
+        {
+            EquipmentCatalogRequested?.Invoke();
+        }
+
         private void HandleReceivingAreaRequested()
         {
             ReceivingAreaRequested?.Invoke();
+        }
+
+        private void HandleEquipmentReceivingRequested()
+        {
+            EquipmentReceivingRequested?.Invoke();
         }
 
         private void HandleDemolishFoundationsRequested()
@@ -774,7 +828,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 WallViewUpButtonName => "Walls up",
                 DepartmentPickerView.DepartmentsButtonName => "Departments",
                 MerchandiseToolButtonName => "Merchandise",
-                "purchasing-button" => "Purchasing",
+                PurchasingButtonName => "Purchasing",
+                EquipmentCatalogButtonName => "Equipment Catalog",
                 ReceivingAreaButtonName => "Receiving Area",
                 FoundationsButtonName => "Foundations",
                 FloorsButtonName => "Floors",

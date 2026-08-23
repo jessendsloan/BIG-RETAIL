@@ -89,13 +89,53 @@ namespace BigRetail.Construction.Unity.Fixtures
                 runtimeHost.DefinitionAssets.GetAsset(
                     fixture.DefinitionId);
 
-            Sprite sprite = asset.GetSprite(
+            ShowPlacement(
+                fixture.Id,
+                fixture.Footprint,
                 fixture.Orientation,
+                asset);
+        }
+
+        public void ShowPlan(FixtureEquipmentPlan plan)
+        {
+            if (plan == null
+                || !runtimeHost.TryInitialize()
+                || !viewHost.IsInitialized)
+            {
+                Hide();
+                return;
+            }
+
+            FixtureDefinitionAsset asset =
+                runtimeHost.DefinitionAssets.GetAsset(
+                    plan.FixtureDefinitionId);
+
+            ShowPlacement(
+                plan.Id,
+                plan.Footprint,
+                plan.Orientation,
+                asset);
+        }
+
+        private void ShowPlacement(
+            FixtureInstanceId instanceId,
+            FixtureFootprint footprint,
+            FixtureOrientation orientation,
+            FixtureDefinitionAsset asset)
+        {
+            if (asset == null || footprint == null)
+            {
+                Hide();
+                return;
+            }
+
+            Sprite sprite = asset.GetSprite(
+                orientation,
                 viewHost.Orientation);
 
             int rendererCount =
                 asset.RepeatSpritePerOccupiedCell
-                    ? fixture.OccupiedCellCount
+                    ? footprint.CellCount
                     : 1;
 
             EnsureCapacity(rendererCount);
@@ -103,13 +143,13 @@ namespace BigRetail.Construction.Unity.Fixtures
             if (asset.RepeatSpritePerOccupiedCell)
             {
                 for (int index = 0;
-                     index < fixture.OccupiedCellCount;
+                     index < footprint.CellCount;
                      index++)
                 {
                     ShowRenderer(
                         rendererPool[index],
                         sprite,
-                        fixture.GetOccupiedCell(index),
+                        footprint.GetCell(index),
                         asset.WorldPositionOffset);
                 }
             }
@@ -118,7 +158,7 @@ namespace BigRetail.Construction.Unity.Fixtures
                 GridPosition presentationAnchor =
                     FixturePresentationAnchorResolver
                         .ResolveViewerNearestCell(
-                            fixture.Footprint,
+                            footprint,
                             viewHost.Projection);
 
                 ShowRenderer(
@@ -126,14 +166,14 @@ namespace BigRetail.Construction.Unity.Fixtures
                     sprite,
                     presentationAnchor,
                     asset.WorldPositionOffset,
-                    fixture.Footprint,
+                    footprint,
                     asset.GetSpriteAnchorCorner(
-                        fixture.Orientation,
+                        orientation,
                         viewHost.Orientation));
             }
 
             HideUnused(rendererCount);
-            FixtureId = fixture.Id;
+            FixtureId = instanceId;
             IsVisible = true;
         }
 

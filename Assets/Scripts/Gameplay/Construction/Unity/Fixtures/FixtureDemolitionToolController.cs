@@ -4,6 +4,7 @@ using BigRetail.Construction.Unity.History;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Purchasing.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -45,6 +46,9 @@ namespace BigRetail.Construction.Unity.Fixtures
         [SerializeField]
         private ConstructionHistoryHost historyHost;
 
+        [SerializeField]
+        private FixtureEquipmentRuntimeHost equipmentRuntimeHost;
+
         [Header("Starting State")]
 
         [SerializeField]
@@ -69,6 +73,8 @@ namespace BigRetail.Construction.Unity.Fixtures
         private FixtureState subscribedState;
         private GridPosition currentCell;
         private FixtureInstance currentFixture;
+        private FixtureEquipmentPlan currentPlan;
+        private bool isTargetingPlan;
         private bool hasCurrentCell;
         private bool previewDirty = true;
         private bool isInitialized;
@@ -89,6 +95,8 @@ namespace BigRetail.Construction.Unity.Fixtures
         private void OnEnable()
         {
             runtimeHost.Initialized += HandleRuntimeInitialized;
+            equipmentRuntimeHost.StateChanged +=
+                HandleEquipmentStateChanged;
         }
 
 
@@ -150,6 +158,8 @@ namespace BigRetail.Construction.Unity.Fixtures
             HasDemolitionPreview = false;
             hasCurrentCell = false;
             currentFixture = null;
+            currentPlan = null;
+            isTargetingPlan = false;
             previewDirty = true;
             previewView.Hide();
         }
@@ -184,11 +194,24 @@ namespace BigRetail.Construction.Unity.Fixtures
                     currentCell,
                     out currentFixture))
             {
+                if (equipmentRuntimeHost.IsInitialized
+                    && equipmentRuntimeHost.Plans.TryGetAtCell(
+                        currentCell,
+                        out currentPlan))
+                {
+                    isTargetingPlan = true;
+                    HasDemolitionPreview = true;
+                    previewView.ShowPlan(currentPlan);
+                    return;
+                }
+
                 HasDemolitionPreview = false;
+                isTargetingPlan = false;
                 previewView.Hide();
                 return;
             }
 
+            isTargetingPlan = false;
             HasDemolitionPreview = true;
             previewView.ShowFixture(currentFixture);
         }
@@ -196,7 +219,9 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         private bool TryCommitCurrentDemolition()
         {
-            if (!HasDemolitionPreview || currentFixture == null)
+            if (!HasDemolitionPreview
+                || (!isTargetingPlan && currentFixture == null)
+                || (isTargetingPlan && currentPlan == null))
             {
                 LogWarning(
                     "Fixture demolition rejected because no fixture is targeted.");
@@ -213,22 +238,56 @@ namespace BigRetail.Construction.Unity.Fixtures
                 return false;
             }
 
-            FixturePlacementResult result =
-                runtimeHost.FixturePlacement
-                    .TryRemoveFixtureAtCell(currentCell);
+            if (!equipmentRuntimeHost.TryInitialize())
+            {
+                Debug.LogError(
+                    "Fixture equipment is unavailable; removed equipment cannot be stored safely.",
+                    this);
+                return false;
+            }
 
-            if (!result.Succeeded)
+            if (isTargetingPlan)
+            {
+                FixtureEquipmentPlanResult planResult =
+                    equipmentRuntimeHost.Planning.TryRemovePlan(
+                        currentPlan.Id);
+
+                if (!planResult.Succeeded)
+                {
+                    LogWarning(
+                        $"Fixture plan removal rejected: {planResult.Failure}.");
+                    return false;
+                }
+
+                if (logDemolitionResults)
+                {
+                    Debug.Log(
+                        $"Removed free fixture plan '{currentPlan.FixtureDefinitionId}'.",
+                        this);
+                }
+
+                ClearDemolitionPreview();
+                return true;
+            }
+
+            FixtureEquipmentInstallationResult storageResult =
+                equipmentRuntimeHost.Installation
+                    .TryStoreFixtureAtCell(currentCell);
+            FixturePlacementResult result = storageResult.Placement;
+
+            if (!storageResult.Succeeded)
             {
                 LogWarning(
-                    $"Fixture demolition rejected: {result.Failure}.");
+                    $"Fixture storage rejected: {storageResult.Failure}; "
+                    + $"placement {result.Failure}.");
                 previewDirty = true;
                 RefreshDemolitionPreview(forceRefresh: true);
                 return false;
             }
 
             historyHost.History.Record(
-                new ReversibleFixtureEditAction(
-                    runtimeHost.FixturePlacement,
+                new ReversibleFixtureEquipmentEditAction(
+                    equipmentRuntimeHost.Installation,
                     result.Edit));
 
             if (logDemolitionResults)
@@ -279,6 +338,11 @@ namespace BigRetail.Construction.Unity.Fixtures
 
 
         private void HandleFixtureChanged(FixtureInstance fixture)
+        {
+            previewDirty = true;
+        }
+
+        private void HandleEquipmentStateChanged()
         {
             previewDirty = true;
         }
@@ -364,6 +428,9 @@ namespace BigRetail.Construction.Unity.Fixtures
             isValid &= RequireReference(
                 historyHost,
                 "ConstructionHistoryHost");
+            isValid &= RequireReference(
+                equipmentRuntimeHost,
+                "FixtureEquipmentRuntimeHost");
             return isValid;
         }
 
@@ -398,6 +465,12 @@ namespace BigRetail.Construction.Unity.Fixtures
             if (runtimeHost != null)
             {
                 runtimeHost.Initialized -= HandleRuntimeInitialized;
+            }
+
+            if (equipmentRuntimeHost != null)
+            {
+                equipmentRuntimeHost.StateChanged -=
+                    HandleEquipmentStateChanged;
             }
 
             DetachFromState();

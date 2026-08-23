@@ -1,0 +1,174 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="EquipmentCatalogWorkspace.uss" />
+
+    <ui:VisualElement
+        name="equipment-catalog-screen"
+        class="equipment-screen"
+        picking-mode="Position">
+
+        <ui:VisualElement class="equipment-header">
+            <ui:VisualElement class="equipment-header__identity">
+                <ui:Label text="BIG" class="equipment-header__mark" />
+                <ui:VisualElement class="equipment-header__title-group">
+                    <ui:Label
+                        name="equipment-workspace-title"
+                        text="EQUIPMENT"
+                        class="equipment-header__title" />
+                    <ui:Label
+                        text="A BIG Wholesale catalog"
+                        class="equipment-header__subtitle" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:TextField
+                name="equipment-search"
+                class="equipment-search"
+                label=""
+                placeholder-text="Search fixtures or categories…" />
+
+            <ui:VisualElement class="equipment-header__status">
+                <ui:Label
+                    name="equipment-time"
+                    text="MONDAY · 9:00 AM"
+                    class="equipment-time-pill" />
+                <ui:Label
+                    name="equipment-cash"
+                    text="AVAILABLE CASH · $0.00"
+                    class="equipment-header__cash" />
+            </ui:VisualElement>
+
+            <ui:Button
+                name="close-equipment-button"
+                text="CLOSE"
+                tooltip="Return to fixture planning"
+                class="equipment-header__close" />
+        </ui:VisualElement>
+
+        <ui:VisualElement class="equipment-body">
+            <ui:ScrollView class="equipment-filters" mode="Vertical">
+                <ui:Label text="BROWSE" class="equipment-section-kicker" />
+                <ui:VisualElement
+                    name="equipment-category-filters"
+                    class="equipment-filter-list" />
+
+                <ui:VisualElement class="equipment-filter-separator" />
+
+                <ui:Label
+                    text="CURRENT LAYOUT"
+                    class="equipment-section-kicker" />
+                <ui:Label
+                    text="Show only fixture modules still needed by your free plans."
+                    class="equipment-filter-help" />
+                <ui:Button
+                    name="equipment-required-filter"
+                    text="REQUIRED FOR PLAN"
+                    class="equipment-required-filter" />
+            </ui:ScrollView>
+
+            <ui:VisualElement class="equipment-catalog">
+                <ui:VisualElement class="equipment-catalog-heading">
+                    <ui:VisualElement>
+                        <ui:Label
+                            text="Store equipment"
+                            class="equipment-catalog-heading__title" />
+                        <ui:Label
+                            text="Supplied exclusively by BIG Wholesale. Durable assets remain yours."
+                            class="equipment-catalog-heading__subtitle" />
+                    </ui:VisualElement>
+                    <ui:Label
+                        name="equipment-count"
+                        text="0 fixtures"
+                        class="equipment-catalog-heading__count" />
+                </ui:VisualElement>
+
+                <ui:ScrollView class="equipment-scroll" mode="Vertical">
+                    <ui:VisualElement
+                        name="equipment-list"
+                        class="equipment-list" />
+                    <ui:Label
+                        name="equipment-empty-state"
+                        text="No equipment matches these filters."
+                        class="equipment-empty-state" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="equipment-order">
+                <ui:VisualElement class="equipment-order__heading">
+                    <ui:Label
+                        text="BIG WHOLESALE ORDER"
+                        class="equipment-order__title" />
+                    <ui:Label
+                        text="Paid now · arrives in Receiving"
+                        class="equipment-order__subtitle" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="equipment-order__quick-actions">
+                    <ui:Button
+                        name="equipment-add-requirements"
+                        text="ADD PLAN REQUIREMENTS"
+                        class="equipment-order__requirements" />
+                    <ui:Button
+                        name="equipment-clear-draft"
+                        text="CLEAR"
+                        class="equipment-order__clear" />
+                </ui:VisualElement>
+
+                <ui:ScrollView class="equipment-draft-scroll" mode="Vertical">
+                    <ui:VisualElement
+                        name="equipment-draft-list"
+                        class="equipment-draft-list" />
+                    <ui:Label
+                        name="equipment-draft-empty"
+                        text="No equipment staged yet.&#10;Add modules from the catalog or fill the current plan."
+                        class="equipment-draft-empty" />
+                </ui:ScrollView>
+
+                <ui:VisualElement class="equipment-pipeline">
+                    <ui:Label
+                        text="DELIVERY PIPELINE"
+                        class="equipment-pipeline__title" />
+                    <ui:Label
+                        name="equipment-scheduled-shipments"
+                        text="IN TRANSIT  0"
+                        class="equipment-pipeline__line" />
+                    <ui:Label
+                        name="equipment-staged-shipments"
+                        text="STAGED IN RECEIVING  0"
+                        class="equipment-pipeline__line" />
+                    <ui:Label
+                        name="equipment-waiting-shipments"
+                        text="WAITING FOR SPACE  0"
+                        class="equipment-pipeline__line" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="equipment-order__footer">
+                    <ui:Label
+                        name="equipment-status"
+                        text="Plan freely, then order the physical modules your store needs."
+                        class="equipment-order__status" />
+                    <ui:VisualElement class="equipment-order__total-row">
+                        <ui:Label
+                            text="ORDER TOTAL"
+                            class="equipment-order__total-label" />
+                        <ui:Label
+                            name="equipment-draft-total"
+                            text="$0.00"
+                            class="equipment-order__total" />
+                    </ui:VisualElement>
+                    <ui:Button
+                        name="equipment-place-order"
+                        text="PLACE BIG ORDER"
+                        class="equipment-order__place" />
+                    <ui:Label
+                        text="Installation consumes owned equipment. Moving or storing it does not repurchase it."
+                        class="equipment-order__boundary" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Label
+            name="equipment-error-state"
+            text="The Equipment Catalog could not be loaded."
+            class="equipment-error-state" />
+    </ui:VisualElement>
+</ui:UXML>

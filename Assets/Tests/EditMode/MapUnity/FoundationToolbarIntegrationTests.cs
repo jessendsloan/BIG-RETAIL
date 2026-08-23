@@ -924,6 +924,39 @@ namespace BigRetail.Map.Unity.Tests
 
 
         [Test]
+        public void EquipmentCatalogButton_PublishesWorkspaceRequest()
+        {
+            Type viewType = RequireType(ViewTypeName);
+            VisualElement root = CreateToolbarRoot();
+            IDisposable view =
+                (IDisposable)Activator.CreateInstance(viewType, root);
+            EventInfo requestedEvent = viewType.GetEvent(
+                "EquipmentCatalogRequested",
+                BindingFlags.Public | BindingFlags.Instance);
+            MethodInfo requestMethod = viewType.GetMethod(
+                "HandleEquipmentCatalogRequested",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            bool wasRequested = false;
+            Action handler = () => wasRequested = true;
+
+            try
+            {
+                Assert.That(requestedEvent, Is.Not.Null);
+                Assert.That(requestMethod, Is.Not.Null);
+                requestedEvent.AddEventHandler(view, handler);
+                requestMethod.Invoke(view, Array.Empty<object>());
+
+                Assert.That(wasRequested, Is.True);
+            }
+            finally
+            {
+                requestedEvent?.RemoveEventHandler(view, handler);
+                view.Dispose();
+            }
+        }
+
+
+        [Test]
         public void ReceivingArea_ReflectsActiveStateAndCapacity()
         {
             Type viewType = RequireType(ViewTypeName);
@@ -940,7 +973,7 @@ namespace BigRetail.Map.Unity.Tests
                 viewType.GetMethod(
                         "SetReceivingAreaStatus",
                         BindingFlags.Public | BindingFlags.Instance)
-                    .Invoke(view, new object[] { 3, 1, 2 });
+                    .Invoke(view, new object[] { 3, 1, 2, 1, 1 });
 
                 Assert.That(
                     root.Q<Button>("receiving-area-button")
@@ -955,7 +988,17 @@ namespace BigRetail.Map.Unity.Tests
                     Is.EqualTo("3 PALLET SPACES · 1 OCCUPIED"));
                 Assert.That(
                     root.Q<Label>("receiving-area-instruction").text,
-                    Does.Contain("2 supplier orders"));
+                    Does.Contain("2 deliveries"));
+                Assert.That(
+                    root.Q<Label>("receiving-equipment-status").text,
+                    Is.EqualTo("1 BIG EQUIPMENT PALLET READY"));
+                Assert.That(
+                    root.Q<Button>("receiving-equipment-button")
+                        .enabledSelf,
+                    Is.True);
+                Assert.That(
+                    root.Q<Button>("receiving-equipment-button").text,
+                    Is.EqualTo("RECEIVE BIG EQUIPMENT (1)"));
             }
             finally
             {
@@ -1228,6 +1271,16 @@ namespace BigRetail.Map.Unity.Tests
                 iconOnlyButtonCount,
                 Is.GreaterThanOrEqualTo(20));
 
+            Button equipmentCatalogButton =
+                root.Q<Button>("equipment-catalog-button");
+            Assert.That(equipmentCatalogButton, Is.Not.Null);
+            Assert.That(
+                equipmentCatalogButton.tooltip,
+                Does.Contain("physical store equipment"));
+            Assert.That(
+                equipmentCatalogButton.Q<Label>().text,
+                Is.EqualTo("EQP"));
+
             Assert.That(
                 root.Q<VisualElement>("control-hint"),
                 Is.Not.Null);
@@ -1313,6 +1366,7 @@ namespace BigRetail.Map.Unity.Tests
             root.Add(CreateButton("departments-button"));
             root.Add(CreateButton("merchandise-tool-button"));
             root.Add(CreateButton("purchasing-button"));
+            root.Add(CreateButton("equipment-catalog-button"));
             root.Add(CreateButton("receiving-area-button"));
             VisualElement receivingAreaPanel =
                 new VisualElement
@@ -1329,6 +1383,13 @@ namespace BigRetail.Map.Unity.Tests
                 {
                     name = "receiving-area-instruction"
                 });
+            receivingAreaPanel.Add(
+                new Label
+                {
+                    name = "receiving-equipment-status"
+                });
+            receivingAreaPanel.Add(
+                CreateButton("receiving-equipment-button"));
             root.Add(receivingAreaPanel);
             VisualElement foundationPicker =
                 new VisualElement

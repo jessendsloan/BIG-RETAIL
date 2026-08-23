@@ -5,8 +5,8 @@ using BigRetail.Map.Domain;
 namespace BigRetail.Receiving.Domain
 {
     /// <summary>
-    /// Keeps ready supplier orders assigned to stable, usable Receiving cells.
-    /// Orders that do not fit remain unassigned until capacity is available.
+    /// Keeps ready inbound loads assigned to stable, usable Receiving cells.
+    /// Loads that do not fit remain unassigned until capacity is available.
     /// </summary>
     public sealed class ReceivingAreaReservationService
     {
@@ -34,22 +34,46 @@ namespace BigRetail.Receiving.Domain
                     nameof(readyOrderNumbers));
             }
 
-            HashSet<long> seenReadyOrders =
-                new HashSet<long>();
-            Dictionary<long, GridPosition> nextReservations =
-                new Dictionary<long, GridPosition>();
-            HashSet<GridPosition> occupiedCells =
-                new HashSet<GridPosition>();
+            ReceivingLoadId[] loadIds =
+                new ReceivingLoadId[readyOrderNumbers.Count];
 
             for (int index = 0;
                  index < readyOrderNumbers.Count;
                  index++)
             {
-                long orderNumber = readyOrderNumbers[index];
+                loadIds[index] = ReceivingLoadId.SupplierOrder(
+                    readyOrderNumbers[index]);
+            }
 
-                if (!seenReadyOrders.Add(orderNumber)
+            return Synchronize(loadIds);
+        }
+
+        public int Synchronize(
+            IReadOnlyList<ReceivingLoadId> readyLoadIds)
+        {
+            if (readyLoadIds == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(readyLoadIds));
+            }
+
+            HashSet<ReceivingLoadId> seenReadyLoads =
+                new HashSet<ReceivingLoadId>();
+            Dictionary<ReceivingLoadId, GridPosition> nextReservations =
+                new Dictionary<ReceivingLoadId, GridPosition>();
+            HashSet<GridPosition> occupiedCells =
+                new HashSet<GridPosition>();
+
+            for (int index = 0;
+                 index < readyLoadIds.Count;
+                 index++)
+            {
+                ReceivingLoadId loadId = readyLoadIds[index];
+
+                if (!loadId.IsValid
+                    || !seenReadyLoads.Add(loadId)
                     || !state.TryGetReservation(
-                        orderNumber,
+                        loadId,
                         out GridPosition cell)
                     || !state.Contains(cell)
                     || !isCellUsable(cell)
@@ -58,7 +82,7 @@ namespace BigRetail.Receiving.Domain
                     continue;
                 }
 
-                nextReservations.Add(orderNumber, cell);
+                nextReservations.Add(loadId, cell);
             }
 
             List<GridPosition> availableCells =
@@ -77,20 +101,20 @@ namespace BigRetail.Receiving.Domain
             int nextCellIndex = 0;
 
             for (int index = 0;
-                 index < readyOrderNumbers.Count
+                 index < readyLoadIds.Count
                  && nextCellIndex < availableCells.Count;
                  index++)
             {
-                long orderNumber = readyOrderNumbers[index];
+                ReceivingLoadId loadId = readyLoadIds[index];
 
-                if (nextReservations.ContainsKey(orderNumber)
-                    || !seenReadyOrders.Contains(orderNumber))
+                if (nextReservations.ContainsKey(loadId)
+                    || !seenReadyLoads.Contains(loadId))
                 {
                     continue;
                 }
 
                 GridPosition cell = availableCells[nextCellIndex++];
-                nextReservations.Add(orderNumber, cell);
+                nextReservations.Add(loadId, cell);
                 occupiedCells.Add(cell);
             }
 

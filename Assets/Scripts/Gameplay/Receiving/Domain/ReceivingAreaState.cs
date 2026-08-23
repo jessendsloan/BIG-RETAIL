@@ -5,7 +5,7 @@ using BigRetail.Map.Domain;
 namespace BigRetail.Receiving.Domain
 {
     /// <summary>
-    /// Owns the cells designated for Receiving and the supplier orders
+    /// Owns the cells designated for Receiving and the inbound loads
     /// currently occupying those cells. Physical legality belongs to
     /// ReceivingAreaService.
     /// </summary>
@@ -13,10 +13,12 @@ namespace BigRetail.Receiving.Domain
     {
         private readonly HashSet<GridPosition> cells =
             new HashSet<GridPosition>();
-        private readonly Dictionary<long, GridPosition> reservations =
-            new Dictionary<long, GridPosition>();
-        private readonly Dictionary<GridPosition, long> cellReservations =
-            new Dictionary<GridPosition, long>();
+        private readonly Dictionary<ReceivingLoadId, GridPosition>
+            reservations =
+                new Dictionary<ReceivingLoadId, GridPosition>();
+        private readonly Dictionary<GridPosition, ReceivingLoadId>
+            cellReservations =
+                new Dictionary<GridPosition, ReceivingLoadId>();
 
 
         public int CellCount =>
@@ -50,14 +52,41 @@ namespace BigRetail.Receiving.Domain
             long orderNumber,
             out GridPosition cell)
         {
-            return reservations.TryGetValue(orderNumber, out cell);
+            return TryGetReservation(
+                ReceivingLoadId.SupplierOrder(orderNumber),
+                out cell);
+        }
+
+        public bool TryGetReservation(
+            ReceivingLoadId loadId,
+            out GridPosition cell)
+        {
+            return reservations.TryGetValue(loadId, out cell);
         }
 
         public bool TryGetOrderAt(
             GridPosition cell,
             out long orderNumber)
         {
-            return cellReservations.TryGetValue(cell, out orderNumber);
+            if (cellReservations.TryGetValue(
+                    cell,
+                    out ReceivingLoadId loadId)
+                && loadId.Source
+                    == ReceivingLoadId.SupplierOrderSource)
+            {
+                orderNumber = loadId.Number;
+                return true;
+            }
+
+            orderNumber = default;
+            return false;
+        }
+
+        public bool TryGetLoadAt(
+            GridPosition cell,
+            out ReceivingLoadId loadId)
+        {
+            return cellReservations.TryGetValue(cell, out loadId);
         }
 
         public IEnumerable<GridPosition> EnumerateCells()
@@ -112,7 +141,8 @@ namespace BigRetail.Receiving.Domain
         }
 
         internal void ReplaceReservations(
-            IReadOnlyDictionary<long, GridPosition> nextReservations)
+            IReadOnlyDictionary<ReceivingLoadId, GridPosition>
+                nextReservations)
         {
             if (ReservationsMatch(nextReservations))
             {
@@ -123,7 +153,7 @@ namespace BigRetail.Receiving.Domain
             cellReservations.Clear();
 
             foreach (
-                KeyValuePair<long, GridPosition> pair
+                KeyValuePair<ReceivingLoadId, GridPosition> pair
                 in nextReservations)
             {
                 reservations.Add(pair.Key, pair.Value);
@@ -134,7 +164,8 @@ namespace BigRetail.Receiving.Domain
         }
 
         private bool ReservationsMatch(
-            IReadOnlyDictionary<long, GridPosition> nextReservations)
+            IReadOnlyDictionary<ReceivingLoadId, GridPosition>
+                nextReservations)
         {
             if (nextReservations == null
                 || nextReservations.Count != reservations.Count)
@@ -143,7 +174,7 @@ namespace BigRetail.Receiving.Domain
             }
 
             foreach (
-                KeyValuePair<long, GridPosition> pair
+                KeyValuePair<ReceivingLoadId, GridPosition> pair
                 in nextReservations)
             {
                 if (!reservations.TryGetValue(

@@ -845,6 +845,86 @@
     background-color: rgba(54, 63, 69, 0.20);
 }
 
+.fixture-equipment__selected {
+    min-height: 38px;
+    margin-top: 12px;
+    color: rgb(35, 43, 50);
+    font-size: 26px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.fixture-equipment__summary {
+    min-height: 38px;
+    margin-bottom: 10px;
+    color: rgb(54, 63, 69);
+    font-size: 24px;
+    letter-spacing: 0.4px;
+    -unity-text-align: middle-center;
+}
+
+.fixture-equipment__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 760px;
+}
+
+.fixture-equipment__button {
+    min-width: 214px;
+    min-height: 58px;
+    margin: 5px;
+    padding-left: 14px;
+    padding-right: 14px;
+    color: rgb(35, 43, 50);
+    font-size: 24px;
+    -unity-font-style: bold;
+    background-color: rgba(255, 255, 255, 0.66);
+    border-width: 2px;
+    border-color: rgba(35, 43, 50, 0.22);
+    border-radius: 7px;
+}
+
+.fixture-equipment__button:hover {
+    background-color: rgba(54, 63, 69, 0.12);
+}
+
+.fixture-equipment__button--primary {
+    color: rgb(255, 255, 255);
+    background-color: rgb(201, 76, 49);
+    border-color: rgb(159, 54, 34);
+}
+
+.fixture-equipment__button:disabled {
+    opacity: 0.42;
+}
+
+.fixture-equipment__status {
+    max-width: 730px;
+    min-height: 66px;
+    margin-top: 8px;
+    color: rgb(54, 63, 69);
+    font-size: 24px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.fixture-equipment__owned-badge {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    min-width: 34px;
+    min-height: 34px;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgb(20, 76, 80);
+    border-radius: 17px;
+}
+
 .demolition-picker {
     display: none;
     position: absolute;
@@ -1029,7 +1109,7 @@
     margin-left: 0;
 }
 
-.receiving-area-button {
+.equipment-catalog-button {
     position: absolute;
     top: 28px;
     left: 197px;
@@ -1039,6 +1119,17 @@
     margin-left: 0;
 }
 
+.receiving-area-button {
+    position: absolute;
+    top: 28px;
+    left: 253px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.equipment-catalog-button__label,
 .receiving-area-button__label {
     font-size: 15px;
     letter-spacing: 0.6px;
@@ -1048,13 +1139,13 @@
     display: none;
     position: absolute;
     top: 24px;
-    left: 269px;
-    width: 390px;
-    min-height: 94px;
-    padding-top: 11px;
-    padding-right: 15px;
-    padding-bottom: 12px;
-    padding-left: 17px;
+    left: 325px;
+    width: 510px;
+    min-height: 244px;
+    padding-top: 18px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 22px;
     flex-direction: column;
     background-color: rgba(244, 240, 230, 0.97);
     border-width: 1px;
@@ -1065,25 +1156,55 @@
 }
 
 .receiving-area-panel__title {
-    height: 22px;
+    height: 34px;
     color: rgb(25, 102, 93);
-    font-size: 16px;
+    font-size: 24px;
     -unity-font-style: bold;
     letter-spacing: 1.2px;
 }
 
 .receiving-area-panel__capacity {
-    height: 28px;
+    height: 42px;
     color: rgb(35, 43, 50);
-    font-size: 19px;
+    font-size: 28px;
     -unity-font-style: bold;
 }
 
 .receiving-area-panel__instruction {
-    min-height: 32px;
+    min-height: 52px;
     color: rgb(70, 77, 75);
-    font-size: 16px;
+    font-size: 24px;
     white-space: normal;
+}
+
+.receiving-area-panel__equipment-status {
+    min-height: 34px;
+    margin-top: 10px;
+    color: rgb(25, 102, 93);
+    font-size: 24px;
+    white-space: normal;
+    -unity-font-style: bold;
+}
+
+.receiving-area-panel__equipment-button {
+    min-height: 58px;
+    margin-top: 10px;
+    color: rgb(249, 247, 240);
+    background-color: rgb(20, 79, 84);
+    border-width: 2px;
+    border-color: rgb(20, 79, 84);
+    border-radius: 5px;
+    font-size: 24px;
+    -unity-font-style: bold;
+}
+
+.receiving-area-panel__equipment-button:hover,
+.receiving-area-panel__equipment-button:focus {
+    border-color: rgb(235, 84, 55);
+}
+
+.receiving-area-panel__equipment-button:disabled {
+    opacity: 0.45;
 }
 
 .construction-toolbar__text-icon {

@@ -4,6 +4,7 @@ using BigRetail.Construction.Unity.Fixtures;
 using BigRetail.Construction.Unity.Tools;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Purchasing.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -25,10 +26,18 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private FixtureDefinitionSelectionHost definitionSelectionHost;
 
+        [SerializeField]
+        private FixtureEquipmentRuntimeHost equipmentRuntimeHost;
+
 
         private FixtureDefinitionPickerView boundView;
         private bool referencesAreValid;
         private bool catalogIsBound;
+        private string equipmentStatus =
+            "Plan freely, then order the equipment your layout needs.";
+
+
+        public event Action EquipmentCatalogRequested;
 
 
         private void Reset()
@@ -61,6 +70,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleSelectedDefinitionChanged;
             definitionSelectionHost.OrientationChanged +=
                 HandleOrientationChanged;
+            equipmentRuntimeHost.Initialized +=
+                HandleEquipmentRuntimeInitialized;
+            equipmentRuntimeHost.StateChanged +=
+                HandleEquipmentStateChanged;
+            equipmentRuntimeHost.PlanModeChanged +=
+                HandlePlanModeChanged;
 
             if (documentHost.HasFixtureDefinitionPickerView)
             {
@@ -93,6 +108,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandleSelectedDefinitionChanged;
                 definitionSelectionHost.OrientationChanged -=
                     HandleOrientationChanged;
+            }
+
+            if (equipmentRuntimeHost != null)
+            {
+                equipmentRuntimeHost.Initialized -=
+                    HandleEquipmentRuntimeInitialized;
+                equipmentRuntimeHost.StateChanged -=
+                    HandleEquipmentStateChanged;
+                equipmentRuntimeHost.PlanModeChanged -=
+                    HandlePlanModeChanged;
             }
 
             UnbindView();
@@ -129,6 +154,31 @@ namespace BigRetail.Construction.Unity.UI.PC
             definitionSelectionHost.RotateClockwise();
         }
 
+        private void HandlePlanModeRequested()
+        {
+            equipmentRuntimeHost.SetPlanMode(
+                !equipmentRuntimeHost.IsPlanMode);
+            equipmentStatus = equipmentRuntimeHost.IsPlanMode
+                ? "Planning is free. Click the store floor to lay out translucent fixtures."
+                : "Install mode uses equipment already received into storage.";
+            RefreshEquipmentView();
+        }
+
+        private void HandleEquipmentCatalogRequested()
+        {
+            EquipmentCatalogRequested?.Invoke();
+        }
+
+        private void HandleInstallPlansRequested()
+        {
+            FixtureEquipmentBatchInstallationResult result =
+                equipmentRuntimeHost.Installation.TryInstallReadyPlans();
+            equipmentStatus =
+                $"Installed {result.InstalledCount} planned fixture(s). "
+                + $"Waiting for equipment: {result.WaitingForEquipmentCount}; "
+                + $"blocked: {result.BlockedCount}.";
+            RefreshEquipmentView();
+        }
 
         private void HandleModeChanged(ConstructionToolMode mode)
         {
@@ -145,12 +195,30 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             EnsureCatalogIsBound();
             boundView.SetSelectedDefinition(definitionId.Value);
+            RefreshEquipmentView();
         }
 
 
         private void HandleOrientationChanged(FixtureOrientation orientation)
         {
             boundView?.SetOrientationTooltip(orientation.ToString());
+        }
+
+        private void HandleEquipmentRuntimeInitialized(
+            FixtureEquipmentRuntimeHost initializedHost)
+        {
+            catalogIsBound = false;
+            RefreshView();
+        }
+
+        private void HandleEquipmentStateChanged()
+        {
+            RefreshEquipmentView();
+        }
+
+        private void HandlePlanModeChanged(bool isPlanMode)
+        {
+            RefreshEquipmentView();
         }
 
 
@@ -166,6 +234,10 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.DefinitionRequested += HandleDefinitionRequested;
             boundView.RotateRequested += HandleRotateRequested;
+            boundView.PlanModeRequested += HandlePlanModeRequested;
+            boundView.EquipmentCatalogRequested +=
+                HandleEquipmentCatalogRequested;
+            boundView.InstallPlansRequested += HandleInstallPlansRequested;
             catalogIsBound = false;
             RefreshView();
         }
@@ -177,6 +249,11 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 boundView.DefinitionRequested -= HandleDefinitionRequested;
                 boundView.RotateRequested -= HandleRotateRequested;
+                boundView.PlanModeRequested -= HandlePlanModeRequested;
+                boundView.EquipmentCatalogRequested -=
+                    HandleEquipmentCatalogRequested;
+                boundView.InstallPlansRequested -=
+                    HandleInstallPlansRequested;
             }
 
             boundView = null;
@@ -205,6 +282,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 definitionSelectionHost.SelectedDefinitionId.Value);
             boundView.SetOrientationTooltip(
                 definitionSelectionHost.Orientation.ToString());
+            RefreshEquipmentView();
         }
 
 
@@ -238,12 +316,135 @@ namespace BigRetail.Construction.Unity.UI.PC
                 items.Add(
                     new FixtureDefinitionPickerItem(
                         definitionAsset.Id.Value,
-                        definitionAsset.DisplayName,
+                        BuildEquipmentTooltip(definitionAsset),
                         definitionAsset.CatalogIcon));
             }
 
             boundView.SetItems(items);
             catalogIsBound = true;
+            RefreshOwnedBadges();
+        }
+
+        private void RefreshEquipmentView()
+        {
+            if (boundView == null
+                || equipmentRuntimeHost == null
+                || !equipmentRuntimeHost.IsInitialized
+                || definitionSelectionHost == null
+                || !definitionSelectionHost.IsInitialized)
+            {
+                return;
+            }
+
+            FixtureDefinitionId selectedId =
+                definitionSelectionHost.SelectedDefinitionId;
+            FixtureEquipmentDefinition definition =
+                equipmentRuntimeHost.Catalog.GetRequired(selectedId);
+            int owned =
+                equipmentRuntimeHost.Inventory.GetQuantity(selectedId);
+            int planned =
+                equipmentRuntimeHost.Plans.CountFor(selectedId);
+            int outstanding =
+                equipmentRuntimeHost.Orders.GetOutstandingQuantity(selectedId);
+
+            RefreshOwnedBadges();
+            boundView.SetEquipmentSummary(
+                definition.DisplayName,
+                owned,
+                definition.UnitPriceCents,
+                planned,
+                outstanding,
+                HasInstallablePlan(),
+                equipmentRuntimeHost.IsPlanMode,
+                ResolveEquipmentStatus(outstanding));
+        }
+
+        private void RefreshOwnedBadges()
+        {
+            if (boundView == null
+                || equipmentRuntimeHost == null
+                || !equipmentRuntimeHost.IsInitialized)
+            {
+                return;
+            }
+
+            foreach (FixtureEquipmentDefinition definition
+                     in equipmentRuntimeHost.Catalog.EnumerateDefinitions())
+            {
+                boundView.SetOwnedQuantity(
+                    definition.FixtureDefinitionId.Value,
+                    equipmentRuntimeHost.Inventory.GetQuantity(
+                        definition.FixtureDefinitionId));
+            }
+        }
+
+        private bool HasInstallablePlan()
+        {
+            foreach (FixtureEquipmentDefinition definition
+                     in equipmentRuntimeHost.Catalog.EnumerateDefinitions())
+            {
+                FixtureDefinitionId id = definition.FixtureDefinitionId;
+
+                if (equipmentRuntimeHost.Plans.CountFor(id) > 0
+                    && equipmentRuntimeHost.Inventory.GetQuantity(id) > 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string BuildEquipmentTooltip(
+            FixtureDefinitionAsset definitionAsset)
+        {
+            if (equipmentRuntimeHost == null
+                || !equipmentRuntimeHost.IsInitialized
+                || !equipmentRuntimeHost.Catalog.TryGet(
+                    definitionAsset.Id,
+                    out FixtureEquipmentDefinition equipment))
+            {
+                return definitionAsset.DisplayName;
+            }
+
+            long leadMinutes = equipment.DeliveryLeadTimeSeconds / 60;
+            return $"{definitionAsset.DisplayName} · "
+                + $"{FormatMoney(equipment.UnitPriceCents)} · "
+                + $"delivery in {leadMinutes} game minutes";
+        }
+
+        private string ResolveEquipmentStatus(int selectedOutstandingQuantity)
+        {
+            int stagedCount = equipmentRuntimeHost.StagedReadyCount;
+            int readyCount = equipmentRuntimeHost.ReadyToReceiveCount;
+
+            if (stagedCount > 0)
+            {
+                return stagedCount == 1
+                    ? "1 BIG Wholesale equipment shipment is staged. Open RCV to receive it."
+                    : $"{stagedCount} BIG Wholesale equipment shipments are staged. Open RCV to receive them.";
+            }
+
+            int waitingCount = Math.Max(0, readyCount - stagedCount);
+
+            if (waitingCount > 0)
+            {
+                return waitingCount == 1
+                    ? "1 BIG Wholesale equipment shipment is waiting for open Receiving space."
+                    : $"{waitingCount} BIG Wholesale equipment shipments are waiting for open Receiving space.";
+            }
+
+            if (selectedOutstandingQuantity > 0)
+            {
+                return "Selected equipment is on order from BIG Wholesale and will arrive through Receiving.";
+            }
+
+            return equipmentStatus;
+        }
+
+        private static string FormatMoney(long cents)
+        {
+            return $"${cents / 100:N0}.{Math.Abs(cents % 100):00}";
         }
 
 
@@ -271,6 +472,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 Debug.LogError(
                     "FixtureDefinitionPickerPresenter has no FixtureDefinitionSelectionHost assigned.",
+                    this);
+                isValid = false;
+            }
+
+            if (equipmentRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "FixtureDefinitionPickerPresenter has no FixtureEquipmentRuntimeHost assigned.",
                     this);
                 isValid = false;
             }

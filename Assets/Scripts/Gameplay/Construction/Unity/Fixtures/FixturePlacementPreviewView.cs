@@ -6,6 +6,7 @@ using BigRetail.Map.View;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
+using BigRetail.Purchasing.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.Fixtures
@@ -34,6 +35,9 @@ namespace BigRetail.Construction.Unity.Fixtures
         private IsometricViewHost viewHost;
 
         [SerializeField]
+        private FixtureEquipmentRuntimeHost equipmentRuntimeHost;
+
+        [SerializeField]
         private Transform previewParent;
 
         [SerializeField]
@@ -60,6 +64,9 @@ namespace BigRetail.Construction.Unity.Fixtures
         public bool IsPlacementValid { get; private set; }
 
         public FixturePlacementFailure CurrentFailure { get; private set; }
+
+        public string CurrentEquipmentConstraint { get; private set; } =
+            string.Empty;
 
 
         private void Awake()
@@ -126,7 +133,14 @@ namespace BigRetail.Construction.Unity.Fixtures
                 runtimeHost.DefinitionAssets.GetAsset(definitionId);
 
             Sprite sprite = asset.GetSprite(orientation, viewHost.Orientation);
-            Color color = evaluation.Succeeded ? validColor : invalidColor;
+            bool equipmentAllowsPlacement =
+                EvaluateEquipmentConstraint(
+                    definitionId,
+                    footprint,
+                    out string equipmentConstraint);
+            bool isValid = evaluation.Succeeded
+                && equipmentAllowsPlacement;
+            Color color = isValid ? validColor : invalidColor;
 
             int rendererCount =
                 asset.RepeatSpritePerOccupiedCell
@@ -171,8 +185,9 @@ namespace BigRetail.Construction.Unity.Fixtures
             HideUnused(rendererCount);
 
             IsVisible = true;
-            IsPlacementValid = evaluation.Succeeded;
+            IsPlacementValid = isValid;
             CurrentFailure = evaluation.Failure;
+            CurrentEquipmentConstraint = equipmentConstraint;
         }
 
 
@@ -183,6 +198,46 @@ namespace BigRetail.Construction.Unity.Fixtures
             IsVisible = false;
             IsPlacementValid = false;
             CurrentFailure = FixturePlacementFailure.None;
+            CurrentEquipmentConstraint = string.Empty;
+        }
+
+        private bool EvaluateEquipmentConstraint(
+            FixtureDefinitionId definitionId,
+            FixtureFootprint footprint,
+            out string constraint)
+        {
+            constraint = string.Empty;
+
+            if (equipmentRuntimeHost == null
+                || !equipmentRuntimeHost.IsInitialized
+                || footprint == null)
+            {
+                return true;
+            }
+
+            if (!equipmentRuntimeHost.IsPlanMode)
+            {
+                if (equipmentRuntimeHost.Inventory.GetQuantity(definitionId)
+                    > 0)
+                {
+                    return true;
+                }
+
+                constraint = "No owned equipment";
+                return false;
+            }
+
+            for (int index = 0; index < footprint.CellCount; index++)
+            {
+                if (equipmentRuntimeHost.Plans.IsCellPlanned(
+                        footprint.GetCell(index)))
+                {
+                    constraint = "Overlaps planned fixture";
+                    return false;
+                }
+            }
+
+            return true;
         }
 
 
@@ -288,6 +343,14 @@ namespace BigRetail.Construction.Unity.Fixtures
             if (viewHost == null)
             {
                 Debug.LogError("FixturePlacementPreviewView has no IsometricViewHost assigned.", this);
+                isValid = false;
+            }
+
+            if (equipmentRuntimeHost == null)
+            {
+                Debug.LogError(
+                    "FixturePlacementPreviewView has no FixtureEquipmentRuntimeHost assigned.",
+                    this);
                 isValid = false;
             }
 
