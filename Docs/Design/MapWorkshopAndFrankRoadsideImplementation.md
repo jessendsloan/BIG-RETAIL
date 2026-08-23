@@ -333,7 +333,8 @@ another game's map.
 
 Target traits:
 
-- approximately 48 × 48 usable tiles, subject to layout testing;
+- a 96 × 32 construction footprint, arranged as three 32 × 32 authoring
+  sections but granted as one fixed-footprint location at runtime;
 - dirt/gravel road and worn parking apron;
 - weeds, scrub, trees, drainage, utility poles, and uneven roadside edges;
 - a modest older storefront and small parking area;
@@ -424,11 +425,17 @@ runtime contract is updated by someone who has inspected the full scene.
 ## Phase E — Frank Roadside production use
 
 - [x] Duplicate `Gameplay` into the Frank scaffold.
-- [ ] Replace `MapVIsuals` with the dirt-road environment.
-- [ ] Configure fixed land policy, masks, camera bounds, and markers.
+- [x] Replace `MapVIsuals` with the dirt-road environment.
+- [x] Configure fixed land policy, masks, camera bounds, and base markers.
 - [ ] Author and validate `FrankStoreLayout`.
 - [ ] Author and validate `FrankOpeningShiftScenario`.
 - [ ] Run the complete opening retail loop in the Frank scene.
+
+The finalized location baseline validates a complete 96 × 32 construction
+mask, frames the camera from the authored map footprint, and supplies
+rotation-aware stable markers for the store center, roadside arrival, and rear
+service approach. Exact character and cinematic staging remains scenario work
+and should be positioned after the prebuilt store footprint is authored.
 
 ## Phase F — Shared-shell extraction
 
