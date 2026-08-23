@@ -54,9 +54,17 @@ namespace BigRetail.Purchasing.Unity.UI
         private PurchasingReviewState reviewState;
         private IReadOnlyList<PlacedPurchaseOrder> lastPlacedBatch;
         private bool suppressDraftRefresh;
+        private bool isWorkspaceVisible;
 
 
         public event Action CloseRequested;
+
+
+        public void SetWorkspaceVisible(bool isVisible)
+        {
+            isWorkspaceVisible = isVisible;
+            boundView?.SetVisible(isVisible);
+        }
 
 
         private void Reset()
@@ -286,6 +294,7 @@ namespace BigRetail.Purchasing.Unity.UI
             boundView.ConfirmationCloseRequested +=
                 HandleConfirmationCloseRequested;
             boundView.CloseRequested += HandleCloseRequested;
+            boundView.SetVisible(isWorkspaceVisible);
             RefreshView();
         }
 

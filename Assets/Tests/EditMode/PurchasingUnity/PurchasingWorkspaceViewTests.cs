@@ -147,6 +147,46 @@ namespace BigRetail.Purchasing.Unity.Tests
             }
         }
 
+        [Test]
+        public void SetVisible_PreservesWorkspaceAcrossFiveCloseCycles()
+        {
+            VisualTreeAsset tree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlPath);
+            Assert.That(tree, Is.Not.Null);
+            TemplateContainer root = tree.CloneTree();
+            PurchasingWorkspaceView view = new PurchasingWorkspaceView(root);
+
+            try
+            {
+                for (int cycle = 0; cycle < 5; cycle++)
+                {
+                    view.SetVisible(true);
+                    Assert.That(
+                        root.style.display.value,
+                        Is.EqualTo(DisplayStyle.Flex));
+
+                    view.SetVisible(false);
+                    Assert.That(
+                        root.style.display.value,
+                        Is.EqualTo(DisplayStyle.None));
+                }
+
+                view.SetVisible(true);
+                view.SetModel(CreateModel());
+
+                Assert.That(
+                    root.Q<Label>("product-count").text,
+                    Is.EqualTo("1 product"));
+                Assert.That(
+                    root.Q<Button>("close-purchasing-button"),
+                    Is.Not.Null);
+            }
+            finally
+            {
+                view.Dispose();
+            }
+        }
+
 
         private static PurchasingWorkspaceModel CreateModel(
             IReadOnlyList<PurchasingDraftItem> drafts = null,

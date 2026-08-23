@@ -5,6 +5,8 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -65,6 +67,8 @@ namespace BigRetail.Purchasing.Unity.Tests
                     FindSceneComponent<PanelRenderer>(
                         scene,
                         "EquipmentCatalogWorkspaceUI");
+                InputSystemUIInputModule uiInputModule =
+                    FindSceneComponent<InputSystemUIInputModule>(scene);
 
                 Assert.That(runtimeHost, Is.Not.Null);
                 Assert.That(runtimeHost.CatalogAsset, Is.Not.Null);
@@ -90,6 +94,46 @@ namespace BigRetail.Purchasing.Unity.Tests
                     equipmentPanel.visualTreeAsset.name,
                     Is.EqualTo("EquipmentCatalogWorkspace"));
                 Assert.That(equipmentPanel.sortingOrder, Is.EqualTo(101));
+                Assert.That(uiInputModule, Is.Not.Null);
+                Assert.That(uiInputModule.actionsAsset, Is.Not.Null);
+                Assert.That(
+                    uiInputModule.actionsAsset.name,
+                    Is.EqualTo("InputSystem_Actions"));
+                Assert.That(uiInputModule.move, Is.Not.Null);
+                Assert.That(uiInputModule.move.action, Is.Not.Null);
+                InputAction navigationAction = uiInputModule.move.action;
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/w",
+                    false);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/a",
+                    false);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/s",
+                    false);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/d",
+                    false);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/upArrow",
+                    true);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/downArrow",
+                    true);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/leftArrow",
+                    true);
+                AssertNavigationBinding(
+                    navigationAction,
+                    "<Keyboard>/rightArrow",
+                    true);
 
                 SerializedObject serializedPlanogram =
                     new SerializedObject(planogramHost);
@@ -207,6 +251,28 @@ namespace BigRetail.Purchasing.Unity.Tests
             }
         }
 
+
+        private static void AssertNavigationBinding(
+            InputAction action,
+            string path,
+            bool expected)
+        {
+            bool found = false;
+
+            for (int index = 0; index < action.bindings.Count; index++)
+            {
+                if (action.bindings[index].path == path)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            Assert.That(
+                found,
+                Is.EqualTo(expected),
+                $"Navigation binding '{path}' did not match the gameplay UI contract.");
+        }
 
         private static T FindSceneComponent<T>(
             Scene scene,
