@@ -390,11 +390,11 @@ runtime contract is updated by someone who has inspected the full scene.
 
 ## Phase A — Data and validation foundation
 
-- [ ] Define versioned layout and scenario record types.
+- [x] Define versioned layout and scenario record types.
 - [ ] Define stable location identity, fingerprint, and land-policy interface.
-- [ ] Implement definition resolution and complete preflight validation.
-- [ ] Add deterministic serialization/order rules.
-- [ ] Add EditMode tests for valid and invalid assets.
+- [x] Implement definition resolution and complete preflight validation.
+- [x] Add deterministic serialization/order rules.
+- [x] Add EditMode tests for valid and invalid assets.
 
 ## Phase B — Runtime loader
 
