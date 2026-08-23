@@ -43,8 +43,23 @@ namespace BigRetail.Editor.Fixtures
         [MenuItem("Big Retail/Fixtures/Integrate Fixture Equipment Into Gameplay")]
         public static void IntegrateFixtureEquipmentIntoGameplay()
         {
+            IntegrateFixtureEquipmentIntoScene(
+                GameplayScenePath);
+        }
+
+
+        public static void IntegrateFixtureEquipmentIntoScene(
+            string scenePath)
+        {
+            if (string.IsNullOrWhiteSpace(scenePath))
+            {
+                throw new ArgumentException(
+                    "A gameplay-compatible scene path is required.",
+                    nameof(scenePath));
+            }
+
             Scene scene = EditorSceneManager.OpenScene(
-                GameplayScenePath,
+                scenePath,
                 OpenSceneMode.Single);
 
             FixtureDefinitionAssetCatalog fixtureCatalog =
@@ -264,14 +279,15 @@ namespace BigRetail.Editor.Fixtures
             workspaceObject.SetActive(false);
 
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene, GameplayScenePath);
+            EditorSceneManager.SaveScene(scene, scenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             Debug.Log(
                 "Integrated fixture planning, equipment ordering, shared "
                 + "Receiving pallets, the Equipment Catalog, owned equipment, "
-                + "installation, and storage into Gameplay.",
+                + "installation, and storage into "
+                + $"'{scenePath}'.",
                 equipmentRuntimeHost);
         }
 

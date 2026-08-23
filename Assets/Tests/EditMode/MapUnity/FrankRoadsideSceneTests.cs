@@ -72,6 +72,23 @@ namespace BigRetail.Map.Unity.Tests
                     markerHost,
                     "bigretail.marker.frank.rear_service");
 
+                AssertHasComponentType(
+                    scene,
+                    "BigRetail.Purchasing.Unity."
+                    + "FixtureEquipmentRuntimeHost");
+                AssertHasComponentType(
+                    scene,
+                    "BigRetail.Purchasing.Unity."
+                    + "FixtureEquipmentPlanViewSystem");
+                AssertHasComponentType(
+                    scene,
+                    "BigRetail.Purchasing.Unity."
+                    + "FixtureEquipmentDeliveryViewSystem");
+                AssertHasComponentType(
+                    scene,
+                    "BigRetail.Purchasing.Unity.UI."
+                    + "EquipmentCatalogWorkspacePresenter");
+
                 AssertNoMissingScripts(scene);
             }
             finally
@@ -133,6 +150,41 @@ namespace BigRetail.Map.Unity.Tests
                         $"'{gameObject.name}' contains a missing script.");
                 }
             }
+        }
+
+
+        private static void AssertHasComponentType(
+            Scene scene,
+            string componentTypeName)
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int rootIndex = 0;
+                 rootIndex < roots.Length;
+                 rootIndex++)
+            {
+                MonoBehaviour[] components =
+                    roots[rootIndex]
+                        .GetComponentsInChildren<MonoBehaviour>(true);
+
+                for (int index = 0;
+                     index < components.Length;
+                     index++)
+                {
+                    MonoBehaviour component = components[index];
+
+                    if (component != null
+                        && component.GetType().FullName
+                            == componentTypeName)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            Assert.Fail(
+                $"Frank Roadside is missing required component "
+                + $"'{componentTypeName}'.");
         }
 
 

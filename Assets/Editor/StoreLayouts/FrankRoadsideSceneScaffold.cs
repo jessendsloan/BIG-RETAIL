@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
 using BigRetail.CameraControl;
+using BigRetail.Construction.Unity.UI.PC;
+using BigRetail.Editor.Fixtures;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Unity;
+using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Map.Unity.View;
+using BigRetail.Purchasing.Unity;
+using BigRetail.Purchasing.Unity.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -128,6 +133,10 @@ namespace BigRetail.Editor.StoreLayouts
             "Big Retail/Map Workshop/Finalize Authored Frank Roadside Map")]
         public static void FinalizeAuthoredMap()
         {
+            FixtureEquipmentSetupMenu
+                .IntegrateFixtureEquipmentIntoScene(
+                    DestinationScenePath);
+
             Scene scene =
                 EditorSceneManager.OpenScene(
                     DestinationScenePath,
@@ -271,6 +280,8 @@ namespace BigRetail.Editor.StoreLayouts
             LocationMarkerHost markerHost =
                 FindRequiredInScene<LocationMarkerHost>(scene);
 
+            ValidateFixtureEquipmentIntegration(scene);
+
             Tilemap mapVisuals =
                 FindRequiredTilemap(scene, "MapVIsuals");
             Tilemap mapAreaMask =
@@ -345,6 +356,28 @@ namespace BigRetail.Editor.StoreLayouts
             ValidateMarkerHost(
                 markerHost,
                 authoredMap);
+        }
+
+
+        private static void ValidateFixtureEquipmentIntegration(
+            Scene scene)
+        {
+            FindRequiredInScene<FixtureEquipmentRuntimeHost>(scene);
+            FindRequiredInScene<FixtureEquipmentPlanViewSystem>(scene);
+            FindRequiredInScene<FixtureEquipmentDeliveryViewSystem>(scene);
+            FindRequiredInScene<EquipmentCatalogWorkspaceDocumentHost>(scene);
+            EquipmentCatalogWorkspacePresenter presenter =
+                FindRequiredInScene<EquipmentCatalogWorkspacePresenter>(
+                    scene);
+            FindRequiredInScene<EquipmentCatalogGameplayOverlayController>(
+                scene);
+
+            if (presenter.gameObject.activeSelf)
+            {
+                throw new InvalidOperationException(
+                    "Frank Roadside Equipment Catalog workspace must begin "
+                    + "closed.");
+            }
         }
 
 
