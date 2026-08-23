@@ -7,6 +7,9 @@ namespace BigRetail.Map.Construction
     /// </summary>
     public readonly struct LandRegionId : IEquatable<LandRegionId>
     {
+        private const string StableIdPrefix =
+            "bigretail.land-region";
+
         public int Column { get; }
 
         public int Row { get; }
@@ -40,6 +43,15 @@ namespace BigRetail.Map.Construction
         public override string ToString()
         {
             return $"Land Region ({Column}, {Row})";
+        }
+
+        /// <summary>
+        /// Stable authored-data identifier. Player-facing labels should keep
+        /// using the location UI rather than exposing this value.
+        /// </summary>
+        public string ToStableId()
+        {
+            return $"{StableIdPrefix}.{Column}.{Row}";
         }
 
         public static bool operator ==(

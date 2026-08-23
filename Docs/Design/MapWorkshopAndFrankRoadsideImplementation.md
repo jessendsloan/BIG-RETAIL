@@ -391,7 +391,7 @@ runtime contract is updated by someone who has inspected the full scene.
 ## Phase A — Data and validation foundation
 
 - [x] Define versioned layout and scenario record types.
-- [ ] Define stable location identity, fingerprint, and land-policy interface.
+- [x] Define stable location identity, fingerprint, and land-policy interface.
 - [x] Implement definition resolution and complete preflight validation.
 - [x] Add deterministic serialization/order rules.
 - [x] Add EditMode tests for valid and invalid assets.
@@ -423,7 +423,7 @@ runtime contract is updated by someone who has inspected the full scene.
 
 ## Phase E — Frank Roadside production use
 
-- [ ] Duplicate `Gameplay` into the Frank scaffold.
+- [x] Duplicate `Gameplay` into the Frank scaffold.
 - [ ] Replace `MapVIsuals` with the dirt-road environment.
 - [ ] Configure fixed land policy, masks, camera bounds, and markers.
 - [ ] Author and validate `FrankStoreLayout`.
