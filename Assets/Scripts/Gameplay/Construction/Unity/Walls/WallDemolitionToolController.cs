@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BigRetail.Construction.Unity.History;
 using BigRetail.Construction.Unity.Input;
 using BigRetail.Map.Domain;
@@ -292,31 +293,9 @@ namespace BigRetail.Construction.Unity.Walls
                 return false;
             }
 
-            for (int index = 0;
-                 index < CurrentRunPlan.SegmentCount;
-                 index++)
-            {
-                CellEdge edge =
-                    CurrentRunPlan.Edges[index];
-
-                if (mapHost.DoorAssemblies != null
-                    && mapHost.DoorAssemblies.TryGetAssemblyAtEdge(
-                        edge,
-                        out DoorAssembly assembly))
-                {
-                    LogWarning(
-                        $"Wall demolition is blocked by door "
-                        + $"'{assembly.Id}'. Undo or remove the door before "
-                        + "demolishing its supporting wall.");
-
-                    if (!runStartedWithGamepad)
-                    {
-                        FinishRun();
-                    }
-
-                    return false;
-                }
-            }
+            List<DoorAssembly> removedAssemblies =
+                CollectSupportedAssemblies(
+                    CurrentRunPlan.Edges);
 
             WallClearResult result =
                 mapHost.WallConstruction
@@ -337,9 +316,11 @@ namespace BigRetail.Construction.Unity.Walls
             if (!result.Edit.IsEmpty)
             {
                 historyHost.History.Record(
-                    new ReversibleWallEditAction(
+                    new ReversibleWallDemolitionAction(
                         mapHost.WallConstruction,
-                        result.Edit));
+                        mapHost.DoorConstruction,
+                        result.Edit,
+                        removedAssemblies));
             }
 
             if (logDemolitionResults)
@@ -348,6 +329,7 @@ namespace BigRetail.Construction.Unity.Walls
                     $"Vertex wall demolition run processed. "
                     + $"Requested: {result.RequestedCount}. "
                     + $"Removed: {result.RemovedCount}. "
+                    + $"Openings removed: {removedAssemblies.Count}. "
                     + $"Already empty: {result.AlreadyEmptyCount}.",
                     this);
             }
@@ -360,6 +342,39 @@ namespace BigRetail.Construction.Unity.Walls
 
             FinishRun();
             return result.RemovedCount > 0;
+        }
+
+
+        private List<DoorAssembly> CollectSupportedAssemblies(
+            IReadOnlyList<CellEdge> edges)
+        {
+            List<DoorAssembly> assemblies =
+                new List<DoorAssembly>();
+
+            if (mapHost.DoorAssemblies == null)
+            {
+                return assemblies;
+            }
+
+            HashSet<DoorAssemblyId> seenAssemblyIds =
+                new HashSet<DoorAssemblyId>();
+
+            for (int index = 0;
+                 index < edges.Count;
+                 index++)
+            {
+                if (!mapHost.DoorAssemblies.TryGetAssemblyAtEdge(
+                        edges[index],
+                        out DoorAssembly assembly)
+                    || !seenAssemblyIds.Add(assembly.Id))
+                {
+                    continue;
+                }
+
+                assemblies.Add(assembly);
+            }
+
+            return assemblies;
         }
 
 

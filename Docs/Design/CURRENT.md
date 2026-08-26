@@ -1,6 +1,6 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-19
+**Last updated:** 2026-08-22
 
 For the deliberately short active-work queue, see `NOW.md`. This document
 records the broader accepted design and implementation state.
@@ -12,6 +12,12 @@ The opening **Products → Suppliers → Purchasing → Delivery → Receiving**
 Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries. Each ready Supplier PO claims one free 1 × 1 berth in a player-painted **Receiving Area**; orders that do not fit wait for Receiving space. Receiving a staged pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
+
+The active engineering plan for turning Frank's prebuilt roadside store into a
+repeatable production location is
+`MapWorkshopAndFrankRoadsideImplementation.md`. It separates authored location
+geography, reusable built-store layout, and deterministic opening-scenario
+state while reusing the permanent retail simulation.
 
 ## Locked foundations
 

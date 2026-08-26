@@ -135,6 +135,7 @@ namespace BigRetail.Map.Fixtures
 
             if (result.Succeeded)
             {
+                RetireMatchingPlan(result.Fixture);
                 return FixtureEquipmentInstallationResult.Success(result);
             }
 
@@ -176,11 +177,6 @@ namespace BigRetail.Map.Fixtures
                     plan.FixtureDefinitionId,
                     plan.AnchorCell,
                     plan.Orientation);
-
-            if (result.Succeeded)
-            {
-                plans.TryRemove(plan.Id, out _);
-            }
 
             return result;
         }
@@ -262,6 +258,63 @@ namespace BigRetail.Map.Fixtures
 
             inventory.Add(result.DefinitionId);
             return FixtureEquipmentInstallationResult.Success(result);
+        }
+
+
+        private void RetireMatchingPlan(
+            FixtureInstance installedFixture)
+        {
+            if (installedFixture == null)
+            {
+                return;
+            }
+
+            FixtureEquipmentPlan matchingPlan = null;
+
+            foreach (FixtureEquipmentPlan plan in plans.EnumeratePlans())
+            {
+                if (plan.FixtureDefinitionId
+                        != installedFixture.DefinitionId
+                    || !FootprintsMatch(
+                        plan.Footprint,
+                        installedFixture.Footprint))
+                {
+                    continue;
+                }
+
+                matchingPlan = plan;
+                break;
+            }
+
+            if (matchingPlan != null)
+            {
+                plans.TryRemove(matchingPlan.Id, out _);
+            }
+        }
+
+
+        private static bool FootprintsMatch(
+            FixtureFootprint planned,
+            FixtureFootprint installed)
+        {
+            if (planned == null
+                || installed == null
+                || planned.CellCount != installed.CellCount)
+            {
+                return false;
+            }
+
+            for (int index = 0;
+                 index < installed.CellCount;
+                 index++)
+            {
+                if (!planned.ContainsCell(installed.GetCell(index)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

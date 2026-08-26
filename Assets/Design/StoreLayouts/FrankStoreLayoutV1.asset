@@ -1,0 +1,4190 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23f8acd5d03a99546adae6e6191a9e15, type: 3}
+  m_Name: FrankStoreLayoutV1
+  m_EditorClassIdentifier: BigRetail.StoreLayouts.Unity::BigRetail.StoreLayouts.Unity.StoreLayoutAsset
+  layout:
+    SchemaVersion: 1
+    LayoutId: BIGRETAIL.LAYOUT.FRANK_STORE
+    DisplayName: Frank Store Layout
+    MapId: BIGRETAIL.MAP.FRANK_ROADSIDE
+    MapFingerprint: v1:2d67a0ee610535b1e8eb8742583eb852370d221a619a7649978a6f00fef69f9f
+    LogicalOrigin:
+      X: 0
+      Y: 0
+      Level: 0
+    OwnedLandRegionIds: []
+    Foundations:
+    - X: -26
+      Y: 35
+      Level: 0
+    - X: -25
+      Y: 35
+      Level: 0
+    - X: -24
+      Y: 35
+      Level: 0
+    - X: -23
+      Y: 35
+      Level: 0
+    - X: -22
+      Y: 35
+      Level: 0
+    - X: -21
+      Y: 35
+      Level: 0
+    - X: -20
+      Y: 35
+      Level: 0
+    - X: -19
+      Y: 35
+      Level: 0
+    - X: -18
+      Y: 35
+      Level: 0
+    - X: -17
+      Y: 35
+      Level: 0
+    - X: -16
+      Y: 35
+      Level: 0
+    - X: -15
+      Y: 35
+      Level: 0
+    - X: -14
+      Y: 35
+      Level: 0
+    - X: -13
+      Y: 35
+      Level: 0
+    - X: -12
+      Y: 35
+      Level: 0
+    - X: -11
+      Y: 35
+      Level: 0
+    - X: -26
+      Y: 36
+      Level: 0
+    - X: -25
+      Y: 36
+      Level: 0
+    - X: -24
+      Y: 36
+      Level: 0
+    - X: -23
+      Y: 36
+      Level: 0
+    - X: -22
+      Y: 36
+      Level: 0
+    - X: -21
+      Y: 36
+      Level: 0
+    - X: -20
+      Y: 36
+      Level: 0
+    - X: -19
+      Y: 36
+      Level: 0
+    - X: -18
+      Y: 36
+      Level: 0
+    - X: -17
+      Y: 36
+      Level: 0
+    - X: -16
+      Y: 36
+      Level: 0
+    - X: -15
+      Y: 36
+      Level: 0
+    - X: -14
+      Y: 36
+      Level: 0
+    - X: -13
+      Y: 36
+      Level: 0
+    - X: -12
+      Y: 36
+      Level: 0
+    - X: -11
+      Y: 36
+      Level: 0
+    - X: -26
+      Y: 37
+      Level: 0
+    - X: -25
+      Y: 37
+      Level: 0
+    - X: -24
+      Y: 37
+      Level: 0
+    - X: -23
+      Y: 37
+      Level: 0
+    - X: -22
+      Y: 37
+      Level: 0
+    - X: -21
+      Y: 37
+      Level: 0
+    - X: -20
+      Y: 37
+      Level: 0
+    - X: -19
+      Y: 37
+      Level: 0
+    - X: -18
+      Y: 37
+      Level: 0
+    - X: -17
+      Y: 37
+      Level: 0
+    - X: -16
+      Y: 37
+      Level: 0
+    - X: -15
+      Y: 37
+      Level: 0
+    - X: -14
+      Y: 37
+      Level: 0
+    - X: -13
+      Y: 37
+      Level: 0
+    - X: -12
+      Y: 37
+      Level: 0
+    - X: -11
+      Y: 37
+      Level: 0
+    - X: -26
+      Y: 38
+      Level: 0
+    - X: -25
+      Y: 38
+      Level: 0
+    - X: -24
+      Y: 38
+      Level: 0
+    - X: -23
+      Y: 38
+      Level: 0
+    - X: -22
+      Y: 38
+      Level: 0
+    - X: -21
+      Y: 38
+      Level: 0
+    - X: -20
+      Y: 38
+      Level: 0
+    - X: -19
+      Y: 38
+      Level: 0
+    - X: -18
+      Y: 38
+      Level: 0
+    - X: -17
+      Y: 38
+      Level: 0
+    - X: -16
+      Y: 38
+      Level: 0
+    - X: -15
+      Y: 38
+      Level: 0
+    - X: -14
+      Y: 38
+      Level: 0
+    - X: -13
+      Y: 38
+      Level: 0
+    - X: -12
+      Y: 38
+      Level: 0
+    - X: -11
+      Y: 38
+      Level: 0
+    - X: -26
+      Y: 39
+      Level: 0
+    - X: -25
+      Y: 39
+      Level: 0
+    - X: -24
+      Y: 39
+      Level: 0
+    - X: -23
+      Y: 39
+      Level: 0
+    - X: -22
+      Y: 39
+      Level: 0
+    - X: -21
+      Y: 39
+      Level: 0
+    - X: -20
+      Y: 39
+      Level: 0
+    - X: -19
+      Y: 39
+      Level: 0
+    - X: -18
+      Y: 39
+      Level: 0
+    - X: -17
+      Y: 39
+      Level: 0
+    - X: -16
+      Y: 39
+      Level: 0
+    - X: -15
+      Y: 39
+      Level: 0
+    - X: -14
+      Y: 39
+      Level: 0
+    - X: -13
+      Y: 39
+      Level: 0
+    - X: -12
+      Y: 39
+      Level: 0
+    - X: -11
+      Y: 39
+      Level: 0
+    - X: -26
+      Y: 40
+      Level: 0
+    - X: -25
+      Y: 40
+      Level: 0
+    - X: -24
+      Y: 40
+      Level: 0
+    - X: -23
+      Y: 40
+      Level: 0
+    - X: -22
+      Y: 40
+      Level: 0
+    - X: -21
+      Y: 40
+      Level: 0
+    - X: -20
+      Y: 40
+      Level: 0
+    - X: -19
+      Y: 40
+      Level: 0
+    - X: -18
+      Y: 40
+      Level: 0
+    - X: -17
+      Y: 40
+      Level: 0
+    - X: -16
+      Y: 40
+      Level: 0
+    - X: -15
+      Y: 40
+      Level: 0
+    - X: -14
+      Y: 40
+      Level: 0
+    - X: -13
+      Y: 40
+      Level: 0
+    - X: -12
+      Y: 40
+      Level: 0
+    - X: -11
+      Y: 40
+      Level: 0
+    - X: -26
+      Y: 41
+      Level: 0
+    - X: -25
+      Y: 41
+      Level: 0
+    - X: -24
+      Y: 41
+      Level: 0
+    - X: -23
+      Y: 41
+      Level: 0
+    - X: -22
+      Y: 41
+      Level: 0
+    - X: -21
+      Y: 41
+      Level: 0
+    - X: -20
+      Y: 41
+      Level: 0
+    - X: -19
+      Y: 41
+      Level: 0
+    - X: -18
+      Y: 41
+      Level: 0
+    - X: -17
+      Y: 41
+      Level: 0
+    - X: -16
+      Y: 41
+      Level: 0
+    - X: -15
+      Y: 41
+      Level: 0
+    - X: -14
+      Y: 41
+      Level: 0
+    - X: -13
+      Y: 41
+      Level: 0
+    - X: -12
+      Y: 41
+      Level: 0
+    - X: -11
+      Y: 41
+      Level: 0
+    - X: -26
+      Y: 42
+      Level: 0
+    - X: -25
+      Y: 42
+      Level: 0
+    - X: -24
+      Y: 42
+      Level: 0
+    - X: -23
+      Y: 42
+      Level: 0
+    - X: -22
+      Y: 42
+      Level: 0
+    - X: -21
+      Y: 42
+      Level: 0
+    - X: -20
+      Y: 42
+      Level: 0
+    - X: -19
+      Y: 42
+      Level: 0
+    - X: -18
+      Y: 42
+      Level: 0
+    - X: -17
+      Y: 42
+      Level: 0
+    - X: -16
+      Y: 42
+      Level: 0
+    - X: -15
+      Y: 42
+      Level: 0
+    - X: -14
+      Y: 42
+      Level: 0
+    - X: -13
+      Y: 42
+      Level: 0
+    - X: -12
+      Y: 42
+      Level: 0
+    - X: -11
+      Y: 42
+      Level: 0
+    - X: -26
+      Y: 43
+      Level: 0
+    - X: -25
+      Y: 43
+      Level: 0
+    - X: -24
+      Y: 43
+      Level: 0
+    - X: -23
+      Y: 43
+      Level: 0
+    - X: -22
+      Y: 43
+      Level: 0
+    - X: -21
+      Y: 43
+      Level: 0
+    - X: -20
+      Y: 43
+      Level: 0
+    - X: -19
+      Y: 43
+      Level: 0
+    - X: -18
+      Y: 43
+      Level: 0
+    - X: -17
+      Y: 43
+      Level: 0
+    - X: -16
+      Y: 43
+      Level: 0
+    - X: -15
+      Y: 43
+      Level: 0
+    - X: -14
+      Y: 43
+      Level: 0
+    - X: -13
+      Y: 43
+      Level: 0
+    - X: -12
+      Y: 43
+      Level: 0
+    - X: -11
+      Y: 43
+      Level: 0
+    - X: -26
+      Y: 44
+      Level: 0
+    - X: -25
+      Y: 44
+      Level: 0
+    - X: -24
+      Y: 44
+      Level: 0
+    - X: -23
+      Y: 44
+      Level: 0
+    - X: -22
+      Y: 44
+      Level: 0
+    - X: -21
+      Y: 44
+      Level: 0
+    - X: -20
+      Y: 44
+      Level: 0
+    - X: -19
+      Y: 44
+      Level: 0
+    - X: -18
+      Y: 44
+      Level: 0
+    - X: -17
+      Y: 44
+      Level: 0
+    - X: -16
+      Y: 44
+      Level: 0
+    - X: -15
+      Y: 44
+      Level: 0
+    - X: -14
+      Y: 44
+      Level: 0
+    - X: -13
+      Y: 44
+      Level: 0
+    - X: -12
+      Y: 44
+      Level: 0
+    - X: -11
+      Y: 44
+      Level: 0
+    - X: -26
+      Y: 45
+      Level: 0
+    - X: -25
+      Y: 45
+      Level: 0
+    - X: -24
+      Y: 45
+      Level: 0
+    - X: -23
+      Y: 45
+      Level: 0
+    - X: -22
+      Y: 45
+      Level: 0
+    - X: -21
+      Y: 45
+      Level: 0
+    - X: -20
+      Y: 45
+      Level: 0
+    - X: -19
+      Y: 45
+      Level: 0
+    - X: -18
+      Y: 45
+      Level: 0
+    - X: -17
+      Y: 45
+      Level: 0
+    - X: -16
+      Y: 45
+      Level: 0
+    - X: -15
+      Y: 45
+      Level: 0
+    - X: -14
+      Y: 45
+      Level: 0
+    - X: -13
+      Y: 45
+      Level: 0
+    - X: -12
+      Y: 45
+      Level: 0
+    - X: -11
+      Y: 45
+      Level: 0
+    - X: -26
+      Y: 46
+      Level: 0
+    - X: -25
+      Y: 46
+      Level: 0
+    - X: -24
+      Y: 46
+      Level: 0
+    - X: -23
+      Y: 46
+      Level: 0
+    - X: -22
+      Y: 46
+      Level: 0
+    - X: -21
+      Y: 46
+      Level: 0
+    - X: -20
+      Y: 46
+      Level: 0
+    - X: -19
+      Y: 46
+      Level: 0
+    - X: -18
+      Y: 46
+      Level: 0
+    - X: -17
+      Y: 46
+      Level: 0
+    - X: -16
+      Y: 46
+      Level: 0
+    - X: -15
+      Y: 46
+      Level: 0
+    - X: -14
+      Y: 46
+      Level: 0
+    - X: -13
+      Y: 46
+      Level: 0
+    - X: -12
+      Y: 46
+      Level: 0
+    - X: -11
+      Y: 46
+      Level: 0
+    - X: -26
+      Y: 47
+      Level: 0
+    - X: -25
+      Y: 47
+      Level: 0
+    - X: -24
+      Y: 47
+      Level: 0
+    - X: -23
+      Y: 47
+      Level: 0
+    - X: -22
+      Y: 47
+      Level: 0
+    - X: -21
+      Y: 47
+      Level: 0
+    - X: -20
+      Y: 47
+      Level: 0
+    - X: -19
+      Y: 47
+      Level: 0
+    - X: -18
+      Y: 47
+      Level: 0
+    - X: -17
+      Y: 47
+      Level: 0
+    - X: -16
+      Y: 47
+      Level: 0
+    - X: -15
+      Y: 47
+      Level: 0
+    - X: -14
+      Y: 47
+      Level: 0
+    - X: -13
+      Y: 47
+      Level: 0
+    - X: -12
+      Y: 47
+      Level: 0
+    - X: -11
+      Y: 47
+      Level: 0
+    - X: -26
+      Y: 48
+      Level: 0
+    - X: -25
+      Y: 48
+      Level: 0
+    - X: -24
+      Y: 48
+      Level: 0
+    - X: -23
+      Y: 48
+      Level: 0
+    - X: -22
+      Y: 48
+      Level: 0
+    - X: -21
+      Y: 48
+      Level: 0
+    - X: -20
+      Y: 48
+      Level: 0
+    - X: -19
+      Y: 48
+      Level: 0
+    - X: -18
+      Y: 48
+      Level: 0
+    - X: -17
+      Y: 48
+      Level: 0
+    - X: -16
+      Y: 48
+      Level: 0
+    - X: -15
+      Y: 48
+      Level: 0
+    - X: -14
+      Y: 48
+      Level: 0
+    - X: -13
+      Y: 48
+      Level: 0
+    - X: -12
+      Y: 48
+      Level: 0
+    - X: -11
+      Y: 48
+      Level: 0
+    - X: -10
+      Y: 48
+      Level: 0
+    - X: -9
+      Y: 48
+      Level: 0
+    - X: -8
+      Y: 48
+      Level: 0
+    - X: -7
+      Y: 48
+      Level: 0
+    - X: -6
+      Y: 48
+      Level: 0
+    - X: -26
+      Y: 49
+      Level: 0
+    - X: -25
+      Y: 49
+      Level: 0
+    - X: -24
+      Y: 49
+      Level: 0
+    - X: -23
+      Y: 49
+      Level: 0
+    - X: -22
+      Y: 49
+      Level: 0
+    - X: -21
+      Y: 49
+      Level: 0
+    - X: -20
+      Y: 49
+      Level: 0
+    - X: -19
+      Y: 49
+      Level: 0
+    - X: -18
+      Y: 49
+      Level: 0
+    - X: -17
+      Y: 49
+      Level: 0
+    - X: -16
+      Y: 49
+      Level: 0
+    - X: -15
+      Y: 49
+      Level: 0
+    - X: -14
+      Y: 49
+      Level: 0
+    - X: -13
+      Y: 49
+      Level: 0
+    - X: -12
+      Y: 49
+      Level: 0
+    - X: -11
+      Y: 49
+      Level: 0
+    - X: -10
+      Y: 49
+      Level: 0
+    - X: -9
+      Y: 49
+      Level: 0
+    - X: -8
+      Y: 49
+      Level: 0
+    - X: -7
+      Y: 49
+      Level: 0
+    - X: -6
+      Y: 49
+      Level: 0
+    - X: -26
+      Y: 50
+      Level: 0
+    - X: -25
+      Y: 50
+      Level: 0
+    - X: -24
+      Y: 50
+      Level: 0
+    - X: -23
+      Y: 50
+      Level: 0
+    - X: -22
+      Y: 50
+      Level: 0
+    - X: -21
+      Y: 50
+      Level: 0
+    - X: -20
+      Y: 50
+      Level: 0
+    - X: -19
+      Y: 50
+      Level: 0
+    - X: -18
+      Y: 50
+      Level: 0
+    - X: -17
+      Y: 50
+      Level: 0
+    - X: -16
+      Y: 50
+      Level: 0
+    - X: -15
+      Y: 50
+      Level: 0
+    - X: -14
+      Y: 50
+      Level: 0
+    - X: -13
+      Y: 50
+      Level: 0
+    - X: -12
+      Y: 50
+      Level: 0
+    - X: -11
+      Y: 50
+      Level: 0
+    - X: -10
+      Y: 50
+      Level: 0
+    - X: -9
+      Y: 50
+      Level: 0
+    - X: -8
+      Y: 50
+      Level: 0
+    - X: -7
+      Y: 50
+      Level: 0
+    - X: -6
+      Y: 50
+      Level: 0
+    - X: -26
+      Y: 51
+      Level: 0
+    - X: -25
+      Y: 51
+      Level: 0
+    - X: -24
+      Y: 51
+      Level: 0
+    - X: -23
+      Y: 51
+      Level: 0
+    - X: -22
+      Y: 51
+      Level: 0
+    - X: -21
+      Y: 51
+      Level: 0
+    - X: -20
+      Y: 51
+      Level: 0
+    - X: -19
+      Y: 51
+      Level: 0
+    - X: -18
+      Y: 51
+      Level: 0
+    - X: -17
+      Y: 51
+      Level: 0
+    - X: -16
+      Y: 51
+      Level: 0
+    - X: -15
+      Y: 51
+      Level: 0
+    - X: -14
+      Y: 51
+      Level: 0
+    - X: -13
+      Y: 51
+      Level: 0
+    - X: -12
+      Y: 51
+      Level: 0
+    - X: -11
+      Y: 51
+      Level: 0
+    - X: -10
+      Y: 51
+      Level: 0
+    - X: -9
+      Y: 51
+      Level: 0
+    - X: -8
+      Y: 51
+      Level: 0
+    - X: -7
+      Y: 51
+      Level: 0
+    - X: -6
+      Y: 51
+      Level: 0
+    - X: -26
+      Y: 52
+      Level: 0
+    - X: -25
+      Y: 52
+      Level: 0
+    - X: -24
+      Y: 52
+      Level: 0
+    - X: -23
+      Y: 52
+      Level: 0
+    - X: -22
+      Y: 52
+      Level: 0
+    - X: -21
+      Y: 52
+      Level: 0
+    - X: -20
+      Y: 52
+      Level: 0
+    - X: -19
+      Y: 52
+      Level: 0
+    - X: -18
+      Y: 52
+      Level: 0
+    - X: -17
+      Y: 52
+      Level: 0
+    - X: -16
+      Y: 52
+      Level: 0
+    - X: -15
+      Y: 52
+      Level: 0
+    - X: -14
+      Y: 52
+      Level: 0
+    - X: -13
+      Y: 52
+      Level: 0
+    - X: -12
+      Y: 52
+      Level: 0
+    - X: -11
+      Y: 52
+      Level: 0
+    - X: -10
+      Y: 52
+      Level: 0
+    - X: -9
+      Y: 52
+      Level: 0
+    - X: -8
+      Y: 52
+      Level: 0
+    - X: -7
+      Y: 52
+      Level: 0
+    - X: -6
+      Y: 52
+      Level: 0
+    Sidewalks:
+    - X: -20
+      Y: 28
+      Level: 0
+    - X: -19
+      Y: 28
+      Level: 0
+    - X: -18
+      Y: 28
+      Level: 0
+    - X: -17
+      Y: 28
+      Level: 0
+    - X: -9
+      Y: 28
+      Level: 0
+    - X: -8
+      Y: 28
+      Level: 0
+    - X: -7
+      Y: 28
+      Level: 0
+    - X: -20
+      Y: 29
+      Level: 0
+    - X: -19
+      Y: 29
+      Level: 0
+    - X: -18
+      Y: 29
+      Level: 0
+    - X: -17
+      Y: 29
+      Level: 0
+    - X: -9
+      Y: 29
+      Level: 0
+    - X: -8
+      Y: 29
+      Level: 0
+    - X: -7
+      Y: 29
+      Level: 0
+    - X: -20
+      Y: 30
+      Level: 0
+    - X: -19
+      Y: 30
+      Level: 0
+    - X: -18
+      Y: 30
+      Level: 0
+    - X: -17
+      Y: 30
+      Level: 0
+    - X: -9
+      Y: 30
+      Level: 0
+    - X: -8
+      Y: 30
+      Level: 0
+    - X: -7
+      Y: 30
+      Level: 0
+    - X: -20
+      Y: 31
+      Level: 0
+    - X: -19
+      Y: 31
+      Level: 0
+    - X: -18
+      Y: 31
+      Level: 0
+    - X: -17
+      Y: 31
+      Level: 0
+    - X: -9
+      Y: 31
+      Level: 0
+    - X: -8
+      Y: 31
+      Level: 0
+    - X: -7
+      Y: 31
+      Level: 0
+    - X: -20
+      Y: 32
+      Level: 0
+    - X: -19
+      Y: 32
+      Level: 0
+    - X: -18
+      Y: 32
+      Level: 0
+    - X: -17
+      Y: 32
+      Level: 0
+    - X: -9
+      Y: 32
+      Level: 0
+    - X: -8
+      Y: 32
+      Level: 0
+    - X: -7
+      Y: 32
+      Level: 0
+    - X: -27
+      Y: 33
+      Level: 0
+    - X: -26
+      Y: 33
+      Level: 0
+    - X: -25
+      Y: 33
+      Level: 0
+    - X: -24
+      Y: 33
+      Level: 0
+    - X: -23
+      Y: 33
+      Level: 0
+    - X: -22
+      Y: 33
+      Level: 0
+    - X: -21
+      Y: 33
+      Level: 0
+    - X: -20
+      Y: 33
+      Level: 0
+    - X: -19
+      Y: 33
+      Level: 0
+    - X: -18
+      Y: 33
+      Level: 0
+    - X: -17
+      Y: 33
+      Level: 0
+    - X: -16
+      Y: 33
+      Level: 0
+    - X: -15
+      Y: 33
+      Level: 0
+    - X: -14
+      Y: 33
+      Level: 0
+    - X: -13
+      Y: 33
+      Level: 0
+    - X: -12
+      Y: 33
+      Level: 0
+    - X: -11
+      Y: 33
+      Level: 0
+    - X: -10
+      Y: 33
+      Level: 0
+    - X: -9
+      Y: 33
+      Level: 0
+    - X: -8
+      Y: 33
+      Level: 0
+    - X: -7
+      Y: 33
+      Level: 0
+    - X: -19
+      Y: 34
+      Level: 0
+    - X: -18
+      Y: 34
+      Level: 0
+    - X: -10
+      Y: 34
+      Level: 0
+    - X: -9
+      Y: 34
+      Level: 0
+    - X: -8
+      Y: 34
+      Level: 0
+    - X: -7
+      Y: 34
+      Level: 0
+    - X: -9
+      Y: 35
+      Level: 0
+    - X: -8
+      Y: 35
+      Level: 0
+    - X: -7
+      Y: 35
+      Level: 0
+    - X: -9
+      Y: 36
+      Level: 0
+    - X: -8
+      Y: 36
+      Level: 0
+    - X: -7
+      Y: 36
+      Level: 0
+    - X: -9
+      Y: 37
+      Level: 0
+    - X: -8
+      Y: 37
+      Level: 0
+    - X: -7
+      Y: 37
+      Level: 0
+    - X: -9
+      Y: 38
+      Level: 0
+    - X: -8
+      Y: 38
+      Level: 0
+    - X: -7
+      Y: 38
+      Level: 0
+    - X: -9
+      Y: 39
+      Level: 0
+    - X: -8
+      Y: 39
+      Level: 0
+    - X: -7
+      Y: 39
+      Level: 0
+    - X: -9
+      Y: 40
+      Level: 0
+    - X: -8
+      Y: 40
+      Level: 0
+    - X: -7
+      Y: 40
+      Level: 0
+    - X: -9
+      Y: 41
+      Level: 0
+    - X: -8
+      Y: 41
+      Level: 0
+    - X: -7
+      Y: 41
+      Level: 0
+    - X: -9
+      Y: 42
+      Level: 0
+    - X: -8
+      Y: 42
+      Level: 0
+    - X: -7
+      Y: 42
+      Level: 0
+    - X: -9
+      Y: 43
+      Level: 0
+    - X: -8
+      Y: 43
+      Level: 0
+    - X: -7
+      Y: 43
+      Level: 0
+    - X: -9
+      Y: 44
+      Level: 0
+    - X: -8
+      Y: 44
+      Level: 0
+    - X: -7
+      Y: 44
+      Level: 0
+    - X: -9
+      Y: 45
+      Level: 0
+    - X: -8
+      Y: 45
+      Level: 0
+    - X: -7
+      Y: 45
+      Level: 0
+    - X: -10
+      Y: 46
+      Level: 0
+    - X: -9
+      Y: 46
+      Level: 0
+    - X: -8
+      Y: 46
+      Level: 0
+    - X: -7
+      Y: 46
+      Level: 0
+    - X: -9
+      Y: 47
+      Level: 0
+    - X: -8
+      Y: 47
+      Level: 0
+    Floors:
+    - Cell:
+        X: -26
+        Y: 35
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 35
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 35
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 35
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 36
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 36
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 36
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 36
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 37
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 37
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 37
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 37
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 38
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 38
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 38
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 38
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 39
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 39
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 39
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 39
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 40
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 40
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 40
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 40
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 41
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -25
+        Y: 41
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -24
+        Y: 41
+        Level: 0
+      FinishId: TILE-1
+    - Cell:
+        X: -23
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 41
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 42
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 43
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 44
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 45
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -15
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -14
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -13
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -12
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -11
+        Y: 46
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -26
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 47
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 47
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -26
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 48
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -10
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -9
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -8
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -7
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -6
+        Y: 48
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -26
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 49
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -10
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -9
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -8
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -7
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -6
+        Y: 49
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -26
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 50
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -10
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -9
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -8
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -7
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -6
+        Y: 50
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -26
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 51
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -10
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -9
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -8
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -7
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -6
+        Y: 51
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -26
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -25
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -24
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -23
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -22
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -21
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -20
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -19
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -18
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -17
+        Y: 52
+        Level: 0
+      FinishId: WOOD-1
+    - Cell:
+        X: -16
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -15
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -14
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -13
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -12
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -11
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -10
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -9
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -8
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -7
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    - Cell:
+        X: -6
+        Y: 52
+        Level: 0
+      FinishId: BRICK-1
+    Walls:
+    - Edge:
+        AnchorCell:
+          X: -26
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -25
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -23
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -22
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -21
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -20
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -19
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -18
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -16
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -15
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -14
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -13
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -12
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 34
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 35
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 35
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 35
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 36
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 36
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 36
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 37
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 37
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 38
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 38
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 39
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 39
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 40
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 40
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 41
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -26
+          Y: 41
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: DEFAULT
+    - Edge:
+        AnchorCell:
+          X: -25
+          Y: 41
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 41
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 41
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 41
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 42
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 42
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 43
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 43
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 44
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 44
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 45
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 45
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 46
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -16
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -15
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -14
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -13
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -12
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 46
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 46
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 47
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 47
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 47
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -10
+          Y: 47
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -9
+          Y: 47
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -8
+          Y: 47
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -7
+          Y: 47
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 47
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 48
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 48
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 48
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 48
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 49
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 49
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 49
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 50
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 50
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 50
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 51
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 51
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 51
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -27
+          Y: 52
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: BRICK
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -26
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -25
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -24
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -23
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -22
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -21
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -20
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -19
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -18
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 52
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: WHITE
+    - Edge:
+        AnchorCell:
+          X: -17
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -16
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -15
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -14
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -13
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -12
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 52
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -11
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -10
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -9
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -8
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -7
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 52
+          Level: 0
+        Direction: 0
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    - Edge:
+        AnchorCell:
+          X: -6
+          Y: 52
+          Level: 0
+        Direction: 1
+      FirstCellFinishId: WHITE
+      SecondCellFinishId: BRICK
+    Openings:
+    - InstanceId: 381B7C809C174AE0BC71C75C98F1201B
+      DefinitionId: FIXED-WINDOW
+      Edges:
+      - AnchorCell:
+          X: -22
+          Y: 34
+          Level: 0
+        Direction: 1
+    - InstanceId: 3C19FE0ED6C8480F9DC73F5674DAA9BC
+      DefinitionId: AUTOMATIC-FRONT-DOOR
+      Edges:
+      - AnchorCell:
+          X: -20
+          Y: 34
+          Level: 0
+        Direction: 1
+      - AnchorCell:
+          X: -19
+          Y: 34
+          Level: 0
+        Direction: 1
+      - AnchorCell:
+          X: -18
+          Y: 34
+          Level: 0
+        Direction: 1
+      - AnchorCell:
+          X: -17
+          Y: 34
+          Level: 0
+        Direction: 1
+    - InstanceId: 45E8F8CA10AE4CE8B08AC66B49E17A4C
+      DefinitionId: FIXED-WINDOW
+      Edges:
+      - AnchorCell:
+          X: -16
+          Y: 34
+          Level: 0
+        Direction: 1
+    - InstanceId: 5B7EAB5B2E854EBE8D94A300593A7C2D
+      DefinitionId: SINGLE-HINGED-DOOR
+      Edges:
+      - AnchorCell:
+          X: -8
+          Y: 47
+          Level: 0
+        Direction: 1
+    - InstanceId: B64C65D0C3BD4934A7116756A7BE3C41
+      DefinitionId: FIXED-WINDOW
+      Edges:
+      - AnchorCell:
+          X: -21
+          Y: 34
+          Level: 0
+        Direction: 1
+    - InstanceId: D58F8488023E41E9B7D5A9F6807B8C79
+      DefinitionId: SINGLE-OPEN-DOORWAY
+      Edges:
+      - AnchorCell:
+          X: -26
+          Y: 41
+          Level: 0
+        Direction: 1
+    - InstanceId: F18C014D57BE439395B75491AF8C4C4D
+      DefinitionId: DOUBLE-OPEN-DOORWAY
+      Edges:
+      - AnchorCell:
+          X: -17
+          Y: 49
+          Level: 0
+        Direction: 0
+      - AnchorCell:
+          X: -17
+          Y: 50
+          Level: 0
+        Direction: 0
+    - InstanceId: F80A4F45162E4FD2ABD8D8B2BD20D972
+      DefinitionId: FIXED-WINDOW
+      Edges:
+      - AnchorCell:
+          X: -15
+          Y: 34
+          Level: 0
+        Direction: 1
+    Fixtures:
+    - InstanceId: 125050C30B7C429388E3A9D0930CEF1C
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -11
+        Y: 39
+        Level: 0
+      Orientation: 3
+      OccupiedCells:
+      - X: -11
+        Y: 39
+        Level: 0
+      - X: -11
+        Y: 40
+        Level: 0
+    - InstanceId: 148656B213234E1A9525E6B0A2279DC9
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -24
+        Y: 46
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -24
+        Y: 46
+        Level: 0
+      - X: -24
+        Y: 47
+        Level: 0
+    - InstanceId: 2509C75E30104FE2A565F163F20B1BBF
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -16
+        Y: 43
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -16
+        Y: 43
+        Level: 0
+      - X: -16
+        Y: 44
+        Level: 0
+    - InstanceId: 26A52111BA4444DE8416AA8082371C03
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -12
+        Y: 35
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -12
+        Y: 35
+        Level: 0
+      - X: -11
+        Y: 35
+        Level: 0
+    - InstanceId: 28712FCDA14C4A5184CD02857D0B5F70
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -16
+        Y: 45
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -16
+        Y: 45
+        Level: 0
+      - X: -16
+        Y: 46
+        Level: 0
+    - InstanceId: 2D9E2067051E41259EF4B59E3849D31C
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -21
+        Y: 44
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -21
+        Y: 44
+        Level: 0
+      - X: -21
+        Y: 45
+        Level: 0
+    - InstanceId: 3488CAA4C47E423490D97DC250D4B7EC
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -21
+        Y: 46
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -21
+        Y: 46
+        Level: 0
+      - X: -21
+        Y: 47
+        Level: 0
+    - InstanceId: 367010CB6FB648138590D32D2C636E2B
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -14
+        Y: 35
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -14
+        Y: 35
+        Level: 0
+      - X: -13
+        Y: 35
+        Level: 0
+    - InstanceId: 3A2D478CD7814F089DDDE5A1FCD3B11D
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -18
+        Y: 52
+        Level: 0
+      Orientation: 0
+      OccupiedCells:
+      - X: -18
+        Y: 52
+        Level: 0
+      - X: -17
+        Y: 52
+        Level: 0
+    - InstanceId: 3CD74D97DA274F1BBD01459F175D5BC1
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -14
+        Y: 47
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -14
+        Y: 47
+        Level: 0
+      - X: -13
+        Y: 47
+        Level: 0
+    - InstanceId: 452DFEA031374065BF289FC4BF927E1D
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -12
+        Y: 47
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -12
+        Y: 47
+        Level: 0
+      - X: -11
+        Y: 47
+        Level: 0
+    - InstanceId: 56B4D1A01A7141A2AE736B1846E80BAA
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -12
+        Y: 52
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -12
+        Y: 52
+        Level: 0
+      - X: -11
+        Y: 52
+        Level: 0
+    - InstanceId: 60BBC10A1CAC4377909C4EEF1A14B9D8
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -24
+        Y: 52
+        Level: 0
+      Orientation: 0
+      OccupiedCells:
+      - X: -24
+        Y: 52
+        Level: 0
+      - X: -23
+        Y: 52
+        Level: 0
+    - InstanceId: 8417601A506B41E0873745D654A0E7A0
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -14
+        Y: 52
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -14
+        Y: 52
+        Level: 0
+      - X: -13
+        Y: 52
+        Level: 0
+    - InstanceId: 8C896BF666A547758137CDDFB53E0BA5
+      DefinitionId: BASIC_CHECKOUT_COUNTER
+      AnchorCell:
+        X: -24
+        Y: 39
+        Level: 0
+      Orientation: 3
+      OccupiedCells:
+      - X: -24
+        Y: 39
+        Level: 0
+      - X: -24
+        Y: 40
+        Level: 0
+    - InstanceId: 9588F4CD4EF946AA96396AB427A88425
+      DefinitionId: BASIC_CHECKOUT_COUNTER
+      AnchorCell:
+        X: -24
+        Y: 37
+        Level: 0
+      Orientation: 3
+      OccupiedCells:
+      - X: -24
+        Y: 37
+        Level: 0
+      - X: -24
+        Y: 38
+        Level: 0
+    - InstanceId: A6494B6588A1442E8FEBAF022268843C
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -20
+        Y: 52
+        Level: 0
+      Orientation: 0
+      OccupiedCells:
+      - X: -20
+        Y: 52
+        Level: 0
+      - X: -19
+        Y: 52
+        Level: 0
+    - InstanceId: AB9609894536489BA3096E99C14617F3
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -16
+        Y: 47
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -16
+        Y: 47
+        Level: 0
+      - X: -15
+        Y: 47
+        Level: 0
+    - InstanceId: C1D306C29199413DB9EB32C715A20688
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -21
+        Y: 48
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -21
+        Y: 48
+        Level: 0
+      - X: -21
+        Y: 49
+        Level: 0
+    - InstanceId: C827824822AF48FAA77E82B2E88F9BE5
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -24
+        Y: 44
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -24
+        Y: 44
+        Level: 0
+      - X: -24
+        Y: 45
+        Level: 0
+    - InstanceId: CC641DE067C14448AE338FB7FD48C53B
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -11
+        Y: 37
+        Level: 0
+      Orientation: 3
+      OccupiedCells:
+      - X: -11
+        Y: 37
+        Level: 0
+      - X: -11
+        Y: 38
+        Level: 0
+    - InstanceId: D253F59A1D4849299072B559DCE0C982
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -13
+        Y: 43
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -13
+        Y: 43
+        Level: 0
+      - X: -13
+        Y: 44
+        Level: 0
+    - InstanceId: D288BC06BA3446F79C3C6F09A9FB27FB
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -13
+        Y: 41
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -13
+        Y: 41
+        Level: 0
+      - X: -13
+        Y: 42
+        Level: 0
+    - InstanceId: D58D297252D749968D57BA9B107DBA1A
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -22
+        Y: 52
+        Level: 0
+      Orientation: 0
+      OccupiedCells:
+      - X: -22
+        Y: 52
+        Level: 0
+      - X: -21
+        Y: 52
+        Level: 0
+    - InstanceId: DBAE5E71F1FB47F19AC112B6D4C1018B
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -16
+        Y: 41
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -16
+        Y: 41
+        Level: 0
+      - X: -16
+        Y: 42
+        Level: 0
+    - InstanceId: E99FDD8A76154307B05CF86CA58B84FC
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -13
+        Y: 45
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -13
+        Y: 45
+        Level: 0
+      - X: -13
+        Y: 46
+        Level: 0
+    - InstanceId: ED7B40BA07234CCB9D5807E6B5DAED7F
+      DefinitionId: HALF_SHELF
+      AnchorCell:
+        X: -26
+        Y: 52
+        Level: 0
+      Orientation: 0
+      OccupiedCells:
+      - X: -26
+        Y: 52
+        Level: 0
+      - X: -25
+        Y: 52
+        Level: 0
+    - InstanceId: F2E592B1D9924DD78C2796A94A2919B6
+      DefinitionId: BACKSTOCK_SHELF
+      AnchorCell:
+        X: -16
+        Y: 52
+        Level: 0
+      Orientation: 2
+      OccupiedCells:
+      - X: -16
+        Y: 52
+        Level: 0
+      - X: -15
+        Y: 52
+        Level: 0
+    - InstanceId: FA21ED1FCFF84E72B1A8FA1994D086D3
+      DefinitionId: STANDARD_SHELF
+      AnchorCell:
+        X: -24
+        Y: 48
+        Level: 0
+      Orientation: 1
+      OccupiedCells:
+      - X: -24
+        Y: 48
+        Level: 0
+      - X: -24
+        Y: 49
+        Level: 0
+    FixturePlans: []
+    Departments: []
+    ReceivingCells:
+    - X: -10
+      Y: 48
+      Level: 0
+    - X: -9
+      Y: 48
+      Level: 0
+    - X: -8
+      Y: 48
+      Level: 0
+    - X: -7
+      Y: 48
+      Level: 0
+    - X: -6
+      Y: 48
+      Level: 0
+    - X: -10
+      Y: 49
+      Level: 0
+    - X: -9
+      Y: 49
+      Level: 0
+    - X: -8
+      Y: 49
+      Level: 0
+    - X: -7
+      Y: 49
+      Level: 0
+    - X: -6
+      Y: 49
+      Level: 0
+    - X: -10
+      Y: 50
+      Level: 0
+    - X: -9
+      Y: 50
+      Level: 0
+    - X: -8
+      Y: 50
+      Level: 0
+    - X: -7
+      Y: 50
+      Level: 0
+    - X: -6
+      Y: 50
+      Level: 0
+    - X: -10
+      Y: 51
+      Level: 0
+    - X: -9
+      Y: 51
+      Level: 0
+    - X: -8
+      Y: 51
+      Level: 0
+    - X: -7
+      Y: 51
+      Level: 0
+    - X: -6
+      Y: 51
+      Level: 0
+    - X: -10
+      Y: 52
+      Level: 0
+    - X: -9
+      Y: 52
+      Level: 0
+    - X: -8
+      Y: 52
+      Level: 0
+    - X: -7
+      Y: 52
+      Level: 0
+    - X: -6
+      Y: 52
+      Level: 0

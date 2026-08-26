@@ -12,6 +12,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         public const string OverlayName = "campaign-opening-overlay";
         public const string ObjectiveCardName = "campaign-objective-card";
 
+        private const string FrankOpeningClassName =
+            "campaign-opening-overlay--frank";
+
         private readonly VisualElement overlay;
         private readonly VisualElement objectiveCard;
         private readonly Label speakerLabel;
@@ -64,19 +67,38 @@ namespace BigRetail.Construction.Unity.UI.PC
                     : DisplayStyle.None;
         }
 
+        public void SetFrankOpeningStyle(bool isEnabled)
+        {
+            overlay.EnableInClassList(
+                FrankOpeningClassName,
+                isEnabled);
+        }
+
+        public void SetOpeningOpacity(float opacity)
+        {
+            overlay.style.opacity = opacity;
+        }
+
+        public void SetDialogueControlsEnabled(bool isEnabled)
+        {
+            continueButton.SetEnabled(isEnabled);
+            skipButton.SetEnabled(isEnabled);
+        }
+
         public void SetDialogue(
             string speaker,
             string dialogue,
             int pageNumber,
             int pageCount,
-            bool isFinalPage)
+            bool isFinalPage,
+            string finalActionLabel = "Start Building")
         {
             speakerLabel.text = speaker ?? string.Empty;
             dialogueLabel.text = dialogue ?? string.Empty;
             progressLabel.text = $"{pageNumber} / {pageCount}";
             continueButton.text =
                 isFinalPage
-                    ? "Start Building"
+                    ? finalActionLabel
                     : "Continue";
         }
 

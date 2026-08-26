@@ -1,0 +1,25 @@
+{
+    "name": "BigRetail.StoreLayouts.Editor",
+    "rootNamespace": "BigRetail.StoreLayouts.Editor",
+    "references": [
+        "BigRetail.StoreLayouts",
+        "BigRetail.StoreLayouts.Unity",
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Map.Unity",
+        "BigRetail.Purchasing.Unity",
+        "BigRetail.Departments.Unity",
+        "BigRetail.Receiving.Unity",
+        "BigRetail.Session"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

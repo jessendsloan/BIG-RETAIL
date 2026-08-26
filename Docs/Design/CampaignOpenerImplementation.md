@@ -124,6 +124,10 @@ Branching dialogue is not required for the first implementation.
 
 # Phase 3 — Frank's prologue store
 
+Frank's prebuilt location, store-layout capture, and deterministic opening
+scenario are specified in
+[Map Workshop and Frank Roadside Implementation](MapWorkshopAndFrankRoadsideImplementation.md).
+
 ## 6. Build the one-off prologue map
 
 Create a deliberately small functioning convenience-store environment.

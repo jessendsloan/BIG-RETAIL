@@ -1,0 +1,14 @@
+{
+    "name": "BigRetail.StoreLayouts",
+    "rootNamespace": "BigRetail.StoreLayouts",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

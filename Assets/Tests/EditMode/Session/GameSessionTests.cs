@@ -70,6 +70,39 @@ namespace BigRetail.Session.Tests
         }
 
         [Test]
+        public void FrankRoadsideOpeningAdvancesThroughItsTwoBeats()
+        {
+            var session = new GameSession(GameMode.Campaign);
+
+            Assert.That(
+                session.FrankRoadsideOpening.CurrentBeat,
+                Is.EqualTo(FrankRoadsideOpeningBeat.WakeUp));
+
+            session.FrankRoadsideOpening.Advance();
+            Assert.That(
+                session.FrankRoadsideOpening.CurrentBeat,
+                Is.EqualTo(FrankRoadsideOpeningBeat.CoverTheStore));
+
+            session.FrankRoadsideOpening.Advance();
+            Assert.That(
+                session.FrankRoadsideOpening.IsComplete,
+                Is.True);
+        }
+
+        [Test]
+        public void FrankRoadsideOpeningCanBeSkipped()
+        {
+            var session = new GameSession(GameMode.Campaign);
+
+            session.FrankRoadsideOpening.Skip();
+
+            Assert.That(session.FrankRoadsideOpening.IsComplete, Is.True);
+            Assert.That(
+                session.FrankRoadsideOpening.CurrentBeat,
+                Is.EqualTo(FrankRoadsideOpeningBeat.Complete));
+        }
+
+        [Test]
         public void DevelopmentQuickStartArmsRequestedMode()
         {
             DevelopmentSessionBootstrap.Arm(GameMode.Campaign);
@@ -82,6 +115,32 @@ namespace BigRetail.Session.Tests
                 EditorPrefs.GetInt(
                     DevelopmentSessionBootstrap.ModeEditorPreference),
                 Is.EqualTo((int)GameMode.Campaign));
+            Assert.That(
+                EditorPrefs.GetBool(
+                    DevelopmentSessionBootstrap
+                        .WorkshopEditorPreference),
+                Is.False);
+        }
+
+
+        [Test]
+        public void MapWorkshopArmsSandboxWithWorkshopFlag()
+        {
+            DevelopmentSessionBootstrap.ArmMapWorkshop();
+
+            Assert.That(
+                EditorPrefs.GetBool(
+                    DevelopmentSessionBootstrap.ArmedEditorPreference),
+                Is.True);
+            Assert.That(
+                EditorPrefs.GetInt(
+                    DevelopmentSessionBootstrap.ModeEditorPreference),
+                Is.EqualTo((int)GameMode.Sandbox));
+            Assert.That(
+                EditorPrefs.GetBool(
+                    DevelopmentSessionBootstrap
+                        .WorkshopEditorPreference),
+                Is.True);
         }
 
         [Test]

@@ -412,6 +412,16 @@ namespace BigRetail.Map.Unity.Walls
             WallFinishAssetCatalog finishAssets)
         {
             if (catalog == null
+                && ownership == null)
+            {
+                // Fixed-footprint locations intentionally have no Lot fence
+                // presentation or Land Region ownership subscription.
+                DetachFromLandRegionOwnership();
+                RebuildLandRegionFenceViews();
+                return;
+            }
+
+            if (catalog == null
                 || ownership == null
                 || finishAssets == null)
             {

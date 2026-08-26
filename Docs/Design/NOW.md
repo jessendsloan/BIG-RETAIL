@@ -147,7 +147,31 @@ market**, not a prematurely enormous supercenter. It needs:
 retail store, and its receiving, stocking, checkout, and customer circulation
 can all be explained from the layout.
 
-## 6. Preserve the embodied-player direction
+## 6. Expand maximum camera zoom with Lot ownership
+
+The campaign camera should frame the store the player can actually use, not
+the entire nine-Lot Property from the beginning. Maximum zoom-out must grow as
+the player purchases adjacent Lots.
+
+The camera rule should provide:
+
+- an opening zoom limit that keeps the starting corner Lot readable and useful;
+- a larger maximum zoom-out after each Lot purchase, based on the current owned
+  footprint rather than a fixed campaign-wide value;
+- enough framing margin to understand newly purchased land without revealing
+  large amounts of irrelevant or inaccessible space;
+- smooth clamping when ownership changes, without needlessly snapping the
+  player's current camera distance;
+- full-Property framing once all nine Lots are owned;
+- a fixed authored camera policy for locations without purchasable Lots, such
+  as Frank's roadside store.
+
+**Done when:** A new campaign cannot zoom out far beyond its starting Lot, each
+Lot purchase visibly expands the useful zoom range, the complete Property can
+be framed at full ownership, and fixed-footprint locations retain their own
+authored camera bounds.
+
+## 7. Preserve the embodied-player direction
 
 The preferred direction is **Employee Zero**: the player is a persistent Person
 and owner-operator, not a separate superhuman species. Physical work should use
@@ -177,5 +201,5 @@ it before changing branches or starting the construction-economy implementation.
 - final Xbox accessibility conformance;
 - final balance numbers for construction or land.
 
-These remain valid future work. They should not displace the two active closure
+These remain valid future work. They should not displace the active closure
 targets above.

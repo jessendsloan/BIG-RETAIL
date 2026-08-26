@@ -73,6 +73,19 @@ namespace BigRetail.Map.Unity.Floors
             floorFinishAssets;
 
 
+        /// <summary>
+        /// Reports whether a cell has structural support. Systems that only
+        /// need a usable building surface should not require a decorative
+        /// floor finish to have been painted first.
+        /// </summary>
+        public bool HasFoundation(
+            BigRetail.Map.Domain.GridPosition cell)
+        {
+            return foundationRuntimeHost != null
+                && foundationRuntimeHost.HasFoundation(cell);
+        }
+
+
         public event Action<FloorRuntimeHost> Initialized;
 
 

@@ -1,4 +1,6 @@
+using System.Collections;
 using BigRetail.Core.Session;
+using BigRetail.Map.Unity;
 using BigRetail.Simulation.Time.Domain;
 using BigRetail.Simulation.Time.Unity;
 using UnityEngine;
@@ -14,6 +16,15 @@ namespace BigRetail.Construction.Unity.UI.PC
     [DefaultExecutionOrder(357)]
     public sealed class CampaignOpeningPresenter : MonoBehaviour
     {
+        private const string FrankRoadsideMapId =
+            "bigretail.map.frank_roadside";
+        private const string FrankSpeakerName = "FRANK";
+        private const string FrankObjectiveTitle = "Open Frank's Roadside";
+        private const string FrankObjectiveDescription =
+            "Get the store ready for the morning.";
+        private const int FrankDialoguePageCount = 2;
+        private const float FrankRevealDurationSeconds = 1.2f;
+
         private const string SpeakerName = "MILTON BIG";
         private const string ObjectiveTitle = "Make It a Store";
         private const string ObjectiveDescription =
@@ -26,7 +37,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private SimulationTimeRuntimeHost timeHost;
 
+        [SerializeField]
+        private GridMapHost mapHost;
+
         private CampaignOpeningView boundView;
+        private Coroutine frankRevealCoroutine;
         private SimulationSpeed speedBeforeDialogue =
             SimulationSpeed.OneTimes;
         private bool ownsSimulationPause;
@@ -39,6 +54,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 GetComponent<ConstructionToolbarDocumentHost>();
             timeHost =
                 GetComponent<SimulationTimeRuntimeHost>();
+            mapHost =
+                FindAnyObjectByType<GridMapHost>();
         }
 
         private void Awake()
@@ -53,6 +70,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 timeHost =
                     GetComponent<SimulationTimeRuntimeHost>();
+            }
+
+            if (mapHost == null)
+            {
+                mapHost =
+                    FindAnyObjectByType<GridMapHost>();
             }
 
             referencesAreValid = ValidateReferences();
@@ -78,6 +101,8 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void OnDisable()
         {
+            StopFrankReveal();
+
             if (documentHost != null)
             {
                 documentHost.CampaignOpeningViewReady -=
@@ -113,6 +138,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
+            if (IsFrankRoadside())
+            {
+                HandleFrankContinueRequested(session);
+                return;
+            }
+
             session.CampaignOpening.Advance();
             Refresh();
         }
@@ -122,6 +153,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             GameSession session = TryGetCampaignSession();
             if (session == null)
             {
+                return;
+            }
+
+            if (IsFrankRoadside())
+            {
+                session.FrankRoadsideOpening.Skip();
+                StopFrankReveal();
+                Refresh();
                 return;
             }
 
@@ -167,12 +206,22 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
+            boundView.SetOpeningOpacity(1f);
+            boundView.SetDialogueControlsEnabled(true);
+            boundView.SetFrankOpeningStyle(IsFrankRoadside());
+
             GameSession session = TryGetCampaignSession();
             if (session == null)
             {
                 boundView.SetDialogueVisible(false);
                 boundView.SetObjectiveVisible(false);
                 RestoreSimulationSpeed();
+                return;
+            }
+
+            if (IsFrankRoadside())
+            {
+                RefreshFrankOpening(session);
                 return;
             }
 
@@ -240,6 +289,137 @@ namespace BigRetail.Construction.Unity.UI.PC
                 pageNumber == DialoguePageCount);
         }
 
+        private void HandleFrankContinueRequested(GameSession session)
+        {
+            FrankRoadsideOpeningProgress progress =
+                session.FrankRoadsideOpening;
+
+            progress.Advance();
+
+            if (!progress.IsComplete)
+            {
+                Refresh();
+                return;
+            }
+
+            StopFrankReveal();
+            boundView.SetDialogueControlsEnabled(false);
+            frankRevealCoroutine =
+                StartCoroutine(RevealFrankRoadside());
+        }
+
+        private void RefreshFrankOpening(GameSession session)
+        {
+            FrankRoadsideOpeningProgress progress =
+                session.FrankRoadsideOpening;
+
+            if (progress.IsComplete)
+            {
+                boundView.SetDialogueVisible(false);
+                boundView.SetObjective(
+                    FrankObjectiveTitle,
+                    FrankObjectiveDescription);
+                boundView.SetObjectiveVisible(true);
+                RestoreSimulationSpeed();
+                return;
+            }
+
+            boundView.SetObjectiveVisible(false);
+            SetFrankDialogueForBeat(progress.CurrentBeat);
+            boundView.SetDialogueVisible(true);
+            PauseSimulation();
+        }
+
+        private void SetFrankDialogueForBeat(
+            FrankRoadsideOpeningBeat beat)
+        {
+            string dialogue;
+            int pageNumber;
+
+            switch (beat)
+            {
+                case FrankRoadsideOpeningBeat.WakeUp:
+                    pageNumber = 1;
+                    dialogue = "Kid... Wake up.";
+                    break;
+
+                case FrankRoadsideOpeningBeat.CoverTheStore:
+                    pageNumber = 2;
+                    dialogue =
+                        "I need you to cover the store this morning. "
+                        + "I'll be in later.";
+                    break;
+
+                default:
+                    return;
+            }
+
+            bool isFinalPage =
+                pageNumber == FrankDialoguePageCount;
+
+            boundView.SetDialogue(
+                FrankSpeakerName,
+                dialogue,
+                pageNumber,
+                FrankDialoguePageCount,
+                isFinalPage,
+                isFinalPage ? "Wake Up" : "Continue");
+        }
+
+        private IEnumerator RevealFrankRoadside()
+        {
+            float elapsedSeconds = 0f;
+
+            while (elapsedSeconds < FrankRevealDurationSeconds)
+            {
+                elapsedSeconds += Time.unscaledDeltaTime;
+                float progress = Mathf.Clamp01(
+                    elapsedSeconds / FrankRevealDurationSeconds);
+                boundView?.SetOpeningOpacity(1f - progress);
+                yield return null;
+            }
+
+            frankRevealCoroutine = null;
+
+            if (boundView == null)
+            {
+                RestoreSimulationSpeed();
+                yield break;
+            }
+
+            boundView.SetDialogueVisible(false);
+            boundView.SetOpeningOpacity(1f);
+            boundView.SetDialogueControlsEnabled(true);
+            boundView.SetObjective(
+                FrankObjectiveTitle,
+                FrankObjectiveDescription);
+            boundView.SetObjectiveVisible(true);
+            RestoreSimulationSpeed();
+        }
+
+        private void StopFrankReveal()
+        {
+            if (frankRevealCoroutine != null)
+            {
+                StopCoroutine(frankRevealCoroutine);
+                frankRevealCoroutine = null;
+            }
+
+            if (boundView != null)
+            {
+                boundView.SetOpeningOpacity(1f);
+                boundView.SetDialogueControlsEnabled(true);
+            }
+        }
+
+        private bool IsFrankRoadside()
+        {
+            return mapHost != null
+                && mapHost.IsInitialized
+                && mapHost.MapDefinition != null
+                && mapHost.MapDefinition.MapId == FrankRoadsideMapId;
+        }
+
         private void PauseSimulation()
         {
             if (ownsSimulationPause
@@ -300,6 +480,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 Debug.LogError(
                     "CampaignOpeningPresenter has no time host assigned.",
+                    this);
+                isValid = false;
+            }
+
+            if (mapHost == null)
+            {
+                Debug.LogError(
+                    "CampaignOpeningPresenter could not find the active map host.",
                     this);
                 isValid = false;
             }

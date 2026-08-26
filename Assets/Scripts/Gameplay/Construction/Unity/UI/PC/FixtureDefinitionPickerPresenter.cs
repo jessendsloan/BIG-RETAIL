@@ -159,7 +159,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             equipmentRuntimeHost.SetPlanMode(
                 !equipmentRuntimeHost.IsPlanMode);
             equipmentStatus = equipmentRuntimeHost.IsPlanMode
-                ? "Planning is free. Click the store floor to lay out translucent fixtures."
+                ? "Planning is free. Click the foundation to lay out translucent fixtures."
                 : "Install mode uses equipment already received into storage.";
             RefreshEquipmentView();
         }

@@ -133,6 +133,31 @@ namespace BigRetail.Departments
         }
 
 
+        internal bool TryRemovePlan(
+            DepartmentPlanId planId,
+            out DepartmentPlan removedPlan)
+        {
+            if (isPublishingChanges
+                || !plans.TryGetValue(
+                    planId,
+                    out removedPlan))
+            {
+                removedPlan = null;
+                return false;
+            }
+
+            foreach (GridPosition cell in
+                     removedPlan.EnumerateCells())
+            {
+                cellAssignments.Remove(cell);
+            }
+
+            plans.Remove(planId);
+            PublishPlanChanged(planId);
+            return true;
+        }
+
+
         private void PublishPlanChanged(
             DepartmentPlanId planId)
         {

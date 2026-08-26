@@ -39,6 +39,16 @@ namespace BigRetail.Map.Unity
         private FoundationRuntimeHost foundationRuntimeHost;
 
 
+        [Header("Location Land Policy")]
+
+        [Tooltip(
+            "Purchasable Land Regions are used by the main Property. " +
+            "Fixed Footprint grants the entire authored construction mask.")]
+        [SerializeField]
+        private LocationLandPolicyKind landPolicyKind =
+            LocationLandPolicyKind.PurchasableLandRegions;
+
+
         [Header("Prototype Land Region Progression")]
 
         [SerializeField]
@@ -73,6 +83,18 @@ namespace BigRetail.Map.Unity
         /// authored property boundary with mutable Land Region ownership.
         /// </summary>
         public IConstructionCellEligibility ConstructionEligibility
+        {
+            get;
+            private set;
+        }
+
+        public ILocationLandPolicy LandPolicy
+        {
+            get;
+            private set;
+        }
+
+        public string MapFingerprint
         {
             get;
             private set;
@@ -253,35 +275,25 @@ namespace BigRetail.Map.Unity
                         .CreateConstructionAreaDefinition(
                             MapDefinition);
 
-                LandRegions =
-                    LandRegionCatalog.CreateFor(ConstructionArea);
+                MapFingerprint =
+                    MapGeometryFingerprint.Compute(
+                        MapDefinition,
+                        ConstructionArea);
 
-                LandRegionOwnership =
-                    new LandRegionOwnershipState(LandRegions);
-
-                if (GameSessionHost.ActiveMode == GameMode.Campaign)
-                {
-                    LandRegionOwnership.Own(
-                        LandRegionCatalog.FrontCornerRegionId);
-                }
-                else
-                {
-                    // Direct Gameplay launches and Sandbox sessions preserve
-                    // the established unrestricted construction workflow.
-                    LandRegionOwnership.OwnAll();
-                }
+                LandPolicy =
+                    CreateLandPolicy();
 
                 ConstructionEligibility =
-                    new LandRegionConstructionEligibility(
-                        ConstructionArea,
-                        LandRegions,
-                        LandRegionOwnership);
+                    LandPolicy.ConstructionEligibility;
 
+                // Preserve the established public seams while consumers move
+                // toward the explicit location policy. These are deliberately
+                // null for a Fixed Footprint location.
+                LandRegions = LandPolicy.LandRegions;
+                LandRegionOwnership =
+                    LandPolicy.LandRegionOwnership;
                 LandRegionPurchases =
-                    new LandRegionPurchaseService(
-                        LandRegions,
-                        LandRegionOwnership,
-                        CreatePrototypePurchaseOptions());
+                    LandPolicy.LandRegionPurchases;
 
                 // The current map begins with no runtime walls.
                 // Save loading can supply restored walls here later.
@@ -344,8 +356,10 @@ namespace BigRetail.Map.Unity
                 DoorDefinitions = null;
                 LandRegionPurchases = null;
                 ConstructionEligibility = null;
+                LandPolicy = null;
                 LandRegionOwnership = null;
                 LandRegions = null;
+                MapFingerprint = null;
                 WallAppearanceStrokes = null;
                 WallFinishes?.Dispose();
                 WallFinishes = null;
@@ -367,13 +381,46 @@ namespace BigRetail.Map.Unity
                 + $"Valid cells: {MapDefinition.ValidCellCount}. "
                 + $"Construction-eligible cells: "
                 + $"{ConstructionArea.EligibleCellCount}. "
-                + $"Owned Land Regions: "
-                + $"{LandRegionOwnership.OwnedRegionCount}/"
-                + $"{LandRegionCatalog.RegionCount}. "
+                + $"Land policy: {LandPolicy.Kind}. "
+                + GetLandRegionSummary()
                 + $"Initial walls: {WallState.WallCount}. "
                 + $"Wall finishes: {WallFinishCatalog.Count}. "
                 + $"Door definitions: {DoorDefinitionAssets.Count}.",
                 this);
+        }
+
+
+        private string GetLandRegionSummary()
+        {
+            return LandRegionOwnership == null
+                ? string.Empty
+                : $"Owned Land Regions: "
+                    + $"{LandRegionOwnership.OwnedRegionCount}/"
+                    + $"{LandRegionCatalog.RegionCount}. ";
+        }
+
+
+        private ILocationLandPolicy CreateLandPolicy()
+        {
+            switch (landPolicyKind)
+            {
+                case LocationLandPolicyKind.PurchasableLandRegions:
+                    // Direct Gameplay launches and Sandbox sessions preserve
+                    // the established unrestricted construction workflow.
+                    return new PurchasableLandRegionPolicy(
+                        ConstructionArea,
+                        GameSessionHost.ActiveMode != GameMode.Campaign,
+                        CreatePrototypePurchaseOptions());
+
+                case LocationLandPolicyKind.FixedFootprint:
+                    return new FixedFootprintLandPolicy(
+                        ConstructionArea);
+
+                default:
+                    throw new InvalidOperationException(
+                        $"Unsupported location land policy: "
+                        + $"{landPolicyKind}.");
+            }
         }
 
 

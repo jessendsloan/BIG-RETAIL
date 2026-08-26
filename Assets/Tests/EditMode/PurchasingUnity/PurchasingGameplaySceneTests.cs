@@ -63,6 +63,10 @@ namespace BigRetail.Purchasing.Unity.Tests
                 EquipmentCatalogWorkspacePresenter equipmentPresenter =
                     FindSceneComponent<
                         EquipmentCatalogWorkspacePresenter>(scene);
+                PurchasingWorkspaceDocumentHost equipmentPurchasingHost =
+                    FindSceneComponent<PurchasingWorkspaceDocumentHost>(
+                        scene,
+                        "EquipmentCatalogWorkspaceUI");
                 PanelRenderer equipmentPanel =
                     FindSceneComponent<PanelRenderer>(
                         scene,
@@ -85,6 +89,7 @@ namespace BigRetail.Purchasing.Unity.Tests
                 Assert.That(panel.visualTreeAsset, Is.Not.Null);
                 Assert.That(panel.sortingOrder, Is.EqualTo(100));
                 Assert.That(equipmentPresenter, Is.Not.Null);
+                Assert.That(equipmentPurchasingHost, Is.Null);
                 Assert.That(
                     equipmentPresenter.gameObject.activeSelf,
                     Is.False);

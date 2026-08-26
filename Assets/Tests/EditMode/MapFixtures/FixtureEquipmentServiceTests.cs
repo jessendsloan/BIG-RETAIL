@@ -105,6 +105,88 @@ namespace BigRetail.Map.Fixtures.Tests
         }
 
         [Test]
+        public void DirectInstallation_ExactMatchingPlanIsRetired()
+        {
+            TestContext context = CreateContext(openingCashCents: 100000);
+
+            Assert.That(
+                context.Planning.TryCreatePlan(
+                    new FixtureInstanceId("planned-shelf"),
+                    ShelfId,
+                    FirstCell,
+                    FixtureOrientation.North).Succeeded,
+                Is.True);
+            context.Inventory.Add(ShelfId);
+            int planChangeCount = 0;
+            context.Plans.PlansChanged += () => planChangeCount++;
+
+            FixtureEquipmentInstallationResult installed =
+                context.Installation.TryInstallOwnedFixture(
+                    new FixtureInstanceId("manually-placed-shelf"),
+                    ShelfId,
+                    FirstCell,
+                    FixtureOrientation.North);
+
+            Assert.That(installed.Succeeded, Is.True);
+            Assert.That(context.State.FixtureCount, Is.EqualTo(1));
+            Assert.That(context.Plans.Count, Is.Zero);
+            Assert.That(context.Plans.IsCellPlanned(FirstCell), Is.False);
+            Assert.That(planChangeCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void DirectInstallation_ElsewherePreservesPlan()
+        {
+            TestContext context = CreateContext(openingCashCents: 100000);
+
+            Assert.That(
+                context.Planning.TryCreatePlan(
+                    new FixtureInstanceId("planned-shelf"),
+                    ShelfId,
+                    FirstCell,
+                    FixtureOrientation.North).Succeeded,
+                Is.True);
+            context.Inventory.Add(ShelfId);
+
+            FixtureEquipmentInstallationResult installed =
+                context.Installation.TryInstallOwnedFixture(
+                    new FixtureInstanceId("elsewhere-shelf"),
+                    ShelfId,
+                    SecondCell,
+                    FixtureOrientation.North);
+
+            Assert.That(installed.Succeeded, Is.True);
+            Assert.That(context.Plans.Count, Is.EqualTo(1));
+            Assert.That(context.Plans.IsCellPlanned(FirstCell), Is.True);
+        }
+
+        [Test]
+        public void PlannedInstallation_RetiresPlanAndPublishesChange()
+        {
+            TestContext context = CreateContext(openingCashCents: 100000);
+            FixtureInstanceId planId =
+                new FixtureInstanceId("planned-shelf");
+
+            Assert.That(
+                context.Planning.TryCreatePlan(
+                    planId,
+                    ShelfId,
+                    FirstCell,
+                    FixtureOrientation.North).Succeeded,
+                Is.True);
+            context.Inventory.Add(ShelfId);
+            int planChangeCount = 0;
+            context.Plans.PlansChanged += () => planChangeCount++;
+
+            FixtureEquipmentInstallationResult installed =
+                context.Installation.TryInstallPlan(planId);
+
+            Assert.That(installed.Succeeded, Is.True);
+            Assert.That(context.Plans.Count, Is.Zero);
+            Assert.That(planChangeCount, Is.EqualTo(1));
+        }
+
+        [Test]
         public void EquipmentAwareHistory_ReplaysInventoryWithFixture()
         {
             TestContext context = CreateContext(openingCashCents: 100000);
