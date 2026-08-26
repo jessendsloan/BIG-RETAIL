@@ -1,0 +1,38 @@
+{
+    "name": "BigRetail.StoreLayouts.Unity.Tests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "BigRetail.StoreLayouts",
+        "BigRetail.StoreLayouts.Unity",
+        "BigRetail.StoreLayouts.Editor",
+        "BigRetail.Map.Domain",
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Foundations",
+        "BigRetail.Map.Sidewalks",
+        "BigRetail.Map.Floors",
+        "BigRetail.Map.Walls",
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Map.Unity",
+        "BigRetail.Departments.Domain",
+        "BigRetail.Departments.Unity",
+        "BigRetail.Receiving.Domain",
+        "BigRetail.Receiving.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -816,6 +816,7 @@
 
 #fixture-definition-picker {
     top: 388px;
+    max-width: 520px;
 }
 
 .fixture-picker__content {
@@ -846,19 +847,19 @@
 }
 
 .fixture-equipment__selected {
-    min-height: 38px;
-    margin-top: 12px;
+    min-height: 30px;
+    margin-top: 8px;
     color: rgb(35, 43, 50);
-    font-size: 26px;
+    font-size: 20px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
 .fixture-equipment__summary {
-    min-height: 38px;
-    margin-bottom: 10px;
+    min-height: 30px;
+    margin-bottom: 6px;
     color: rgb(54, 63, 69);
-    font-size: 24px;
+    font-size: 18px;
     letter-spacing: 0.4px;
     -unity-text-align: middle-center;
 }
@@ -867,17 +868,17 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 760px;
+    max-width: 500px;
 }
 
 .fixture-equipment__button {
-    min-width: 214px;
-    min-height: 58px;
-    margin: 5px;
-    padding-left: 14px;
-    padding-right: 14px;
+    min-width: 148px;
+    min-height: 48px;
+    margin: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
     color: rgb(35, 43, 50);
-    font-size: 24px;
+    font-size: 18px;
     -unity-font-style: bold;
     background-color: rgba(255, 255, 255, 0.66);
     border-width: 2px;
@@ -900,11 +901,11 @@
 }
 
 .fixture-equipment__status {
-    max-width: 730px;
-    min-height: 66px;
-    margin-top: 8px;
+    max-width: 490px;
+    min-height: 50px;
+    margin-top: 5px;
     color: rgb(54, 63, 69);
-    font-size: 24px;
+    font-size: 18px;
     white-space: normal;
     -unity-text-align: middle-center;
 }
@@ -923,6 +924,22 @@
     -unity-text-align: middle-center;
     background-color: rgb(20, 76, 80);
     border-radius: 17px;
+}
+
+#fixture-definition-picker.is-planning .fixture-equipment__selected,
+#fixture-definition-picker.is-planning .fixture-equipment__summary,
+#fixture-definition-picker.is-planning #fixture-order-plans-button,
+#fixture-definition-picker.is-planning #fixture-install-plans-button,
+#fixture-definition-picker.is-planning .fixture-equipment__status {
+    display: none;
+}
+
+#fixture-definition-picker.is-planning .fixture-equipment__actions {
+    margin-top: 6px;
+}
+
+#fixture-definition-picker.is-planning #fixture-plan-mode-button {
+    min-width: 170px;
 }
 
 .demolition-picker {
@@ -1641,6 +1658,67 @@
 
 .campaign-opening-panel__button--primary:hover {
     background-color: rgb(230, 194, 116);
+}
+
+.campaign-opening-overlay--frank {
+    padding-top: 0;
+    justify-content: flex-end;
+    background-color: rgb(0, 0, 0);
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel {
+    width: 820px;
+    min-height: 190px;
+    margin-bottom: 92px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__portrait-frame {
+    display: none;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__header {
+    min-height: 34px;
+    border-bottom-width: 0;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__speaker {
+    color: rgb(190, 190, 190);
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__progress,
+.campaign-opening-overlay--frank .campaign-opening-panel__button--secondary {
+    display: none;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__dialogue {
+    min-height: 90px;
+    padding-top: 8px;
+    color: rgb(244, 244, 244);
+    font-size: 29px;
+    -unity-text-align: middle-left;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__actions {
+    min-height: 44px;
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__button--primary {
+    min-width: 130px;
+    min-height: 40px;
+    color: rgb(200, 200, 200);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.campaign-opening-overlay--frank .campaign-opening-panel__button--primary:hover {
+    color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.10);
 }
 
 /* A fixed information dock keeps hover and focus context out of tool panels. */

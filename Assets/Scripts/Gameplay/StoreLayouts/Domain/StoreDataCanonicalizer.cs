@@ -40,6 +40,7 @@ namespace BigRetail.StoreLayouts
             CopyWalls(source.Walls, copy.Walls);
             CopyOpenings(source.Openings, copy.Openings);
             CopyFixtures(source.Fixtures, copy.Fixtures);
+            CopyFixturePlans(source.FixturePlans, copy.FixturePlans);
             CopyDepartments(source.Departments, copy.Departments);
 
             return copy;
@@ -269,6 +270,44 @@ namespace BigRetail.StoreLayouts
                     };
 
                 CopyCells(item.Cells, copy.Cells);
+                destination.Add(copy);
+            }
+
+            destination.Sort(
+                (left, right) =>
+                    CompareIds(left.InstanceId, right.InstanceId));
+        }
+
+
+        private static void CopyFixturePlans(
+            IReadOnlyList<StoreFixturePlanData> source,
+            List<StoreFixturePlanData> destination)
+        {
+            // This collection was added to layout schema v1 after the first
+            // Workshop assets existed. A missing collection therefore means
+            // that the legacy layout contains no equipment plans.
+            if (source == null)
+            {
+                return;
+            }
+
+            for (int index = 0;
+                 index < source.Count;
+                 index++)
+            {
+                StoreFixturePlanData item =
+                    RequireItem(source[index], "fixture plan");
+
+                StoreFixturePlanData copy =
+                    new StoreFixturePlanData
+                    {
+                        InstanceId = NormalizeId(item.InstanceId),
+                        DefinitionId = NormalizeId(item.DefinitionId),
+                        AnchorCell = item.AnchorCell,
+                        Orientation = item.Orientation
+                    };
+
+                CopyCells(item.OccupiedCells, copy.OccupiedCells);
                 destination.Add(copy);
             }
 

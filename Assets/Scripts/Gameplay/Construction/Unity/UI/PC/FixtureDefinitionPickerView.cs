@@ -43,6 +43,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             "fixture-definition-picker-items";
         public const string RotateButtonName = "fixture-rotate-button";
         public const string SelectedClassName = "is-selected";
+        public const string PlanningClassName = "is-planning";
 
         public const string EquipmentSelectedName =
             "fixture-equipment-selected";
@@ -203,6 +204,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             planModeButton.text = isPlanMode
                 ? "PLANNING: ON"
                 : "PLAN LAYOUT";
+            panel.EnableInClassList(
+                PlanningClassName,
+                isPlanMode);
             orderPlansButton.SetEnabled(true);
             installPlansButton.SetEnabled(
                 canInstallPlannedEquipment);

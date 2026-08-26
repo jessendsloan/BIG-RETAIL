@@ -13,8 +13,18 @@ namespace BigRetail.Economy.Domain
     {
         public long BalanceCents { get; private set; }
 
+        public bool IsUnlimited { get; }
+
 
         public StoreCashState(long openingBalanceCents)
+            : this(openingBalanceCents, false)
+        {
+        }
+
+
+        private StoreCashState(
+            long openingBalanceCents,
+            bool isUnlimited)
         {
             if (openingBalanceCents < 0)
             {
@@ -25,16 +35,27 @@ namespace BigRetail.Economy.Domain
             }
 
             BalanceCents = openingBalanceCents;
+            IsUnlimited = isUnlimited;
         }
 
 
         public event Action BalanceChanged;
 
 
+        public static StoreCashState CreateUnlimited(
+            long displayedBalanceCents)
+        {
+            return new StoreCashState(
+                displayedBalanceCents,
+                true);
+        }
+
+
         public bool CanAfford(long amountCents)
         {
             return amountCents > 0
-                && BalanceCents >= amountCents;
+                && (IsUnlimited
+                    || BalanceCents >= amountCents);
         }
 
         public bool TrySpend(long amountCents)
@@ -42,6 +63,11 @@ namespace BigRetail.Economy.Domain
             if (!CanAfford(amountCents))
             {
                 return false;
+            }
+
+            if (IsUnlimited)
+            {
+                return true;
             }
 
             BalanceCents -= amountCents;
@@ -57,6 +83,11 @@ namespace BigRetail.Economy.Domain
                     nameof(amountCents),
                     amountCents,
                     "A cash credit must be greater than zero.");
+            }
+
+            if (IsUnlimited)
+            {
+                return;
             }
 
             if (BalanceCents > long.MaxValue - amountCents)

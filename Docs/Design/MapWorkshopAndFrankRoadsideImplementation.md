@@ -152,7 +152,8 @@ Required data:
 - floor cells and floor-finish IDs;
 - wall edges, wall type, and both face-finish IDs;
 - doors and windows, including orientation;
-- fixtures, stable fixture instance IDs, definition IDs, cells, and rotation;
+- installed fixtures and uninstalled fixture plans, each with stable fixture
+  instance IDs, definition IDs, cells, and rotation;
 - department/area assignments;
 - receiving-area cells;
 - any other permanent placed construction needed to reproduce the store.
@@ -274,10 +275,12 @@ order is:
 6. apply entitlement/owned-footprint state;
 7. restore foundations, sidewalks, floors, walls, and finishes;
 8. restore doors and windows;
-9. restore fixtures and stable instance IDs;
-10. restore departments and receiving areas;
-11. rebuild views, masks, pathfinding, and derived caches once;
-12. publish one completion event after the whole store is valid.
+9. restore installed fixtures and their stable instance IDs;
+10. restore uninstalled fixture plans without creating orders, inventory, or
+    deliveries;
+11. restore departments and receiving areas;
+12. rebuild views, masks, pathfinding, and derived caches once;
+13. publish one completion event after the whole store is valid.
 
 Loading a template must not spend cash, create purchase history, record undo
 commands, fire campaign construction objectives, or award progression.
@@ -399,20 +402,50 @@ runtime contract is updated by someone who has inspected the full scene.
 
 ## Phase B — Runtime loader
 
-- [ ] Load a tiny hand-authored layout into a test location.
-- [ ] Restore every construction category through canonical state services.
+- [x] Load a tiny hand-authored layout into a test location.
+- [x] Restore every construction category through canonical state services.
 - [ ] Rebuild derived views and caches once after the transaction.
-- [ ] Prove bootstrap loading creates no cost, undo, history, or objective
+- [x] Prove bootstrap loading creates no cost, undo, history, or objective
   side effects.
-- [ ] Prove repeated reset produces identical state.
+- [x] Prove repeated reset produces identical state.
+
+The first integration proof runs against the real Frank Roadside runtime
+composition. It restores foundations, sidewalks, finished floors, finished
+walls, a window opening, a fixture with stable identity, a department, and a
+Receiving cell; loads the same template twice; compares the complete canonical
+snapshots; verifies the template asset is unchanged; and confirms construction
+undo/redo history remains untouched. The loader calls permanent state services
+directly, outside tool, price, purchase-history, and campaign-objective paths.
+
+For safety, this first loader requires the layout's authored land entitlement
+to match the location's current policy exactly. That is the correct behavior
+for Frank's fixed footprint. Explicit mutable owned-Lot restoration for the
+main Property remains a later loader extension before a Property template is
+introduced.
 
 ## Phase C — Workshop capture and editor UI
 
-- [ ] Add the editor-only Workshop launch flag.
-- [ ] Add the focused Workshop window and explicit save/update flow.
-- [ ] Capture canonical runtime state into a layout asset.
-- [ ] Add dirty-state and overwrite protection.
-- [ ] Complete a build → save → reload → build round trip.
+- [x] Add the editor-only Workshop launch flag.
+- [x] Add the focused Workshop window and explicit save/update flow.
+- [x] Capture canonical runtime state into a layout asset.
+- [x] Add dirty-state and overwrite protection.
+- [x] Complete a build → save → reload → build round trip.
+
+Open **Big Retail → Map Workshop → Open Workshop** to select a location scene
+and optional existing layout, then enter a real Sandbox-backed Play Mode
+Workshop. The distinct editor-only flag grants the established unrestricted
+land policy, suppresses Campaign opening objectives through the existing
+session mode, and selects unlimited construction undo/redo. Saving remains an
+explicit action: new layouts cannot overwrite an existing path, updates require
+confirmation, and reload warns before discarding a dirty runtime draft.
+
+Capture reads only permanent runtime model hosts, creates a canonical snapshot,
+and runs the complete location-aware validator before asset persistence. The
+integration proof builds the tiny Frank layout, captures it, creates and
+reimports a real `StoreLayoutAsset`, rejects an accidental second create at the
+same path, rebuilds from the saved asset, and compares the complete canonical
+state. Scenario selection and **Test Scenario** remain visibly reserved for
+Phase D rather than implying an incomplete scenario bootstrap is ready.
 
 ## Phase D — Scenario bootstrap
 

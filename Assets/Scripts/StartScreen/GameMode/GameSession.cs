@@ -9,6 +9,8 @@ namespace BigRetail.Core.Session
 
         public CampaignOpeningProgress CampaignOpening { get; }
 
+        public FrankRoadsideOpeningProgress FrankRoadsideOpening { get; }
+
         public bool IsCampaign => Mode == GameMode.Campaign;
 
         public bool IsSandbox => Mode == GameMode.Sandbox;
@@ -17,6 +19,7 @@ namespace BigRetail.Core.Session
         {
             Mode = mode;
             CampaignOpening = new CampaignOpeningProgress();
+            FrankRoadsideOpening = new FrankRoadsideOpeningProgress();
         }
     }
 }

@@ -23,6 +23,16 @@ namespace BigRetail.Editor.StoreLayouts
     /// </summary>
     public static class FrankRoadsideSceneScaffold
     {
+        private const string CreateMenuPath =
+            "Big Retail/Map Workshop/Scene Setup (Edit Mode Only)/"
+            + "Create or Validate Frank Roadside "
+            + "Scaffold";
+
+        private const string FinalizeMenuPath =
+            "Big Retail/Map Workshop/Scene Setup (Edit Mode Only)/"
+            + "Finalize Authored Frank Roadside "
+            + "Map";
+
         private const string SourceScenePath =
             "Assets/Scenes/Gameplay.unity";
 
@@ -46,10 +56,11 @@ namespace BigRetail.Editor.StoreLayouts
             "bigretail.marker.frank.rear_service";
 
 
-        [MenuItem(
-            "Big Retail/Map Workshop/Create or Validate Frank Roadside Scaffold")]
+        [MenuItem(CreateMenuPath)]
         public static void CreateOrValidate()
         {
+            RequireEditMode("Frank Roadside scaffold setup");
+
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(
                     SourceScenePath) == null)
             {
@@ -123,16 +134,24 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
+        [MenuItem(CreateMenuPath, true)]
+        public static bool CanCreateOrValidate()
+        {
+            return CanEditSceneAssets();
+        }
+
+
         public static void CreateForAutomation()
         {
             CreateOrValidate();
         }
 
 
-        [MenuItem(
-            "Big Retail/Map Workshop/Finalize Authored Frank Roadside Map")]
+        [MenuItem(FinalizeMenuPath)]
         public static void FinalizeAuthoredMap()
         {
+            RequireEditMode("Frank Roadside map finalization");
+
             FixtureEquipmentSetupMenu
                 .IntegrateFixtureEquipmentIntoScene(
                     DestinationScenePath);
@@ -219,9 +238,36 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
+        [MenuItem(FinalizeMenuPath, true)]
+        public static bool CanFinalizeAuthoredMap()
+        {
+            return CanEditSceneAssets();
+        }
+
+
         public static void FinalizeForAutomation()
         {
             FinalizeAuthoredMap();
+        }
+
+
+        private static bool CanEditSceneAssets()
+        {
+            return !EditorApplication.isPlayingOrWillChangePlaymode
+                && !EditorApplication.isCompiling;
+        }
+
+
+        private static void RequireEditMode(string operation)
+        {
+            if (CanEditSceneAssets())
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"{operation} is only available in Edit Mode after Unity "
+                + "finishes compiling.");
         }
 
 

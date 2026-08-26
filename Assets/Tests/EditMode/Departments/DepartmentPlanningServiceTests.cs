@@ -345,6 +345,44 @@ namespace BigRetail.Departments.Tests
         }
 
 
+        [Test]
+        public void RemovePlan_ReleasesItsCellsForAnotherDepartment()
+        {
+            service.TryCreatePlan(
+                GroceryPlan,
+                Grocery,
+                new[]
+                {
+                    FirstCell,
+                    SecondCell
+                });
+
+            DepartmentPlanChangeResult removal =
+                service.TryRemovePlan(GroceryPlan);
+
+            DepartmentPlanChangeResult replacement =
+                service.TryCreatePlan(
+                    ProducePlan,
+                    Produce,
+                    new[]
+                    {
+                        FirstCell,
+                        SecondCell
+                    });
+
+            Assert.That(removal.Succeeded, Is.True);
+            Assert.That(removal.RemovedCellCount, Is.EqualTo(2));
+            Assert.That(state.PlanCount, Is.EqualTo(1));
+            Assert.That(replacement.Succeeded, Is.True);
+            Assert.That(
+                state.TryGetPlanAt(
+                    FirstCell,
+                    out DepartmentPlanId assignedPlan),
+                Is.True);
+            Assert.That(assignedPlan, Is.EqualTo(ProducePlan));
+        }
+
+
         private sealed class MutableFoundationQuery :
             IDepartmentFoundationQuery
         {

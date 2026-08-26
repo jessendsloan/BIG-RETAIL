@@ -177,6 +177,35 @@ namespace BigRetail.Departments
         }
 
 
+        public DepartmentPlanChangeResult TryRemovePlan(
+            DepartmentPlanId planId)
+        {
+            if (!planningState.TryGetPlan(
+                    planId,
+                    out DepartmentPlan plan))
+            {
+                return DepartmentPlanChangeResult.Rejected(
+                    planId,
+                    DepartmentPlanChangeFailure.PlanNotFound);
+            }
+
+            int removedCellCount = plan.CellCount;
+
+            if (!planningState.TryRemovePlan(
+                    planId,
+                    out _))
+            {
+                return DepartmentPlanChangeResult.Rejected(
+                    planId,
+                    DepartmentPlanChangeFailure.PlanNotFound);
+            }
+
+            return DepartmentPlanChangeResult.RemovalSuccess(
+                planId,
+                removedCellCount);
+        }
+
+
         private DepartmentPlanChangeResult ValidateUnassignedCells(
             DepartmentPlanId planId,
             IReadOnlyList<GridPosition> cells)

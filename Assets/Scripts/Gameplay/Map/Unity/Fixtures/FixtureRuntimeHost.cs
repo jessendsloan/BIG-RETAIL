@@ -131,8 +131,7 @@ namespace BigRetail.Map.Unity.Fixtures
         public bool HasFloor(GridPosition cell)
         {
             return floorRuntimeHost != null
-                && floorRuntimeHost.FloorState != null
-                && floorRuntimeHost.FloorState.HasFloor(cell);
+                && floorRuntimeHost.HasFoundation(cell);
         }
 
 

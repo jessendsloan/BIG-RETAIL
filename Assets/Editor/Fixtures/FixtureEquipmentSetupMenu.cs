@@ -24,6 +24,10 @@ namespace BigRetail.Editor.Fixtures
     /// </summary>
     public static class FixtureEquipmentSetupMenu
     {
+        private const string IntegrateMenuPath =
+            "Big Retail/Fixtures/Integrate Fixture Equipment Into "
+            + "Gameplay";
+
         private const string GameplayScenePath =
             "Assets/Scenes/Gameplay.unity";
         private const string EquipmentFolder =
@@ -40,7 +44,7 @@ namespace BigRetail.Editor.Fixtures
             "Assets/UI/Construction/PC/ConstructionToolbarPanelSettings.asset";
 
 
-        [MenuItem("Big Retail/Fixtures/Integrate Fixture Equipment Into Gameplay")]
+        [MenuItem(IntegrateMenuPath)]
         public static void IntegrateFixtureEquipmentIntoGameplay()
         {
             IntegrateFixtureEquipmentIntoScene(
@@ -48,9 +52,19 @@ namespace BigRetail.Editor.Fixtures
         }
 
 
+        [MenuItem(IntegrateMenuPath, true)]
+        public static bool CanIntegrateFixtureEquipmentIntoGameplay()
+        {
+            return CanEditSceneAssets();
+        }
+
+
         public static void IntegrateFixtureEquipmentIntoScene(
             string scenePath)
         {
+            RequireEditMode(
+                "Fixture Equipment scene integration");
+
             if (string.IsNullOrWhiteSpace(scenePath))
             {
                 throw new ArgumentException(
@@ -204,27 +218,17 @@ namespace BigRetail.Editor.Fixtures
 
             if (workspaceObject == null)
             {
-                GameObject purchasingWorkspace =
-                    FindSceneGameObject(scene, "PurchasingWorkspaceUI")
-                    ?? throw new InvalidOperationException(
-                        "Gameplay is missing its Purchasing workspace UI template.");
-                workspaceObject = UnityEngine.Object.Instantiate(
-                    purchasingWorkspace,
-                    toolbarDocumentHost.transform.parent);
-                workspaceObject.name = "EquipmentCatalogWorkspaceUI";
-
-                foreach (Component component
-                         in workspaceObject.GetComponents<Component>())
-                {
-                    if (component is Transform
-                        || component is PanelRenderer)
-                    {
-                        continue;
-                    }
-
-                    UnityEngine.Object.DestroyImmediate(component);
-                }
+                workspaceObject =
+                    new GameObject("EquipmentCatalogWorkspaceUI");
+                workspaceObject.transform.SetParent(
+                    toolbarDocumentHost.transform.parent,
+                    false);
             }
+
+            RemoveComponentIfPresent<PurchasingWorkspacePresenter>(
+                workspaceObject);
+            RemoveComponentIfPresent<PurchasingWorkspaceDocumentHost>(
+                workspaceObject);
 
             workspaceObject.SetActive(false);
             workspaceObject.transform.SetAsLastSibling();
@@ -438,6 +442,39 @@ namespace BigRetail.Editor.Fixtures
         {
             return gameObject.GetComponent<T>()
                 ?? gameObject.AddComponent<T>();
+        }
+
+
+        private static void RemoveComponentIfPresent<T>(
+            GameObject gameObject)
+            where T : Component
+        {
+            T component = gameObject.GetComponent<T>();
+
+            if (component != null)
+            {
+                UnityEngine.Object.DestroyImmediate(component);
+            }
+        }
+
+
+        private static bool CanEditSceneAssets()
+        {
+            return !EditorApplication.isPlayingOrWillChangePlaymode
+                && !EditorApplication.isCompiling;
+        }
+
+
+        private static void RequireEditMode(string operation)
+        {
+            if (CanEditSceneAssets())
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"{operation} is only available in Edit Mode after Unity "
+                + "finishes compiling.");
         }
 
         private static void SetObjectReference(

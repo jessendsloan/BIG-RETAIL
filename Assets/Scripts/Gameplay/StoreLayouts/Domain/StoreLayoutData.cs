@@ -42,6 +42,11 @@ namespace BigRetail.StoreLayouts
         public List<StoreFixtureData> Fixtures =
             new List<StoreFixtureData>();
 
+        // Added as an optional, backward-compatible schema-v1 record. Layouts
+        // authored before equipment planning existed deserialize as no plans.
+        public List<StoreFixturePlanData> FixturePlans =
+            new List<StoreFixturePlanData>();
+
         public List<StoreDepartmentData> Departments =
             new List<StoreDepartmentData>();
 
@@ -293,6 +298,18 @@ namespace BigRetail.StoreLayouts
 
     [Serializable]
     public sealed class StoreFixtureData
+    {
+        public string InstanceId = string.Empty;
+        public string DefinitionId = string.Empty;
+        public StoreCellData AnchorCell;
+        public StoreOrientation Orientation;
+        public List<StoreCellData> OccupiedCells =
+            new List<StoreCellData>();
+    }
+
+
+    [Serializable]
+    public sealed class StoreFixturePlanData
     {
         public string InstanceId = string.Empty;
         public string DefinitionId = string.Empty;

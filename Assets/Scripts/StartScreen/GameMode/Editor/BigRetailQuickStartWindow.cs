@@ -18,6 +18,9 @@ namespace BigRetail.Session.Editor
         private const string GameplayScenePath =
             "Assets/Scenes/Gameplay.unity";
 
+        private const string FrankRoadsideScenePath =
+            "Assets/Scenes/FrankRoadside.unity";
+
         [MenuItem(MenuPath)]
         public static void Open()
         {
@@ -25,7 +28,7 @@ namespace BigRetail.Session.Editor
                 GetWindow<BigRetailQuickStartWindow>(
                     "Big Retail Quick Start");
 
-            window.minSize = new Vector2(430f, 315f);
+            window.minSize = new Vector2(430f, 420f);
             window.Show();
         }
 
@@ -38,9 +41,9 @@ namespace BigRetail.Session.Editor
 
             EditorGUILayout.Space(4f);
             EditorGUILayout.HelpBox(
-                "Choose the rules you need to test. Quick Start opens the "
-                + "Gameplay scene, creates a real session, and enters Play "
-                + "Mode without visiting the main menu.",
+                "Choose the exact game moment you need to test. Quick Start "
+                + "creates a real session and enters Play Mode without "
+                + "visiting the main menu.",
                 MessageType.Info);
 
             EditorGUILayout.Space(10f);
@@ -52,10 +55,22 @@ namespace BigRetail.Session.Editor
             using (new EditorGUI.DisabledScope(launchBlocked))
             {
                 DrawLaunchOption(
-                    "Campaign Quick Start",
-                    "Use this while building opening progression, campaign "
-                    + "rules, unlocks, and the first-day flow.",
-                    GameMode.Campaign);
+                    "Frank Opening Quick Start",
+                    "Start at Frank's Roadside with the first campaign story "
+                    + "beat active.",
+                    "Start Frank Opening",
+                    GameMode.Campaign,
+                    FrankRoadsideScenePath);
+
+                EditorGUILayout.Space(8f);
+
+                DrawLaunchOption(
+                    "Main Property Campaign Quick Start",
+                    "Keep testing the existing Mr. BIG property assignment "
+                    + "without changing the player-facing campaign route.",
+                    "Start Main Property Campaign",
+                    GameMode.Campaign,
+                    GameplayScenePath);
 
                 EditorGUILayout.Space(8f);
 
@@ -63,7 +78,9 @@ namespace BigRetail.Session.Editor
                     "Sandbox Quick Start",
                     "Use this for unrestricted construction, art alignment, "
                     + "and isolated systems testing.",
-                    GameMode.Sandbox);
+                    "Start Sandbox",
+                    GameMode.Sandbox,
+                    GameplayScenePath);
             }
 
             EditorGUILayout.Space(10f);
@@ -93,7 +110,9 @@ namespace BigRetail.Session.Editor
         private static void DrawLaunchOption(
             string title,
             string description,
-            GameMode mode)
+            string buttonLabel,
+            GameMode mode,
+            string scenePath)
         {
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
@@ -104,14 +123,16 @@ namespace BigRetail.Session.Editor
 
                 EditorGUILayout.Space(4f);
 
-                if (GUILayout.Button($"Start {mode}", GUILayout.Height(38f)))
+                if (GUILayout.Button(buttonLabel, GUILayout.Height(38f)))
                 {
-                    Launch(mode);
+                    Launch(mode, scenePath);
                 }
             }
         }
 
-        private static void Launch(GameMode mode)
+        private static void Launch(
+            GameMode mode,
+            string scenePath)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode
                 || EditorApplication.isCompiling)
@@ -119,13 +140,13 @@ namespace BigRetail.Session.Editor
                 return;
             }
 
-            SceneAsset gameplayScene =
-                AssetDatabase.LoadAssetAtPath<SceneAsset>(GameplayScenePath);
+            SceneAsset targetScene =
+                AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
 
-            if (gameplayScene == null)
+            if (targetScene == null)
             {
                 Debug.LogError(
-                    $"Big Retail Quick Start could not find '{GameplayScenePath}'.");
+                    $"Big Retail Quick Start could not find '{scenePath}'.");
                 return;
             }
 
@@ -139,7 +160,7 @@ namespace BigRetail.Session.Editor
             try
             {
                 EditorSceneManager.OpenScene(
-                    GameplayScenePath,
+                    scenePath,
                     OpenSceneMode.Single);
                 DevelopmentSessionBootstrap.Arm(mode);
                 EditorApplication.isPlaying = true;

@@ -118,6 +118,99 @@ namespace BigRetail.StoreLayouts.Tests
                 Is.True);
         }
 
+
+        [Test]
+        public void Layout_FoundationAndSidewalkOverlap_IsRejected()
+        {
+            TestStoreData testData =
+                TestStoreData.Create();
+
+            testData.Layout.Sidewalks.Add(
+                testData.Layout.Foundations[0]);
+
+            StoreDataValidationResult result =
+                new StoreLayoutValidator().Validate(
+                    testData.Layout,
+                    testData.Context);
+
+            Assert.That(
+                result.Contains(
+                    StoreDataValidationCode.OccupiedCellOverlap),
+                Is.True);
+        }
+
+
+        [Test]
+        public void Layout_FixtureOnBareFoundation_IsAccepted()
+        {
+            TestStoreData testData =
+                TestStoreData.Create();
+
+            StoreCellData fixtureCell =
+                testData.Layout.Fixtures[0].OccupiedCells[0];
+
+            testData.Layout.Floors.RemoveAll(
+                floor => floor.Cell == fixtureCell);
+
+            StoreDataValidationResult result =
+                new StoreLayoutValidator().Validate(
+                    testData.Layout,
+                    testData.Context);
+
+            Assert.That(
+                result.IsValid,
+                Is.True,
+                JoinIssues(result));
+        }
+
+        [Test]
+        public void Layout_FixturePlanOverlappingInstalledFixture_IsRejected()
+        {
+            TestStoreData testData =
+                TestStoreData.Create();
+            StoreCellData installedCell =
+                testData.Layout.Fixtures[0].OccupiedCells[0];
+
+            testData.Layout.FixturePlans[0].AnchorCell = installedCell;
+            testData.Layout.FixturePlans[0].OccupiedCells =
+                new List<StoreCellData>
+                {
+                    installedCell
+                };
+
+            StoreDataValidationResult result =
+                new StoreLayoutValidator().Validate(
+                    testData.Layout,
+                    testData.Context);
+
+            Assert.That(
+                result.Contains(
+                    StoreDataValidationCode.OccupiedCellOverlap),
+                Is.True);
+        }
+
+        [Test]
+        public void Layout_LegacyMissingFixturePlans_IsAcceptedAsEmpty()
+        {
+            TestStoreData testData =
+                TestStoreData.Create();
+            testData.Layout.FixturePlans = null;
+
+            StoreDataValidationResult validation =
+                new StoreLayoutValidator().Validate(
+                    testData.Layout,
+                    testData.Context);
+            StoreLayoutData canonical =
+                new StoreDataCanonicalizer()
+                    .CreateCanonicalCopy(testData.Layout);
+
+            Assert.That(
+                validation.IsValid,
+                Is.True,
+                JoinIssues(validation));
+            Assert.That(canonical.FixturePlans, Is.Empty);
+        }
+
         [Test]
         public void Scenario_CompleteValidData_IsAccepted()
         {
@@ -207,6 +300,9 @@ namespace BigRetail.StoreLayouts.Tests
             Assert.That(
                 canonical.Fixtures[0],
                 Is.Not.SameAs(testData.Layout.Fixtures[0]));
+            Assert.That(
+                canonical.FixturePlans[0],
+                Is.Not.SameAs(testData.Layout.FixturePlans[0]));
         }
 
 
@@ -349,6 +445,22 @@ namespace BigRetail.StoreLayouts.Tests
                                         new List<StoreCellData>
                                         {
                                             validCells[2]
+                                        }
+                                }
+                            },
+                        FixturePlans =
+                            new List<StoreFixturePlanData>
+                            {
+                                new StoreFixturePlanData
+                                {
+                                    InstanceId = "shelf-plan-1",
+                                    DefinitionId = "standard-shelf",
+                                    AnchorCell = validCells[1],
+                                    Orientation = StoreOrientation.North,
+                                    OccupiedCells =
+                                        new List<StoreCellData>
+                                        {
+                                            validCells[1]
                                         }
                                 }
                             },

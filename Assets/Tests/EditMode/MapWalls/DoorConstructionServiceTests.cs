@@ -441,6 +441,64 @@ namespace BigRetail.Map.Walls.Tests
 
 
         [Test]
+        public void WallDemolitionAction_RestoresOpeningWithItsWalls()
+        {
+            CellEdge[] run =
+                CreateRun(
+                    CellEdgeDirection.NorthEast,
+                    1);
+
+            WallState wallState =
+                new WallState(run);
+
+            WallConstructionService wallService =
+                CreateWallConstructionService(
+                    wallState);
+
+            DoorAssemblyState doorState =
+                new DoorAssemblyState();
+
+            using DoorConstructionService doorService =
+                CreateService(
+                    doorState,
+                    wallState);
+
+            DoorAssemblyChangeResult placement =
+                doorService.TryPlaceAssembly(
+                    new DoorAssemblyId("demolished-opening"),
+                    SingleDoorId,
+                    run);
+
+            Assert.That(placement.Succeeded, Is.True);
+
+            WallClearResult demolition =
+                wallService.TryClearWalls(run);
+
+            Assert.That(demolition.Succeeded, Is.True);
+            Assert.That(wallState.WallCount, Is.Zero);
+            Assert.That(doorState.AssemblyCount, Is.Zero);
+
+            ConstructionHistory history =
+                new ConstructionHistory();
+
+            history.Record(
+                new ReversibleWallDemolitionAction(
+                    wallService,
+                    doorService,
+                    demolition.Edit,
+                    new[] { placement.Assembly }));
+
+            Assert.That(history.TryUndo(out _), Is.True);
+            Assert.That(wallState.WallCount, Is.EqualTo(1));
+            Assert.That(doorState.AssemblyCount, Is.EqualTo(1));
+
+            Assert.That(history.TryRedo(out _), Is.True);
+            Assert.That(wallState.WallCount, Is.Zero);
+            Assert.That(doorState.AssemblyCount, Is.Zero);
+        }
+
+
+        [Test]
         public void TryPlaceAssembly_ReversedInputSpan_UsesStablePanelOrder()
         {
             CellEdge[] run =

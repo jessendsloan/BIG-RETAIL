@@ -42,10 +42,16 @@ namespace BigRetail.StoreLayouts
                     context,
                     result);
 
-            ValidateCellList(
-                layout.Sidewalks,
-                "sidewalks",
-                context,
+            HashSet<StoreCellData> sidewalkCells =
+                ValidateCellList(
+                    layout.Sidewalks,
+                    "sidewalks",
+                    context,
+                    result);
+
+            ValidateSurfaceOverlap(
+                foundationCells,
+                sidewalkCells,
                 result);
 
             HashSet<StoreCellData> floorCells =
@@ -71,9 +77,18 @@ namespace BigRetail.StoreLayouts
             HashSet<StoreCellData> fixtureCells =
                 ValidateFixtures(
                     layout.Fixtures,
-                    floorCells,
+                    foundationCells,
                     context,
-                    result);
+                    result,
+                    out HashSet<string> fixtureInstanceIds);
+
+            ValidateFixturePlans(
+                layout.FixturePlans,
+                foundationCells,
+                fixtureCells,
+                fixtureInstanceIds,
+                context,
+                result);
 
             ValidateDepartments(
                 layout.Departments,
@@ -89,6 +104,27 @@ namespace BigRetail.StoreLayouts
                 result);
 
             return result;
+        }
+
+
+        private static void ValidateSurfaceOverlap(
+            ISet<StoreCellData> foundationCells,
+            IEnumerable<StoreCellData> sidewalkCells,
+            StoreDataValidationResult result)
+        {
+            foreach (StoreCellData cell in sidewalkCells)
+            {
+                if (!foundationCells.Contains(cell))
+                {
+                    continue;
+                }
+
+                result.Add(
+                    StoreDataValidationCode.OccupiedCellOverlap,
+                    "sidewalks",
+                    $"Cell {cell} cannot contain both a foundation "
+                    + "and a sidewalk.");
+            }
         }
 
 
@@ -506,21 +542,22 @@ namespace BigRetail.StoreLayouts
 
         private static HashSet<StoreCellData> ValidateFixtures(
             IReadOnlyList<StoreFixtureData> fixtures,
-            ISet<StoreCellData> floorCells,
+            ISet<StoreCellData> foundationCells,
             StoreLocationValidationContext context,
-            StoreDataValidationResult result)
+            StoreDataValidationResult result,
+            out HashSet<string> instanceIds)
         {
             HashSet<StoreCellData> occupiedCells =
                 new HashSet<StoreCellData>();
+
+            instanceIds =
+                new HashSet<string>(StringComparer.Ordinal);
 
             if (fixtures == null)
             {
                 AddMissingList("fixtures", result);
                 return occupiedCells;
             }
-
-            HashSet<string> instanceIds =
-                new HashSet<string>(StringComparer.Ordinal);
 
             for (int index = 0;
                  index < fixtures.Count;
@@ -607,12 +644,12 @@ namespace BigRetail.StoreLayouts
                         context,
                         result);
 
-                    if (!floorCells.Contains(cell))
+                    if (!foundationCells.Contains(cell))
                     {
                         result.Add(
-                            StoreDataValidationCode.MissingFloor,
+                            StoreDataValidationCode.MissingFoundation,
                             cellPath,
-                            $"Fixture cell {cell} has no finished floor.");
+                            $"Fixture cell {cell} has no foundation support.");
                     }
 
                     if (!occupiedCells.Add(cell))
@@ -634,6 +671,137 @@ namespace BigRetail.StoreLayouts
             }
 
             return occupiedCells;
+        }
+
+
+        private static void ValidateFixturePlans(
+            IReadOnlyList<StoreFixturePlanData> fixturePlans,
+            ISet<StoreCellData> foundationCells,
+            IEnumerable<StoreCellData> installedFixtureCells,
+            HashSet<string> fixtureInstanceIds,
+            StoreLocationValidationContext context,
+            StoreDataValidationResult result)
+        {
+            // Missing means an older schema-v1 layout with no saved plans.
+            if (fixturePlans == null)
+            {
+                return;
+            }
+
+            HashSet<StoreCellData> occupiedCells =
+                new HashSet<StoreCellData>(installedFixtureCells);
+
+            for (int index = 0;
+                 index < fixturePlans.Count;
+                 index++)
+            {
+                string path = $"fixturePlans[{index}]";
+                StoreFixturePlanData fixturePlan = fixturePlans[index];
+
+                if (fixturePlan == null)
+                {
+                    result.Add(
+                        StoreDataValidationCode.MissingData,
+                        path,
+                        "The fixture plan record is null.");
+                    continue;
+                }
+
+                TryAddUniqueId(
+                    fixtureInstanceIds,
+                    fixturePlan.InstanceId,
+                    $"{path}.instanceId",
+                    "Fixture plan instance",
+                    StoreDataValidationCode.DuplicateInstanceId,
+                    result,
+                    out _);
+
+                ValidateDefinition(
+                    StoreDefinitionKind.Fixture,
+                    fixturePlan.DefinitionId,
+                    $"{path}.definitionId",
+                    context,
+                    result);
+
+                if (fixturePlan.Orientation < StoreOrientation.North
+                    || fixturePlan.Orientation > StoreOrientation.West)
+                {
+                    result.Add(
+                        StoreDataValidationCode.UnsupportedValue,
+                        $"{path}.orientation",
+                        $"Fixture plan orientation "
+                        + $"'{fixturePlan.Orientation}' is unsupported.");
+                }
+
+                ValidateSupportedCell(
+                    fixturePlan.AnchorCell,
+                    $"{path}.anchorCell",
+                    context,
+                    result);
+
+                if (fixturePlan.OccupiedCells == null
+                    || fixturePlan.OccupiedCells.Count == 0)
+                {
+                    result.Add(
+                        StoreDataValidationCode.MissingData,
+                        $"{path}.occupiedCells",
+                        "A fixture plan requires occupied cells.");
+                    continue;
+                }
+
+                HashSet<StoreCellData> localCells =
+                    new HashSet<StoreCellData>();
+
+                for (int cellIndex = 0;
+                     cellIndex < fixturePlan.OccupiedCells.Count;
+                     cellIndex++)
+                {
+                    StoreCellData cell =
+                        fixturePlan.OccupiedCells[cellIndex];
+                    string cellPath =
+                        $"{path}.occupiedCells[{cellIndex}]";
+
+                    if (!localCells.Add(cell))
+                    {
+                        result.Add(
+                            StoreDataValidationCode.DuplicateRecord,
+                            cellPath,
+                            $"Fixture plan cell {cell} is duplicated.");
+                    }
+
+                    ValidateSupportedCell(
+                        cell,
+                        cellPath,
+                        context,
+                        result);
+
+                    if (!foundationCells.Contains(cell))
+                    {
+                        result.Add(
+                            StoreDataValidationCode.MissingFoundation,
+                            cellPath,
+                            $"Fixture plan cell {cell} has no foundation "
+                            + "support.");
+                    }
+
+                    if (!occupiedCells.Add(cell))
+                    {
+                        result.Add(
+                            StoreDataValidationCode.OccupiedCellOverlap,
+                            cellPath,
+                            $"Fixture plan cell {cell} is already occupied.");
+                    }
+                }
+
+                if (!localCells.Contains(fixturePlan.AnchorCell))
+                {
+                    result.Add(
+                        StoreDataValidationCode.MissingReference,
+                        $"{path}.anchorCell",
+                        "The fixture plan anchor is not one of its occupied "
+                        + "cells.");
+                }
+            }
         }
 
 

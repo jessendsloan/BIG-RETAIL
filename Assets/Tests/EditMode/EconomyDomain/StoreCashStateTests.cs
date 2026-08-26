@@ -38,6 +38,23 @@ namespace BigRetail.Economy.Domain.Tests
         }
 
         [Test]
+        public void UnlimitedCash_AffordsWithoutChangingDisplayedBalance()
+        {
+            StoreCashState cash =
+                StoreCashState.CreateUnlimited(999999999);
+            int balanceChangeCount = 0;
+            cash.BalanceChanged += () => balanceChangeCount++;
+
+            bool succeeded = cash.TrySpend(long.MaxValue);
+            cash.Credit(1250);
+
+            Assert.That(cash.IsUnlimited, Is.True);
+            Assert.That(succeeded, Is.True);
+            Assert.That(cash.BalanceCents, Is.EqualTo(999999999));
+            Assert.That(balanceChangeCount, Is.Zero);
+        }
+
+        [Test]
         public void Constructor_NegativeOpeningBalance_IsRejected()
         {
             Assert.Throws<ArgumentOutOfRangeException>(

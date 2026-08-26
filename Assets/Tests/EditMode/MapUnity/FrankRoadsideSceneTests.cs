@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 
 namespace BigRetail.Map.Unity.Tests
 {
@@ -33,9 +34,18 @@ namespace BigRetail.Map.Unity.Tests
                     FindSceneComponent<GridMapHost>(scene);
                 LocationMarkerHost markerHost =
                     FindSceneComponent<LocationMarkerHost>(scene);
+                Tilemap foundationViews =
+                    FindSceneComponent<Tilemap>(scene, "FoundationViews");
 
                 Assert.That(mapHost, Is.Not.Null);
                 Assert.That(markerHost, Is.Not.Null);
+                Assert.That(foundationViews, Is.Not.Null);
+                Assert.That(foundationViews.GetUsedTilesCount(), Is.Zero);
+                AssertNoComponentTypeOnObject(
+                    scene,
+                    "EquipmentCatalogWorkspaceUI",
+                    "BigRetail.Purchasing.Unity.UI."
+                    + "PurchasingWorkspaceDocumentHost");
 
                 mapHost.Initialize();
 
@@ -188,8 +198,42 @@ namespace BigRetail.Map.Unity.Tests
         }
 
 
+        private static void AssertNoComponentTypeOnObject(
+            Scene scene,
+            string objectName,
+            string componentTypeName)
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int rootIndex = 0;
+                 rootIndex < roots.Length;
+                 rootIndex++)
+            {
+                MonoBehaviour[] components =
+                    roots[rootIndex]
+                        .GetComponentsInChildren<MonoBehaviour>(true);
+
+                for (int index = 0;
+                     index < components.Length;
+                     index++)
+                {
+                    MonoBehaviour component = components[index];
+
+                    Assert.That(
+                        component == null
+                        || component.gameObject.name != objectName
+                        || component.GetType().FullName
+                            != componentTypeName,
+                        $"'{objectName}' must not contain "
+                        + $"'{componentTypeName}'.");
+                }
+            }
+        }
+
+
         private static T FindSceneComponent<T>(
-            Scene scene)
+            Scene scene,
+            string objectName = null)
             where T : Component
         {
             GameObject[] roots = scene.GetRootGameObjects();
@@ -198,12 +242,20 @@ namespace BigRetail.Map.Unity.Tests
                  index < roots.Length;
                  index++)
             {
-                T component =
-                    roots[index].GetComponentInChildren<T>(true);
+                T[] components =
+                    roots[index].GetComponentsInChildren<T>(true);
 
-                if (component != null)
+                for (int componentIndex = 0;
+                     componentIndex < components.Length;
+                     componentIndex++)
                 {
-                    return component;
+                    T component = components[componentIndex];
+
+                    if (string.IsNullOrEmpty(objectName)
+                        || component.gameObject.name == objectName)
+                    {
+                        return component;
+                    }
                 }
             }
 

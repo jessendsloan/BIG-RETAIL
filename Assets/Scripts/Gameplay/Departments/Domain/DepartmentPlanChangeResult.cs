@@ -12,6 +12,8 @@ namespace BigRetail.Departments
 
         public int AddedCellCount { get; }
 
+        public int RemovedCellCount { get; }
+
         public DepartmentPlanChangeFailure Failure { get; }
 
         public GridPosition FailureCell { get; }
@@ -22,6 +24,7 @@ namespace BigRetail.Departments
             bool changed,
             DepartmentPlanId planId,
             int addedCellCount,
+            int removedCellCount,
             DepartmentPlanChangeFailure failure,
             GridPosition failureCell)
         {
@@ -29,6 +32,7 @@ namespace BigRetail.Departments
             Changed = changed;
             PlanId = planId;
             AddedCellCount = addedCellCount;
+            RemovedCellCount = removedCellCount;
             Failure = failure;
             FailureCell = failureCell;
         }
@@ -43,6 +47,22 @@ namespace BigRetail.Departments
                 addedCellCount > 0,
                 planId,
                 addedCellCount,
+                0,
+                DepartmentPlanChangeFailure.None,
+                default);
+        }
+
+
+        public static DepartmentPlanChangeResult RemovalSuccess(
+            DepartmentPlanId planId,
+            int removedCellCount)
+        {
+            return new DepartmentPlanChangeResult(
+                true,
+                removedCellCount > 0,
+                planId,
+                0,
+                removedCellCount,
                 DepartmentPlanChangeFailure.None,
                 default);
         }
@@ -57,6 +77,7 @@ namespace BigRetail.Departments
                 false,
                 false,
                 planId,
+                0,
                 0,
                 failure,
                 failureCell);

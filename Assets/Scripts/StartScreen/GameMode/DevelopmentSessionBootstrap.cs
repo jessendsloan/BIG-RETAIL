@@ -17,9 +17,14 @@ namespace BigRetail.Core.Session
         public const string ModeEditorPreference =
             "BigRetail.DevelopmentQuickStart.Mode";
 
+        public const string WorkshopEditorPreference =
+            "BigRetail.DevelopmentQuickStart.MapWorkshop";
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void StartRequestedSession()
         {
+            MapWorkshopSession.SetActive(false);
+
             if (!EditorPrefs.GetBool(ArmedEditorPreference, false))
             {
                 return;
@@ -28,6 +33,10 @@ namespace BigRetail.Core.Session
             int rawMode = EditorPrefs.GetInt(
                 ModeEditorPreference,
                 (int)GameMode.Sandbox);
+            bool isMapWorkshop =
+                EditorPrefs.GetBool(
+                    WorkshopEditorPreference,
+                    false);
 
             ClearRequest();
 
@@ -39,10 +48,25 @@ namespace BigRetail.Core.Session
                 return;
             }
 
+            MapWorkshopSession.SetActive(isMapWorkshop);
             GameSessionHost.StartSessionInLoadedScene((GameMode)rawMode);
         }
 
         public static void Arm(GameMode mode)
+        {
+            Arm(mode, false);
+        }
+
+
+        public static void ArmMapWorkshop()
+        {
+            Arm(GameMode.Sandbox, true);
+        }
+
+
+        private static void Arm(
+            GameMode mode,
+            bool isMapWorkshop)
         {
             if (!Enum.IsDefined(typeof(GameMode), mode))
             {
@@ -50,6 +74,9 @@ namespace BigRetail.Core.Session
             }
 
             EditorPrefs.SetInt(ModeEditorPreference, (int)mode);
+            EditorPrefs.SetBool(
+                WorkshopEditorPreference,
+                isMapWorkshop);
             EditorPrefs.SetBool(ArmedEditorPreference, true);
         }
 
@@ -57,6 +84,7 @@ namespace BigRetail.Core.Session
         {
             EditorPrefs.DeleteKey(ArmedEditorPreference);
             EditorPrefs.DeleteKey(ModeEditorPreference);
+            EditorPrefs.DeleteKey(WorkshopEditorPreference);
         }
     }
 }

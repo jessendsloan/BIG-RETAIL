@@ -1,4 +1,5 @@
 using System;
+using BigRetail.Core.Session;
 using BigRetail.Map.Construction;
 using UnityEngine;
 
@@ -74,9 +75,13 @@ namespace BigRetail.Construction.Unity.History
 
             try
             {
+                ConstructionHistoryMode resolvedMode =
+                    MapWorkshopSession.IsActive
+                        ? ConstructionHistoryMode.Unlimited
+                        : historyMode;
                 History =
                     new ConstructionHistory(
-                        historyMode);
+                        resolvedMode);
             }
             catch (ArgumentOutOfRangeException exception)
             {

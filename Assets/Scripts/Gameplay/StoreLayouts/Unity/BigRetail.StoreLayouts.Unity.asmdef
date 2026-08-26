@@ -1,0 +1,28 @@
+{
+    "name": "BigRetail.StoreLayouts.Unity",
+    "rootNamespace": "BigRetail.StoreLayouts.Unity",
+    "references": [
+        "BigRetail.StoreLayouts",
+        "BigRetail.Map.Domain",
+        "BigRetail.Map.Construction",
+        "BigRetail.Map.Foundations",
+        "BigRetail.Map.Sidewalks",
+        "BigRetail.Map.Floors",
+        "BigRetail.Map.Walls",
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Map.Unity",
+        "BigRetail.Departments.Domain",
+        "BigRetail.Departments.Unity",
+        "BigRetail.Receiving.Domain",
+        "BigRetail.Receiving.Unity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

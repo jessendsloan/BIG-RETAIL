@@ -1,4 +1,5 @@
 using System;
+using BigRetail.Core.Session;
 using BigRetail.Economy.Domain;
 using BigRetail.Inventory.Domain;
 using BigRetail.Map.Fixtures;
@@ -17,6 +18,7 @@ namespace BigRetail.Map.Unity.Fixtures
     {
         private const int GrayboxPurchaseCaseUnitCount = 24;
         private const long GrayboxOpeningCashCents = 250000;
+        private const long WorkshopDisplayedCashCents = 999999999;
 
         private static readonly StorageLocationId GrayboxBackstockLocationId =
             new StorageLocationId("GRAYBOX-BACKSTOCK");
@@ -158,8 +160,10 @@ namespace BigRetail.Map.Unity.Fixtures
                     Inventory,
                     GrayboxBackstockLocationId);
 
-            Cash =
-                new StoreCashState(GrayboxOpeningCashCents);
+            Cash = MapWorkshopSession.IsActive
+                ? StoreCashState.CreateUnlimited(
+                    WorkshopDisplayedCashCents)
+                : new StoreCashState(GrayboxOpeningCashCents);
 
             Purchasing =
                 new FixturePurchasingService(
@@ -189,8 +193,17 @@ namespace BigRetail.Map.Unity.Fixtures
             IsInitialized = true;
             Initialized?.Invoke(this);
 
+            string cashSummary = Cash.IsUnlimited
+                ? "unlimited Map Workshop cash"
+                : $"{Cash.BalanceCents} cents opening cash";
+
             Debug.Log(
-                $"Activated fixture merchandising graybox with {Products.Count} placeholder product(s), {Backstock.StoredUnitCount} unit(s) stored in physical racks, {Backstock.UnallocatedUnitCount} inbound/overflow unit(s), {Backstock.CapacityUnitCount} total rack capacity, and {Cash.BalanceCents} cents opening cash.",
+                $"Activated fixture merchandising graybox with "
+                + $"{Products.Count} placeholder product(s), "
+                + $"{Backstock.StoredUnitCount} unit(s) stored in physical "
+                + $"racks, {Backstock.UnallocatedUnitCount} inbound/overflow "
+                + $"unit(s), {Backstock.CapacityUnitCount} total rack "
+                + $"capacity, and {cashSummary}.",
                 this);
 
             return true;
