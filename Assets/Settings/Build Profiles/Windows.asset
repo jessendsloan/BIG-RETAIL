@@ -26,6 +26,9 @@ MonoBehaviour:
     m_path: Assets/Scenes/StartScreen.unity
     m_guid: eb391360621064545a09478b2011bf4d
   - m_enabled: 1
+    m_path: Assets/Scenes/FrankRoadside.unity
+    m_guid: adad84d673a9119479656777b51f1896
+  - m_enabled: 1
     m_path: Assets/Scenes/Gameplay.unity
     m_guid: aa29181d029f964458a42b9126840c9d
   m_HasScriptingDefines: 0

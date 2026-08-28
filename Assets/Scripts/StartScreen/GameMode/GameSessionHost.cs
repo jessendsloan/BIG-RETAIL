@@ -10,9 +10,12 @@ namespace BigRetail.Core.Session
     public sealed class GameSessionHost : MonoBehaviour
     {
         private static GameSessionHost existingHost;
-        private bool isLoadingGameplay;
+        private bool isLoadingScene;
 
         [Header("Scene Configuration")]
+        [SerializeField]
+        private string campaignSceneName = "FrankRoadside";
+
         [SerializeField]
         private string gameplaySceneName = "Gameplay";
 
@@ -31,8 +34,15 @@ namespace BigRetail.Core.Session
 
         public GameSession CurrentSession { get; private set; }
 
+        public string GetStartingSceneName(GameMode mode)
+        {
+            return mode == GameMode.Campaign
+                ? campaignSceneName
+                : gameplaySceneName;
+        }
+
         /// <summary>
-        /// Creates a real session around an already-loaded Gameplay scene.
+        /// Creates a real session around an already-loaded play scene.
         /// This is used by controlled development launchers that intentionally
         /// skip the player-facing start screen.
         /// </summary>
@@ -60,7 +70,7 @@ namespace BigRetail.Core.Session
             }
 
             host.CurrentSession = new GameSession(mode);
-            host.isLoadingGameplay = false;
+            host.isLoadingScene = false;
 
             Debug.Log(
                 $"Quick-started Big Retail in {mode} mode with the loaded scene.",
@@ -86,7 +96,7 @@ namespace BigRetail.Core.Session
 
         public void StartNewSession(GameMode mode)
         {
-            if (isLoadingGameplay)
+            if (isLoadingScene)
             {
                 return;
             }
@@ -97,21 +107,26 @@ namespace BigRetail.Core.Session
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(gameplaySceneName))
+            string startingSceneName = GetStartingSceneName(mode);
+
+            if (string.IsNullOrWhiteSpace(startingSceneName))
             {
                 Debug.LogError(
-                    "GameSessionHost does not have a gameplay scene name."
+                    $"GameSessionHost does not have a starting scene "
+                    + $"configured for {mode} mode."
                 );
 
                 return;
             }
 
             CurrentSession = new GameSession(mode);
-            isLoadingGameplay = true;
+            isLoadingScene = true;
 
-            Debug.Log($"Starting Big Retail session in {mode} mode.");
+            Debug.Log(
+                $"Starting Big Retail session in {mode} mode at "
+                + $"'{startingSceneName}'.");
 
-            SceneManager.LoadScene(gameplaySceneName);
+            SceneManager.LoadScene(startingSceneName);
         }
 
         private static bool IsKnownMode(GameMode mode)

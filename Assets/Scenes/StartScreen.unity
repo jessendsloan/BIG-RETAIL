@@ -762,6 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c5cc32401bf95446b9a5a942442da72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BigRetail.Session::BigRetail.Core.Session.GameSessionHost
+  campaignSceneName: FrankRoadside
   gameplaySceneName: Gameplay
 --- !u!4 &975163605
 Transform:

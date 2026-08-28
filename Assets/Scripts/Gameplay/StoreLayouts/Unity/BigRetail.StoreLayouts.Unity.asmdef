@@ -14,7 +14,9 @@
         "BigRetail.Departments.Domain",
         "BigRetail.Departments.Unity",
         "BigRetail.Receiving.Domain",
-        "BigRetail.Receiving.Unity"
+        "BigRetail.Receiving.Unity",
+        "BigRetail.Purchasing.Unity",
+        "BigRetail.Session"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

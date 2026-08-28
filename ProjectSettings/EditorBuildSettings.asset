@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/StartScreen.unity
     guid: eb391360621064545a09478b2011bf4d
   - enabled: 1
+    path: Assets/Scenes/FrankRoadside.unity
+    guid: adad84d673a9119479656777b51f1896
+  - enabled: 1
     path: Assets/Scenes/Gameplay.unity
     guid: aa29181d029f964458a42b9126840c9d
   - enabled: 0

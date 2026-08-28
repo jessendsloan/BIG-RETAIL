@@ -2,13 +2,19 @@ using System;
 using System.Collections.Generic;
 using BigRetail.CameraControl;
 using BigRetail.Construction.Unity.UI.PC;
+using BigRetail.Departments.Unity;
 using BigRetail.Editor.Fixtures;
 using BigRetail.Map.Construction;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.Floors;
+using BigRetail.Map.Unity.Foundations;
+using BigRetail.Map.Unity.Sidewalks;
 using BigRetail.Map.Unity.View;
 using BigRetail.Purchasing.Unity;
 using BigRetail.Purchasing.Unity.UI;
+using BigRetail.Receiving.Unity;
+using BigRetail.StoreLayouts.Unity;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -38,6 +44,9 @@ namespace BigRetail.Editor.StoreLayouts
 
         private const string DestinationScenePath =
             "Assets/Scenes/FrankRoadside.unity";
+
+        private const string InitialStoreLayoutPath =
+            "Assets/Design/StoreLayouts/FrankStoreLayoutV1.asset";
 
         private const string FrankMapId =
             "bigretail.map.frank_roadside";
@@ -214,6 +223,7 @@ namespace BigRetail.Editor.StoreLayouts
                 viewHost,
                 mapVisuals,
                 authoredMap);
+            ConfigureInitialStoreLayout(scene);
 
             EditorSceneManager.MarkSceneDirty(scene);
 
@@ -251,10 +261,103 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
+        public static void ConfigureCampaignLayoutForAutomation()
+        {
+            RequireEditMode("Frank Roadside campaign layout setup");
+
+            Scene scene =
+                EditorSceneManager.OpenScene(
+                    DestinationScenePath,
+                    OpenSceneMode.Single);
+
+            ConfigureInitialStoreLayout(scene);
+            EditorSceneManager.MarkSceneDirty(scene);
+
+            if (!EditorSceneManager.SaveScene(
+                    scene,
+                    DestinationScenePath))
+            {
+                throw new InvalidOperationException(
+                    $"Unity could not save '{DestinationScenePath}'.");
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Debug.Log(
+                "Frank Roadside campaign starter layout is configured.");
+        }
+
+
         private static bool CanEditSceneAssets()
         {
             return !EditorApplication.isPlayingOrWillChangePlaymode
                 && !EditorApplication.isCompiling;
+        }
+
+
+        private static void ConfigureInitialStoreLayout(
+            Scene scene)
+        {
+            StoreLayoutAsset initialLayout =
+                AssetDatabase.LoadAssetAtPath<StoreLayoutAsset>(
+                    InitialStoreLayoutPath);
+
+            if (initialLayout == null)
+            {
+                throw new InvalidOperationException(
+                    $"Frank Roadside starter layout is missing at "
+                    + $"'{InitialStoreLayoutPath}'.");
+            }
+
+            GridMapHost mapHost =
+                FindRequiredInScene<GridMapHost>(scene);
+            StoreLayoutSceneBootstrap bootstrap =
+                mapHost.GetComponent<StoreLayoutSceneBootstrap>();
+
+            if (bootstrap == null)
+            {
+                bootstrap =
+                    mapHost.gameObject
+                        .AddComponent<StoreLayoutSceneBootstrap>();
+            }
+
+            SetObjectReference(
+                bootstrap,
+                "initialLayout",
+                initialLayout);
+            SetObjectReference(
+                bootstrap,
+                "mapHost",
+                mapHost);
+            SetObjectReference(
+                bootstrap,
+                "foundationRuntimeHost",
+                FindRequiredInScene<FoundationRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "sidewalkRuntimeHost",
+                FindRequiredInScene<SidewalkRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "floorRuntimeHost",
+                FindRequiredInScene<FloorRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "fixtureRuntimeHost",
+                FindRequiredInScene<FixtureRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "fixtureEquipmentRuntimeHost",
+                FindRequiredInScene<FixtureEquipmentRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "departmentRuntimeHost",
+                FindRequiredInScene<DepartmentRuntimeHost>(scene));
+            SetObjectReference(
+                bootstrap,
+                "receivingAreaRuntimeHost",
+                FindRequiredInScene<ReceivingAreaRuntimeHost>(scene));
         }
 
 
@@ -1065,6 +1168,24 @@ namespace BigRetail.Editor.StoreLayouts
                     propertyName);
 
             property.enumValueIndex = Convert.ToInt32(value);
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(target);
+        }
+
+
+        private static void SetObjectReference(
+            UnityEngine.Object target,
+            string propertyName,
+            UnityEngine.Object value)
+        {
+            SerializedObject serializedObject =
+                new SerializedObject(target);
+            SerializedProperty property =
+                FindRequiredProperty(
+                    serializedObject,
+                    propertyName);
+
+            property.objectReferenceValue = value;
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(target);
         }

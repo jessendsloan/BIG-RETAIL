@@ -2,11 +2,20 @@ using System;
 using BigRetail.Core.Session;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BigRetail.Session.Tests
 {
     public sealed class GameSessionTests
     {
+        private const string StartScreenScenePath =
+            "Assets/Scenes/StartScreen.unity";
+
+        private const string FrankRoadsideScenePath =
+            "Assets/Scenes/FrankRoadside.unity";
+
         [TearDown]
         public void TearDown()
         {
@@ -31,6 +40,49 @@ namespace BigRetail.Session.Tests
             Assert.That(session.Mode, Is.EqualTo(GameMode.Sandbox));
             Assert.That(session.IsCampaign, Is.False);
             Assert.That(session.IsSandbox, Is.True);
+        }
+
+        [Test]
+        public void StartScreenRoutesCampaignToFrankRoadside()
+        {
+            SceneSetup[] previousSetup =
+                EditorSceneManager.GetSceneManagerSetup();
+
+            try
+            {
+                Scene scene = EditorSceneManager.OpenScene(
+                    StartScreenScenePath,
+                    OpenSceneMode.Single);
+                GameSessionHost sessionHost =
+                    FindSceneComponent<GameSessionHost>(scene);
+
+                Assert.That(sessionHost, Is.Not.Null);
+                Assert.That(
+                    sessionHost.GetStartingSceneName(GameMode.Campaign),
+                    Is.EqualTo("FrankRoadside"));
+                Assert.That(
+                    sessionHost.GetStartingSceneName(GameMode.Sandbox),
+                    Is.EqualTo("Gameplay"));
+                Assert.That(
+                    IsEnabledBuildScene(FrankRoadsideScenePath),
+                    Is.True,
+                    "Frank Roadside must be enabled in Build Settings before "
+                    + "the Campaign button can load it.");
+            }
+            finally
+            {
+                if (previousSetup.Length > 0)
+                {
+                    EditorSceneManager.RestoreSceneManagerSetup(
+                        previousSetup);
+                }
+                else
+                {
+                    EditorSceneManager.NewScene(
+                        NewSceneSetup.EmptyScene,
+                        NewSceneMode.Single);
+                }
+            }
         }
 
         [Test]
@@ -148,6 +200,42 @@ namespace BigRetail.Session.Tests
         {
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => DevelopmentSessionBootstrap.Arm((GameMode)999));
+        }
+
+        private static bool IsEnabledBuildScene(string scenePath)
+        {
+            EditorBuildSettingsScene[] scenes =
+                EditorBuildSettings.scenes;
+
+            for (int index = 0; index < scenes.Length; index++)
+            {
+                if (scenes[index].enabled
+                    && scenes[index].path == scenePath)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static T FindSceneComponent<T>(Scene scene)
+            where T : Component
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int index = 0; index < roots.Length; index++)
+            {
+                T component =
+                    roots[index].GetComponentInChildren<T>(true);
+
+                if (component != null)
+                {
+                    return component;
+                }
+            }
+
+            return null;
         }
     }
 }

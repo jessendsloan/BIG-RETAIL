@@ -1,6 +1,6 @@
 # Big Retail — Now
 
-**Updated:** 2026-08-22
+**Updated:** 2026-08-27
 
 This is the short active-work board. It answers **“What are we finishing
 next?”** `CURRENT.md` records the broader accepted design and implementation
@@ -181,6 +181,21 @@ what distinguish the player.
 This is a design constraint for later employee work, not the next large feature
 to implement. New task systems should avoid making separate “player-only”
 versions of stocking, receiving, checkout, cleaning, or customer assistance.
+
+## 8. Lock the campaign opener to morning
+
+Frank's opening objective tells the player to get the store ready for the
+morning, but Campaign currently inherits a late-night simulation time. Give
+Frank's Roadside a deliberate canonical opening day and time—approximately
+6:30–7:00 AM—before the player receives control.
+
+The startup rule must preserve ordinary clock progression after the opener and
+must not overwrite time when loading a later campaign save, launching Sandbox,
+or entering Map Workshop.
+
+**Done when:** A new Campaign begins at the authored morning time, the objective
+and lighting agree with that time, and existing saves and development workflows
+retain their own clock state.
 
 ## Integration status
 

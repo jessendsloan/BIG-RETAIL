@@ -24,6 +24,137 @@ namespace BigRetail.StoreLayouts.Unity.Tests
         private const string ScenePath =
             "Assets/Scenes/FrankRoadside.unity";
 
+        private const string FrankLayoutPath =
+            "Assets/Design/StoreLayouts/FrankStoreLayoutV1.asset";
+
+
+        [Test]
+        public void FrankRoadside_CampaignStarterLayoutIsWired()
+        {
+            Scene scene =
+                EditorSceneManager.OpenScene(
+                    ScenePath,
+                    OpenSceneMode.Single);
+
+            try
+            {
+                StoreLayoutSceneBootstrap bootstrap =
+                    FindRequired<StoreLayoutSceneBootstrap>(scene);
+                StoreLayoutAsset expected =
+                    AssetDatabase.LoadAssetAtPath<StoreLayoutAsset>(
+                        FrankLayoutPath);
+
+                Assert.That(expected, Is.Not.Null);
+                Assert.That(
+                    bootstrap.InitialLayout,
+                    Is.SameAs(expected));
+
+                SerializedObject serialized =
+                    new SerializedObject(bootstrap);
+                string[] requiredReferences =
+                {
+                    "mapHost",
+                    "foundationRuntimeHost",
+                    "sidewalkRuntimeHost",
+                    "floorRuntimeHost",
+                    "fixtureRuntimeHost",
+                    "fixtureEquipmentRuntimeHost",
+                    "departmentRuntimeHost",
+                    "receivingAreaRuntimeHost"
+                };
+
+                foreach (string propertyName in requiredReferences)
+                {
+                    SerializedProperty property =
+                        serialized.FindProperty(propertyName);
+
+                    Assert.That(
+                        property,
+                        Is.Not.Null,
+                        propertyName);
+                    Assert.That(
+                        property.objectReferenceValue,
+                        Is.Not.Null,
+                        propertyName);
+                }
+            }
+            finally
+            {
+                OpenEmptyScene();
+            }
+        }
+
+
+        [Test]
+        public void FrankRoadside_SavedStarterLayoutLoads()
+        {
+            Scene scene =
+                EditorSceneManager.OpenScene(
+                    ScenePath,
+                    OpenSceneMode.Single);
+
+            try
+            {
+                GridMapHost mapHost = FindRequired<GridMapHost>(scene);
+                FoundationRuntimeHost foundationHost =
+                    FindRequired<FoundationRuntimeHost>(scene);
+                SidewalkRuntimeHost sidewalkHost =
+                    FindRequired<SidewalkRuntimeHost>(scene);
+                FloorRuntimeHost floorHost =
+                    FindRequired<FloorRuntimeHost>(scene);
+                FixtureRuntimeHost fixtureHost =
+                    FindRequired<FixtureRuntimeHost>(scene);
+                DepartmentRuntimeHost departmentHost =
+                    FindRequired<DepartmentRuntimeHost>(scene);
+                ReceivingAreaRuntimeHost receivingHost =
+                    FindRequired<ReceivingAreaRuntimeHost>(scene);
+                StoreLayoutAsset asset =
+                    AssetDatabase.LoadAssetAtPath<StoreLayoutAsset>(
+                        FrankLayoutPath);
+
+                Assert.That(asset, Is.Not.Null);
+                mapHost.Initialize();
+                Assert.That(fixtureHost.TryInitialize(), Is.True);
+
+                StoreLayoutRuntimeLoader loader =
+                    new StoreLayoutRuntimeLoader(
+                        mapHost,
+                        foundationHost,
+                        sidewalkHost,
+                        floorHost,
+                        fixtureHost,
+                        new FixtureEquipmentPlanState(),
+                        departmentHost,
+                        receivingHost);
+                StoreLayoutLoadResult result = loader.Load(asset);
+                StoreLayoutData expected = asset.CreateRuntimeCopy();
+
+                Assert.That(result.Succeeded, Is.True, result.Message);
+                Assert.That(
+                    foundationHost.FoundationState.FoundationCount,
+                    Is.EqualTo(expected.Foundations.Count));
+                Assert.That(
+                    sidewalkHost.SidewalkState.SidewalkCount,
+                    Is.EqualTo(expected.Sidewalks.Count));
+                Assert.That(
+                    floorHost.FloorState.FloorCount,
+                    Is.EqualTo(expected.Floors.Count));
+                Assert.That(
+                    mapHost.WallState.WallCount,
+                    Is.EqualTo(expected.Walls.Count));
+                Assert.That(
+                    mapHost.DoorAssemblies.AssemblyCount,
+                    Is.EqualTo(expected.Openings.Count));
+                Assert.That(
+                    fixtureHost.FixtureState.FixtureCount,
+                    Is.EqualTo(expected.Fixtures.Count));
+            }
+            finally
+            {
+                OpenEmptyScene();
+            }
+        }
+
 
         [Test]
         public void FrankRoadside_TinyLayoutLoadsAndResetsDeterministically()
