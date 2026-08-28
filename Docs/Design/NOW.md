@@ -15,7 +15,48 @@ closure target.
 Turn the opening campaign from a collection of working tools into a convincing,
 economically grounded **small retailer that can visibly grow into a megastore**.
 
-## 1. Stop camera movement from navigating the UI
+## 1. Prove Frank's first complete retail transaction
+
+The immediate vertical slice is one complete, human-scale retail loop at
+Frank's Roadside. Do not begin with a crowd simulation or broad catalog
+expansion. Prove one Founder, one stocking task, one customer, and one paid
+sale through the permanent systems first.
+
+Use this locked implementation order:
+
+1. **Frank Opening Scenario v1** — load the authored morning time, starting
+   cash, planograms, display and backstock inventory, checkout state,
+   Founder/Frank spawns, and opening objective. Only a new Campaign receives
+   the canonical approximately 6:30–7:00 AM start; saves, Sandbox, and Map
+   Workshop retain their own clock state.
+2. **Founder Stock Task v1** — let the player command the Founder through a
+   fixture interaction. The Founder walks to the employee access point and
+   performs the same stocking task a future employee can perform.
+3. **One Customer Journey** — spawn one customer, choose one available
+   product, navigate to its customer access point, take it into a basket,
+   travel to checkout, pay, and leave.
+4. **Staffed Checkout v1** — make the Founder operate checkout so customer
+   service is embodied work that can later be delegated to an employee.
+5. **Focused Product Visual Pass** — add enough catalog, package, and stocked
+   shelf presentation for the accepted opening products to make the completed
+   transaction visually legible. Do not expand the product universe merely to
+   postpone proving the loop.
+6. **Story Wrapper** — stage Frank's dialogue and debt hints around the proven
+   opening shift, then add Mr. BIG's arrival, confrontation, title transition,
+   and permanent-property handoff.
+
+The dependency chain is:
+
+**Scenario → Founder stocks → Customer shops → Staffed checkout → Revenue →
+Story transition**
+
+**Done when:** A clean Campaign begins at the authored morning time, the
+Founder stocks at least one real product through an employee-compatible task,
+one customer buys it at a staffed checkout, store cash increases atomically,
+the customer exits, and the same opening state can be reset and replayed
+deterministically.
+
+## 2. Stop camera movement from navigating the UI
 
 WASD camera movement currently also moves through focused UI options. Camera
 control and UI navigation must not consume the same keyboard input during
@@ -35,7 +76,7 @@ The fix must preserve intentional keyboard and controller navigation:
 management panels are open moves only the camera, and the same panels remain
 fully navigable through their intended keyboard and controller controls.
 
-## 2. Repair the PO and Receiving controls
+## 3. Repair the PO and Receiving controls
 
 The **PO** and **RCV** controls currently appear without the visible button
 background used by the surrounding toolbar controls. They must read as
@@ -63,7 +104,7 @@ The fix must ensure:
 passes at least five consecutive open → close cycles during one play session
 without trapping the player or requiring an extra click.
 
-## 3. Close the construction-economy gap
+## 4. Close the construction-economy gap
 
 Foundation, sidewalk, floor, wall, finish, door, window, and demolition actions
 need real construction prices. At present, campaign cash exists and is used by
@@ -93,7 +134,7 @@ Before implementation, lock these two economy decisions:
 undo, demolish, and fail to afford every opening construction category with a
 clear and consistent result.
 
-## 4. Make fixtures ordered physical equipment
+## 5. Make fixtures ordered physical equipment
 
 Fixtures must not appear from an unlimited construction palette. They are
 physical business equipment that the player orders, receives, owns, places,
@@ -126,7 +167,7 @@ is free; installation consumes owned equipment.
 equipment, receive the shipment, place the owned units, move and store them,
 and redeploy them without creating, losing, or paying twice for equipment.
 
-## 5. Establish authentic store anatomy
+## 6. Establish authentic store anatomy
 
 Use `MegastoreAnatomy.md` as the active reference. The target is not to force
 players to reproduce one Walmart floor plan. The simulation should create the
@@ -147,7 +188,7 @@ market**, not a prematurely enormous supercenter. It needs:
 retail store, and its receiving, stocking, checkout, and customer circulation
 can all be explained from the layout.
 
-## 6. Expand maximum camera zoom with Lot ownership
+## 7. Expand maximum camera zoom with Lot ownership
 
 The campaign camera should frame the store the player can actually use, not
 the entire nine-Lot Property from the beginning. Maximum zoom-out must grow as
@@ -171,7 +212,7 @@ Lot purchase visibly expands the useful zoom range, the complete Property can
 be framed at full ownership, and fixed-footprint locations retain their own
 authored camera bounds.
 
-## 7. Preserve the embodied-player direction
+## 8. Preserve the embodied-player direction
 
 The preferred direction is **Employee Zero**: the player is a persistent Person
 and owner-operator, not a separate superhuman species. Physical work should use
@@ -181,21 +222,6 @@ what distinguish the player.
 This is a design constraint for later employee work, not the next large feature
 to implement. New task systems should avoid making separate “player-only”
 versions of stocking, receiving, checkout, cleaning, or customer assistance.
-
-## 8. Lock the campaign opener to morning
-
-Frank's opening objective tells the player to get the store ready for the
-morning, but Campaign currently inherits a late-night simulation time. Give
-Frank's Roadside a deliberate canonical opening day and time—approximately
-6:30–7:00 AM—before the player receives control.
-
-The startup rule must preserve ordinary clock progression after the opener and
-must not overwrite time when loading a later campaign save, launching Sandbox,
-or entering Map Workshop.
-
-**Done when:** A new Campaign begins at the authored morning time, the objective
-and lighting agree with that time, and existing saves and development workflows
-retain their own clock state.
 
 ## Integration status
 
