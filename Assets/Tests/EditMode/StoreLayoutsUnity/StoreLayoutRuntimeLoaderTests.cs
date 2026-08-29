@@ -27,6 +27,9 @@ namespace BigRetail.StoreLayouts.Unity.Tests
         private const string FrankLayoutPath =
             "Assets/Design/StoreLayouts/FrankStoreLayoutV1.asset";
 
+        private const string FrankScenarioPath =
+            "Assets/Design/StoreScenarios/FrankOpeningShiftScenarioV1.asset";
+
 
         [Test]
         public void FrankRoadside_CampaignStarterLayoutIsWired()
@@ -43,11 +46,18 @@ namespace BigRetail.StoreLayouts.Unity.Tests
                 StoreLayoutAsset expected =
                     AssetDatabase.LoadAssetAtPath<StoreLayoutAsset>(
                         FrankLayoutPath);
+                StoreScenarioAsset expectedScenario =
+                    AssetDatabase.LoadAssetAtPath<StoreScenarioAsset>(
+                        FrankScenarioPath);
 
                 Assert.That(expected, Is.Not.Null);
+                Assert.That(expectedScenario, Is.Not.Null);
                 Assert.That(
                     bootstrap.InitialLayout,
                     Is.SameAs(expected));
+                Assert.That(
+                    bootstrap.InitialScenario,
+                    Is.SameAs(expectedScenario));
 
                 SerializedObject serialized =
                     new SerializedObject(bootstrap);
@@ -60,7 +70,10 @@ namespace BigRetail.StoreLayouts.Unity.Tests
                     "fixtureRuntimeHost",
                     "fixtureEquipmentRuntimeHost",
                     "departmentRuntimeHost",
-                    "receivingAreaRuntimeHost"
+                    "receivingAreaRuntimeHost",
+                    "simulationTimeRuntimeHost",
+                    "fixturePlanogramRuntimeHost",
+                    "purchasingRuntimeHost"
                 };
 
                 foreach (string propertyName in requiredReferences)

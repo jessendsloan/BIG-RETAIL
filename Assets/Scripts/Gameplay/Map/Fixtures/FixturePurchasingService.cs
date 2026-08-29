@@ -160,19 +160,33 @@ namespace BigRetail.Map.Fixtures
                     continue;
                 }
 
-                StockAdditionResult result =
-                    backstock.ReceiveInbound(
-                        product.Id,
-                        pendingUnitCount);
+                int remainingUnitCount = pendingUnitCount;
+                bool receivedEveryCase = true;
 
-                if (result.Succeeded)
+                while (remainingUnitCount > 0)
+                {
+                    int caseUnitCount = Math.Min(
+                        CaseUnitCount,
+                        remainingUnitCount);
+                    StockAdditionResult result =
+                        backstock.ReceiveInbound(
+                            product.Id,
+                            caseUnitCount);
+
+                    if (!result.Succeeded)
+                    {
+                        receivedEveryCase = false;
+                        failedUnitCount += remainingUnitCount;
+                        break;
+                    }
+
+                    receivedUnitCount += result.QuantityAdded;
+                    remainingUnitCount -= result.QuantityAdded;
+                }
+
+                if (receivedEveryCase)
                 {
                     pendingUnitCounts.Remove(product.Id);
-                    receivedUnitCount += result.QuantityAdded;
-                }
-                else
-                {
-                    failedUnitCount += pendingUnitCount;
                 }
             }
 

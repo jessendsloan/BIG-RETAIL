@@ -139,6 +139,14 @@ namespace BigRetail.Map.Unity.Floors
                 return false;
             }
 
+            // Foundation initialization publishes synchronously and may
+            // re-enter this host before the outer call resumes. Preserve the
+            // subsystem created by that nested call instead of replacing it.
+            if (IsInitialized)
+            {
+                return true;
+            }
+
             FloorState =
                 new FloorState();
 

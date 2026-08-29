@@ -11,25 +11,29 @@ namespace BigRetail.Map.Fixtures
         public static FixtureStorageProfile None { get; } =
             new FixtureStorageProfile(0);
 
-
-        public int BackstockCapacityUnits { get; }
+        /// <summary>
+        /// Maximum number of tracked physical supplier cases that can occupy
+        /// this fixture. Units stored are derived from the cases occupying
+        /// these slots rather than constrained by a separate rack limit.
+        /// </summary>
+        public int BackstockCaseSlotCapacity { get; }
 
         public bool ProvidesBackstockStorage =>
-            BackstockCapacityUnits > 0;
+            BackstockCaseSlotCapacity > 0;
 
 
         public FixtureStorageProfile(
-            int backstockCapacityUnits)
+            int backstockCaseSlotCapacity)
         {
-            if (backstockCapacityUnits < 0)
+            if (backstockCaseSlotCapacity < 0)
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(backstockCapacityUnits),
-                    backstockCapacityUnits,
-                    "Fixture backstock capacity cannot be negative.");
+                    nameof(backstockCaseSlotCapacity),
+                    backstockCaseSlotCapacity,
+                    "Fixture backstock case-slot capacity cannot be negative.");
             }
 
-            BackstockCapacityUnits = backstockCapacityUnits;
+            BackstockCaseSlotCapacity = backstockCaseSlotCapacity;
         }
     }
 }

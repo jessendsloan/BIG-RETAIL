@@ -1,6 +1,6 @@
 # Big Retail — Now
 
-**Updated:** 2026-08-27
+**Updated:** 2026-08-28
 
 This is the short active-work board. It answers **“What are we finishing
 next?”** `CURRENT.md` records the broader accepted design and implementation
@@ -56,7 +56,33 @@ one customer buys it at a staffed checkout, store cash increases atomically,
 the customer exits, and the same opening state can be reset and replayed
 deterministically.
 
-## 2. Stop camera movement from navigating the UI
+## 2. Restore a zero-red EditMode test baseline
+
+The complete EditMode suite currently reports **799 passed and 31 failed**.
+The affected production behaviors remain valuable and the tests must not be
+deleted merely to make the report green. Repair the stale test scaffolding in
+a dedicated test-health patch after the Frank Opening Scenario checkpoint.
+
+The confirmed repair groups are:
+
+- replace 13 incompatible `Has.Count` assertions with direct collection-count
+  assertions that work with the current NUnit runner;
+- update 14 foundation test fixtures to provide the `ConstructionEligibility`
+  dependency introduced by the location land-policy system;
+- update two door-view tests to use the `WallSegmentView` already attached to
+  the authored wall prefab instead of trying to add a duplicate component;
+- correct two synthetic shelf-mask tests so their overridden sprite vertices
+  use Unity's required sprite-rectangle coordinate space.
+
+Keep this work isolated from production feature changes. Do not disable tests,
+hide Console errors, or change production behavior solely to satisfy stale
+test setup.
+
+**Done when:** The complete Unity EditMode suite reports **830/830 passing** on
+the current project version, the Frank scenario's focused tests remain green,
+Unity compiles without new errors, and no test has been removed or ignored.
+
+## 3. Stop camera movement from navigating the UI
 
 WASD camera movement currently also moves through focused UI options. Camera
 control and UI navigation must not consume the same keyboard input during
@@ -76,7 +102,7 @@ The fix must preserve intentional keyboard and controller navigation:
 management panels are open moves only the camera, and the same panels remain
 fully navigable through their intended keyboard and controller controls.
 
-## 3. Repair the PO and Receiving controls
+## 4. Repair the PO and Receiving controls
 
 The **PO** and **RCV** controls currently appear without the visible button
 background used by the surrounding toolbar controls. They must read as
@@ -104,7 +130,7 @@ The fix must ensure:
 passes at least five consecutive open → close cycles during one play session
 without trapping the player or requiring an extra click.
 
-## 4. Close the construction-economy gap
+## 5. Close the construction-economy gap
 
 Foundation, sidewalk, floor, wall, finish, door, window, and demolition actions
 need real construction prices. At present, campaign cash exists and is used by
@@ -134,7 +160,7 @@ Before implementation, lock these two economy decisions:
 undo, demolish, and fail to afford every opening construction category with a
 clear and consistent result.
 
-## 5. Make fixtures ordered physical equipment
+## 6. Make fixtures ordered physical equipment
 
 Fixtures must not appear from an unlimited construction palette. They are
 physical business equipment that the player orders, receives, owns, places,
@@ -167,7 +193,7 @@ is free; installation consumes owned equipment.
 equipment, receive the shipment, place the owned units, move and store them,
 and redeploy them without creating, losing, or paying twice for equipment.
 
-## 6. Establish authentic store anatomy
+## 7. Establish authentic store anatomy
 
 Use `MegastoreAnatomy.md` as the active reference. The target is not to force
 players to reproduce one Walmart floor plan. The simulation should create the
@@ -188,7 +214,7 @@ market**, not a prematurely enormous supercenter. It needs:
 retail store, and its receiving, stocking, checkout, and customer circulation
 can all be explained from the layout.
 
-## 7. Expand maximum camera zoom with Lot ownership
+## 8. Expand maximum camera zoom with Lot ownership
 
 The campaign camera should frame the store the player can actually use, not
 the entire nine-Lot Property from the beginning. Maximum zoom-out must grow as
@@ -212,7 +238,7 @@ Lot purchase visibly expands the useful zoom range, the complete Property can
 be framed at full ownership, and fixed-footprint locations retain their own
 authored camera bounds.
 
-## 8. Preserve the embodied-player direction
+## 9. Preserve the embodied-player direction
 
 The preferred direction is **Employee Zero**: the player is a persistent Person
 and owner-operator, not a separate superhuman species. Physical work should use

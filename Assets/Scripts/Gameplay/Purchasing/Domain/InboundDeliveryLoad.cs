@@ -37,7 +37,8 @@ namespace BigRetail.Purchasing.Domain
 
         internal InboundDeliveryLoad(
             PlacedPurchaseOrder purchaseOrder,
-            int remainingUnitCount)
+            int remainingUnitCount,
+            int remainingPurchasePackCount)
         {
             PurchaseOrder = purchaseOrder
                 ?? throw new ArgumentNullException(nameof(purchaseOrder));
@@ -50,23 +51,15 @@ namespace BigRetail.Purchasing.Domain
                     "A delivery cannot have negative remaining inventory.");
             }
 
-            int purchasePackCount = 0;
-
-            for (int index = 0; index < purchaseOrder.Lines.Count; index++)
+            if (remainingPurchasePackCount <= 0)
             {
-                purchasePackCount = checked(
-                    purchasePackCount
-                    + purchaseOrder.Lines[index].PurchasePackCount);
+                throw new ArgumentOutOfRangeException(
+                    nameof(remainingPurchasePackCount),
+                    remainingPurchasePackCount,
+                    "A visible supplier load requires at least one remaining case.");
             }
 
-            if (purchasePackCount <= 0)
-            {
-                throw new ArgumentException(
-                    "An inbound delivery requires at least one purchase pack.",
-                    nameof(purchaseOrder));
-            }
-
-            PurchasePackCount = purchasePackCount;
+            PurchasePackCount = remainingPurchasePackCount;
             RemainingUnitCount = remainingUnitCount;
         }
 

@@ -33,6 +33,7 @@ namespace BigRetail.Core.Session
     {
         WakeUp = 0,
         CoverTheStore = 1,
-        Complete = 2
+        MoveReceivingToStockroom = 2,
+        Complete = 3
     }
 }

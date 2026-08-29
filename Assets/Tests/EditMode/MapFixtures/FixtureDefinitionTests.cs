@@ -39,7 +39,8 @@ namespace BigRetail.Map.Fixtures.Tests
         public void Constructor_BackstockProfile_PreservesPhysicalCapacity()
         {
             FixtureStorageProfile storageProfile =
-                new FixtureStorageProfile(480);
+                new FixtureStorageProfile(
+                    backstockCaseSlotCapacity: 12);
 
             FixtureDefinition definition =
                 new FixtureDefinition(
@@ -53,13 +54,13 @@ namespace BigRetail.Map.Fixtures.Tests
                 definition.StorageProfile,
                 Is.SameAs(storageProfile));
             Assert.That(
-                definition.StorageProfile.BackstockCapacityUnits,
-                Is.EqualTo(480));
+                definition.StorageProfile.BackstockCaseSlotCapacity,
+                Is.EqualTo(12));
         }
 
 
         [Test]
-        public void StorageProfile_NegativeCapacity_IsRejected()
+        public void StorageProfile_NegativeCaseSlotCapacity_IsRejected()
         {
             Assert.That(
                 () => new FixtureStorageProfile(-1),

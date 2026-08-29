@@ -23,6 +23,9 @@ namespace BigRetail.Map.Fixtures.Tests
         private static readonly FixtureInstanceId BackstockInstanceId =
             new FixtureInstanceId("BACKSTOCK-ONE");
 
+        private static readonly FixtureInstanceId SecondBackstockInstanceId =
+            new FixtureInstanceId("BACKSTOCK-TWO");
+
         private static readonly FixtureDefinitionId CheckoutDefinitionId =
             new FixtureDefinitionId("BASIC-CHECKOUT-COUNTER");
 
@@ -537,7 +540,7 @@ namespace BigRetail.Map.Fixtures.Tests
                 Assert.That(
                     context.Backstock.UnallocatedUnitCount,
                     Is.EqualTo(200));
-                Assert.That(context.Backstock.CapacityUnitCount, Is.Zero);
+                Assert.That(context.Backstock.CaseSlotCapacity, Is.Zero);
 
                 FixtureRestockResult unavailable =
                     context.DisplayInventory.TryRestockFixture(
@@ -561,11 +564,14 @@ namespace BigRetail.Map.Fixtures.Tests
                     placement.Failure.ToString());
                 Assert.That(context.Backstock.IsOperational, Is.True);
                 Assert.That(
-                    context.Backstock.CapacityUnitCount,
-                    Is.EqualTo(480));
+                    context.Backstock.CaseSlotCapacity,
+                    Is.EqualTo(12));
                 Assert.That(
-                    context.Backstock.AvailableCapacityUnitCount,
-                    Is.EqualTo(280));
+                    context.Backstock.OccupiedCaseSlotCount,
+                    Is.EqualTo(2));
+                Assert.That(
+                    context.Backstock.AvailableCaseSlotCount,
+                    Is.EqualTo(10));
                 Assert.That(
                     context.Backstock.UnallocatedUnitCount,
                     Is.Zero);
@@ -673,6 +679,340 @@ namespace BigRetail.Map.Fixtures.Tests
         }
 
         [Test]
+        public void TargetedReceiving_StoresCaseOnlyInTheChosenRack()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(0, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        SecondBackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(3, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+
+                FixtureBackstockReceiptResult result =
+                    context.Backstock.TryReceiveInboundAtRack(
+                        SecondBackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.ReceivedUnitCount, Is.EqualTo(12));
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.Zero);
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        SecondBackstockInstanceId),
+                    Is.EqualTo(12));
+                Assert.That(context.Backstock.UnallocatedUnitCount, Is.Zero);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void TargetedReceiving_TwoReceiptsRemainTwoPhysicalCases()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+
+                List<FixtureBackstockCaseSnapshot> storedCases =
+                    new List<FixtureBackstockCaseSnapshot>(
+                        context.Backstock.EnumerateRackCases(
+                            BackstockInstanceId));
+
+                Assert.That(storedCases, Has.Count.EqualTo(2));
+                Assert.That(
+                    storedCases[0].ProductId,
+                    Is.EqualTo(CerealProductId));
+                Assert.That(storedCases[0].RemainingUnitCount, Is.EqualTo(12));
+                Assert.That(storedCases[1].RemainingUnitCount, Is.EqualTo(12));
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(24));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void TargetedReceiving_FilledPhysicalCaseSlotsRejectAnotherCase()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true,
+                    backstockCaseSlotCapacity: 2);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+
+                FixtureBackstockReceiptResult rejected =
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12);
+
+                Assert.That(rejected.Succeeded, Is.False);
+                Assert.That(
+                    rejected.Failure,
+                    Is.EqualTo(
+                        FixtureBackstockReceiptFailure
+                            .NoAvailableCaseSlot));
+                Assert.That(
+                    context.Backstock.GetRackCaseSlotCapacity(
+                        BackstockInstanceId),
+                    Is.EqualTo(2));
+                Assert.That(
+                    context.Backstock.GetRackOccupiedCaseSlotCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(2));
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(24));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void RestockingFromTargetedCase_PreservesThenRemovesItsHandlingUnit()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+                AssignCereal(context, frontageUnitCount: 1);
+
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+
+                FixtureRestockResult firstRestock =
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId);
+                List<FixtureBackstockCaseSnapshot> afterFirstRestock =
+                    new List<FixtureBackstockCaseSnapshot>(
+                        context.Backstock.EnumerateRackCases(
+                            BackstockInstanceId));
+
+                Assert.That(firstRestock.MovedUnitCount, Is.EqualTo(6));
+                Assert.That(afterFirstRestock, Has.Count.EqualTo(1));
+                Assert.That(
+                    afterFirstRestock[0].RemainingUnitCount,
+                    Is.EqualTo(6));
+                Assert.That(
+                    afterFirstRestock[0].CapacityUnitCount,
+                    Is.EqualTo(12));
+                Assert.That(
+                    afterFirstRestock[0].AvailableUnitCount,
+                    Is.EqualTo(6));
+
+                Assert.That(
+                    context.DisplayInventory.TryConsumeFixtureStock(
+                        ShelfInstanceId,
+                        requestedUnitCount: 6).ConsumedUnitCount,
+                    Is.EqualTo(6));
+                Assert.That(
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId).MovedUnitCount,
+                    Is.EqualTo(6));
+                Assert.That(
+                    new List<FixtureBackstockCaseSnapshot>(
+                        context.Backstock.EnumerateRackCases(
+                            BackstockInstanceId)),
+                    Is.Empty);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void ReturningStock_RefillsTheOpenedCaseUpToItsOwnLimit()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+                AssignCereal(context, frontageUnitCount: 1);
+
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+                Assert.That(
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId).MovedUnitCount,
+                    Is.EqualTo(6));
+
+                int returnedUnitCount =
+                    context.Backstock.StoreFromLocation(
+                        FixtureDisplayInventoryService
+                            .GetDisplayLocationId(ShelfInstanceId),
+                        CerealProductId,
+                        requestedUnitCount: 6);
+                List<FixtureBackstockCaseSnapshot> storedCases =
+                    new List<FixtureBackstockCaseSnapshot>(
+                        context.Backstock.EnumerateRackCases(
+                            BackstockInstanceId));
+
+                Assert.That(returnedUnitCount, Is.EqualTo(6));
+                Assert.That(storedCases, Has.Count.EqualTo(1));
+                Assert.That(storedCases[0].RemainingUnitCount, Is.EqualTo(12));
+                Assert.That(storedCases[0].CapacityUnitCount, Is.EqualTo(12));
+                Assert.That(storedCases[0].AvailableUnitCount, Is.Zero);
+                Assert.That(
+                    context.Backstock.GetRackStoredUnitCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(12));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void TargetedReceiving_LargeCaseUsesOneSlotWithoutUnitCeiling()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true);
+
+            try
+            {
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+
+                FixtureBackstockReceiptResult result =
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 481);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.ReceivedUnitCount, Is.EqualTo(481));
+                Assert.That(context.Backstock.StoredUnitCount, Is.EqualTo(481));
+                Assert.That(
+                    context.Backstock.GetRackOccupiedCaseSlotCount(
+                        BackstockInstanceId),
+                    Is.EqualTo(1));
+                Assert.That(context.Backstock.UnallocatedUnitCount, Is.Zero);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
         public void Purchasing_OrderCostsMoreThanAvailableCash_IsRejected()
         {
             TestContext context =
@@ -771,7 +1111,8 @@ namespace BigRetail.Map.Fixtures.Tests
         private static TestContext CreateContext(
             int cerealBackstock,
             int soupBackstock,
-            bool usePhysicalBackstock = false)
+            bool usePhysicalBackstock = false,
+            int backstockCaseSlotCapacity = 12)
         {
             HashSet<GridPosition> cells =
                 new HashSet<GridPosition>();
@@ -813,7 +1154,8 @@ namespace BigRetail.Map.Fixtures.Tests
                         FixtureAccessMode.EmployeeStock,
                         FixtureAccessMode.None),
                     storageProfile:
-                        new FixtureStorageProfile(480));
+                        new FixtureStorageProfile(
+                            backstockCaseSlotCapacity));
 
             FixtureDefinition checkoutDefinition =
                 new FixtureDefinition(

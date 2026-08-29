@@ -99,5 +99,28 @@ namespace BigRetail.Economy.Domain
             BalanceCents += amountCents;
             BalanceChanged?.Invoke();
         }
+
+        /// <summary>
+        /// Restores an authoritative balance from a validated scenario or
+        /// save snapshot without replacing the state object observed by UI.
+        /// </summary>
+        public void RestoreBalance(long balanceCents)
+        {
+            if (balanceCents < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(balanceCents),
+                    balanceCents,
+                    "A restored cash balance cannot be negative.");
+            }
+
+            if (BalanceCents == balanceCents)
+            {
+                return;
+            }
+
+            BalanceCents = balanceCents;
+            BalanceChanged?.Invoke();
+        }
     }
 }

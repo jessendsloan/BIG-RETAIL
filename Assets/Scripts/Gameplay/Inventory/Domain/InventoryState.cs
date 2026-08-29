@@ -187,6 +187,56 @@ namespace BigRetail.Inventory.Domain
             }
         }
 
+        /// <summary>
+        /// Atomically replaces every stock balance after validating the full
+        /// incoming snapshot. Runtime services remain attached to this state.
+        /// </summary>
+        public void RestoreBalances(
+            IEnumerable<StockBalance> restoredBalances)
+        {
+            if (restoredBalances == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(restoredBalances));
+            }
+
+            Dictionary<InventoryKey, int> replacement =
+                new Dictionary<InventoryKey, int>();
+
+            foreach (StockBalance balance in restoredBalances)
+            {
+                RequireKnownLocation(balance.LocationId);
+                RequireKnownProduct(balance.ProductId);
+
+                InventoryKey key =
+                    new InventoryKey(
+                        balance.LocationId,
+                        balance.ProductId);
+
+                if (replacement.ContainsKey(key))
+                {
+                    throw new ArgumentException(
+                        $"Restored stock for product '{balance.ProductId}' "
+                        + $"at location '{balance.LocationId}' is duplicated.",
+                        nameof(restoredBalances));
+                }
+
+                if (balance.Quantity > 0)
+                {
+                    replacement.Add(key, balance.Quantity);
+                }
+            }
+
+            quantities.Clear();
+
+            foreach (
+                KeyValuePair<InventoryKey, int> entry
+                in replacement)
+            {
+                quantities.Add(entry.Key, entry.Value);
+            }
+        }
+
 
         internal int GetQuantityUnchecked(
             StorageLocationId locationId,

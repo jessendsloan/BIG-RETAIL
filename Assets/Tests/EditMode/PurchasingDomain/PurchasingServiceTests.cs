@@ -222,6 +222,51 @@ namespace BigRetail.Purchasing.Domain.Tests
             Assert.That(placed[0].OrderNumber, Is.EqualTo(1));
         }
 
+        [Test]
+        public void RestorePlacedOrder_BypassesLiveMinimumAndAdvancesSequence()
+        {
+            ProductDefinition cola = CommercialCatalogTests.CreateCola();
+            SupplierDefinition central =
+                CommercialCatalogTests.CreateSupplier(
+                    "CENTRAL",
+                    "Central Grocery Supply",
+                    10000);
+            SupplierOfferDefinition offer =
+                CommercialCatalogTests.CreateOffer(
+                    "CENTRAL-COLA",
+                    central.Id,
+                    cola.Id,
+                    24,
+                    2100);
+            PurchasingService purchasing =
+                new PurchasingService(
+                    CreateCatalog(
+                        cola,
+                        new[] { central },
+                        new[] { offer }));
+            DraftPurchaseOrder restoredDraft =
+                new DraftPurchaseOrder(central.Id);
+            restoredDraft.SetPurchasePackCount(offer, 1);
+            CommercialTime arrival =
+                new CommercialTime(0, 6, 45);
+
+            PlacedPurchaseOrder restored =
+                purchasing.RestorePlacedOrder(
+                    7,
+                    restoredDraft,
+                    arrival,
+                    SupplierDeliveryEstimate.Exact(arrival));
+
+            Assert.That(restored.OrderNumber, Is.EqualTo(7));
+            Assert.That(restored.TotalCents, Is.EqualTo(2100));
+
+            purchasing.SetPurchasePackCount(offer.Id, 5);
+            IReadOnlyList<PlacedPurchaseOrder> next =
+                purchasing.PlaceDrafts(arrival);
+
+            Assert.That(next[0].OrderNumber, Is.EqualTo(8));
+        }
+
 
         private static CommercialCatalog CreateCatalog(
             ProductDefinition product,

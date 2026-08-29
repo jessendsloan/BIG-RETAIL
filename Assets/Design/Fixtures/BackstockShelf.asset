@@ -21,6 +21,26 @@ MonoBehaviour:
   eastSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
   southSprite: {fileID: 21300000, guid: 036cc6bc9a2633b4db22836965180079, type: 3}
   westSprite: {fileID: 21300000, guid: 62d65b6f798e24541a3e6c7e92dddbe5, type: 3}
+  northPresentationLayers:
+  - {fileID: 21300000, guid: a0d7e98353804a9db68877623a97015c, type: 3}
+  - {fileID: 21300000, guid: dbefec7f351944d1a4ebd9b99aa9b462, type: 3}
+  - {fileID: 21300000, guid: ba15ae2848204554b3e2b6288c47360d, type: 3}
+  - {fileID: 21300000, guid: 11094558c46a428a916f1be45afc8da0, type: 3}
+  eastPresentationLayers:
+  - {fileID: 21300000, guid: 3a611d50701949d3b74605b49eecc477, type: 3}
+  - {fileID: 21300000, guid: e4ade83079274648846806e6768bb1a7, type: 3}
+  - {fileID: 21300000, guid: faafb47d9304445797233ecf29c111e9, type: 3}
+  - {fileID: 21300000, guid: 6bb6d43326a743d1879dfa7dd27dfc6d, type: 3}
+  southPresentationLayers:
+  - {fileID: 21300000, guid: a0d7e98353804a9db68877623a97015c, type: 3}
+  - {fileID: 21300000, guid: dbefec7f351944d1a4ebd9b99aa9b462, type: 3}
+  - {fileID: 21300000, guid: ba15ae2848204554b3e2b6288c47360d, type: 3}
+  - {fileID: 21300000, guid: 11094558c46a428a916f1be45afc8da0, type: 3}
+  westPresentationLayers:
+  - {fileID: 21300000, guid: 3a611d50701949d3b74605b49eecc477, type: 3}
+  - {fileID: 21300000, guid: e4ade83079274648846806e6768bb1a7, type: 3}
+  - {fileID: 21300000, guid: faafb47d9304445797233ecf29c111e9, type: 3}
+  - {fileID: 21300000, guid: 6bb6d43326a743d1879dfa7dd27dfc6d, type: 3}
   northSpriteAnchorCorner: 0
   eastSpriteAnchorCorner: 0
   southSpriteAnchorCorner: 0
@@ -50,4 +70,9 @@ MonoBehaviour:
   southAccess: 2
   westAccess: 0
   accessClearancePolicy: 1
-  backstockCapacityUnits: 480
+  backstockCaseSlotCapacity: 12
+  backstockCasesPerShelf: 4
+  backstockCaseWidthPerSlot: 1.28
+  backstockCaseSpacingShare: 0.82
+  backstockCaseRowOffsetShare: 0.1
+  backstockCaseFrontOffsetShare: 0.27

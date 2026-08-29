@@ -97,7 +97,13 @@ namespace BigRetail.Receiving.Domain
                 }
             }
 
-            availableCells.Sort(CompareCells);
+            Dictionary<int, CellCenter> areaCenters =
+                BuildAreaCenters();
+            availableCells.Sort(
+                (left, right) => CompareCells(
+                    left,
+                    right,
+                    areaCenters));
             int nextCellIndex = 0;
 
             for (int index = 0;
@@ -123,9 +129,31 @@ namespace BigRetail.Receiving.Domain
         }
 
 
+        private Dictionary<int, CellCenter> BuildAreaCenters()
+        {
+            Dictionary<int, CellCenter> centers =
+                new Dictionary<int, CellCenter>();
+
+            foreach (GridPosition cell in state.EnumerateCells())
+            {
+                if (!centers.TryGetValue(
+                        cell.Level,
+                        out CellCenter center))
+                {
+                    center = new CellCenter();
+                    centers.Add(cell.Level, center);
+                }
+
+                center.Include(cell);
+            }
+
+            return centers;
+        }
+
         private static int CompareCells(
             GridPosition left,
-            GridPosition right)
+            GridPosition right,
+            IReadOnlyDictionary<int, CellCenter> areaCenters)
         {
             int levelComparison = left.Level.CompareTo(right.Level);
 
@@ -134,11 +162,59 @@ namespace BigRetail.Receiving.Domain
                 return levelComparison;
             }
 
+            CellCenter center = areaCenters[left.Level];
+            int distanceComparison = ResolveDistanceSquared(
+                    left,
+                    center)
+                .CompareTo(
+                    ResolveDistanceSquared(
+                        right,
+                        center));
+
+            if (distanceComparison != 0)
+            {
+                return distanceComparison;
+            }
+
             int yComparison = left.Y.CompareTo(right.Y);
 
             return yComparison != 0
                 ? yComparison
                 : left.X.CompareTo(right.X);
+        }
+
+        private static double ResolveDistanceSquared(
+            GridPosition cell,
+            CellCenter center)
+        {
+            double xOffset = cell.X - center.X;
+            double yOffset = cell.Y - center.Y;
+
+            return (xOffset * xOffset) + (yOffset * yOffset);
+        }
+
+
+        private sealed class CellCenter
+        {
+            private long xTotal;
+            private long yTotal;
+
+
+            public int CellCount { get; private set; }
+
+            public double X =>
+                (double)xTotal / CellCount;
+
+            public double Y =>
+                (double)yTotal / CellCount;
+
+
+            public void Include(GridPosition cell)
+            {
+                xTotal += cell.X;
+                yTotal += cell.Y;
+                CellCount++;
+            }
         }
     }
 }

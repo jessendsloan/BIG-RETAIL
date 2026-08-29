@@ -1,6 +1,9 @@
 using System.Collections;
 using BigRetail.Core.Session;
+using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity;
+using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Merchandise.Domain;
 using BigRetail.Simulation.Time.Domain;
 using BigRetail.Simulation.Time.Unity;
 using UnityEngine;
@@ -19,10 +22,17 @@ namespace BigRetail.Construction.Unity.UI.PC
         private const string FrankRoadsideMapId =
             "bigretail.map.frank_roadside";
         private const string FrankSpeakerName = "FRANK";
-        private const string FrankObjectiveTitle = "Open Frank's Roadside";
+        private const string FrankObjectiveTitle = "Stock the Back Room";
         private const string FrankObjectiveDescription =
-            "Get the store ready for the morning.";
-        private const int FrankDialoguePageCount = 2;
+            "Choose Merchandise, click the supplier pallet to take one "
+            + "Ridgeway chip case, then click a storage rack. Repeat until "
+            + "all four cases are stored.";
+        private const string FrankCompletedObjectiveTitle =
+            "Back Room Stocked";
+        private const string FrankCompletedObjectiveDescription =
+            "All four Ridgeway chip cases are safely stored on the racks.";
+        private const int FrankOpeningRidgewayUnitCount = 48;
+        private const int FrankDialoguePageCount = 3;
         private const float FrankRevealDurationSeconds = 1.2f;
 
         private const string SpeakerName = "MILTON BIG";
@@ -30,6 +40,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         private const string ObjectiveDescription =
             "Build a store shell with an entrance and room for merchandise.";
         private const int DialoguePageCount = 3;
+
+        private static readonly ProductId FrankOpeningRidgewayProductId =
+            new ProductId("RIDGEWAY-ORIGINAL-CHIPS-SINGLE");
 
         [SerializeField]
         private ConstructionToolbarDocumentHost documentHost;
@@ -40,6 +53,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private GridMapHost mapHost;
 
+        private FixturePlanogramRuntimeHost planogramRuntimeHost;
+        private FixtureBackstockService subscribedBackstock;
         private CampaignOpeningView boundView;
         private Coroutine frankRevealCoroutine;
         private SimulationSpeed speedBeforeDialogue =
@@ -78,6 +93,10 @@ namespace BigRetail.Construction.Unity.UI.PC
                     FindAnyObjectByType<GridMapHost>();
             }
 
+            planogramRuntimeHost =
+                FindAnyObjectByType<FixturePlanogramRuntimeHost>(
+                    FindObjectsInactive.Include);
+
             referencesAreValid = ValidateReferences();
         }
 
@@ -92,6 +111,13 @@ namespace BigRetail.Construction.Unity.UI.PC
                 HandleViewReady;
             timeHost.Initialized +=
                 HandleTimeInitialized;
+
+            if (planogramRuntimeHost != null)
+            {
+                planogramRuntimeHost.Initialized +=
+                    HandlePlanogramInitialized;
+                AttachBackstock();
+            }
 
             if (documentHost.HasCampaignOpeningView)
             {
@@ -115,6 +141,14 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandleTimeInitialized;
             }
 
+            if (planogramRuntimeHost != null)
+            {
+                planogramRuntimeHost.Initialized -=
+                    HandlePlanogramInitialized;
+            }
+
+            DetachBackstock();
+
             RestoreSimulationSpeed();
             UnbindView();
         }
@@ -126,6 +160,18 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         private void HandleTimeInitialized()
+        {
+            Refresh();
+        }
+
+        private void HandlePlanogramInitialized(
+            FixturePlanogramRuntimeHost initializedHost)
+        {
+            AttachBackstock();
+            Refresh();
+        }
+
+        private void HandleBackstockContentsChanged()
         {
             Refresh();
         }
@@ -316,9 +362,20 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (progress.IsComplete)
             {
                 boundView.SetDialogueVisible(false);
-                boundView.SetObjective(
-                    FrankObjectiveTitle,
-                    FrankObjectiveDescription);
+
+                if (IsFrankBackroomStocked())
+                {
+                    boundView.SetObjective(
+                        FrankCompletedObjectiveTitle,
+                        FrankCompletedObjectiveDescription);
+                }
+                else
+                {
+                    boundView.SetObjective(
+                        FrankObjectiveTitle,
+                        FrankObjectiveDescription);
+                }
+
                 boundView.SetObjectiveVisible(true);
                 RestoreSimulationSpeed();
                 return;
@@ -350,6 +407,13 @@ namespace BigRetail.Construction.Unity.UI.PC
                         + "I'll be in later.";
                     break;
 
+                case FrankRoadsideOpeningBeat.MoveReceivingToStockroom:
+                    pageNumber = 3;
+                    dialogue =
+                        "Start by getting those chip cases out of Receiving "
+                        + "and into the stockroom, nephew.";
+                    break;
+
                 default:
                     return;
             }
@@ -363,7 +427,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 pageNumber,
                 FrankDialoguePageCount,
                 isFinalPage,
-                isFinalPage ? "Wake Up" : "Continue");
+                isFinalPage ? "Get to Work" : "Continue");
         }
 
         private IEnumerator RevealFrankRoadside()
@@ -418,6 +482,49 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && mapHost.IsInitialized
                 && mapHost.MapDefinition != null
                 && mapHost.MapDefinition.MapId == FrankRoadsideMapId;
+        }
+
+        private bool IsFrankBackroomStocked()
+        {
+            return subscribedBackstock != null
+                && subscribedBackstock.GetAvailableQuantity(
+                    FrankOpeningRidgewayProductId)
+                    >= FrankOpeningRidgewayUnitCount;
+        }
+
+        private void AttachBackstock()
+        {
+            FixtureBackstockService nextBackstock =
+                planogramRuntimeHost != null
+                && planogramRuntimeHost.IsInitialized
+                    ? planogramRuntimeHost.Backstock
+                    : null;
+
+            if (subscribedBackstock == nextBackstock)
+            {
+                return;
+            }
+
+            DetachBackstock();
+            subscribedBackstock = nextBackstock;
+
+            if (subscribedBackstock != null)
+            {
+                subscribedBackstock.ContentsChanged +=
+                    HandleBackstockContentsChanged;
+            }
+        }
+
+        private void DetachBackstock()
+        {
+            if (subscribedBackstock == null)
+            {
+                return;
+            }
+
+            subscribedBackstock.ContentsChanged -=
+                HandleBackstockContentsChanged;
+            subscribedBackstock = null;
         }
 
         private void PauseSimulation()

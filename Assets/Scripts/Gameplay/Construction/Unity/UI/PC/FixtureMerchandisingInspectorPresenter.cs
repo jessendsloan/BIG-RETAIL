@@ -894,7 +894,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (backstock == null)
             {
                 boundView.SetStorageSummary(
-                    storageProfile.BackstockCapacityUnits,
+                    0,
+                    storageProfile.BackstockCaseSlotCapacity,
+                    0,
                     0,
                     0,
                     0,
@@ -912,18 +914,21 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
-            int rackCapacityUnitCount =
-                backstock.GetRackCapacityUnitCount(fixture.Id);
+            int rackCaseSlotCapacity =
+                backstock.GetRackCaseSlotCapacity(fixture.Id);
+            int rackOccupiedCaseSlotCount =
+                backstock.GetRackOccupiedCaseSlotCount(fixture.Id);
             int rackStoredUnitCount =
                 backstock.GetRackStoredUnitCount(fixture.Id);
             int storedUnitCount = backstock.StoredUnitCount;
-            int totalCapacityUnitCount = backstock.CapacityUnitCount;
+            int totalCaseSlotCapacity = backstock.CaseSlotCapacity;
+            int occupiedCaseSlotCount = backstock.OccupiedCaseSlotCount;
             int unallocatedUnitCount = backstock.UnallocatedUnitCount;
 
             string status;
             bool isWarning;
 
-            if (backstock.IsOverCapacity)
+            if (backstock.HasStockAwaitingStorage)
             {
                 status =
                     $"{unallocatedUnitCount} units await storage";
@@ -934,7 +939,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 status = "No physical storage";
                 isWarning = true;
             }
-            else if (backstock.AvailableCapacityUnitCount == 0)
+            else if (backstock.AvailableCaseSlotCount == 0)
             {
                 status = "Full";
                 isWarning = false;
@@ -946,12 +951,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             boundView.SetStorageSummary(
-                rackCapacityUnitCount,
+                rackOccupiedCaseSlotCount,
+                rackCaseSlotCapacity,
                 rackStoredUnitCount,
-                totalCapacityUnitCount,
+                occupiedCaseSlotCount,
+                totalCaseSlotCapacity,
                 storedUnitCount,
                 unallocatedUnitCount,
-                backstock.AvailableCapacityUnitCount,
+                backstock.AvailableCaseSlotCount,
                 status,
                 isWarning);
 
@@ -1060,16 +1067,16 @@ namespace BigRetail.Construction.Unity.UI.PC
                 purchasingRuntimeHost.Cash?.BalanceCents ?? 0,
                 purchasingRuntimeHost.StagedReadyOrderCount,
                 purchasingRuntimeHost.StagedReadyUnitCount,
-                purchasingRuntimeHost.HasStagedDeliveries);
+                canReceive: false);
 
             string status = purchasingStatus;
 
             if (string.IsNullOrWhiteSpace(status))
             {
                 status = purchasingRuntimeHost.StagedReadyOrderCount > 0
-                    ? purchasingRuntimeHost.StagedReadyOrderCount == 1
-                        ? "1 supplier pallet is staged in Receiving."
-                        : $"{purchasingRuntimeHost.StagedReadyOrderCount} supplier pallets are staged in Receiving."
+                    ? "Use the Merchandise tool: click a staged supplier "
+                        + "pallet to take one case, then click the storage "
+                        + "rack that should hold it."
                     : purchasingRuntimeHost
                         .WaitingForReceivingSpaceOrderCount > 0
                         ? purchasingRuntimeHost

@@ -23,6 +23,8 @@ namespace BigRetail.Map.Fixtures
             new Dictionary<FixtureInstanceId, RackRecord>();
         private readonly List<FixtureInstanceId> rackOrder =
             new List<FixtureInstanceId>();
+        private readonly List<RackCaseRecord> inboundCases =
+            new List<RackCaseRecord>();
 
         private bool isDisposed;
 
@@ -33,7 +35,7 @@ namespace BigRetail.Map.Fixtures
         /// </summary>
         public StorageLocationId LocationId { get; }
 
-        public int CapacityUnitCount { get; private set; }
+        public int CaseSlotCapacity { get; private set; }
 
         public int StoredUnitCount
         {
@@ -54,13 +56,29 @@ namespace BigRetail.Map.Fixtures
         public int UnallocatedUnitCount =>
             GetLocationStoredUnitCount(LocationId);
 
-        public int AvailableCapacityUnitCount =>
-            Math.Max(0, CapacityUnitCount - StoredUnitCount);
+        public int OccupiedCaseSlotCount
+        {
+            get
+            {
+                int occupiedCaseSlotCount = 0;
+
+                for (int index = 0; index < rackOrder.Count; index++)
+                {
+                    occupiedCaseSlotCount +=
+                        racks[rackOrder[index]].Cases.Count;
+                }
+
+                return occupiedCaseSlotCount;
+            }
+        }
+
+        public int AvailableCaseSlotCount =>
+            Math.Max(0, CaseSlotCapacity - OccupiedCaseSlotCount);
 
         public bool IsOperational =>
-            CapacityUnitCount > 0;
+            CaseSlotCapacity > 0;
 
-        public bool IsOverCapacity =>
+        public bool HasStockAwaitingStorage =>
             UnallocatedUnitCount > 0;
 
 
@@ -137,18 +155,37 @@ namespace BigRetail.Map.Fixtures
                 : 0;
         }
 
-        public int GetRackCapacityUnitCount(
+        public int GetRackCaseSlotCapacity(
             FixtureInstanceId fixtureId)
         {
             return racks.TryGetValue(fixtureId, out RackRecord rack)
-                ? rack.CapacityUnitCount
+                ? rack.CaseSlotCapacity
+                : 0;
+        }
+
+        public int GetRackOccupiedCaseSlotCount(
+            FixtureInstanceId fixtureId)
+        {
+            return racks.TryGetValue(fixtureId, out RackRecord rack)
+                ? rack.Cases.Count
+                : 0;
+        }
+
+        public int GetRackAvailableCaseSlotCount(
+            FixtureInstanceId fixtureId)
+        {
+            return racks.TryGetValue(fixtureId, out RackRecord rack)
+                ? Math.Max(
+                    0,
+                    rack.CaseSlotCapacity - rack.Cases.Count)
                 : 0;
         }
 
         /// <summary>
-        /// Receives new store-owned stock through inbound, then distributes
-        /// as much as possible across the currently placed physical racks.
-        /// Any excess remains visible in inbound/overflow.
+        /// Receives one physical handling case through inbound, then places
+        /// it in the first available rack slot. The unit count becomes that
+        /// case's own capacity; racks prescribe slots, never unit totals.
+        /// A case remains in inbound when no slot is available.
         /// </summary>
         public StockAdditionResult ReceiveInbound(
             ProductId productId,
@@ -165,9 +202,96 @@ namespace BigRetail.Map.Fixtures
                 return result;
             }
 
+            inboundCases.Add(
+                new RackCaseRecord(
+                    productId,
+                    unitCount,
+                    unitCount));
             DistributeUnallocatedStock();
             ContentsChanged?.Invoke();
             return result;
+        }
+
+        /// <summary>
+        /// Receives one physical supplier case directly into the rack chosen
+        /// by the acting worker. Unlike bulk receiving, this never selects a
+        /// rack or overflow location on the worker's behalf.
+        /// </summary>
+        public FixtureBackstockReceiptResult TryReceiveInboundAtRack(
+            FixtureInstanceId fixtureId,
+            ProductId productId,
+            int unitCount)
+        {
+            if (unitCount <= 0)
+            {
+                return FixtureBackstockReceiptResult.Failed(
+                    FixtureBackstockReceiptFailure.InvalidQuantity);
+            }
+
+            if (!racks.TryGetValue(fixtureId, out RackRecord rack))
+            {
+                return FixtureBackstockReceiptResult.Failed(
+                    FixtureBackstockReceiptFailure.UnknownRack);
+            }
+
+            int availableCaseSlotCount = Math.Max(
+                0,
+                rack.CaseSlotCapacity - rack.Cases.Count);
+
+            if (availableCaseSlotCount == 0)
+            {
+                return FixtureBackstockReceiptResult.Failed(
+                    FixtureBackstockReceiptFailure.NoAvailableCaseSlot,
+                    remainingRackCaseSlotCount: 0);
+            }
+
+            StockAdditionResult result = additions.TryAdd(
+                rack.LocationId,
+                productId,
+                unitCount);
+
+            if (!result.Succeeded)
+            {
+                return FixtureBackstockReceiptResult.Failed(
+                    FixtureBackstockReceiptFailure.InventoryRejected,
+                    availableCaseSlotCount);
+            }
+
+            rack.Cases.Add(
+                new RackCaseRecord(
+                    productId,
+                    unitCount,
+                    unitCount));
+
+            ContentsChanged?.Invoke();
+            return FixtureBackstockReceiptResult.Success(
+                unitCount,
+                availableCaseSlotCount - 1);
+        }
+
+        /// <summary>
+        /// Enumerates the physical supplier cases currently housed by one
+        /// rack. Aggregate inventory remains authoritative for unit counts;
+        /// these handling-unit records preserve the case boundaries that
+        /// workers and presentation systems need to interact with.
+        /// </summary>
+        public IEnumerable<FixtureBackstockCaseSnapshot>
+            EnumerateRackCases(FixtureInstanceId fixtureId)
+        {
+            if (!racks.TryGetValue(fixtureId, out RackRecord rack))
+            {
+                yield break;
+            }
+
+            for (int index = 0; index < rack.Cases.Count; index++)
+            {
+                RackCaseRecord storedCase = rack.Cases[index];
+
+                yield return new FixtureBackstockCaseSnapshot(
+                    storedCase.ProductId,
+                    storedCase.RemainingUnitCount,
+                    storedCase.CapacityUnitCount);
+            }
         }
 
         public IEnumerable<FixtureBackstockProductSnapshot>
@@ -237,6 +361,12 @@ namespace BigRetail.Map.Fixtures
                     productId,
                     transferUnitCount);
 
+                ConsumeTrackedCases(
+                    rack,
+                    productId,
+                    rackQuantity,
+                    transferUnitCount);
+
                 remainingUnitCount -= transferUnitCount;
                 movedUnitCount += transferUnitCount;
             }
@@ -250,8 +380,9 @@ namespace BigRetail.Map.Fixtures
         }
 
         /// <summary>
-        /// Returns product to available rack space. Any remainder is moved to
-        /// inbound/overflow so fixture edits and demolition never lose stock.
+        /// Returns product to partially emptied cases of the same product,
+        /// respecting each case's own unit limit. Remainders without a case
+        /// are moved to inbound so fixture edits never destroy inventory.
         /// </summary>
         public int StoreFromLocation(
             StorageLocationId sourceLocationId,
@@ -276,28 +407,47 @@ namespace BigRetail.Map.Fixtures
                  index++)
             {
                 RackRecord rack = racks[rackOrder[index]];
-                int freeRackCapacity =
-                    Math.Max(
-                        0,
-                        rack.CapacityUnitCount
-                        - GetLocationStoredUnitCount(rack.LocationId));
-                int transferUnitCount =
-                    Math.Min(remainingUnitCount, freeRackCapacity);
 
-                if (transferUnitCount == 0
-                    || sourceLocationId == rack.LocationId)
+                if (sourceLocationId == rack.LocationId)
                 {
                     continue;
                 }
 
-                TransferRequired(
-                    sourceLocationId,
-                    rack.LocationId,
-                    productId,
-                    transferUnitCount);
+                for (int caseIndex = 0;
+                     caseIndex < rack.Cases.Count
+                        && remainingUnitCount > 0;
+                     caseIndex++)
+                {
+                    RackCaseRecord storedCase = rack.Cases[caseIndex];
 
-                remainingUnitCount -= transferUnitCount;
-                movedUnitCount += transferUnitCount;
+                    if (storedCase.ProductId != productId)
+                    {
+                        continue;
+                    }
+
+                    int availableCaseCapacity = Math.Max(
+                        0,
+                        storedCase.CapacityUnitCount
+                        - storedCase.RemainingUnitCount);
+                    int transferUnitCount = Math.Min(
+                        remainingUnitCount,
+                        availableCaseCapacity);
+
+                    if (transferUnitCount == 0)
+                    {
+                        continue;
+                    }
+
+                    TransferRequired(
+                        sourceLocationId,
+                        rack.LocationId,
+                        productId,
+                        transferUnitCount);
+
+                    storedCase.RemainingUnitCount += transferUnitCount;
+                    remainingUnitCount -= transferUnitCount;
+                    movedUnitCount += transferUnitCount;
+                }
             }
 
             if (remainingUnitCount > 0
@@ -346,6 +496,43 @@ namespace BigRetail.Map.Fixtures
                 RackLocationPrefix + fixtureId.Value);
         }
 
+        /// <summary>
+        /// Rebuilds physical case observations from restored aggregate rack
+        /// balances, then republishes the restored inventory.
+        /// </summary>
+        public void SynchronizeAfterInventoryRestore()
+        {
+            inboundCases.Clear();
+
+            for (int rackIndex = 0;
+                 rackIndex < rackOrder.Count;
+                 rackIndex++)
+            {
+                RackRecord rack = racks[rackOrder[rackIndex]];
+                rack.Cases.Clear();
+
+                foreach (
+                    ProductDefinition product
+                    in productCatalog.EnumerateDefinitions())
+                {
+                    int quantity = inventory.GetQuantity(
+                        rack.LocationId,
+                        product.Id);
+
+                    if (quantity > 0)
+                    {
+                        rack.Cases.Add(
+                            new RackCaseRecord(
+                                product.Id,
+                                quantity,
+                                quantity));
+                    }
+                }
+            }
+
+            ContentsChanged?.Invoke();
+        }
+
 
         private void HandleFixtureAdded(
             FixtureInstance fixture)
@@ -378,12 +565,12 @@ namespace BigRetail.Map.Fixtures
 
             racks.Remove(fixture.Id);
             rackOrder.Remove(fixture.Id);
-            CapacityUnitCount -= rack.CapacityUnitCount;
+            CaseSlotCapacity -= rack.CaseSlotCapacity;
 
-            if (CapacityUnitCount < 0)
+            if (CaseSlotCapacity < 0)
             {
                 throw new InvalidOperationException(
-                    "Fixture backstock capacity became negative.");
+                    "Fixture backstock case-slot capacity became negative.");
             }
 
             DistributeUnallocatedStock();
@@ -394,11 +581,11 @@ namespace BigRetail.Map.Fixtures
         private bool RegisterRack(
             FixtureInstance fixture)
         {
-            int capacityUnitCount =
+            int caseSlotCapacity =
                 fixture.Definition.StorageProfile
-                    .BackstockCapacityUnits;
+                    .BackstockCaseSlotCapacity;
 
-            if (capacityUnitCount <= 0)
+            if (caseSlotCapacity <= 0)
             {
                 return false;
             }
@@ -420,54 +607,111 @@ namespace BigRetail.Map.Fixtures
                 fixture.Id,
                 new RackRecord(
                     rackLocationId,
-                    capacityUnitCount));
+                    caseSlotCapacity));
             rackOrder.Add(fixture.Id);
-            CapacityUnitCount += capacityUnitCount;
+            CaseSlotCapacity += caseSlotCapacity;
             return true;
         }
 
         private void DistributeUnallocatedStock()
         {
+            for (int caseIndex = 0;
+                 caseIndex < inboundCases.Count;)
+            {
+                RackRecord rack = FindFirstRackWithAvailableCaseSlot();
+
+                if (rack == null)
+                {
+                    return;
+                }
+
+                RackCaseRecord inboundCase = inboundCases[caseIndex];
+                TransferRequired(
+                    LocationId,
+                    rack.LocationId,
+                    inboundCase.ProductId,
+                    inboundCase.RemainingUnitCount);
+                rack.Cases.Add(inboundCase.Clone());
+                inboundCases.RemoveAt(caseIndex);
+            }
+
             foreach (
                 ProductDefinition product
                 in productCatalog.EnumerateDefinitions())
             {
-                int remainingUnitCount =
+                int unallocatedUnitCount =
                     inventory.GetQuantity(
                         LocationId,
-                        product.Id);
+                        product.Id)
+                    - GetTrackedInboundUnitCount(product.Id);
 
-                for (int index = 0;
-                     index < rackOrder.Count && remainingUnitCount > 0;
-                     index++)
+                if (unallocatedUnitCount <= 0)
                 {
-                    RackRecord rack = racks[rackOrder[index]];
-                    int freeRackCapacity =
-                        Math.Max(
-                            0,
-                            rack.CapacityUnitCount
-                            - GetLocationStoredUnitCount(rack.LocationId));
-                    int transferUnitCount =
-                        Math.Min(remainingUnitCount, freeRackCapacity);
+                    continue;
+                }
 
-                    if (transferUnitCount == 0)
-                    {
-                        continue;
-                    }
+                RackRecord rack = FindFirstRackWithAvailableCaseSlot();
 
-                    TransferRequired(
-                        LocationId,
-                        rack.LocationId,
+                if (rack == null)
+                {
+                    return;
+                }
+
+                TransferRequired(
+                    LocationId,
+                    rack.LocationId,
+                    product.Id,
+                    unallocatedUnitCount);
+                rack.Cases.Add(
+                    new RackCaseRecord(
                         product.Id,
-                        transferUnitCount);
-                    remainingUnitCount -= transferUnitCount;
+                        unallocatedUnitCount,
+                        unallocatedUnitCount));
+            }
+        }
+
+        private RackRecord FindFirstRackWithAvailableCaseSlot()
+        {
+            for (int index = 0; index < rackOrder.Count; index++)
+            {
+                RackRecord rack = racks[rackOrder[index]];
+
+                if (rack.Cases.Count < rack.CaseSlotCapacity)
+                {
+                    return rack;
                 }
             }
+
+            return null;
+        }
+
+        private int GetTrackedInboundUnitCount(ProductId productId)
+        {
+            int trackedUnitCount = 0;
+
+            for (int index = 0; index < inboundCases.Count; index++)
+            {
+                RackCaseRecord inboundCase = inboundCases[index];
+
+                if (inboundCase.ProductId == productId)
+                {
+                    trackedUnitCount = checked(
+                        trackedUnitCount
+                        + inboundCase.RemainingUnitCount);
+                }
+            }
+
+            return trackedUnitCount;
         }
 
         private void MoveRackContentsToInbound(
             RackRecord rack)
         {
+            for (int index = 0; index < rack.Cases.Count; index++)
+            {
+                inboundCases.Add(rack.Cases[index].Clone());
+            }
+
             foreach (
                 ProductDefinition product
                 in productCatalog.EnumerateDefinitions())
@@ -485,6 +729,61 @@ namespace BigRetail.Map.Fixtures
                         product.Id,
                         quantity);
                 }
+            }
+
+            rack.Cases.Clear();
+        }
+
+        private static void ConsumeTrackedCases(
+            RackRecord rack,
+            ProductId productId,
+            int rackQuantityBeforeTransfer,
+            int transferUnitCount)
+        {
+            int trackedUnitCount = 0;
+
+            for (int index = 0; index < rack.Cases.Count; index++)
+            {
+                RackCaseRecord storedCase = rack.Cases[index];
+
+                if (storedCase.ProductId == productId)
+                {
+                    trackedUnitCount += storedCase.RemainingUnitCount;
+                }
+            }
+
+            int untrackedUnitCount = Math.Max(
+                0,
+                rackQuantityBeforeTransfer - trackedUnitCount);
+            int trackedTransferUnitCount = Math.Max(
+                0,
+                transferUnitCount - untrackedUnitCount);
+
+            for (int index = 0;
+                 index < rack.Cases.Count
+                     && trackedTransferUnitCount > 0;)
+            {
+                RackCaseRecord storedCase = rack.Cases[index];
+
+                if (storedCase.ProductId != productId)
+                {
+                    index++;
+                    continue;
+                }
+
+                int consumedUnitCount = Math.Min(
+                    trackedTransferUnitCount,
+                    storedCase.RemainingUnitCount);
+                storedCase.RemainingUnitCount -= consumedUnitCount;
+                trackedTransferUnitCount -= consumedUnitCount;
+
+                if (storedCase.RemainingUnitCount == 0)
+                {
+                    rack.Cases.RemoveAt(index);
+                    continue;
+                }
+
+                index++;
             }
         }
 
@@ -531,16 +830,48 @@ namespace BigRetail.Map.Fixtures
         {
             public RackRecord(
                 StorageLocationId locationId,
-                int capacityUnitCount)
+                int caseSlotCapacity)
             {
                 LocationId = locationId;
-                CapacityUnitCount = capacityUnitCount;
+                CaseSlotCapacity = caseSlotCapacity;
             }
 
 
             public StorageLocationId LocationId { get; }
 
+            public int CaseSlotCapacity { get; }
+
+            public List<RackCaseRecord> Cases { get; } =
+                new List<RackCaseRecord>();
+        }
+
+
+        private sealed class RackCaseRecord
+        {
+            public RackCaseRecord(
+                ProductId productId,
+                int capacityUnitCount,
+                int remainingUnitCount)
+            {
+                ProductId = productId;
+                CapacityUnitCount = capacityUnitCount;
+                RemainingUnitCount = remainingUnitCount;
+            }
+
+
+            public ProductId ProductId { get; }
+
             public int CapacityUnitCount { get; }
+
+            public int RemainingUnitCount { get; set; }
+
+            public RackCaseRecord Clone()
+            {
+                return new RackCaseRecord(
+                    ProductId,
+                    CapacityUnitCount,
+                    RemainingUnitCount);
+            }
         }
     }
 
@@ -559,5 +890,91 @@ namespace BigRetail.Map.Fixtures
         public ProductId ProductId { get; }
 
         public int Quantity { get; }
+    }
+
+
+    /// <summary>
+    /// Read-only description of one physical supplier case on a rack.
+    /// Remaining units may be lower than the original pack size when a worker
+    /// has opened the case to restock a sales fixture.
+    /// </summary>
+    public readonly struct FixtureBackstockCaseSnapshot
+    {
+        public FixtureBackstockCaseSnapshot(
+            ProductId productId,
+            int remainingUnitCount,
+            int capacityUnitCount)
+        {
+            ProductId = productId;
+            RemainingUnitCount = remainingUnitCount;
+            CapacityUnitCount = capacityUnitCount;
+        }
+
+
+        public ProductId ProductId { get; }
+
+        public int RemainingUnitCount { get; }
+
+        public int CapacityUnitCount { get; }
+
+        public int AvailableUnitCount =>
+            Math.Max(0, CapacityUnitCount - RemainingUnitCount);
+    }
+
+
+    public enum FixtureBackstockReceiptFailure
+    {
+        None = 0,
+        InvalidQuantity = 1,
+        UnknownRack = 2,
+        NoAvailableCaseSlot = 3,
+        InventoryRejected = 4
+    }
+
+
+    public readonly struct FixtureBackstockReceiptResult
+    {
+        public int ReceivedUnitCount { get; }
+
+        public int RemainingRackCaseSlotCount { get; }
+
+        public FixtureBackstockReceiptFailure Failure { get; }
+
+        public bool Succeeded =>
+            Failure == FixtureBackstockReceiptFailure.None
+            && ReceivedUnitCount > 0;
+
+
+        private FixtureBackstockReceiptResult(
+            int receivedUnitCount,
+            int remainingRackCaseSlotCount,
+            FixtureBackstockReceiptFailure failure)
+        {
+            ReceivedUnitCount = receivedUnitCount;
+            RemainingRackCaseSlotCount =
+                remainingRackCaseSlotCount;
+            Failure = failure;
+        }
+
+
+        internal static FixtureBackstockReceiptResult Success(
+            int receivedUnitCount,
+            int remainingRackCaseSlotCount)
+        {
+            return new FixtureBackstockReceiptResult(
+                receivedUnitCount,
+                remainingRackCaseSlotCount,
+                FixtureBackstockReceiptFailure.None);
+        }
+
+        internal static FixtureBackstockReceiptResult Failed(
+            FixtureBackstockReceiptFailure failure,
+            int remainingRackCaseSlotCount = 0)
+        {
+            return new FixtureBackstockReceiptResult(
+                receivedUnitCount: 0,
+                remainingRackCaseSlotCount,
+                failure);
+        }
     }
 }

@@ -260,7 +260,7 @@
                     picking-mode="Ignore" />
 
                 <ui:Label
-                    text="Stock is assigned to this rack. Received cases are distributed automatically; excess waits in inbound / overflow."
+                    text="Click a supplier pallet with the Merchandise tool to take one case, then click this rack to stock it."
                     class="fixture-merchandising-inspector__storage-note"
                     picking-mode="Ignore" />
 
@@ -275,18 +275,18 @@
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-storage-rack-capacity-value"
-                            text="0 / 0 units"
+                            text="0 / 0 cases · 0 units"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
                     <ui:VisualElement
                         class="fixture-merchandising-inspector__summary-row fixture-merchandising-inspector__summary-row--live">
                         <ui:Label
-                            text="Store capacity"
+                            text="Store case slots"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-storage-total-capacity-value"
-                            text="0 units"
+                            text="0 / 0 cases"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
@@ -297,7 +297,7 @@
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-storage-stored-value"
-                            text="0 / 0 units"
+                            text="0 units"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
@@ -315,11 +315,11 @@
                     <ui:VisualElement
                         class="fixture-merchandising-inspector__summary-row">
                         <ui:Label
-                            text="Free space"
+                            text="Open slots"
                             class="fixture-merchandising-inspector__summary-label" />
                         <ui:Label
                             name="fixture-storage-free-space-value"
-                            text="0 units"
+                            text="0 case slots"
                             class="fixture-merchandising-inspector__summary-value fixture-merchandising-inspector__summary-value--live" />
                     </ui:VisualElement>
 
@@ -360,7 +360,7 @@
                         picking-mode="Ignore" />
 
                     <ui:Label
-                        text="Purchase orders arrive on the supplier schedule. Receive arrived deliveries into store storage here."
+                        text="Purchase orders arrive on the supplier schedule. Work each case from its pallet onto a specific storage rack."
                         class="fixture-merchandising-inspector__purchasing-note"
                         picking-mode="Ignore" />
 
@@ -781,7 +781,7 @@
         <ui:Button
             name="merchandise-tool-button"
             class="construction-toolbar__button merchandise-tool-button"
-            tooltip="Inspect a fixture and edit its product planogram.">
+            tooltip="Move supplier cases onto storage racks, inspect fixtures, and edit product planograms.">
             <ui:VisualElement
                 class="construction-toolbar__icon construction-toolbar__icon--departments"
                 picking-mode="Ignore" />

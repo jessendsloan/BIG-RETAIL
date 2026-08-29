@@ -4,6 +4,9 @@ using BigRetail.Construction.Unity.Tools;
 using BigRetail.Construction.Unity.UI.PC;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Merchandise.Unity;
+using BigRetail.Purchasing.Domain;
+using BigRetail.Purchasing.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,6 +20,8 @@ namespace BigRetail.Construction.Unity.Fixtures
     [DefaultExecutionOrder(175)]
     public sealed class FixtureMerchandisingInputController : MonoBehaviour
     {
+        private const float CarriedCaseTargetWidth = 0.64f;
+
         [SerializeField]
         private PlayerInput playerInput;
 
@@ -44,6 +49,15 @@ namespace BigRetail.Construction.Unity.Fixtures
         [SerializeField]
         private FixtureMerchandisingHoverOutlineView hoverOutlineView;
 
+        [SerializeField]
+        private FixturePlanogramRuntimeHost planogramRuntimeHost;
+
+        [SerializeField]
+        private PurchasingRuntimeHost purchasingRuntimeHost;
+
+        [SerializeField]
+        private InboundDeliveryViewSystem inboundDeliveryViewSystem;
+
         [Header("Action Names")]
 
         [SerializeField]
@@ -54,6 +68,9 @@ namespace BigRetail.Construction.Unity.Fixtures
 
 
         private InputAction confirmAction;
+        private InboundPurchasePack carriedCase;
+        private GameObject carriedCaseView;
+        private bool hasCarriedCase;
 
 
         private void Awake()
@@ -69,6 +86,27 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         private void ResolveRuntimeReferences()
         {
+            if (planogramRuntimeHost == null)
+            {
+                planogramRuntimeHost =
+                    FindAnyObjectByType<FixturePlanogramRuntimeHost>(
+                        FindObjectsInactive.Include);
+            }
+
+            if (purchasingRuntimeHost == null)
+            {
+                purchasingRuntimeHost =
+                    FindAnyObjectByType<PurchasingRuntimeHost>(
+                        FindObjectsInactive.Include);
+            }
+
+            if (inboundDeliveryViewSystem == null)
+            {
+                inboundDeliveryViewSystem =
+                    FindAnyObjectByType<InboundDeliveryViewSystem>(
+                        FindObjectsInactive.Include);
+            }
+
             if (fixtureViewSystem == null)
             {
                 fixtureViewSystem =
@@ -120,10 +158,14 @@ namespace BigRetail.Construction.Unity.Fixtures
 
             overlayViewSystem?.ClearHoveredMarker();
             hoverOutlineView?.Hide();
+            inboundDeliveryViewSystem?.SetHighlightedOrder(null);
+            ClearCarriedCase();
         }
 
         private void LateUpdate()
         {
+            UpdateCarriedCaseViewPosition();
+
             if (toolCoordinator.CurrentMode
                     != ConstructionToolMode.MerchandiseFixtures
                 || uiInputGate.IsPointerOverConstructionUi
@@ -131,8 +173,35 @@ namespace BigRetail.Construction.Unity.Fixtures
             {
                 overlayViewSystem.ClearHoveredMarker();
                 hoverOutlineView.Hide();
+                inboundDeliveryViewSystem.SetHighlightedOrder(null);
                 return;
             }
+
+            if (hasCarriedCase)
+            {
+                HandleCarriedCaseInteraction();
+                return;
+            }
+
+            if (!selectionHost.IsEditing
+                && inboundDeliveryViewSystem.TryGetLoadAtWorldPosition(
+                    targetResolver.PointerWorldPosition,
+                    out InboundDeliveryLoadView inboundLoad))
+            {
+                overlayViewSystem.ClearHoveredMarker();
+                hoverOutlineView.Hide();
+                inboundDeliveryViewSystem.SetHighlightedOrder(
+                    inboundLoad.OrderNumber);
+
+                if (confirmAction.WasPressedThisFrame())
+                {
+                    TryTakeCase(inboundLoad);
+                }
+
+                return;
+            }
+
+            inboundDeliveryViewSystem.SetHighlightedOrder(null);
 
             if (selectionHost.IsEditing
                 && overlayViewSystem.TryHitTest(
@@ -191,6 +260,12 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         private void HandleCancelRequested()
         {
+            if (hasCarriedCase)
+            {
+                ClearCarriedCase();
+                return;
+            }
+
             if (selectionHost.HasSelectedFrontageUnit)
             {
                 selectionHost.ClearFrontageSelection();
@@ -220,10 +295,187 @@ namespace BigRetail.Construction.Unity.Fixtures
         {
             if (mode != ConstructionToolMode.MerchandiseFixtures)
             {
+                ClearCarriedCase();
                 selectionHost.ClearSelection();
                 overlayViewSystem.ClearHoveredMarker();
                 hoverOutlineView.Hide();
+                inboundDeliveryViewSystem.SetHighlightedOrder(null);
             }
+        }
+
+        private void HandleCarriedCaseInteraction()
+        {
+            inboundDeliveryViewSystem.SetHighlightedOrder(null);
+            overlayViewSystem.ClearHoveredMarker();
+
+            if (!TryResolveHoveredStorageRack(
+                    out FixtureInstance rack))
+            {
+                hoverOutlineView.Hide();
+                return;
+            }
+
+            hoverOutlineView.ShowFixture(rack.Id);
+
+            if (!confirmAction.WasPressedThisFrame())
+            {
+                return;
+            }
+
+            SupplierCaseStockingResult result =
+                purchasingRuntimeHost.CaseStocking.TryStockCase(
+                    carriedCase,
+                    rack.Id);
+
+            if (!result.Succeeded)
+            {
+                Debug.LogWarning(
+                    DescribeStockingFailure(result.Failure),
+                    this);
+                return;
+            }
+
+            Debug.Log(
+                $"Stocked one {result.ReceivedUnitCount}-unit supplier "
+                + $"case on rack '{rack.Id.Value}'.",
+                this);
+            ClearCarriedCase();
+            hoverOutlineView.Hide();
+        }
+
+        private bool TryTakeCase(InboundDeliveryLoadView inboundLoad)
+        {
+            if (inboundLoad == null
+                || purchasingRuntimeHost.CaseStocking == null
+                || !purchasingRuntimeHost.CaseStocking.TryGetNextCase(
+                    inboundLoad.OrderNumber,
+                    out InboundPurchasePack nextCase))
+            {
+                return false;
+            }
+
+            carriedCase = nextCase;
+            hasCarriedCase = true;
+            selectionHost.ClearSelection();
+            inboundDeliveryViewSystem.SetHighlightedOrder(null);
+            CreateCarriedCaseView(
+                inboundLoad.LoadRenderer != null
+                    ? inboundLoad.LoadRenderer.sprite
+                    : null);
+
+            Debug.Log(
+                $"Picked up one {nextCase.UnitCount}-unit supplier case. "
+                + "Choose a storage rack.",
+                this);
+            return true;
+        }
+
+        private void CreateCarriedCaseView(Sprite fallbackSprite)
+        {
+            ClearCarriedCaseView();
+
+            Sprite caseSprite = fallbackSprite;
+
+            if (planogramRuntimeHost.TryGetProductAsset(
+                    carriedCase.ProductId,
+                    out ProductDefinitionAsset productAsset))
+            {
+                caseSprite = productAsset.GetCaseImage(
+                        risingLeft: false)
+                    ?? productAsset.GetCaseImage(risingLeft: true)
+                    ?? productAsset.CatalogImage
+                    ?? fallbackSprite;
+            }
+
+            if (caseSprite == null)
+            {
+                return;
+            }
+
+            carriedCaseView = new GameObject("Carried Supplier Case");
+            carriedCaseView.transform.SetParent(
+                transform,
+                worldPositionStays: true);
+            SpriteRenderer renderer =
+                carriedCaseView.AddComponent<SpriteRenderer>();
+            renderer.sprite = caseSprite;
+            renderer.color = new Color(1f, 1f, 1f, 0.94f);
+            renderer.sortingOrder = 32760;
+
+            float spriteWidth = caseSprite.bounds.size.x;
+
+            if (spriteWidth > Mathf.Epsilon)
+            {
+                float scale = CarriedCaseTargetWidth / spriteWidth;
+                carriedCaseView.transform.localScale =
+                    new Vector3(scale, scale, 1f);
+            }
+
+            UpdateCarriedCaseViewPosition();
+        }
+
+        private void UpdateCarriedCaseViewPosition()
+        {
+            if (carriedCaseView == null || targetResolver == null)
+            {
+                return;
+            }
+
+            carriedCaseView.transform.position =
+                targetResolver.PointerWorldPosition
+                + new Vector3(0f, 0.46f, 0f);
+        }
+
+        private void ClearCarriedCase()
+        {
+            hasCarriedCase = false;
+            carriedCase = default;
+            ClearCarriedCaseView();
+        }
+
+        private void ClearCarriedCaseView()
+        {
+            if (carriedCaseView == null)
+            {
+                return;
+            }
+
+            Destroy(carriedCaseView);
+            carriedCaseView = null;
+        }
+
+        private bool TryResolveHoveredStorageRack(
+            out FixtureInstance rack)
+        {
+            if (TryResolveHoveredFixture(out FixtureInstance fixture)
+                && fixture.Definition.StorageProfile
+                    .ProvidesBackstockStorage)
+            {
+                rack = fixture;
+                return true;
+            }
+
+            rack = null;
+            return false;
+        }
+
+        private static string DescribeStockingFailure(
+            SupplierCaseStockingFailure failure)
+        {
+            return failure switch
+            {
+                SupplierCaseStockingFailure
+                    .NoAvailableRackCaseSlot =>
+                    "That storage rack does not have room for this case.",
+
+                SupplierCaseStockingFailure.UnknownRack =>
+                    "That storage rack is no longer available.",
+
+                SupplierCaseStockingFailure.DeliveryChanged =>
+                    "That supplier case is no longer available.",
+
+                _ => "The supplier case could not be stocked."
+            };
         }
 
         private bool TryResolveHoveredFixture(
@@ -290,13 +542,16 @@ namespace BigRetail.Construction.Unity.Fixtures
                 && selectionHost != null
                 && overlayViewSystem != null
                 && fixtureViewSystem != null
-                && hoverOutlineView != null)
+                && hoverOutlineView != null
+                && planogramRuntimeHost != null
+                && purchasingRuntimeHost != null
+                && inboundDeliveryViewSystem != null)
             {
                 return true;
             }
 
             Debug.LogError(
-                "FixtureMerchandisingInputController requires input, targeting, UI gate, tool, fixture, selection, overlay, fixture-view, and hover-outline references.",
+                "FixtureMerchandisingInputController requires input, targeting, UI gate, tool, fixture, merchandise, purchasing, delivery-view, selection, overlay, fixture-view, and hover-outline references.",
                 this);
             return false;
         }

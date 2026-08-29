@@ -122,7 +122,7 @@ namespace BigRetail.Session.Tests
         }
 
         [Test]
-        public void FrankRoadsideOpeningAdvancesThroughItsTwoBeats()
+        public void FrankRoadsideOpeningAdvancesThroughItsThreeBeats()
         {
             var session = new GameSession(GameMode.Campaign);
 
@@ -137,8 +137,12 @@ namespace BigRetail.Session.Tests
 
             session.FrankRoadsideOpening.Advance();
             Assert.That(
-                session.FrankRoadsideOpening.IsComplete,
-                Is.True);
+                session.FrankRoadsideOpening.CurrentBeat,
+                Is.EqualTo(
+                    FrankRoadsideOpeningBeat.MoveReceivingToStockroom));
+
+            session.FrankRoadsideOpening.Advance();
+            Assert.That(session.FrankRoadsideOpening.IsComplete, Is.True);
         }
 
         [Test]

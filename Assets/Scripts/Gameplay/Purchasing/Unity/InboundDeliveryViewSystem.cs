@@ -67,6 +67,7 @@ namespace BigRetail.Purchasing.Unity
 
         private InboundDeliveryPlaceholderSprites placeholderSprites;
         private ReceivingAreaState subscribedReceivingState;
+        private long? highlightedOrderNumber;
         private bool hasStarted;
 
 
@@ -187,6 +188,60 @@ namespace BigRetail.Purchasing.Unity
             return false;
         }
 
+        public bool TryGetLoadAtWorldPosition(
+            Vector3 worldPosition,
+            out InboundDeliveryLoadView loadView)
+        {
+            foreach (GameObject viewObject in views.Values)
+            {
+                if (viewObject == null
+                    || !viewObject.TryGetComponent(
+                        out InboundDeliveryLoadView candidate)
+                    || !candidate.ContainsWorldPosition(worldPosition))
+                {
+                    continue;
+                }
+
+                loadView = candidate;
+                return true;
+            }
+
+            loadView = null;
+            return false;
+        }
+
+        public void SetHighlightedOrder(long? orderNumber)
+        {
+            if (highlightedOrderNumber == orderNumber)
+            {
+                return;
+            }
+
+            if (highlightedOrderNumber.HasValue
+                && views.TryGetValue(
+                    highlightedOrderNumber.Value,
+                    out GameObject previousObject)
+                && previousObject != null
+                && previousObject.TryGetComponent(
+                    out InboundDeliveryLoadView previousView))
+            {
+                previousView.SetHighlighted(false);
+            }
+
+            highlightedOrderNumber = orderNumber;
+
+            if (highlightedOrderNumber.HasValue
+                && views.TryGetValue(
+                    highlightedOrderNumber.Value,
+                    out GameObject nextObject)
+                && nextObject != null
+                && nextObject.TryGetComponent(
+                    out InboundDeliveryLoadView nextView))
+            {
+                nextView.SetHighlighted(true);
+            }
+        }
+
         public void RebuildViews()
         {
             ClearViews();
@@ -244,6 +299,17 @@ namespace BigRetail.Purchasing.Unity
                 views.Add(
                     load.OrderNumber,
                     CreateLoadView(load, slot));
+            }
+
+            if (highlightedOrderNumber.HasValue
+                && views.TryGetValue(
+                    highlightedOrderNumber.Value,
+                    out GameObject highlightedObject)
+                && highlightedObject != null
+                && highlightedObject.TryGetComponent(
+                    out InboundDeliveryLoadView highlightedView))
+            {
+                highlightedView.SetHighlighted(true);
             }
         }
 
@@ -528,6 +594,14 @@ namespace BigRetail.Purchasing.Unity
     /// </summary>
     public sealed class InboundDeliveryLoadView : MonoBehaviour
     {
+        private static readonly Color HighlightColor =
+            new Color(1f, 0.72f, 0.16f, 1f);
+
+        private SpriteRenderer[] renderers;
+        private Color[] originalColors;
+        private bool isHighlighted;
+
+
         public long OrderNumber { get; private set; }
 
         public SupplierId SupplierId { get; private set; }
@@ -562,6 +636,71 @@ namespace BigRetail.Purchasing.Unity
             VisibleBoxCount = visibleBoxCount;
             StagingCell = stagingCell;
             LoadRenderer = loadRenderer;
+            renderers = GetComponentsInChildren<SpriteRenderer>(
+                includeInactive: true);
+            originalColors = new Color[renderers.Length];
+
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                originalColors[index] = renderers[index].color;
+            }
+        }
+
+        public bool ContainsWorldPosition(Vector3 worldPosition)
+        {
+            if (renderers == null)
+            {
+                return false;
+            }
+
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                SpriteRenderer renderer = renderers[index];
+
+                if (renderer == null || renderer.sprite == null)
+                {
+                    continue;
+                }
+
+                Bounds bounds = renderer.bounds;
+
+                if (worldPosition.x >= bounds.min.x
+                    && worldPosition.x <= bounds.max.x
+                    && worldPosition.y >= bounds.min.y
+                    && worldPosition.y <= bounds.max.y)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void SetHighlighted(bool highlighted)
+        {
+            if (isHighlighted == highlighted
+                || renderers == null
+                || originalColors == null)
+            {
+                return;
+            }
+
+            isHighlighted = highlighted;
+
+            for (int index = 0; index < renderers.Length; index++)
+            {
+                if (renderers[index] == null)
+                {
+                    continue;
+                }
+
+                renderers[index].color = highlighted
+                    ? Color.Lerp(
+                        originalColors[index],
+                        HighlightColor,
+                        0.42f)
+                    : originalColors[index];
+            }
         }
     }
 }

@@ -114,6 +114,40 @@ namespace BigRetail.Editor.Fixtures
         private const string BackstockShelfRisingRightPath =
             BackstockShelfArtFolder
             + "/Fixture_2x1_BackstockShelf01_RisingRight.png";
+        private const string BackstockShelfLayersFolder =
+            BackstockShelfArtFolder + "/Layers";
+        private const string BackstockShelfRisingLeftLayer00Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_"
+            + "Layer00_BackAndBottomShelf.png";
+        private const string BackstockShelfRisingLeftLayer20Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_"
+            + "Layer20_MiddleShelf.png";
+        private const string BackstockShelfRisingLeftLayer40Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_"
+            + "Layer40_TopShelf.png";
+        private const string BackstockShelfRisingLeftLayer60Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingLeft_"
+            + "Layer60_FrontFrame.png";
+        private const string BackstockShelfRisingRightLayer00Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_"
+            + "Layer00_BackAndBottomShelf.png";
+        private const string BackstockShelfRisingRightLayer20Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_"
+            + "Layer20_MiddleShelf.png";
+        private const string BackstockShelfRisingRightLayer40Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_"
+            + "Layer40_TopShelf.png";
+        private const string BackstockShelfRisingRightLayer60Path =
+            BackstockShelfLayersFolder
+            + "/Fixture_2x1_BackstockShelf01_RisingRight_"
+            + "Layer60_FrontFrame.png";
         private const string BackstockShelfMasksFolder =
             BackstockShelfArtFolder + "/InventoryMasks";
         private const string BackstockShelfRisingLeftMaskTopPath =
@@ -598,7 +632,7 @@ namespace BigRetail.Editor.Fixtures
             serialized.FindProperty("accessClearancePolicy").intValue =
                 (int)FixtureAccessClearancePolicy
                     .AllAuthoredAccessPoints;
-            serialized.FindProperty("backstockCapacityUnits").intValue = 0;
+            serialized.FindProperty("backstockCaseSlotCapacity").intValue = 0;
             ConfigureStandardShelfMerchandisingMasks(
                 serialized,
                 risingRightShelfMasks,
@@ -789,7 +823,7 @@ namespace BigRetail.Editor.Fixtures
             serialized.FindProperty("accessClearancePolicy").intValue =
                 (int)FixtureAccessClearancePolicy
                     .AllAuthoredAccessPoints;
-            serialized.FindProperty("backstockCapacityUnits").intValue = 0;
+            serialized.FindProperty("backstockCaseSlotCapacity").intValue = 0;
             ConfigureHalfShelfMerchandisingMasks(
                 serialized,
                 risingRightShelfMasks,
@@ -820,6 +854,36 @@ namespace BigRetail.Editor.Fixtures
                 LoadPreparedSprite(BackstockShelfRisingRightMaskTopPath),
                 LoadPreparedSprite(BackstockShelfRisingRightMaskMiddlePath),
                 LoadPreparedSprite(BackstockShelfRisingRightMaskBottomPath)
+            };
+            Sprite[] risingLeftPresentationLayers =
+            {
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingLeftLayer00Path,
+                    BackstockShelfRisingLeftPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingLeftLayer20Path,
+                    BackstockShelfRisingLeftPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingLeftLayer40Path,
+                    BackstockShelfRisingLeftPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingLeftLayer60Path,
+                    BackstockShelfRisingLeftPath)
+            };
+            Sprite[] risingRightPresentationLayers =
+            {
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingRightLayer00Path,
+                    BackstockShelfRisingRightPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingRightLayer20Path,
+                    BackstockShelfRisingRightPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingRightLayer40Path,
+                    BackstockShelfRisingRightPath),
+                LoadPreparedAlignedMaskSprite(
+                    BackstockShelfRisingRightLayer60Path,
+                    BackstockShelfRisingRightPath)
             };
 
             bool hasPreparedBackstockArt =
@@ -924,11 +988,24 @@ namespace BigRetail.Editor.Fixtures
             serialized.FindProperty("accessClearancePolicy").intValue =
                 (int)FixtureAccessClearancePolicy
                     .AtLeastOneCompleteSide;
-            serialized.FindProperty("backstockCapacityUnits").intValue = 480;
+            serialized.FindProperty("backstockCaseSlotCapacity").intValue = 12;
+            serialized.FindProperty("backstockCasesPerShelf").intValue = 4;
+            serialized.FindProperty("backstockCaseWidthPerSlot").floatValue =
+                1.28f;
+            serialized.FindProperty("backstockCaseSpacingShare").floatValue =
+                0.90f;
+            serialized.FindProperty("backstockCaseRowOffsetShare").floatValue =
+                0.10f;
+            serialized.FindProperty("backstockCaseFrontOffsetShare").floatValue =
+                0.27f;
             ConfigureBackstockShelfMasks(
                 serialized,
                 risingRightShelfMasks,
                 risingLeftShelfMasks);
+            ConfigureBackstockShelfPresentationLayers(
+                serialized,
+                risingRightPresentationLayers,
+                risingLeftPresentationLayers);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
@@ -975,6 +1052,42 @@ namespace BigRetail.Editor.Fixtures
             SetSpriteArray(
                 storageMasks.FindPropertyRelative("westShelfMasks"),
                 eastAndWestMasks);
+        }
+
+
+        private static void ConfigureBackstockShelfPresentationLayers(
+            SerializedObject serializedDefinition,
+            Sprite[] risingRightLayers,
+            Sprite[] risingLeftLayers)
+        {
+            bool hasCompleteLayers =
+                AreAllSpritesPrepared(risingRightLayers)
+                && AreAllSpritesPrepared(risingLeftLayers);
+            Sprite[] northAndSouthLayers =
+                hasCompleteLayers
+                    ? risingRightLayers
+                    : System.Array.Empty<Sprite>();
+            Sprite[] eastAndWestLayers =
+                hasCompleteLayers
+                    ? risingLeftLayers
+                    : System.Array.Empty<Sprite>();
+
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "northPresentationLayers"),
+                northAndSouthLayers);
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "eastPresentationLayers"),
+                eastAndWestLayers);
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "southPresentationLayers"),
+                northAndSouthLayers);
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "westPresentationLayers"),
+                eastAndWestLayers);
         }
 
 

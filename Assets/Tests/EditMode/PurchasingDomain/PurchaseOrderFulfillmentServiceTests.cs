@@ -94,6 +94,27 @@ namespace BigRetail.Purchasing.Domain.Tests
             Assert.That(load.VisibleBoxCount, Is.EqualTo(1));
         }
 
+        [Test]
+        public void RestoreReadyOrder_StagesManifestWithoutReceivingUnits()
+        {
+            TestContext context = CreateContext();
+            TestReceiver receiver = new TestReceiver();
+            PurchaseOrderFulfillmentService fulfillment =
+                new PurchaseOrderFulfillmentService(receiver);
+
+            fulfillment.Restore(
+                context.Orders[0],
+                PurchaseOrderDeliveryStatus.ReadyToReceive);
+
+            InboundDeliveryLoad load =
+                fulfillment.EnumerateReadyDeliveries().Single();
+
+            Assert.That(fulfillment.ReadyToReceiveOrderCount, Is.EqualTo(1));
+            Assert.That(load.PurchasePackCount, Is.EqualTo(2));
+            Assert.That(load.RemainingUnitCount, Is.EqualTo(24));
+            Assert.That(receiver.ReceivedUnits, Is.Empty);
+        }
+
         [TestCase(1, 1)]
         [TestCase(3, 1)]
         [TestCase(4, 2)]
@@ -133,6 +154,102 @@ namespace BigRetail.Purchasing.Domain.Tests
             Assert.That(
                 fulfillment.EnumerateReadyDeliveries().Single().OrderNumber,
                 Is.EqualTo(orders[1].OrderNumber));
+        }
+
+        [Test]
+        public void ReceivePurchasePack_MovesOneCaseAndLeavesTheRestStaged()
+        {
+            TestContext context = CreateContext();
+            TestReceiver receiver = new TestReceiver();
+            PurchaseOrderFulfillmentService fulfillment =
+                new PurchaseOrderFulfillmentService(new TestReceiver());
+            fulfillment.Schedule(context.Orders);
+            fulfillment.AdvanceTo(new CommercialTime(0, 12, 0));
+            Assert.That(
+                fulfillment.TryGetNextPurchasePack(
+                    context.Orders[0].OrderNumber,
+                    out InboundPurchasePack purchasePack),
+                Is.True);
+
+            PurchaseOrderReceivingResult result =
+                fulfillment.ReceivePurchasePack(
+                    purchasePack,
+                    receiver);
+            InboundDeliveryLoad remainingLoad =
+                fulfillment.EnumerateReadyDeliveries().Single();
+
+            Assert.That(result.Succeeded, Is.True);
+            Assert.That(result.ReceivedUnitCount, Is.EqualTo(12));
+            Assert.That(result.CompletedOrderCount, Is.Zero);
+            Assert.That(
+                receiver.ReceivedUnits[context.ProductId],
+                Is.EqualTo(12));
+            Assert.That(remainingLoad.PurchasePackCount, Is.EqualTo(1));
+            Assert.That(remainingLoad.RemainingUnitCount, Is.EqualTo(12));
+            Assert.That(fulfillment.ReadyToReceiveOrderCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ReceivePurchasePack_SecondCaseCompletesTheDelivery()
+        {
+            TestContext context = CreateContext();
+            TestReceiver receiver = new TestReceiver();
+            PurchaseOrderFulfillmentService fulfillment =
+                new PurchaseOrderFulfillmentService(new TestReceiver());
+            fulfillment.Schedule(context.Orders);
+            fulfillment.AdvanceTo(new CommercialTime(0, 12, 0));
+
+            for (int caseIndex = 0; caseIndex < 2; caseIndex++)
+            {
+                Assert.That(
+                    fulfillment.TryGetNextPurchasePack(
+                        context.Orders[0].OrderNumber,
+                        out InboundPurchasePack purchasePack),
+                    Is.True);
+                fulfillment.ReceivePurchasePack(
+                    purchasePack,
+                    receiver);
+            }
+
+            Assert.That(
+                receiver.ReceivedUnits[context.ProductId],
+                Is.EqualTo(24));
+            Assert.That(fulfillment.ReadyToReceiveOrderCount, Is.Zero);
+            Assert.That(fulfillment.ReceivedOrderCount, Is.EqualTo(1));
+            Assert.That(
+                fulfillment.TryGetNextPurchasePack(
+                    context.Orders[0].OrderNumber,
+                    out _),
+                Is.False);
+        }
+
+        [Test]
+        public void ReceivePurchasePack_RejectedDestinationKeepsCaseStaged()
+        {
+            TestContext context = CreateContext();
+            TestReceiver receiver = new TestReceiver
+            {
+                RejectNextReceipt = true
+            };
+            PurchaseOrderFulfillmentService fulfillment =
+                new PurchaseOrderFulfillmentService(new TestReceiver());
+            fulfillment.Schedule(context.Orders);
+            fulfillment.AdvanceTo(new CommercialTime(0, 12, 0));
+            fulfillment.TryGetNextPurchasePack(
+                context.Orders[0].OrderNumber,
+                out InboundPurchasePack purchasePack);
+
+            PurchaseOrderReceivingResult result =
+                fulfillment.ReceivePurchasePack(
+                    purchasePack,
+                    receiver);
+
+            Assert.That(result.ReceivedUnitCount, Is.Zero);
+            Assert.That(result.FailedUnitCount, Is.EqualTo(12));
+            Assert.That(
+                fulfillment.EnumerateReadyDeliveries()
+                    .Single().PurchasePackCount,
+                Is.EqualTo(2));
         }
 
         [Test]

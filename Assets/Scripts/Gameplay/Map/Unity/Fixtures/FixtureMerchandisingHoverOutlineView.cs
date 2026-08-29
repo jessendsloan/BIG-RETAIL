@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BigRetail.Map.Fixtures;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace BigRetail.Map.Unity.Fixtures
 {
@@ -172,8 +173,16 @@ namespace BigRetail.Map.Unity.Fixtures
         {
             outline.sprite = source.sprite;
             outline.color = outlineColor;
-            outline.sortingLayerID = source.sortingLayerID;
-            outline.sortingOrder = source.sortingOrder - 1;
+            SortingGroup sortingGroup =
+                source.GetComponentInParent<SortingGroup>();
+            outline.sortingLayerID =
+                sortingGroup != null
+                    ? sortingGroup.sortingLayerID
+                    : source.sortingLayerID;
+            outline.sortingOrder =
+                sortingGroup != null
+                    ? sortingGroup.sortingOrder - 1
+                    : source.sortingOrder - 1;
             outline.flipX = source.flipX;
             outline.flipY = source.flipY;
             outline.spriteSortPoint = source.spriteSortPoint;

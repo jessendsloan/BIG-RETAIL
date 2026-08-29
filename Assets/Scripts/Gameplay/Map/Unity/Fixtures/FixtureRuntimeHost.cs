@@ -94,6 +94,14 @@ namespace BigRetail.Map.Unity.Fixtures
                 return false;
             }
 
+            // Floor initialization publishes synchronously and may re-enter
+            // this host before the outer call resumes. Keep every dependent
+            // service bound to the one authoritative FixtureState.
+            if (IsInitialized)
+            {
+                return true;
+            }
+
             try
             {
                 Definitions = definitionAssets.CreateDomainCatalog();

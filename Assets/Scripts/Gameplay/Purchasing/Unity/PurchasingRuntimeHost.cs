@@ -48,6 +48,12 @@ namespace BigRetail.Purchasing.Unity
 
         public PurchaseOrderFulfillmentService Fulfillment { get; private set; }
 
+        public SupplierCaseStockingService CaseStocking
+        {
+            get;
+            private set;
+        }
+
         public StoreCashState Cash =>
             planogramRuntimeHost?.Cash;
 
@@ -184,6 +190,7 @@ namespace BigRetail.Purchasing.Unity
                     HandleDeliveriesChanged;
             }
 
+            CaseStocking = null;
             Fulfillment = null;
             Purchasing = null;
             Catalog = null;
@@ -243,6 +250,10 @@ namespace BigRetail.Purchasing.Unity
                 new PurchaseOrderFulfillmentService(
                     new FixtureBackstockPurchaseOrderReceiver(
                         planogramRuntimeHost.Backstock));
+            CaseStocking =
+                new SupplierCaseStockingService(
+                    Fulfillment,
+                    planogramRuntimeHost.Backstock);
             Fulfillment.DeliveriesChanged += HandleDeliveriesChanged;
 
             CurrentTime = ToCommercialTime(timeHost.Clock.CurrentTime);
@@ -289,6 +300,64 @@ namespace BigRetail.Purchasing.Unity
                 error = exception.Message;
                 return false;
             }
+        }
+
+        public bool TryValidateDeliveryRestore(
+            IReadOnlyList<InboundDeliveryRestoreData> deliveries,
+            out string error)
+        {
+            if (!TryInitialize())
+            {
+                error = InitializationError;
+                return false;
+            }
+
+            return TryCreateRestoredState(
+                deliveries,
+                out _,
+                out _,
+                out error);
+        }
+
+        /// <summary>
+        /// Atomically replaces the live commercial order and fulfillment
+        /// records with authored or saved deliveries. Inventory is unchanged
+        /// until the normal receiving action accepts a ready load.
+        /// </summary>
+        public bool TryReplaceDeliveries(
+            IReadOnlyList<InboundDeliveryRestoreData> deliveries,
+            out string error)
+        {
+            if (!TryInitialize())
+            {
+                error = InitializationError;
+                return false;
+            }
+
+            if (!TryCreateRestoredState(
+                    deliveries,
+                    out PurchasingService nextPurchasing,
+                    out PurchaseOrderFulfillmentService nextFulfillment,
+                    out error))
+            {
+                return false;
+            }
+
+            if (Fulfillment != null)
+            {
+                Fulfillment.DeliveriesChanged -=
+                    HandleDeliveriesChanged;
+            }
+
+            Purchasing = nextPurchasing;
+            Fulfillment = nextFulfillment;
+            CaseStocking =
+                new SupplierCaseStockingService(
+                    Fulfillment,
+                    planogramRuntimeHost.Backstock);
+            Fulfillment.DeliveriesChanged += HandleDeliveriesChanged;
+            DeliveriesChanged?.Invoke();
+            return true;
         }
 
         public PurchaseOrderReceivingResult ReceiveAvailableDeliveries()
@@ -455,6 +524,143 @@ namespace BigRetail.Purchasing.Unity
             }
 
             return true;
+        }
+
+        private bool TryCreateRestoredState(
+            IReadOnlyList<InboundDeliveryRestoreData> deliveries,
+            out PurchasingService restoredPurchasing,
+            out PurchaseOrderFulfillmentService restoredFulfillment,
+            out string error)
+        {
+            restoredPurchasing = null;
+            restoredFulfillment = null;
+
+            if (deliveries == null)
+            {
+                error = "A delivery restore requires a collection.";
+                return false;
+            }
+
+            try
+            {
+                PurchasingService candidatePurchasing =
+                    new PurchasingService(Catalog);
+                PurchaseOrderFulfillmentService candidateFulfillment =
+                    new PurchaseOrderFulfillmentService(
+                        new FixtureBackstockPurchaseOrderReceiver(
+                            planogramRuntimeHost.Backstock));
+
+                for (int deliveryIndex = 0;
+                     deliveryIndex < deliveries.Count;
+                     deliveryIndex++)
+                {
+                    InboundDeliveryRestoreData delivery =
+                        deliveries[deliveryIndex]
+                        ?? throw new ArgumentException(
+                            "A delivery restore cannot contain null.",
+                            nameof(deliveries));
+                    DraftPurchaseOrder draft =
+                        new DraftPurchaseOrder(delivery.SupplierId);
+                    HashSet<ProductId> restoredProducts =
+                        new HashSet<ProductId>();
+
+                    for (int lineIndex = 0;
+                         lineIndex < delivery.Lines.Count;
+                         lineIndex++)
+                    {
+                        InboundDeliveryRestoreLine line =
+                            delivery.Lines[lineIndex];
+
+                        if (!restoredProducts.Add(line.ProductId))
+                        {
+                            throw new ArgumentException(
+                                $"Restored order '{delivery.OrderNumber}' "
+                                + $"duplicates product '{line.ProductId}'.",
+                                nameof(deliveries));
+                        }
+
+                        SupplierOfferDefinition offer =
+                            ResolveRestoredOffer(
+                                delivery.SupplierId,
+                                line.ProductId);
+
+                        if (line.UnitCount
+                            % offer.PurchasePackQuantity != 0)
+                        {
+                            throw new ArgumentException(
+                                $"Restored order '{delivery.OrderNumber}' "
+                                + $"contains {line.UnitCount} units of "
+                                + $"'{line.ProductId}', which is not a whole "
+                                + $"number of {offer.PurchasePackQuantity}-unit "
+                                + "purchase cases.",
+                                nameof(deliveries));
+                        }
+
+                        draft.SetPurchasePackCount(
+                            offer,
+                            line.UnitCount
+                                / offer.PurchasePackQuantity);
+                    }
+
+                    PlacedPurchaseOrder order =
+                        candidatePurchasing.RestorePlacedOrder(
+                            delivery.OrderNumber,
+                            draft,
+                            delivery.ArrivalTime,
+                            SupplierDeliveryEstimate.Exact(
+                                delivery.ArrivalTime));
+                    candidateFulfillment.Restore(
+                        order,
+                        delivery.Status);
+                }
+
+                restoredPurchasing = candidatePurchasing;
+                restoredFulfillment = candidateFulfillment;
+                error = string.Empty;
+                return true;
+            }
+            catch (Exception exception)
+                when (exception is ArgumentException
+                      || exception is InvalidOperationException
+                      || exception is KeyNotFoundException
+                      || exception is OverflowException)
+            {
+                error = exception.Message;
+                return false;
+            }
+        }
+
+        private SupplierOfferDefinition ResolveRestoredOffer(
+            SupplierId supplierId,
+            ProductId productId)
+        {
+            SupplierOfferDefinition match = null;
+
+            foreach (
+                SupplierOfferDefinition offer
+                in Catalog.Offers.EnumerateForSupplier(
+                    supplierId,
+                    availableOnly: false))
+            {
+                if (offer.ProductId != productId)
+                {
+                    continue;
+                }
+
+                if (match != null)
+                {
+                    throw new InvalidOperationException(
+                        $"Supplier '{supplierId}' has more than one offer "
+                        + $"for restored product '{productId}'.");
+                }
+
+                match = offer;
+            }
+
+            return match
+                ?? throw new InvalidOperationException(
+                    $"Supplier '{supplierId}' has no offer for restored "
+                    + $"product '{productId}'.");
         }
     }
 }

@@ -160,6 +160,85 @@ namespace BigRetail.Receiving.Domain.Tests
         }
 
         [Test]
+        public void Reservations_AssignNewLoadsFromTheAreaCenterOutward()
+        {
+            service.TryAddArea(
+                new[]
+                {
+                    ThirdCell,
+                    FirstCell,
+                    SecondCell
+                });
+            ReceivingAreaReservationService reservations =
+                new ReceivingAreaReservationService(
+                    state,
+                    cell => true);
+
+            reservations.Synchronize(
+                new long[] { 1001, 1002, 1003 });
+
+            Assert.That(
+                state.TryGetReservation(1001, out GridPosition firstSlot),
+                Is.True);
+            Assert.That(firstSlot, Is.EqualTo(SecondCell));
+            Assert.That(
+                state.TryGetReservation(1002, out GridPosition secondSlot),
+                Is.True);
+            Assert.That(secondSlot, Is.EqualTo(FirstCell));
+            Assert.That(
+                state.TryGetReservation(1003, out GridPosition thirdSlot),
+                Is.True);
+            Assert.That(thirdSlot, Is.EqualTo(ThirdCell));
+        }
+
+        [Test]
+        public void Reservations_AssignFirstLoadToCenterOfPaintedRectangle()
+        {
+            List<GridPosition> cells = new List<GridPosition>();
+            MutableEligibility rectangleEligibility =
+                new MutableEligibility();
+            MutableSurface rectangleSurface = new MutableSurface();
+
+            for (int y = 48; y <= 52; y++)
+            {
+                for (int x = -10; x <= -6; x++)
+                {
+                    GridPosition cell = new GridPosition(x, y, 0);
+                    cells.Add(cell);
+                    rectangleEligibility.Add(cell);
+                    rectangleSurface.AddFloor(cell);
+                }
+            }
+
+            ReceivingAreaState rectangleState =
+                new ReceivingAreaState();
+            ReceivingAreaService rectangleService =
+                new ReceivingAreaService(
+                    new GridMapDefinition(
+                        "receiving.rectangle.test",
+                        cells),
+                    rectangleEligibility,
+                    rectangleSurface,
+                    rectangleState);
+            rectangleService.TryAddArea(cells);
+            ReceivingAreaReservationService reservations =
+                new ReceivingAreaReservationService(
+                    rectangleState,
+                    cell => true);
+
+            reservations.Synchronize(new long[] { 1001 });
+
+            Assert.That(
+                rectangleState.TryGetReservation(
+                    1001,
+                    out GridPosition slot),
+                Is.True);
+            Assert.That(
+                slot,
+                Is.EqualTo(new GridPosition(-8, 50, 0)));
+        }
+
+        [Test]
         public void Reservations_ReleaseOrdersThatAreNoLongerReady()
         {
             service.TryAddArea(new[] { FirstCell });

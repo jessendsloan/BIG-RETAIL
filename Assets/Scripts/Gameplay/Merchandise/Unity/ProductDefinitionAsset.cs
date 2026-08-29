@@ -39,9 +39,23 @@ namespace BigRetail.Merchandise.Unity
         [SerializeField]
         private string packageForm;
 
+        [Header("Presentation")]
+
         [Tooltip("Optional package image. A branded stub is shown when absent.")]
         [SerializeField]
         private Sprite catalogImage;
+
+        [Tooltip(
+            "Optional full-case artwork for shelves whose visible edge rises "
+            + "to the left. Backstock remains graybox when absent.")]
+        [SerializeField]
+        private Sprite caseRisingLeftImage;
+
+        [Tooltip(
+            "Optional full-case artwork for shelves whose visible edge rises "
+            + "to the right. Backstock remains graybox when absent.")]
+        [SerializeField]
+        private Sprite caseRisingRightImage;
 
         [SerializeField]
         private StockUnit stockUnit =
@@ -78,6 +92,26 @@ namespace BigRetail.Merchandise.Unity
 
         public Sprite CatalogImage =>
             catalogImage;
+
+        public ProductId Id =>
+            string.IsNullOrWhiteSpace(productId)
+                ? default
+                : new ProductId(productId);
+
+        public Sprite CaseRisingLeftImage =>
+            caseRisingLeftImage;
+
+        public Sprite CaseRisingRightImage =>
+            caseRisingRightImage;
+
+
+        public Sprite GetCaseImage(
+            bool risingLeft)
+        {
+            return risingLeft
+                ? caseRisingLeftImage
+                : caseRisingRightImage;
+        }
 
 
         public bool TryCreateDefinition(

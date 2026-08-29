@@ -6,7 +6,9 @@ using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using BigRetail.Merchandise.Domain;
+using BigRetail.Merchandise.Unity;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
 namespace BigRetail.Map.Unity.Fixtures
@@ -23,6 +25,11 @@ namespace BigRetail.Map.Unity.Fixtures
         private const int MerchandisingFocusSortingOrderOffset = 1000;
         private const float DisplayMarkerWidthShare = 0.78f;
         private const float DisplayMarkerHeightShare = 0.62f;
+        private const int DefaultMaximumBackstockCaseMarkerCount = 9;
+        private const float DefaultBackstockCaseForwardOffsetShare = 0.30f;
+        private const float DefaultBackstockCaseShelfSlopeDegrees =
+            26.565052f;
+        private const int DefaultPresentationLayerSortingStride = 3;
 
         [SerializeField]
         private FixtureRuntimeHost runtimeHost;
@@ -131,9 +138,16 @@ namespace BigRetail.Map.Unity.Fixtures
                         continue;
                     }
 
+                    int sortingLayerId =
+                        view.SortingGroup != null
+                            ? view.SortingGroup.sortingLayerID
+                            : renderer.sortingLayerID;
                     int sortingLayerValue =
-                        SortingLayer.GetLayerValueFromID(
-                            renderer.sortingLayerID);
+                        SortingLayer.GetLayerValueFromID(sortingLayerId);
+                    int sortingOrder =
+                        view.SortingGroup != null
+                            ? view.SortingGroup.sortingOrder
+                            : renderer.sortingOrder;
 
                     if (bestView != null
                         && sortingLayerValue < bestSortingLayerValue)
@@ -143,14 +157,14 @@ namespace BigRetail.Map.Unity.Fixtures
 
                     if (bestView != null
                         && sortingLayerValue == bestSortingLayerValue
-                        && renderer.sortingOrder <= bestSortingOrder)
+                        && sortingOrder <= bestSortingOrder)
                     {
                         continue;
                     }
 
                     bestView = view;
                     bestSortingLayerValue = sortingLayerValue;
-                    bestSortingOrder = renderer.sortingOrder;
+                    bestSortingOrder = sortingOrder;
                 }
             }
 
@@ -433,6 +447,10 @@ namespace BigRetail.Map.Unity.Fixtures
             root.transform.SetParent(viewParent, worldPositionStays: true);
 
             List<SpriteRenderer> renderers = new List<SpriteRenderer>();
+            SortingGroup sortingGroup = null;
+            int presentationLayerCount = 0;
+            int presentationLayerSortingStride =
+                DefaultPresentationLayerSortingStride;
 
             if (asset.RepeatSpritePerOccupiedCell)
             {
@@ -462,24 +480,82 @@ namespace BigRetail.Map.Unity.Fixtures
                             fixture.Definition,
                             fixture.Footprint,
                             viewHost.Projection);
+                IReadOnlyList<Sprite> presentationLayers =
+                    asset.GetPresentationLayers(
+                        fixture.Orientation,
+                        viewHost.Orientation);
 
-                SpriteRenderer renderer =
-                    CreateRenderer(
-                        root.transform,
-                        sprite,
-                        presentationAnchor,
-                        asset.WorldPositionOffset,
-                        fixture.Footprint,
-                        asset.GetSpriteAnchorCorner(
+                if (presentationLayers.Count > 0)
+                {
+                    IReadOnlyList<Sprite> storageShelfMasks =
+                        asset.GetStorageShelfMasks(
                             fixture.Orientation,
-                            viewHost.Orientation),
-                        sortingCell);
+                            viewHost.Orientation);
+                    bool interleavesBackstockCases =
+                        storageShelfMasks.Count > 0
+                        && presentationLayers.Count
+                            == storageShelfMasks.Count + 1;
 
-                renderers.Add(renderer);
+                    if (interleavesBackstockCases)
+                    {
+                        presentationLayerSortingStride =
+                            ResolveBackstockPresentationLayerSortingStride(
+                                asset.BackstockCasesPerShelf);
+                    }
+
+                    sortingGroup = root.AddComponent<SortingGroup>();
+                    sortingGroup.sortingLayerName = sortingLayerName;
+                    sortingGroup.sortingOrder =
+                        WallRenderOrderResolver.ResolveCell(
+                            viewHost.Projection.ToDisplayCell(sortingCell));
+                    presentationLayerCount = presentationLayers.Count;
+
+                    for (int layerIndex = 0;
+                         layerIndex < presentationLayers.Count;
+                         layerIndex++)
+                    {
+                        SpriteRenderer layerRenderer =
+                            CreateRenderer(
+                                root.transform,
+                                presentationLayers[layerIndex],
+                                presentationAnchor,
+                                asset.WorldPositionOffset,
+                                fixture.Footprint,
+                                asset.GetSpriteAnchorCorner(
+                                    fixture.Orientation,
+                                    viewHost.Orientation),
+                                sortingCell,
+                                layerIndex
+                                    * presentationLayerSortingStride,
+                                useRelativeSortingOrder: true,
+                                childName: $"Fixture Layer {layerIndex:00}");
+
+                        renderers.Add(layerRenderer);
+                    }
+                }
+                else
+                {
+                    SpriteRenderer renderer =
+                        CreateRenderer(
+                            root.transform,
+                            sprite,
+                            presentationAnchor,
+                            asset.WorldPositionOffset,
+                            fixture.Footprint,
+                            asset.GetSpriteAnchorCorner(
+                                fixture.Orientation,
+                                viewHost.Orientation),
+                            sortingCell);
+
+                    renderers.Add(renderer);
+                }
             }
 
             AddBackstockCaseMarkers(
                 fixture,
+                asset,
+                presentationLayerCount,
+                presentationLayerSortingStride,
                 renderers);
 
             AddStockedDisplayMarkers(
@@ -492,6 +568,7 @@ namespace BigRetail.Map.Unity.Fixtures
                 new FixtureView(
                     fixture,
                     root,
+                    sortingGroup,
                     renderers));
 
             ApplyMerchandisingFocusToView(views[fixture.Id]);
@@ -513,9 +590,12 @@ namespace BigRetail.Map.Unity.Fixtures
             FixtureFootprint wholeFootprint = null,
             FixtureSpriteAnchorCorner anchorCorner =
                 FixtureSpriteAnchorCorner.ViewerNearest,
-            GridPosition? sortingCellOverride = null)
+            GridPosition? sortingCellOverride = null,
+            int sortingOrderOffset = 0,
+            bool useRelativeSortingOrder = false,
+            string childName = "Fixture Sprite")
         {
-            GameObject child = new GameObject("Fixture Sprite");
+            GameObject child = new GameObject(childName);
             child.transform.SetParent(parent, worldPositionStays: true);
 
             SpriteRenderer renderer = child.AddComponent<SpriteRenderer>();
@@ -531,7 +611,10 @@ namespace BigRetail.Map.Unity.Fixtures
                 viewHost.Projection.ToDisplayCell(
                     sortingCell);
             renderer.sortingOrder =
-                WallRenderOrderResolver.ResolveCell(displayCell);
+                useRelativeSortingOrder
+                    ? sortingOrderOffset
+                    : WallRenderOrderResolver.ResolveCell(displayCell)
+                        + sortingOrderOffset;
 
             Vector3 anchorWorldPosition =
                 wholeFootprint != null
@@ -554,6 +637,9 @@ namespace BigRetail.Map.Unity.Fixtures
 
         private void AddBackstockCaseMarkers(
             FixtureInstance fixture,
+            FixtureDefinitionAsset definitionAsset,
+            int presentationLayerCount,
+            int presentationLayerSortingStride,
             List<SpriteRenderer> renderers)
         {
             if (subscribedBackstock == null
@@ -570,48 +656,58 @@ namespace BigRetail.Map.Unity.Fixtures
                 new List<FixtureBackstockProductSnapshot>(
                     subscribedBackstock
                         .EnumerateRackContents(fixture.Id));
+            List<FixtureBackstockCaseSnapshot> storedCases =
+                new List<FixtureBackstockCaseSnapshot>(
+                    subscribedBackstock
+                        .EnumerateRackCases(fixture.Id));
 
             int storedUnitCount =
                 subscribedBackstock
                     .GetRackStoredUnitCount(fixture.Id);
-            int capacityUnitCount =
-                subscribedBackstock
-                    .GetRackCapacityUnitCount(fixture.Id);
 
             if (contents.Count == 0
-                || storedUnitCount == 0
-                || capacityUnitCount == 0)
+                || storedUnitCount == 0)
             {
                 return;
             }
 
-            const int maximumMarkerCount = 9;
             int markerCount =
-                Mathf.Clamp(
-                    Mathf.CeilToInt(
-                        storedUnitCount
-                        / (float)capacityUnitCount
-                        * maximumMarkerCount),
-                    1,
-                    maximumMarkerCount);
+                ResolveBackstockCaseMarkerCount(
+                    storedCases.Count,
+                    storedUnitCount,
+                    definitionAsset.BackstockCaseSlotCapacity > 0
+                        ? definitionAsset.BackstockCaseSlotCapacity
+                        : DefaultMaximumBackstockCaseMarkerCount);
 
             SpriteRenderer fixtureRenderer = renderers[0];
             Bounds spriteBounds = fixtureRenderer.sprite.bounds;
             IReadOnlyList<Sprite> shelfMasks =
-                runtimeHost.DefinitionAssets
-                    .GetAsset(fixture.DefinitionId)
-                    .GetStorageShelfMasks(
-                        fixture.Orientation,
-                        viewHost.Orientation);
+                definitionAsset.GetStorageShelfMasks(
+                    fixture.Orientation,
+                    viewHost.Orientation);
             bool hasAuthoredShelfMasks = shelfMasks.Count > 0;
-            float boxWidth = spriteBounds.size.x * 0.16f;
+            bool interleaveWithPresentationLayers =
+                presentationLayerCount == shelfMasks.Count + 1;
+            int casesPerShelf = definitionAsset.BackstockCasesPerShelf;
+            float caseWidthPerSlot =
+                definitionAsset.BackstockCaseWidthPerSlot;
+            float caseSpacingShare =
+                definitionAsset.BackstockCaseSpacingShare;
+            float caseRowOffsetShare =
+                definitionAsset.BackstockCaseRowOffsetShare;
+            float caseFrontOffsetShare =
+                definitionAsset.BackstockCaseFrontOffsetShare;
+            float boxWidth =
+                spriteBounds.size.x
+                / casesPerShelf
+                * caseWidthPerSlot;
             float boxHeight = spriteBounds.size.y * 0.055f;
             float slope =
                 fixtureRenderer.sprite.name.IndexOf(
                     "RisingLeft",
                     StringComparison.OrdinalIgnoreCase) >= 0
-                    ? -26f
-                    : 26f;
+                    ? -DefaultBackstockCaseShelfSlopeDegrees
+                    : DefaultBackstockCaseShelfSlopeDegrees;
 
             int cumulativeQuantity = 0;
             int contentIndex = 0;
@@ -620,26 +716,47 @@ namespace BigRetail.Map.Unity.Fixtures
                  markerIndex < markerCount;
                  markerIndex++)
             {
-                float sampledUnit =
-                    (markerIndex + 0.5f)
-                    * storedUnitCount
-                    / markerCount;
+                ProductId markerProductId;
 
-                while (contentIndex < contents.Count - 1
-                       && sampledUnit
-                       > cumulativeQuantity
-                         + contents[contentIndex].Quantity)
+                if (storedCases.Count > 0)
                 {
-                    cumulativeQuantity +=
-                        contents[contentIndex].Quantity;
-                    contentIndex++;
+                    int storedCaseIndex = Mathf.Clamp(
+                        Mathf.FloorToInt(
+                            (markerIndex + 0.5f)
+                            * storedCases.Count
+                            / markerCount),
+                        0,
+                        storedCases.Count - 1);
+                    markerProductId =
+                        storedCases[storedCaseIndex].ProductId;
+                }
+                else
+                {
+                    float sampledUnit =
+                        (markerIndex + 0.5f)
+                        * storedUnitCount
+                        / markerCount;
+
+                    while (contentIndex < contents.Count - 1
+                           && sampledUnit
+                           > cumulativeQuantity
+                             + contents[contentIndex].Quantity)
+                    {
+                        cumulativeQuantity +=
+                            contents[contentIndex].Quantity;
+                        contentIndex++;
+                    }
+
+                    markerProductId =
+                        contents[contentIndex].ProductId;
                 }
 
-                int column = markerIndex % 3;
-                int shelf = markerIndex / 3;
+                int column = markerIndex % casesPerShelf;
+                int shelf = markerIndex / casesPerShelf;
                 Vector3 localPosition;
                 Vector2 markerSize;
                 float markerSlope;
+                float forwardOffsetBasis;
 
                 if (hasAuthoredShelfMasks
                     && shelf < shelfMasks.Count)
@@ -654,17 +771,62 @@ namespace BigRetail.Map.Unity.Fixtures
                         continue;
                     }
 
-                    Vector2 center = geometry.GetFrontageCenter(column, 3);
+                    Vector2 shelfCenter =
+                        geometry.GetFrontageCenter(
+                            visualFrontageIndex: 0,
+                            frontageUnitCount: 1);
+                    Vector2 center =
+                        ResolveBackstockCasePackedCenter(
+                            shelfCenter,
+                            geometry.GetFrontageCenter(
+                                column,
+                                casesPerShelf),
+                            caseSpacingShare);
+                    Vector2 frontageStep =
+                        casesPerShelf > 1
+                            ? geometry.GetFrontageCenter(
+                                visualFrontageIndex: 1,
+                                frontageUnitCount: casesPerShelf)
+                                - geometry.GetFrontageCenter(
+                                    visualFrontageIndex: 0,
+                                    frontageUnitCount: casesPerShelf)
+                            : Vector2.zero;
+                    center =
+                        ResolveBackstockCaseRowCenter(
+                            center,
+                            frontageStep,
+                            caseRowOffsetShare);
+                    center =
+                        ResolveBackstockCaseRailAlignedCenter(
+                            shelfCenter,
+                            center,
+                            slope);
                     localPosition = new Vector3(center.x, center.y, 0f);
                     markerSize =
                         new Vector2(
-                            geometry.MajorLength / 3f * 0.72f,
+                            geometry.MajorLength
+                                / casesPerShelf
+                                * caseWidthPerSlot,
                             geometry.MinorLength * 0.68f);
-                    markerSlope = geometry.MajorAxisAngleDegrees;
+                    markerSlope = slope;
+                    forwardOffsetBasis = geometry.MinorLength;
                 }
                 else
                 {
-                    float normalizedX = 0.28f + column * 0.22f;
+                    float normalizedX =
+                        Mathf.Lerp(
+                            0.18f,
+                            0.82f,
+                            (column + 0.5f) / casesPerShelf);
+                    normalizedX =
+                        Mathf.Lerp(
+                            0.5f,
+                            normalizedX,
+                            caseSpacingShare);
+                    normalizedX +=
+                        0.64f
+                        / casesPerShelf
+                        * caseRowOffsetShare;
                     float normalizedY = 0.22f + shelf * 0.205f;
                     localPosition =
                         new Vector3(
@@ -679,18 +841,166 @@ namespace BigRetail.Map.Unity.Fixtures
                             0f);
                     markerSize = new Vector2(boxWidth, boxHeight);
                     markerSlope = slope;
+                    forwardOffsetBasis = markerSize.y;
                 }
+
+                localPosition =
+                    ResolveBackstockCaseShelfPosition(
+                        localPosition,
+                        forwardOffsetBasis,
+                        caseFrontOffsetShare);
+                int caseDepthOrder =
+                    ResolveBackstockCaseDepthOrder(
+                        column,
+                        casesPerShelf,
+                        markerSlope);
 
                 AddCaseMarkerRenderer(
                     fixtureRenderer,
                     localPosition,
                     markerSize,
                     markerSlope,
+                    fixtureRenderer.sortingOrder
+                        + (interleaveWithPresentationLayers
+                            ? shelf
+                                * presentationLayerSortingStride
+                            : 0),
+                    caseDepthOrder,
+                    ResolveCaseSprite(
+                        markerProductId,
+                        markerSlope < 0f),
                     FixtureMerchandisingGrayboxPalette
                         .ResolveProductColor(
-                            contents[contentIndex].ProductId),
+                            markerProductId),
                     renderers);
             }
+        }
+
+
+        public static int ResolveBackstockCaseMarkerCount(
+            int physicalCaseCount,
+            int storedUnitCount)
+        {
+            return ResolveBackstockCaseMarkerCount(
+                physicalCaseCount,
+                storedUnitCount,
+                DefaultMaximumBackstockCaseMarkerCount);
+        }
+
+
+        public static int ResolveBackstockCaseMarkerCount(
+            int physicalCaseCount,
+            int storedUnitCount,
+            int maximumMarkerCount)
+        {
+            maximumMarkerCount = Mathf.Max(1, maximumMarkerCount);
+
+            if (physicalCaseCount > 0)
+            {
+                return Mathf.Clamp(
+                    physicalCaseCount,
+                    1,
+                    maximumMarkerCount);
+            }
+
+            if (storedUnitCount <= 0)
+            {
+                return 0;
+            }
+
+            return 1;
+        }
+
+
+        public static Vector3 ResolveBackstockCaseShelfPosition(
+            Vector3 shelfCenter,
+            float shelfDepth)
+        {
+            return ResolveBackstockCaseShelfPosition(
+                shelfCenter,
+                shelfDepth,
+                DefaultBackstockCaseForwardOffsetShare);
+        }
+
+
+        public static int ResolveBackstockPresentationLayerSortingStride(
+            int casesPerShelf)
+        {
+            return Mathf.Max(
+                DefaultPresentationLayerSortingStride,
+                Mathf.Max(1, casesPerShelf) + 3);
+        }
+
+
+        public static int ResolveBackstockCaseDepthOrder(
+            int column,
+            int casesPerShelf,
+            float shelfSlopeDegrees)
+        {
+            int clampedCasesPerShelf = Mathf.Max(1, casesPerShelf);
+            int clampedColumn = Mathf.Clamp(
+                column,
+                0,
+                clampedCasesPerShelf - 1);
+
+            return shelfSlopeDegrees < 0f
+                ? clampedColumn
+                : clampedCasesPerShelf - 1 - clampedColumn;
+        }
+
+
+        public static Vector2 ResolveBackstockCasePackedCenter(
+            Vector2 shelfCenter,
+            Vector2 slotCenter,
+            float spacingShare)
+        {
+            return Vector2.Lerp(
+                shelfCenter,
+                slotCenter,
+                Mathf.Clamp01(spacingShare));
+        }
+
+
+        public static Vector2 ResolveBackstockCaseRowCenter(
+            Vector2 caseCenter,
+            Vector2 frontageStep,
+            float rowOffsetShare)
+        {
+            return caseCenter
+                + frontageStep
+                    * Mathf.Clamp(rowOffsetShare, -0.5f, 0.5f);
+        }
+
+
+        public static Vector2 ResolveBackstockCaseRailAlignedCenter(
+            Vector2 shelfCenter,
+            Vector2 caseCenter,
+            float shelfSlopeDegrees)
+        {
+            float horizontalOffset = caseCenter.x - shelfCenter.x;
+            float slope =
+                Mathf.Tan(
+                    Mathf.Clamp(
+                        shelfSlopeDegrees,
+                        -80f,
+                        80f)
+                    * Mathf.Deg2Rad);
+
+            return new Vector2(
+                caseCenter.x,
+                shelfCenter.y + horizontalOffset * slope);
+        }
+
+
+        public static Vector3 ResolveBackstockCaseShelfPosition(
+            Vector3 shelfCenter,
+            float shelfDepth,
+            float forwardOffsetShare)
+        {
+            return shelfCenter
+                + Vector3.down
+                    * Mathf.Max(0f, shelfDepth)
+                    * Mathf.Clamp01(forwardOffsetShare);
         }
 
 
@@ -864,10 +1174,33 @@ namespace BigRetail.Map.Unity.Fixtures
             Vector3 localPosition,
             Vector2 size,
             float slope,
+            int baseSortingOrder,
+            int caseDepthOrder,
+            Sprite authoredCaseSprite,
             Color color,
             List<SpriteRenderer> renderers)
         {
-            Sprite markerSprite = GetOrCreateCaseMarkerSprite();
+            Sprite markerSprite =
+                authoredCaseSprite != null
+                    ? authoredCaseSprite
+                    : GetOrCreateCaseMarkerSprite();
+            bool usesAuthoredCaseSprite = authoredCaseSprite != null;
+            Quaternion rotation =
+                usesAuthoredCaseSprite
+                    ? Quaternion.identity
+                    : Quaternion.Euler(0f, 0f, slope);
+            Vector3 markerScale =
+                usesAuthoredCaseSprite
+                    ? ResolveAuthoredCaseScale(
+                        authoredCaseSprite,
+                        size.x)
+                    : new Vector3(size.x, size.y, 1f);
+            float shadowOffset =
+                usesAuthoredCaseSprite
+                    ? markerScale.y
+                        * authoredCaseSprite.bounds.size.y
+                        * 0.035f
+                    : size.y * 0.16f;
 
             GameObject shadowObject =
                 new GameObject("Backstock Case Shadow");
@@ -875,11 +1208,19 @@ namespace BigRetail.Map.Unity.Fixtures
                 fixtureRenderer.transform,
                 worldPositionStays: false);
             shadowObject.transform.localPosition =
-                localPosition + new Vector3(0f, -size.y * 0.16f, 0f);
+                localPosition + new Vector3(0f, -shadowOffset, 0f);
             shadowObject.transform.localRotation =
-                Quaternion.Euler(0f, 0f, slope);
+                rotation;
             shadowObject.transform.localScale =
-                new Vector3(size.x * 1.12f, size.y * 1.32f, 1f);
+                usesAuthoredCaseSprite
+                    ? new Vector3(
+                        markerScale.x * 1.04f,
+                        markerScale.y * 1.04f,
+                        1f)
+                    : new Vector3(
+                        size.x * 1.12f,
+                        size.y * 1.32f,
+                        1f);
 
             SpriteRenderer shadowRenderer =
                 shadowObject.AddComponent<SpriteRenderer>();
@@ -887,7 +1228,7 @@ namespace BigRetail.Map.Unity.Fixtures
             shadowRenderer.color = new Color(0.12f, 0.14f, 0.15f, 0.92f);
             shadowRenderer.sortingLayerName = sortingLayerName;
             shadowRenderer.sortingOrder =
-                fixtureRenderer.sortingOrder + 1;
+                baseSortingOrder + 1;
             renderers.Add(shadowRenderer);
 
             GameObject caseObject =
@@ -897,18 +1238,45 @@ namespace BigRetail.Map.Unity.Fixtures
                 worldPositionStays: false);
             caseObject.transform.localPosition = localPosition;
             caseObject.transform.localRotation =
-                Quaternion.Euler(0f, 0f, slope);
-            caseObject.transform.localScale =
-                new Vector3(size.x, size.y, 1f);
+                rotation;
+            caseObject.transform.localScale = markerScale;
 
             SpriteRenderer caseRenderer =
                 caseObject.AddComponent<SpriteRenderer>();
             caseRenderer.sprite = markerSprite;
-            caseRenderer.color = color;
+            caseRenderer.color =
+                usesAuthoredCaseSprite
+                    ? Color.white
+                    : color;
             caseRenderer.sortingLayerName = sortingLayerName;
             caseRenderer.sortingOrder =
-                fixtureRenderer.sortingOrder + 2;
+                baseSortingOrder
+                + 2
+                + Mathf.Max(0, caseDepthOrder);
             renderers.Add(caseRenderer);
+        }
+
+        private Sprite ResolveCaseSprite(
+            ProductId productId,
+            bool risingLeft)
+        {
+            return planogramRuntimeHost != null
+                && planogramRuntimeHost.TryGetProductAsset(
+                    productId,
+                    out ProductDefinitionAsset productAsset)
+                ? productAsset.GetCaseImage(risingLeft)
+                : null;
+        }
+
+        private static Vector3 ResolveAuthoredCaseScale(
+            Sprite caseSprite,
+            float desiredWidth)
+        {
+            float scale =
+                Mathf.Max(desiredWidth, 0.03f)
+                / Mathf.Max(caseSprite.bounds.size.x, 0.001f);
+
+            return new Vector3(scale, scale, 1f);
         }
 
         private Sprite GetOrCreateCaseMarkerSprite()
@@ -1074,8 +1442,19 @@ namespace BigRetail.Map.Unity.Fixtures
                         isFocusedFixture);
 
                 renderer.sortingOrder =
+                    view.SortingGroup != null
+                        ? baseSortingOrder
+                        : ResolveMerchandisingFocusSortingOrder(
+                            baseSortingOrder,
+                            hasMerchandisingFocus,
+                            isFocusedFixture);
+            }
+
+            if (view.SortingGroup != null)
+            {
+                view.SortingGroup.sortingOrder =
                     ResolveMerchandisingFocusSortingOrder(
-                        baseSortingOrder,
+                        view.BaseSortingGroupOrder,
                         hasMerchandisingFocus,
                         isFocusedFixture);
             }
@@ -1116,10 +1495,16 @@ namespace BigRetail.Map.Unity.Fixtures
             public FixtureView(
                 FixtureInstance fixture,
                 GameObject root,
+                SortingGroup sortingGroup,
                 IReadOnlyList<SpriteRenderer> renderers)
             {
                 Fixture = fixture;
                 Root = root;
+                SortingGroup = sortingGroup;
+                BaseSortingGroupOrder =
+                    sortingGroup != null
+                        ? sortingGroup.sortingOrder
+                        : 0;
                 Renderers = renderers;
                 baseColors = new Color[renderers.Count];
                 baseSortingOrders = new int[renderers.Count];
@@ -1143,6 +1528,10 @@ namespace BigRetail.Map.Unity.Fixtures
             public FixtureInstance Fixture { get; }
 
             public GameObject Root { get; }
+
+            public SortingGroup SortingGroup { get; }
+
+            public int BaseSortingGroupOrder { get; }
 
             public IReadOnlyList<SpriteRenderer> Renderers { get; }
 

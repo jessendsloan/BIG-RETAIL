@@ -15,8 +15,14 @@
         "BigRetail.Departments.Unity",
         "BigRetail.Receiving.Domain",
         "BigRetail.Receiving.Unity",
+        "BigRetail.Purchasing.Domain",
         "BigRetail.Purchasing.Unity",
-        "BigRetail.Session"
+        "BigRetail.Session",
+        "BigRetail.Economy.Domain",
+        "BigRetail.Inventory.Domain",
+        "BigRetail.Merchandise.Domain",
+        "BigRetail.Simulation.Time.Domain",
+        "BigRetail.Simulation.Time.Unity"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

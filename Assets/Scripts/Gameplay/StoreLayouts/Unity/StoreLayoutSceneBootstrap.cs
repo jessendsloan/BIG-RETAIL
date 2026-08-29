@@ -7,6 +7,7 @@ using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.Sidewalks;
 using BigRetail.Purchasing.Unity;
 using BigRetail.Receiving.Unity;
+using BigRetail.Simulation.Time.Unity;
 using UnityEngine;
 
 namespace BigRetail.StoreLayouts.Unity
@@ -22,6 +23,9 @@ namespace BigRetail.StoreLayouts.Unity
     {
         [SerializeField]
         private StoreLayoutAsset initialLayout;
+
+        [SerializeField]
+        private StoreScenarioAsset initialScenario;
 
         [SerializeField]
         private GridMapHost mapHost;
@@ -47,10 +51,23 @@ namespace BigRetail.StoreLayouts.Unity
         [SerializeField]
         private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
 
+        [SerializeField]
+        private SimulationTimeRuntimeHost simulationTimeRuntimeHost;
+
+        [SerializeField]
+        private FixturePlanogramRuntimeHost fixturePlanogramRuntimeHost;
+
+        [SerializeField]
+        private PurchasingRuntimeHost purchasingRuntimeHost;
+
 
         public StoreLayoutAsset InitialLayout => initialLayout;
 
+        public StoreScenarioAsset InitialScenario => initialScenario;
+
         public bool HasLoadedInitialLayout { get; private set; }
+
+        public bool HasLoadedInitialScenario { get; private set; }
 
         public string LastFailure { get; private set; } = string.Empty;
 
@@ -62,10 +79,17 @@ namespace BigRetail.StoreLayouts.Unity
                 return;
             }
 
-            if (!TryLoadInitialLayout())
+            if (!TryLoadInitialStore())
             {
                 Debug.LogError(LastFailure, this);
             }
+        }
+
+
+        public bool TryLoadInitialStore()
+        {
+            return TryLoadInitialLayout()
+                && TryLoadInitialScenario();
         }
 
 
@@ -124,6 +148,57 @@ namespace BigRetail.StoreLayouts.Unity
             }
 
             HasLoadedInitialLayout = true;
+            LastFailure = string.Empty;
+
+            Debug.Log(result.Message, this);
+            return true;
+        }
+
+        public bool TryLoadInitialScenario()
+        {
+            if (HasLoadedInitialScenario)
+            {
+                return true;
+            }
+
+            if (!HasLoadedInitialLayout)
+            {
+                LastFailure =
+                    "The scene's starter scenario requires its layout to "
+                    + "load first.";
+                return false;
+            }
+
+            if (initialScenario == null
+                || simulationTimeRuntimeHost == null
+                || fixturePlanogramRuntimeHost == null
+                || purchasingRuntimeHost == null)
+            {
+                LastFailure =
+                    "The scene's starter store is missing its scenario, "
+                    + "simulation clock, merchandising runtime, or "
+                    + "Purchasing runtime host.";
+                return false;
+            }
+
+            StoreScenarioRuntimeLoader loader =
+                new StoreScenarioRuntimeLoader(
+                    fixtureRuntimeHost,
+                    fixturePlanogramRuntimeHost,
+                    simulationTimeRuntimeHost,
+                    purchasingRuntimeHost);
+            StoreScenarioLoadResult result =
+                loader.Load(initialScenario, initialLayout);
+
+            if (!result.Succeeded)
+            {
+                LastFailure =
+                    $"Could not load starter scenario "
+                    + $"'{initialScenario.name}': {result.Message}";
+                return false;
+            }
+
+            HasLoadedInitialScenario = true;
             LastFailure = string.Empty;
 
             Debug.Log(result.Message, this);

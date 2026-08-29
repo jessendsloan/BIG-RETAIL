@@ -59,6 +59,22 @@ namespace BigRetail.Map.Unity.Fixtures
         public event Action<FixturePlanogramRuntimeHost> Initialized;
 
 
+        public bool TryGetProductAsset(
+            ProductId productId,
+            out ProductDefinitionAsset productAsset)
+        {
+            if (productCatalogAsset == null)
+            {
+                productAsset = null;
+                return false;
+            }
+
+            return productCatalogAsset.TryGetAsset(
+                productId,
+                out productAsset);
+        }
+
+
         private void OnEnable()
         {
             if (fixtureRuntimeHost != null)
@@ -202,8 +218,9 @@ namespace BigRetail.Map.Unity.Fixtures
                 + $"{Products.Count} placeholder product(s), "
                 + $"{Backstock.StoredUnitCount} unit(s) stored in physical "
                 + $"racks, {Backstock.UnallocatedUnitCount} inbound/overflow "
-                + $"unit(s), {Backstock.CapacityUnitCount} total rack "
-                + $"capacity, and {cashSummary}.",
+                + $"unit(s), {Backstock.OccupiedCaseSlotCount} of "
+                + $"{Backstock.CaseSlotCapacity} physical case slot(s) "
+                + $"occupied, and {cashSummary}.",
                 this);
 
             return true;

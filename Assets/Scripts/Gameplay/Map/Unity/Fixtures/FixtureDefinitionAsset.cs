@@ -59,6 +59,23 @@ namespace BigRetail.Map.Unity.Fixtures
         [SerializeField]
         private Sprite westSprite;
 
+        [Header("Directional Presentation Layers")]
+
+        [Tooltip(
+            "Optional back-to-front layers for the north presentation. "
+            + "An empty collection keeps the combined north sprite.")]
+        [SerializeField]
+        private Sprite[] northPresentationLayers = Array.Empty<Sprite>();
+
+        [SerializeField]
+        private Sprite[] eastPresentationLayers = Array.Empty<Sprite>();
+
+        [SerializeField]
+        private Sprite[] southPresentationLayers = Array.Empty<Sprite>();
+
+        [SerializeField]
+        private Sprite[] westPresentationLayers = Array.Empty<Sprite>();
+
         [Header("Directional Sprite Anchors")]
 
         [Tooltip(
@@ -141,10 +158,46 @@ namespace BigRetail.Map.Unity.Fixtures
 
         [Min(0)]
         [Tooltip(
-            "Physical product capacity owned by this placed rack. Zero means "
-            + "the fixture is not backstock storage.")]
+            "Number of tracked supplier cases that physically fit on this "
+            + "rack. Zero means the fixture is not backstock storage.")]
         [SerializeField]
-        private int backstockCapacityUnits;
+        private int backstockCaseSlotCapacity;
+
+        [Min(1)]
+        [Tooltip(
+            "Number of physical case positions across each authored shelf.")]
+        [SerializeField]
+        private int backstockCasesPerShelf = 3;
+
+        [Min(0.01f)]
+        [Tooltip(
+            "Case width relative to one shelf position. Values above one "
+            + "create the slight overlap used by the rack artwork.")]
+        [SerializeField]
+        private float backstockCaseWidthPerSlot = 0.72f;
+
+        [Range(0.25f, 1f)]
+        [Tooltip(
+            "Spacing between physical case centers across a shelf. One uses "
+            + "the full authored shelf width; lower values pack the row "
+            + "closer together around the shelf center.")]
+        [SerializeField]
+        private float backstockCaseSpacingShare = 1f;
+
+        [Range(-0.5f, 0.5f)]
+        [Tooltip(
+            "Moves the complete case row along the shelf frontage, measured "
+            + "in fractions of one case position. Positive values move "
+            + "toward the authored right side.")]
+        [SerializeField]
+        private float backstockCaseRowOffsetShare;
+
+        [Range(0f, 1f)]
+        [Tooltip(
+            "How far cases move from the shelf-mask center toward its front "
+            + "edge. One reaches the full measured shelf depth.")]
+        [SerializeField]
+        private float backstockCaseFrontOffsetShare = 0.20f;
 
 
         public FixtureDefinitionId Id
@@ -173,6 +226,12 @@ namespace BigRetail.Map.Unity.Fixtures
         public Vector3 WorldPositionOffset =>
             worldPositionOffset;
 
+        public bool HasLayeredPresentation =>
+            GetLayerCount(northPresentationLayers) > 0
+            || GetLayerCount(eastPresentationLayers) > 0
+            || GetLayerCount(southPresentationLayers) > 0
+            || GetLayerCount(westPresentationLayers) > 0;
+
         public bool HasAnyMerchandisingShelfMasks
         {
             get
@@ -199,6 +258,28 @@ namespace BigRetail.Map.Unity.Fixtures
         public bool HasStorageShelfMasks =>
             storageShelfMasks?.HasAnyMasks == true;
 
+        public int BackstockCaseSlotCapacity =>
+            Math.Max(0, backstockCaseSlotCapacity);
+
+        public int BackstockCasesPerShelf =>
+            Math.Max(1, backstockCasesPerShelf);
+
+        public float BackstockCaseWidthPerSlot =>
+            backstockCaseWidthPerSlot > 0f
+                ? backstockCaseWidthPerSlot
+                : 0.72f;
+
+        public float BackstockCaseSpacingShare =>
+            backstockCaseSpacingShare > 0f
+                ? Mathf.Clamp(backstockCaseSpacingShare, 0.25f, 1f)
+                : 1f;
+
+        public float BackstockCaseRowOffsetShare =>
+            Mathf.Clamp(backstockCaseRowOffsetShare, -0.5f, 0.5f);
+
+        public float BackstockCaseFrontOffsetShare =>
+            Mathf.Clamp01(backstockCaseFrontOffsetShare);
+
 
         public FixtureDefinition CreateDomainDefinition()
         {
@@ -217,7 +298,7 @@ namespace BigRetail.Map.Unity.Fixtures
                     accessClearancePolicy),
                 storageProfile:
                     new FixtureStorageProfile(
-                        backstockCapacityUnits));
+                        backstockCaseSlotCapacity));
         }
 
 
@@ -244,6 +325,33 @@ namespace BigRetail.Map.Unity.Fixtures
                 2 => southSprite,
                 3 => westSprite,
                 _ => northSprite
+            };
+        }
+
+
+        public IReadOnlyList<Sprite> GetPresentationLayers(
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation)
+        {
+            if (!worldOrientation.IsSupported())
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(worldOrientation));
+            }
+
+            int relativeOrientation =
+                ((int)worldOrientation
+                    - (int)viewOrientation
+                    + 4)
+                % 4;
+
+            return relativeOrientation switch
+            {
+                0 => northPresentationLayers ?? Array.Empty<Sprite>(),
+                1 => eastPresentationLayers ?? Array.Empty<Sprite>(),
+                2 => southPresentationLayers ?? Array.Empty<Sprite>(),
+                3 => westPresentationLayers ?? Array.Empty<Sprite>(),
+                _ => Array.Empty<Sprite>()
             };
         }
 
@@ -403,14 +511,202 @@ namespace BigRetail.Map.Unity.Fixtures
                     $"Fixture definition '{name}' contains an unsupported access-clearance policy.");
             }
 
-            if (backstockCapacityUnits < 0)
+            if (backstockCaseSlotCapacity < 0)
             {
                 throw new InvalidOperationException(
-                    $"Fixture definition '{name}' cannot have negative backstock capacity.");
+                    $"Fixture definition '{name}' cannot have negative backstock case-slot capacity.");
             }
 
+            if (backstockCaseSlotCapacity > 0
+                && (backstockCasesPerShelf <= 0
+                    || backstockCaseWidthPerSlot <= 0f
+                    || backstockCaseSpacingShare <= 0f
+                    || backstockCaseSpacingShare > 1f
+                    || backstockCaseRowOffsetShare < -0.5f
+                    || backstockCaseRowOffsetShare > 0.5f
+                    || backstockCaseFrontOffsetShare < 0f
+                    || backstockCaseFrontOffsetShare > 1f))
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' contains invalid physical case-layout values.");
+            }
+
+            ValidatePresentationLayers();
             ValidateMerchandisingMasks();
             ValidateStorageShelfMasks();
+        }
+
+
+        private void ValidatePresentationLayers()
+        {
+            int expectedLayerCount =
+                ResolveFirstLayerCount(
+                    northPresentationLayers,
+                    eastPresentationLayers,
+                    southPresentationLayers,
+                    westPresentationLayers);
+
+            if (expectedLayerCount == 0)
+            {
+                return;
+            }
+
+            if (repeatSpritePerOccupiedCell)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' cannot use whole-fixture "
+                    + "presentation layers while repeating its sprite per cell.");
+            }
+
+            ValidatePresentationDirection(
+                "north",
+                northSprite,
+                northPresentationLayers,
+                expectedLayerCount);
+            ValidatePresentationDirection(
+                "east",
+                eastSprite,
+                eastPresentationLayers,
+                expectedLayerCount);
+            ValidatePresentationDirection(
+                "south",
+                southSprite,
+                southPresentationLayers,
+                expectedLayerCount);
+            ValidatePresentationDirection(
+                "west",
+                westSprite,
+                westPresentationLayers,
+                expectedLayerCount);
+
+            if (storageShelfMasks?.HasAnyMasks != true)
+            {
+                return;
+            }
+
+            ValidateStorageLayerCount(
+                "north",
+                northPresentationLayers,
+                storageShelfMasks.GetShelfMasks(
+                    FixtureOrientation.North,
+                    IsometricViewOrientation.North).Count);
+            ValidateStorageLayerCount(
+                "east",
+                eastPresentationLayers,
+                storageShelfMasks.GetShelfMasks(
+                    FixtureOrientation.East,
+                    IsometricViewOrientation.North).Count);
+            ValidateStorageLayerCount(
+                "south",
+                southPresentationLayers,
+                storageShelfMasks.GetShelfMasks(
+                    FixtureOrientation.South,
+                    IsometricViewOrientation.North).Count);
+            ValidateStorageLayerCount(
+                "west",
+                westPresentationLayers,
+                storageShelfMasks.GetShelfMasks(
+                    FixtureOrientation.West,
+                    IsometricViewOrientation.North).Count);
+        }
+
+
+        private void ValidatePresentationDirection(
+            string directionName,
+            Sprite fixtureSprite,
+            Sprite[] layers,
+            int expectedLayerCount)
+        {
+            int layerCount = GetLayerCount(layers);
+
+            if (layerCount != expectedLayerCount)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' requires "
+                    + $"{expectedLayerCount} {directionName} presentation "
+                    + $"layer(s), but contains {layerCount}.");
+            }
+
+            for (int index = 0;
+                 index < layers.Length;
+                 index++)
+            {
+                Sprite layer = layers[index];
+
+                if (layer == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Fixture definition '{name}' has an empty "
+                        + $"{directionName} presentation layer at index "
+                        + $"{index}.");
+                }
+
+                if (fixtureSprite == null
+                    || layer.rect != fixtureSprite.rect
+                    || Vector2.Distance(
+                        layer.pivot,
+                        fixtureSprite.pivot) > 0.0001f
+                    || !Mathf.Approximately(
+                        layer.pixelsPerUnit,
+                        fixtureSprite.pixelsPerUnit))
+                {
+                    throw new InvalidOperationException(
+                        $"Fixture definition '{name}' has a misaligned "
+                        + $"{directionName} presentation layer "
+                        + $"'{layer.name}'. Its canvas, pivot, and "
+                        + "pixels-per-unit must match the combined fixture "
+                        + $"sprite '{fixtureSprite?.name ?? "<null>"}'.");
+                }
+            }
+        }
+
+
+        private void ValidateStorageLayerCount(
+            string directionName,
+            Sprite[] layers,
+            int shelfMaskCount)
+        {
+            if (shelfMaskCount == 0)
+            {
+                return;
+            }
+
+            int expectedLayerCount = shelfMaskCount + 1;
+
+            if (GetLayerCount(layers) != expectedLayerCount)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' requires one more "
+                    + $"{directionName} presentation layer than storage "
+                    + $"shelf masks ({expectedLayerCount} layers for "
+                    + $"{shelfMaskCount} shelves).");
+            }
+        }
+
+
+        private static int ResolveFirstLayerCount(
+            params Sprite[][] directionalLayers)
+        {
+            for (int index = 0;
+                 index < directionalLayers.Length;
+                 index++)
+            {
+                int count = GetLayerCount(directionalLayers[index]);
+
+                if (count > 0)
+                {
+                    return count;
+                }
+            }
+
+            return 0;
+        }
+
+
+        private static int GetLayerCount(
+            Sprite[] layers)
+        {
+            return layers?.Length ?? 0;
         }
 
 
@@ -421,10 +717,10 @@ namespace BigRetail.Map.Unity.Fixtures
                 return;
             }
 
-            if (backstockCapacityUnits <= 0)
+            if (backstockCaseSlotCapacity <= 0)
             {
                 throw new InvalidOperationException(
-                    $"Fixture definition '{name}' authors storage shelf masks but provides no backstock capacity.");
+                    $"Fixture definition '{name}' authors storage shelf masks but provides no physical case slots.");
             }
 
             storageShelfMasks.ValidateConfiguration(
@@ -433,6 +729,21 @@ namespace BigRetail.Map.Unity.Fixtures
                 eastSprite,
                 southSprite,
                 westSprite);
+
+            int shelfCount =
+                storageShelfMasks.GetShelfMasks(
+                    FixtureOrientation.North,
+                    IsometricViewOrientation.North).Count;
+            int authoredCaseSlotCount =
+                shelfCount * BackstockCasesPerShelf;
+
+            if (backstockCaseSlotCapacity > authoredCaseSlotCount)
+            {
+                throw new InvalidOperationException(
+                    $"Fixture definition '{name}' provides "
+                    + $"{backstockCaseSlotCapacity} physical case slots but "
+                    + $"its shelf layout only authors {authoredCaseSlotCount}.");
+            }
         }
 
 

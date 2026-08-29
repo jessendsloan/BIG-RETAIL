@@ -228,29 +228,32 @@ namespace BigRetail.Construction.Unity.UI.PC
         }
 
         public void SetStorageSummary(
-            int rackCapacityUnitCount,
+            int rackOccupiedCaseSlotCount,
+            int rackCaseSlotCapacity,
             int rackStoredUnitCount,
-            int totalCapacityUnitCount,
+            int occupiedCaseSlotCount,
+            int totalCaseSlotCapacity,
             int storedUnitCount,
             int unallocatedUnitCount,
-            int freeSpaceUnitCount,
+            int availableCaseSlotCount,
             string status,
             bool isWarning)
         {
             storageRackCapacityValueLabel.text =
-                $"{rackStoredUnitCount} / {rackCapacityUnitCount} units";
+                $"{rackOccupiedCaseSlotCount} / {rackCaseSlotCapacity} cases"
+                + $" · {rackStoredUnitCount} units";
 
             storageTotalCapacityValueLabel.text =
-                $"{totalCapacityUnitCount} units";
+                $"{occupiedCaseSlotCount} / {totalCaseSlotCapacity} cases";
 
             storageStoredValueLabel.text =
-                $"{storedUnitCount} / {totalCapacityUnitCount} units";
+                $"{storedUnitCount} units";
 
             storageUnallocatedValueLabel.text =
                 $"{unallocatedUnitCount} units";
 
             storageFreeSpaceValueLabel.text =
-                $"{freeSpaceUnitCount} units";
+                $"{availableCaseSlotCount} case slots";
 
             storageStatusValueLabel.text =
                 string.IsNullOrWhiteSpace(status)
@@ -349,6 +352,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             int pendingUnitCount,
             bool canReceive)
         {
+            receiveDeliveryButton.style.display = DisplayStyle.Flex;
             purchasingCashValueLabel.text =
                 FormatMoney(cashBalanceCents);
             purchasingPendingValueLabel.text =
@@ -364,6 +368,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             int readyUnitCount,
             bool canReceive)
         {
+            // Supplier cases are worked individually from the staged pallet
+            // onto a chosen rack. Keep the legacy bulk-receive action out of
+            // this path so player and worker behavior share the same rules.
+            receiveDeliveryButton.style.display = DisplayStyle.None;
             purchasingCashValueLabel.text =
                 FormatMoney(cashBalanceCents);
 

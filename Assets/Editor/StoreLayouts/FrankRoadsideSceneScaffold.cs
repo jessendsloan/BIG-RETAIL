@@ -358,6 +358,10 @@ namespace BigRetail.Editor.StoreLayouts
                 bootstrap,
                 "receivingAreaRuntimeHost",
                 FindRequiredInScene<ReceivingAreaRuntimeHost>(scene));
+
+            FrankOpeningScenarioSetup.ConfigureScene(
+                scene,
+                initialLayout);
         }
 
 

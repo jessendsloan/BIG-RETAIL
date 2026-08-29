@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace BigRetail.Map.Fixtures
 {
@@ -12,6 +13,8 @@ namespace BigRetail.Map.Fixtures
     {
         private readonly FixtureState fixtureState;
         private readonly FixtureSalesService sales;
+        private readonly HashSet<FixtureInstanceId> closedCheckouts =
+            new HashSet<FixtureInstanceId>();
         private bool isDisposed;
 
 
@@ -48,7 +51,45 @@ namespace BigRetail.Map.Fixtures
             return fixtureState.TryGetFixture(
                     checkoutFixtureId,
                     out FixtureInstance fixture)
+                && HasCheckoutAccess(fixture)
+                && !closedCheckouts.Contains(checkoutFixtureId);
+        }
+
+        public bool IsCheckoutStation(
+            FixtureInstanceId fixtureId)
+        {
+            return fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture)
                 && HasCheckoutAccess(fixture);
+        }
+
+        public bool IsOpen(
+            FixtureInstanceId fixtureId)
+        {
+            return IsCheckoutStation(fixtureId)
+                && !closedCheckouts.Contains(fixtureId);
+        }
+
+        public bool TrySetOpen(
+            FixtureInstanceId fixtureId,
+            bool isOpen)
+        {
+            if (!IsCheckoutStation(fixtureId))
+            {
+                return false;
+            }
+
+            bool changed = isOpen
+                ? closedCheckouts.Remove(fixtureId)
+                : closedCheckouts.Add(fixtureId);
+
+            if (changed)
+            {
+                RefreshOperationalCheckoutCount();
+            }
+
+            return true;
         }
 
         public FixtureSaleResult TryProcessBasket(
@@ -80,6 +121,11 @@ namespace BigRetail.Map.Fixtures
         private void HandleFixtureChanged(
             FixtureInstance fixture)
         {
+            if (!fixtureState.TryGetFixture(fixture.Id, out _))
+            {
+                closedCheckouts.Remove(fixture.Id);
+            }
+
             RefreshOperationalCheckoutCount();
         }
 
@@ -93,7 +139,10 @@ namespace BigRetail.Map.Fixtures
             {
                 if (HasCheckoutAccess(fixture))
                 {
-                    nextCount++;
+                    if (!closedCheckouts.Contains(fixture.Id))
+                    {
+                        nextCount++;
+                    }
                 }
             }
 

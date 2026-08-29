@@ -650,6 +650,21 @@ namespace BigRetail.Map.Fixtures
                 $"FIXTURE-DISPLAY-{fixtureId.Value}");
         }
 
+        /// <summary>
+        /// Reconciles restored inventory with current planogram capacity and
+        /// republishes fixture stock so every subscribed view refreshes.
+        /// </summary>
+        public void SynchronizeAfterInventoryRestore()
+        {
+            foreach (
+                FixtureInstance fixture
+                in fixtureState.EnumerateFixtures())
+            {
+                ReconcileDisplayCapacity(fixture);
+                FixtureStockChanged?.Invoke(fixture.Id);
+            }
+        }
+
 
         private void HandleFixtureAdded(FixtureInstance fixture)
         {

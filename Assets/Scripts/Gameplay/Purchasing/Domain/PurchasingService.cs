@@ -188,6 +188,71 @@ namespace BigRetail.Purchasing.Domain
             return placedBatch.AsReadOnly();
         }
 
+        /// <summary>
+        /// Restores an already-committed commercial record without charging
+        /// cash or applying current supplier minimums. Intended for authored
+        /// scenarios and save restoration, not live player purchasing.
+        /// </summary>
+        public PlacedPurchaseOrder RestorePlacedOrder(
+            long orderNumber,
+            DraftPurchaseOrder orderSnapshot,
+            CommercialTime placedAt,
+            SupplierDeliveryEstimate deliveryEstimate)
+        {
+            if (orderSnapshot == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(orderSnapshot));
+            }
+
+            Catalog.Suppliers.GetRequired(
+                orderSnapshot.SupplierId);
+
+            for (int index = 0;
+                 index < placedOrders.Count;
+                 index++)
+            {
+                if (placedOrders[index].OrderNumber == orderNumber)
+                {
+                    throw new ArgumentException(
+                        $"Purchase order '{orderNumber}' is already restored.",
+                        nameof(orderNumber));
+                }
+            }
+
+            foreach (
+                PurchaseOrderLine line
+                in orderSnapshot.EnumerateLines())
+            {
+                SupplierOfferDefinition catalogOffer =
+                    Catalog.Offers.GetRequired(line.Offer.Id);
+
+                if (catalogOffer.SupplierId
+                        != orderSnapshot.SupplierId
+                    || catalogOffer.ProductId
+                        != line.Offer.ProductId)
+                {
+                    throw new ArgumentException(
+                        $"Restored offer '{line.Offer.Id}' does not match "
+                        + "the active commercial catalog.",
+                        nameof(orderSnapshot));
+                }
+            }
+
+            PlacedPurchaseOrder order =
+                new PlacedPurchaseOrder(
+                    orderNumber,
+                    orderSnapshot,
+                    placedAt,
+                    deliveryEstimate);
+
+            placedOrders.Add(order);
+            nextOrderNumber = Math.Max(
+                nextOrderNumber,
+                checked(orderNumber + 1));
+            return order;
+        }
+
         public IEnumerable<PlacedPurchaseOrder> EnumeratePlacedOrders()
         {
             for (int index = 0; index < placedOrders.Count; index++)

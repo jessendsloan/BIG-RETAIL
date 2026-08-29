@@ -24,6 +24,35 @@ namespace BigRetail.Merchandise.Unity
             products;
 
 
+        public bool TryGetAsset(
+            ProductId productId,
+            out ProductDefinitionAsset productAsset)
+        {
+            if (!productId.IsValid || products == null)
+            {
+                productAsset = null;
+                return false;
+            }
+
+            for (int index = 0;
+                 index < products.Length;
+                 index++)
+            {
+                ProductDefinitionAsset candidate = products[index];
+
+                if (candidate != null
+                    && candidate.Id == productId)
+                {
+                    productAsset = candidate;
+                    return true;
+                }
+            }
+
+            productAsset = null;
+            return false;
+        }
+
+
         public bool TryCreateCatalog(
             out ProductCatalog catalog,
             out string error)

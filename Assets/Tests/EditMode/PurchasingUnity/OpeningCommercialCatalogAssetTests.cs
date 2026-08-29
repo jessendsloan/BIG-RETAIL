@@ -1,5 +1,6 @@
 using System.Linq;
 using BigRetail.Merchandise.Domain;
+using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
 using NUnit.Framework;
 using UnityEditor;
@@ -98,6 +99,28 @@ namespace BigRetail.Purchasing.Unity.Tests
                         $"{supplier.name} load tier {loadTier}");
                 }
             }
+        }
+
+        [Test]
+        public void RidgewayChips_HasDirectionalBackstockCasePresentation()
+        {
+            CommercialCatalogAsset catalog =
+                AssetDatabase.LoadAssetAtPath<CommercialCatalogAsset>(
+                    CatalogPath);
+
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.ProductCatalog, Is.Not.Null);
+            Assert.That(
+                catalog.ProductCatalog.TryGetAsset(
+                    new ProductId(
+                        "RIDGEWAY-ORIGINAL-CHIPS-SINGLE"),
+                    out ProductDefinitionAsset product),
+                Is.True);
+            Assert.That(product.CaseRisingLeftImage, Is.Not.Null);
+            Assert.That(product.CaseRisingRightImage, Is.Not.Null);
+            Assert.That(
+                product.CaseRisingLeftImage,
+                Is.Not.SameAs(product.CaseRisingRightImage));
         }
 
 
