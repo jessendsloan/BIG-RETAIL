@@ -57,9 +57,42 @@ namespace BigRetail.Merchandise.Unity
         [SerializeField]
         private Sprite caseRisingRightImage;
 
+        [Tooltip(
+            "Optional on-shelf fullness images for a visible edge that rises "
+            + "to the left, ordered from least to most full.")]
+        [SerializeField]
+        private Sprite[] onShelfRisingLeftImages =
+            Array.Empty<Sprite>();
+
+        [Tooltip(
+            "Optional on-shelf fullness images for a visible edge that rises "
+            + "to the right, ordered from least to most full.")]
+        [SerializeField]
+        private Sprite[] onShelfRisingRightImages =
+            Array.Empty<Sprite>();
+
+        [Tooltip(
+            "Optional individual-package artwork used away from a shelf "
+            + "when the visible edge rises to the left.")]
+        [SerializeField]
+        private Sprite offShelfRisingLeftImage;
+
+        [Tooltip(
+            "Optional individual-package artwork used away from a shelf "
+            + "when the visible edge rises to the right.")]
+        [SerializeField]
+        private Sprite offShelfRisingRightImage;
+
         [SerializeField]
         private StockUnit stockUnit =
             StockUnit.Each;
+
+        [Tooltip(
+            "Physical sellable units held by one planogram frontage slot.")]
+        [SerializeField]
+        [Min(1)]
+        private int displayUnitsPerFrontageUnit =
+            ProductDefinition.DefaultDisplayUnitsPerFrontageUnit;
 
         [Tooltip("Temporary graybox cost. Permanent supplier prices belong to Supplier Offers.")]
         [SerializeField]
@@ -104,6 +137,22 @@ namespace BigRetail.Merchandise.Unity
         public Sprite CaseRisingRightImage =>
             caseRisingRightImage;
 
+        public int OnShelfImageCount =>
+            Math.Max(
+                GetSpriteCount(onShelfRisingLeftImages),
+                GetSpriteCount(onShelfRisingRightImages));
+
+        public Sprite OffShelfRisingLeftImage =>
+            offShelfRisingLeftImage;
+
+        public Sprite OffShelfRisingRightImage =>
+            offShelfRisingRightImage;
+
+        public int DisplayUnitsPerFrontageUnit =>
+            displayUnitsPerFrontageUnit > 0
+                ? displayUnitsPerFrontageUnit
+                : ProductDefinition.DefaultDisplayUnitsPerFrontageUnit;
+
 
         public Sprite GetCaseImage(
             bool risingLeft)
@@ -111,6 +160,52 @@ namespace BigRetail.Merchandise.Unity
             return risingLeft
                 ? caseRisingLeftImage
                 : caseRisingRightImage;
+        }
+
+
+        public Sprite GetOnShelfImage(
+            bool risingLeft,
+            float fillRatio)
+        {
+            Sprite[] images =
+                risingLeft
+                    ? onShelfRisingLeftImages
+                    : onShelfRisingRightImages;
+            int imageCount = GetSpriteCount(images);
+
+            if (imageCount == 0 || fillRatio <= 0f)
+            {
+                return null;
+            }
+
+            int imageIndex =
+                Mathf.Clamp(
+                    Mathf.CeilToInt(
+                        Mathf.Clamp01(fillRatio)
+                        * imageCount)
+                    - 1,
+                    0,
+                    imageCount - 1);
+
+            return images[imageIndex];
+        }
+
+
+        public Sprite GetOffShelfImage(
+            bool risingLeft)
+        {
+            return risingLeft
+                ? offShelfRisingLeftImage
+                : offShelfRisingRightImage;
+        }
+
+
+        private static int GetSpriteCount(
+            Sprite[] sprites)
+        {
+            return sprites == null
+                ? 0
+                : sprites.Length;
         }
 
 
@@ -156,7 +251,8 @@ namespace BigRetail.Merchandise.Unity
                         resolvedPackageForm,
                         stockUnit,
                         wholesaleCaseCostCents,
-                        retailUnitPriceCents);
+                        retailUnitPriceCents,
+                        DisplayUnitsPerFrontageUnit);
 
                 error = string.Empty;
                 return true;
@@ -201,6 +297,13 @@ namespace BigRetail.Merchandise.Unity
 
             retailUnitPriceCents =
                 Math.Max(0, retailUnitPriceCents);
+
+            if (displayUnitsPerFrontageUnit <= 0)
+            {
+                displayUnitsPerFrontageUnit =
+                    ProductDefinition.DefaultDisplayUnitsPerFrontageUnit;
+            }
+
         }
 
 

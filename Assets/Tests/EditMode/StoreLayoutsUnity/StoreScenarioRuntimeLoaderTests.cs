@@ -32,6 +32,54 @@ namespace BigRetail.StoreLayouts.Unity.Tests
         private const string ScenarioPath =
             "Assets/Design/StoreScenarios/FrankOpeningShiftScenarioV1.asset";
 
+        private const string OpeningMerchandiseFixtureId =
+            "D58D297252D749968D57BA9B107DBA1A";
+
+        private const string OpeningProductId =
+            "RIDGEWAY-ORIGINAL-CHIPS-SINGLE";
+
+
+        [Test]
+        public void FrankOpeningScenario_PlansOneEmptyChipFixture()
+        {
+            StoreScenarioAsset asset =
+                AssetDatabase.LoadAssetAtPath<StoreScenarioAsset>(
+                    ScenarioPath);
+
+            Assert.That(asset, Is.Not.Null);
+            StoreScenarioData scenario = asset.CreateRuntimeCopy();
+
+            Assert.That(scenario.PlanogramAssignments.Count, Is.EqualTo(15));
+
+            for (int index = 0;
+                 index < scenario.PlanogramAssignments.Count;
+                 index++)
+            {
+                StorePlanogramAssignmentData assignment =
+                    scenario.PlanogramAssignments[index];
+
+                Assert.That(
+                    assignment.FixtureInstanceId,
+                    Is.EqualTo(OpeningMerchandiseFixtureId));
+                Assert.That(
+                    assignment.ProductId,
+                    Is.EqualTo(OpeningProductId));
+                Assert.That(
+                    assignment.DisplayFaceIndex,
+                    Is.Zero);
+            }
+
+            Assert.That(scenario.DisplayInventory.Count, Is.EqualTo(1));
+            Assert.That(
+                scenario.DisplayInventory[0].FixtureInstanceId,
+                Is.EqualTo(OpeningMerchandiseFixtureId));
+            Assert.That(
+                scenario.DisplayInventory[0].ProductId,
+                Is.EqualTo(OpeningProductId));
+            Assert.That(scenario.DisplayInventory[0].Quantity, Is.Zero);
+            Assert.That(scenario.BackstockInventory, Is.Empty);
+        }
+
 
         [Test]
         public void FrankOpeningScenario_LoadsOperationalStartingState()
@@ -78,25 +126,6 @@ namespace BigRetail.StoreLayouts.Unity.Tests
 
                 StoreScenarioData expected =
                     runtime.ScenarioAsset.CreateRuntimeCopy();
-                StoreDisplayInventoryData firstDisplay =
-                    expected.DisplayInventory[0];
-                FixtureInstanceId displayFixtureId =
-                    new FixtureInstanceId(
-                        firstDisplay.FixtureInstanceId);
-                ProductId displayProductId =
-                    new ProductId(firstDisplay.ProductId);
-
-                FixtureStockConsumptionResult consumed =
-                    runtime.Merchandising.DisplayInventory
-                        .TryConsumeProductStock(
-                            displayFixtureId,
-                            displayProductId,
-                            3);
-
-                Assert.That(
-                    consumed.Outcome,
-                    Is.EqualTo(
-                        FixtureStockConsumptionOutcome.Consumed));
 
                 runtime.Merchandising.Cash.Credit(777);
                 runtime.Time.Clock.Advance(15d);
@@ -287,6 +316,12 @@ namespace BigRetail.StoreLayouts.Unity.Tests
                 runtime.Merchandising.Backstock.GetAvailableQuantity(
                     new ProductId(
                         "RIDGEWAY-ORIGINAL-CHIPS-SINGLE")),
+                Is.EqualTo(0));
+            Assert.That(
+                runtime.Merchandising.DisplayInventory
+                    .GetDisplayedQuantity(
+                        new ProductId(
+                            "RIDGEWAY-ORIGINAL-CHIPS-SINGLE")),
                 Is.EqualTo(0));
 
             List<InboundDeliveryLoad> loads =

@@ -50,6 +50,36 @@ namespace BigRetail.Editor.Merchandise
             PurchasingCatalogFolder + "/OpeningCommercialCatalog.asset";
         private const string DeliveryLoadArtFolder =
             "Assets/Art/Purchasing/DeliveryPallets";
+        private const string RidgewayChipArtFolder =
+            "Assets/Art/Merchandise/Products/RidgewayChips";
+        private const string RidgewayChipOnShelfArtFolder =
+            RidgewayChipArtFolder + "/OnShelf";
+        private const string RidgewayChipOffShelfArtFolder =
+            RidgewayChipArtFolder + "/OffShelf";
+        private const string RidgewayChipOnShelfX1RisingLeftPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x1_RisingLeft.png";
+        private const string RidgewayChipOnShelfX2RisingLeftPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x2_RisingLeft.png";
+        private const string RidgewayChipOnShelfX3RisingLeftPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x3_RisingLeft.png";
+        private const string RidgewayChipOnShelfX1RisingRightPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x1_RisingRight.png";
+        private const string RidgewayChipOnShelfX2RisingRightPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x2_RisingRight.png";
+        private const string RidgewayChipOnShelfX3RisingRightPath =
+            RidgewayChipOnShelfArtFolder
+            + "/RidgewayChips_Original_OnShelf_x3_RisingRight.png";
+        private const string RidgewayChipOffShelfRisingLeftPath =
+            RidgewayChipOffShelfArtFolder
+            + "/RidgewayChips_Original_OffShelf_RisingLeft.png";
+        private const string RidgewayChipOffShelfRisingRightPath =
+            RidgewayChipOffShelfArtFolder
+            + "/RidgewayChips_Original_OffShelf_RisingRight.png";
         private const string PurchasingUxmlPath =
             "Assets/UI/Purchasing/PC/PurchasingWorkspace.uxml";
         private const string CommercialDirectoryUxmlPath =
@@ -267,6 +297,49 @@ namespace BigRetail.Editor.Merchandise
         public static void RefreshSupplierDeliveryLoadArtworkForAutomation()
         {
             RefreshSupplierDeliveryLoadArtwork();
+        }
+
+
+        [MenuItem(MenuRoot + "Refresh Ridgeway Chip Artwork")]
+        public static void RefreshRidgewayChipArtwork()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogError(
+                    "Exit Play Mode before refreshing Ridgeway chip artwork.");
+                return;
+            }
+
+            ConfigureRidgewayChipSpriteImporters();
+            ProductDefinitionAsset product =
+                AssetDatabase.LoadAssetAtPath<ProductDefinitionAsset>(
+                    ProductFolder + "/RidgewayChips.asset");
+
+            if (product == null)
+            {
+                BuildCatalogAssets();
+                product =
+                    AssetDatabase.LoadAssetAtPath<ProductDefinitionAsset>(
+                        ProductFolder + "/RidgewayChips.asset");
+            }
+
+            if (product == null)
+            {
+                throw new InvalidOperationException(
+                    "Could not create the Ridgeway chip product asset.");
+            }
+
+            SerializedObject serialized = new SerializedObject(product);
+            AssignRidgewayChipArtwork(serialized);
+            serialized.FindProperty(
+                    "displayUnitsPerFrontageUnit")
+                .intValue = 3;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(product);
+            AssetDatabase.SaveAssets();
+            Debug.Log(
+                "Assigned Ridgeway chip shelf-fill and off-shelf artwork.",
+                product);
         }
 
         [MenuItem(MenuRoot + "Open Purchasing Workspace Lab")]
@@ -510,6 +583,7 @@ namespace BigRetail.Editor.Merchandise
             EnsureFolder(OfferFolder);
             EnsureFolder(PurchasingCatalogFolder);
             ConfigureSupplierDeliverySpriteImporters();
+            ConfigureRidgewayChipSpriteImporters();
 
             BrandDefinitionAsset[] brands = BuildBrands();
             ProductDefinitionAsset[] products = BuildProducts(brands);
@@ -636,6 +710,125 @@ namespace BigRetail.Editor.Merchandise
             }
         }
 
+
+        private static void ConfigureRidgewayChipSpriteImporters()
+        {
+            string[] paths =
+            {
+                RidgewayChipOnShelfX1RisingLeftPath,
+                RidgewayChipOnShelfX2RisingLeftPath,
+                RidgewayChipOnShelfX3RisingLeftPath,
+                RidgewayChipOnShelfX1RisingRightPath,
+                RidgewayChipOnShelfX2RisingRightPath,
+                RidgewayChipOnShelfX3RisingRightPath,
+                RidgewayChipOffShelfRisingLeftPath,
+                RidgewayChipOffShelfRisingRightPath
+            };
+
+            for (int index = 0; index < paths.Length; index++)
+            {
+                TextureImporter importer =
+                    AssetImporter.GetAtPath(paths[index])
+                        as TextureImporter;
+
+                if (importer == null)
+                {
+                    continue;
+                }
+
+                TextureImporterSettings importerSettings =
+                    new TextureImporterSettings();
+                importer.ReadTextureSettings(importerSettings);
+
+                bool requiresImport =
+                    importer.textureType != TextureImporterType.Sprite
+                    || importer.spriteImportMode
+                        != SpriteImportMode.Single
+                    || importerSettings.spriteAlignment
+                        != (int)SpriteAlignment.Custom
+                    || importerSettings.spritePivot
+                        != new Vector2(0.5f, 0f)
+                    || !Mathf.Approximately(
+                        importer.spritePixelsPerUnit,
+                        100f)
+                    || !importer.alphaIsTransparency
+                    || importer.mipmapEnabled
+                    || importer.filterMode != FilterMode.Bilinear;
+
+                if (!requiresImport)
+                {
+                    continue;
+                }
+
+                importer.textureType = TextureImporterType.Sprite;
+                importerSettings.spriteAlignment =
+                    (int)SpriteAlignment.Custom;
+                importerSettings.spritePivot = new Vector2(0.5f, 0f);
+                importer.SetTextureSettings(importerSettings);
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.spritePixelsPerUnit = 100f;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = false;
+                importer.filterMode = FilterMode.Bilinear;
+                importer.SaveAndReimport();
+            }
+
+        }
+
+
+        private static void AssignRidgewayChipArtwork(
+            SerializedObject serializedProduct)
+        {
+            SetSpriteArray(
+                serializedProduct.FindProperty(
+                    "onShelfRisingLeftImages"),
+                new[]
+                {
+                    LoadSprite(RidgewayChipOnShelfX1RisingLeftPath),
+                    LoadSprite(RidgewayChipOnShelfX2RisingLeftPath),
+                    LoadSprite(RidgewayChipOnShelfX3RisingLeftPath)
+                });
+            SetSpriteArray(
+                serializedProduct.FindProperty(
+                    "onShelfRisingRightImages"),
+                new[]
+                {
+                    LoadSprite(RidgewayChipOnShelfX1RisingRightPath),
+                    LoadSprite(RidgewayChipOnShelfX2RisingRightPath),
+                    LoadSprite(RidgewayChipOnShelfX3RisingRightPath)
+                });
+            serializedProduct.FindProperty(
+                    "offShelfRisingLeftImage")
+                .objectReferenceValue =
+                    LoadSprite(RidgewayChipOffShelfRisingLeftPath);
+            serializedProduct.FindProperty(
+                    "offShelfRisingRightImage")
+                .objectReferenceValue =
+                    LoadSprite(RidgewayChipOffShelfRisingRightPath);
+
+        }
+
+
+        private static Sprite LoadSprite(
+            string assetPath)
+        {
+            return AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+        }
+
+
+        private static void SetSpriteArray(
+            SerializedProperty property,
+            IReadOnlyList<Sprite> sprites)
+        {
+            property.arraySize = sprites.Count;
+
+            for (int index = 0; index < sprites.Count; index++)
+            {
+                property.GetArrayElementAtIndex(index)
+                    .objectReferenceValue = sprites[index];
+            }
+        }
+
         private static void AssignAvailableDeliveryLoadSprites(
             SerializedObject serializedSupplier,
             SupplierSeed seed)
@@ -694,8 +887,21 @@ namespace BigRetail.Editor.Merchandise
                 serialized.FindProperty("packageForm").stringValue = seed.PackageForm;
                 serialized.FindProperty("stockUnit").enumValueIndex =
                     (int)StockUnit.Each;
+                serialized.FindProperty(
+                        "displayUnitsPerFrontageUnit")
+                    .intValue =
+                        seed.Id == "RIDGEWAY-ORIGINAL-CHIPS-SINGLE"
+                            ? 3
+                            : ProductDefinition
+                                .DefaultDisplayUnitsPerFrontageUnit;
                 serialized.FindProperty("retailUnitPriceCents").longValue =
                     OpeningRetailUnitPricesCents[index];
+
+                if (seed.Id == "RIDGEWAY-ORIGINAL-CHIPS-SINGLE")
+                {
+                    AssignRidgewayChipArtwork(serialized);
+                }
+
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(asset);
                 assets[index] = asset;

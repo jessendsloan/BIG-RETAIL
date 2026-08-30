@@ -128,6 +128,136 @@ namespace BigRetail.Map.Fixtures.Tests
         }
 
         [Test]
+        public void RestockFixture_CaseSizedPass_MovesOnlyRequestedUnits()
+        {
+            TestContext context = CreateContext(100, 100);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 3);
+
+                FixtureRestockResult firstPass =
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId,
+                        maximumUnitCount: 12);
+
+                Assert.That(firstPass.Succeeded, Is.True);
+                Assert.That(firstPass.MovedUnitCount, Is.EqualTo(12));
+                Assert.That(firstPass.RemainingShortfall, Is.EqualTo(6));
+                Assert.That(
+                    context.DisplayInventory.GetDisplayedQuantity(
+                        CerealProductId),
+                    Is.EqualTo(12));
+                Assert.That(
+                    context.DisplayInventory.GetFrontageFillRatio(
+                        CreateShelfRun(),
+                        2),
+                    Is.Zero);
+
+                FixtureRestockResult secondPass =
+                    context.DisplayInventory.TryRestockFixture(
+                        ShelfInstanceId,
+                        maximumUnitCount: 12);
+
+                Assert.That(secondPass.MovedUnitCount, Is.EqualTo(6));
+                Assert.That(secondPass.RemainingShortfall, Is.Zero);
+                Assert.That(
+                    context.DisplayInventory.GetDisplayedQuantity(
+                        CerealProductId),
+                    Is.EqualTo(18));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void ProductSpecificFrontageCapacity_MapsEachBagToShelfArtLevel()
+        {
+            TestContext context = CreateContext(
+                cerealBackstock: 48,
+                soupBackstock: 0,
+                cerealDisplayUnitsPerFrontageUnit: 3);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 2);
+
+                for (int unitCount = 1; unitCount <= 3; unitCount++)
+                {
+                    FixtureRestockResult result =
+                        context.DisplayInventory.TryRestockFixture(
+                            ShelfInstanceId,
+                            maximumUnitCount: 1);
+
+                    Assert.That(result.MovedUnitCount, Is.EqualTo(1));
+                    Assert.That(
+                        context.DisplayInventory.GetFrontageFillRatio(
+                            CreateShelfRun(),
+                            0),
+                        Is.EqualTo(unitCount / 3f).Within(0.001f));
+                    Assert.That(
+                        context.DisplayInventory.GetFrontageFillRatio(
+                            CreateShelfRun(),
+                            1),
+                        Is.Zero);
+                }
+
+                Assert.That(
+                    context.DisplayInventory.TryGetSnapshot(
+                        ShelfInstanceId,
+                        out FixtureDisplayStockSnapshot snapshot),
+                    Is.True);
+                Assert.That(snapshot.CapacityUnitCount, Is.EqualTo(6));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
+        public void ReturnFixtureStock_OneBagAtATime_RestoresBackstock()
+        {
+            TestContext context = CreateContext(
+                cerealBackstock: 48,
+                soupBackstock: 0,
+                cerealDisplayUnitsPerFrontageUnit: 3);
+
+            try
+            {
+                AssignCereal(context, frontageUnitCount: 1);
+                context.DisplayInventory.TryRestockFixture(
+                    ShelfInstanceId,
+                    maximumUnitCount: 3);
+
+                FixtureUnstockResult result =
+                    context.DisplayInventory
+                        .TryReturnFixtureStockToBackstock(
+                            ShelfInstanceId,
+                            maximumUnitCount: 1);
+
+                Assert.That(result.Succeeded, Is.True);
+                Assert.That(result.ReturnedUnitCount, Is.EqualTo(1));
+                Assert.That(
+                    context.DisplayInventory.GetFrontageFillRatio(
+                        CreateShelfRun(),
+                        0),
+                    Is.EqualTo(2f / 3f).Within(0.001f));
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        BackstockLocationId,
+                        CerealProductId),
+                    Is.EqualTo(46));
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
         public void ShrinkPlanogram_ExcessDisplayStock_ReturnsToBackstock()
         {
             TestContext context = CreateContext(100, 100);
@@ -1112,7 +1242,9 @@ namespace BigRetail.Map.Fixtures.Tests
             int cerealBackstock,
             int soupBackstock,
             bool usePhysicalBackstock = false,
-            int backstockCaseSlotCapacity = 12)
+            int backstockCaseSlotCapacity = 12,
+            int cerealDisplayUnitsPerFrontageUnit =
+                ProductDefinition.DefaultDisplayUnitsPerFrontageUnit)
         {
             HashSet<GridPosition> cells =
                 new HashSet<GridPosition>();
@@ -1201,7 +1333,10 @@ namespace BigRetail.Map.Fixtures.Tests
                 new ProductCatalog(
                     new[]
                     {
-                        CreateProduct(CerealProductId, "Cereal"),
+                        CreateProduct(
+                            CerealProductId,
+                            "Cereal",
+                            cerealDisplayUnitsPerFrontageUnit),
                         CreateProduct(SoupProductId, "Soup")
                     });
 
@@ -1268,7 +1403,9 @@ namespace BigRetail.Map.Fixtures.Tests
 
         private static ProductDefinition CreateProduct(
             ProductId productId,
-            string displayName)
+            string displayName,
+            int displayUnitsPerFrontageUnit =
+                ProductDefinition.DefaultDisplayUnitsPerFrontageUnit)
         {
             return new ProductDefinition(
                 productId,
@@ -1276,7 +1413,9 @@ namespace BigRetail.Map.Fixtures.Tests
                 new ProductCategoryId("GROCERY"),
                 StockUnit.Each,
                 wholesaleCaseCostCents: 2500,
-                retailUnitPriceCents: 349);
+                retailUnitPriceCents: 349,
+                displayUnitsPerFrontageUnit:
+                    displayUnitsPerFrontageUnit);
         }
 
 

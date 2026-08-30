@@ -1,15 +1,25 @@
 # Big Retail — Current Design State
 
-**Last updated:** 2026-08-22
+**Last updated:** 2026-08-30
 
 For the deliberately short active-work queue, see `NOW.md`. This document
 records the broader accepted design and implementation state.
 
 ## Current focus
 
-The opening **Products → Suppliers → Purchasing → Delivery → Receiving** loop is now integrated into `Gameplay`.
+The opening **Products → Suppliers → Purchasing → Delivery → Receiving →
+Storage → Display** loop is now integrated into the Frank Roadside campaign
+opening.
 
 Purchasing uses the campaign clock and store cash. Placed Supplier POs become scheduled deliveries. Each ready Supplier PO claims one free 1 × 1 berth in a player-painted **Receiving Area**; orders that do not fit wait for Receiving space. Receiving a staged pallet sends its exact units into the existing backstock / overflow inventory path. The isolated lab scenes remain available for focused UI work.
+
+Frank's deterministic opening scenario starts Monday at 6:45 AM with $2,500,
+four Ridgeway chip cases staged in Receiving, one empty 15-frontage chip
+planogram, and an operational checkout configuration. The current direct-control
+prototype makes the player move each case to physical storage, then move 45
+individual bags onto the assigned Half Shelf while the final three units remain
+in backstock. The next permanent step is to route those same inventory actions
+through a Founder task that can later be delegated to an employee.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
 
@@ -32,6 +42,18 @@ state while reusing the permanent retail simulation.
 - A supplier may be used as a filter/lens over the same product-oriented Purchasing workspace.
 - Fixtures declare what the store wants to merchandise; inventory records what the store actually has; stocking reconciles the two.
 - Stocking consumes inventory. It does not directly purchase inventory.
+- Display capacity is derived from physical planogram frontages and the
+  Product's units-per-frontage value. A fixture does not impose a second
+  abstract unit-capacity limit.
+- Physical backstock capacity is derived from available case slots on storage
+  fixtures and each Product's case quantity.
+- Shelf presentation uses reusable Product-owned 1/2/3-unit sprites placed at
+  direction-specific Fixture-owned slot anchors. Actual stock and empty
+  planogram ghosts use the same anchors.
+- Layered fixture art defines which shelf structure draws before and after each
+  product row. Fixture slot positions are authored visually through **Big
+  Retail → Fixtures → Shelf Layout Editor** rather than by product-specific
+  full-fixture images.
 - The current property is **96 × 96 tiles = 9,216 tiles**.
 - The property is subdivided into a **3 × 3 grid of nine 32 × 32 land regions**, each containing 1,024 tiles.
 - The player begins owning only the **front corner land region at the road intersection**, making the opening business literally a corner store.

@@ -33,6 +33,18 @@ namespace BigRetail.Map.Unity.Fixtures
         public static Color ShelfInvalid =>
             new Color(1f, 0.12f, 0.10f, 0.58f);
 
+        public static Color ProductGhost =>
+            new Color(1f, 0.88f, 0.52f, 0.34f);
+
+        public static Color ProductGhostHover =>
+            new Color(1f, 0.88f, 0.36f, 0.68f);
+
+        public static Color ProductGhostSelected =>
+            new Color(1f, 0.69f, 0.05f, 0.78f);
+
+        public static Color ProductGhostInvalid =>
+            new Color(1f, 0.12f, 0.10f, 0.72f);
+
 
         public static Color ResolveProductColor(ProductId productId)
         {

@@ -25,6 +25,11 @@ namespace BigRetail.Map.Unity.Fixtures
         private const int MerchandisingFocusSortingOrderOffset = 1000;
         private const float DisplayMarkerWidthShare = 0.78f;
         private const float DisplayMarkerHeightShare = 0.62f;
+        internal const float AuthoredDisplayProductWidthShare = 1.22f;
+        internal const float AuthoredDisplayProductHeightShare = 1.93f;
+        private const float AuthoredDisplayProductFrontageSpanShare = 0.86f;
+        private const float AuthoredDisplayProductLeftOffsetShare = 0.16f;
+        private const float AuthoredDisplayProductForwardOffsetShare = 0.48f;
         private const int DefaultMaximumBackstockCaseMarkerCount = 9;
         private const float DefaultBackstockCaseForwardOffsetShare = 0.30f;
         private const float DefaultBackstockCaseShelfSlopeDegrees =
@@ -487,6 +492,22 @@ namespace BigRetail.Map.Unity.Fixtures
 
                 if (presentationLayers.Count > 0)
                 {
+                    FixtureMerchandisingProfile merchandisingProfile =
+                        fixture.Definition.MerchandisingProfile;
+
+                    for (int faceIndex = 0;
+                         faceIndex < merchandisingProfile.DisplayFaceCount;
+                         faceIndex++)
+                    {
+                        presentationLayerSortingStride =
+                            Mathf.Max(
+                                presentationLayerSortingStride,
+                                ResolveDisplayPresentationLayerSortingStride(
+                                    merchandisingProfile
+                                        .GetDisplayFace(faceIndex)
+                                        .FrontageUnitsPerRun));
+                    }
+
                     IReadOnlyList<Sprite> storageShelfMasks =
                         asset.GetStorageShelfMasks(
                             fixture.Orientation,
@@ -499,8 +520,10 @@ namespace BigRetail.Map.Unity.Fixtures
                     if (interleavesBackstockCases)
                     {
                         presentationLayerSortingStride =
-                            ResolveBackstockPresentationLayerSortingStride(
-                                asset.BackstockCasesPerShelf);
+                            Mathf.Max(
+                                presentationLayerSortingStride,
+                                ResolveBackstockPresentationLayerSortingStride(
+                                    asset.BackstockCasesPerShelf));
                     }
 
                     sortingGroup = root.AddComponent<SortingGroup>();
@@ -561,6 +584,8 @@ namespace BigRetail.Map.Unity.Fixtures
             AddStockedDisplayMarkers(
                 fixture,
                 asset,
+                presentationLayerCount,
+                presentationLayerSortingStride,
                 renderers);
 
             views.Add(
@@ -1007,10 +1032,11 @@ namespace BigRetail.Map.Unity.Fixtures
         private void AddStockedDisplayMarkers(
             FixtureInstance fixture,
             FixtureDefinitionAsset definitionAsset,
+            int presentationLayerCount,
+            int presentationLayerSortingStride,
             List<SpriteRenderer> renderers)
         {
-            if (frontageMarkerSprite == null
-                || subscribedDisplayInventory == null
+            if (subscribedDisplayInventory == null
                 || planogramRuntimeHost?.PlanogramState == null
                 || fixture.Definition.MerchandisingProfile.DisplayFaceCount == 0
                 || renderers.Count == 0
@@ -1102,12 +1128,53 @@ namespace BigRetail.Map.Unity.Fixtures
                                     - unitIndex
                                 : unitIndex;
 
+                        bool hasAuthoredSlotAnchor =
+                            definitionAsset
+                                .TryGetMerchandisingProductAnchor(
+                                    displayFace.LocalSide,
+                                    fixture.Orientation,
+                                    viewHost.Orientation,
+                                    shelfIndex,
+                                    visualUnitIndex,
+                                    displayFace.FrontageUnitsPerRun,
+                                    out Vector2 authoredSlotAnchor);
+
+                        Sprite authoredProductSprite =
+                            ResolveOnShelfProductSprite(
+                                productId,
+                                geometry.MajorAxisAngleDegrees < 0f,
+                                fillRatio);
+
+                        if (authoredProductSprite == null
+                            && frontageMarkerSprite == null)
+                        {
+                            continue;
+                        }
+
+                        int shelfSortingOrder =
+                            ResolveStockedDisplayMarkerSortingOrder(
+                                fixtureRenderer.sortingOrder,
+                                shelfIndex,
+                                shelfMasks.Count,
+                                presentationLayerCount,
+                                presentationLayerSortingStride,
+                                isViewerNear);
+                        int frontageSortingOrder =
+                            ResolveStockedDisplayFrontageSortingOrder(
+                                shelfSortingOrder,
+                                visualUnitIndex,
+                                displayFace.FrontageUnitsPerRun,
+                                geometry.MajorAxisAngleDegrees);
+
                         AddStockedDisplayMarker(
                             fixtureRenderer,
                             geometry,
                             visualUnitIndex,
                             displayFace.FrontageUnitsPerRun,
-                            isViewerNear,
+                            frontageSortingOrder,
+                            authoredProductSprite,
+                            hasAuthoredSlotAnchor,
+                            authoredSlotAnchor,
                             FixtureMerchandisingGrayboxPalette
                                 .ResolveStockColor(productId, fillRatio),
                             renderers);
@@ -1122,7 +1189,10 @@ namespace BigRetail.Map.Unity.Fixtures
             FixtureShelfMaskGeometry geometry,
             int visualFrontageIndex,
             int frontageUnitCount,
-            bool isViewerNear,
+            int sortingOrder,
+            Sprite authoredProductSprite,
+            bool hasAuthoredSlotAnchor,
+            Vector2 authoredSlotAnchor,
             Color color,
             List<SpriteRenderer> renderers)
         {
@@ -1133,7 +1203,15 @@ namespace BigRetail.Map.Unity.Fixtures
                 worldPositionStays: false);
 
             Vector2 localCenter =
-                geometry.GetFrontageCenter(
+                authoredProductSprite != null
+                    && hasAuthoredSlotAnchor
+                ? authoredSlotAnchor
+                : authoredProductSprite != null
+                ? ResolveAuthoredDisplayProductCenter(
+                    geometry,
+                    visualFrontageIndex,
+                    frontageUnitCount)
+                : geometry.GetFrontageCenter(
                     visualFrontageIndex,
                     frontageUnitCount);
             markerObject.transform.localPosition =
@@ -1141,32 +1219,185 @@ namespace BigRetail.Map.Unity.Fixtures
 
             SpriteRenderer renderer =
                 markerObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = frontageMarkerSprite;
-            renderer.color = color;
+            Sprite markerSprite =
+                authoredProductSprite != null
+                    ? authoredProductSprite
+                    : frontageMarkerSprite;
+            renderer.sprite = markerSprite;
+            renderer.color =
+                authoredProductSprite != null
+                    ? Color.white
+                    : color;
             renderer.sortingLayerName = sortingLayerName;
-            renderer.sortingOrder =
-                fixtureRenderer.sortingOrder
-                + (isViewerNear ? 6 : 1);
+            renderer.sortingOrder = sortingOrder;
 
-            Bounds markerBounds = frontageMarkerSprite.bounds;
+            Bounds markerBounds = markerSprite.bounds;
+            float frontageUnitLength =
+                geometry.MajorLength / frontageUnitCount;
             float desiredWidth =
                 Mathf.Max(
-                    geometry.MajorLength
-                    / frontageUnitCount
-                    * DisplayMarkerWidthShare,
+                    frontageUnitLength
+                    * (authoredProductSprite != null
+                        ? AuthoredDisplayProductWidthShare
+                        : DisplayMarkerWidthShare),
                     0.03f);
             float desiredHeight =
-                Mathf.Max(
-                    geometry.MinorLength * DisplayMarkerHeightShare,
-                    0.02f);
+                authoredProductSprite != null
+                    ? Mathf.Max(
+                        frontageUnitLength
+                        * AuthoredDisplayProductHeightShare,
+                        0.02f)
+                    : Mathf.Max(
+                        geometry.MinorLength * DisplayMarkerHeightShare,
+                        0.02f);
+            float widthScale =
+                desiredWidth
+                / Mathf.Max(markerBounds.size.x, 0.001f);
+            float authoredScale =
+                ResolveAuthoredProductUniformScale(
+                    markerBounds,
+                    desiredWidth,
+                    desiredHeight);
             markerObject.transform.localScale =
-                new Vector3(
-                    desiredWidth
-                    / Mathf.Max(markerBounds.size.x, 0.001f),
-                    desiredHeight
-                    / Mathf.Max(markerBounds.size.y, 0.001f),
-                    1f);
+                authoredProductSprite != null
+                    ? new Vector3(
+                        authoredScale,
+                        authoredScale,
+                        1f)
+                    : new Vector3(
+                        widthScale,
+                        desiredHeight
+                        / Mathf.Max(markerBounds.size.y, 0.001f),
+                        1f);
             renderers.Add(renderer);
+        }
+
+
+        public static float ResolveAuthoredProductUniformScale(
+            Bounds spriteBounds,
+            float maximumWidth,
+            float maximumHeight)
+        {
+            float widthScale =
+                Mathf.Max(0f, maximumWidth)
+                / Mathf.Max(spriteBounds.size.x, 0.001f);
+            float heightScale =
+                Mathf.Max(0f, maximumHeight)
+                / Mathf.Max(spriteBounds.size.y, 0.001f);
+
+            return Mathf.Min(widthScale, heightScale);
+        }
+
+
+        public static Vector2 ResolveAuthoredDisplayProductCenter(
+            FixtureShelfMaskGeometry geometry,
+            int visualFrontageIndex,
+            int frontageUnitCount)
+        {
+            Vector2 defaultCenter =
+                geometry.GetFrontageCenter(
+                    visualFrontageIndex,
+                    frontageUnitCount);
+            Vector2 firstCenter =
+                geometry.GetFrontageCenter(
+                    visualFrontageIndex: 0,
+                    frontageUnitCount: frontageUnitCount);
+            Vector2 lastCenter =
+                geometry.GetFrontageCenter(
+                    visualFrontageIndex: frontageUnitCount - 1,
+                    frontageUnitCount: frontageUnitCount);
+            Vector2 shelfCenter = (firstCenter + lastCenter) * 0.5f;
+            float frontageUnitLength =
+                geometry.MajorLength / frontageUnitCount;
+
+            return Vector2.Lerp(
+                    shelfCenter,
+                    defaultCenter,
+                    AuthoredDisplayProductFrontageSpanShare)
+                + Vector2.left
+                    * frontageUnitLength
+                    * AuthoredDisplayProductLeftOffsetShare
+                + Vector2.down
+                    * geometry.MinorLength
+                    * AuthoredDisplayProductForwardOffsetShare;
+        }
+
+
+        private Sprite ResolveOnShelfProductSprite(
+            ProductId productId,
+            bool risingLeft,
+            float fillRatio)
+        {
+            if (planogramRuntimeHost == null
+                || !planogramRuntimeHost.TryGetProductAsset(
+                    productId,
+                    out ProductDefinitionAsset productAsset))
+            {
+                return null;
+            }
+
+            return productAsset.GetOnShelfImage(
+                risingLeft,
+                fillRatio);
+        }
+
+
+        public static int ResolveStockedDisplayMarkerSortingOrder(
+            int baseSortingOrder,
+            int shelfIndex,
+            int shelfCount,
+            int presentationLayerCount,
+            int presentationLayerSortingStride,
+            bool isViewerNear)
+        {
+            int clampedShelfCount = Mathf.Max(0, shelfCount);
+
+            if (clampedShelfCount > 0
+                && presentationLayerCount == clampedShelfCount)
+            {
+                int clampedShelfIndex = Mathf.Clamp(
+                    shelfIndex,
+                    0,
+                    clampedShelfCount - 1);
+                int supportingLayerIndex =
+                    clampedShelfCount - 1 - clampedShelfIndex;
+
+                return baseSortingOrder
+                    + supportingLayerIndex
+                        * Mathf.Max(1, presentationLayerSortingStride)
+                    + 1;
+            }
+
+            return baseSortingOrder + (isViewerNear ? 6 : 1);
+        }
+
+
+        public static int ResolveDisplayPresentationLayerSortingStride(
+            int frontageUnitCount)
+        {
+            return Mathf.Max(
+                DefaultPresentationLayerSortingStride,
+                Mathf.Max(1, frontageUnitCount) + 3);
+        }
+
+
+        public static int ResolveStockedDisplayFrontageSortingOrder(
+            int shelfSortingOrder,
+            int visualFrontageIndex,
+            int frontageUnitCount,
+            float majorAxisAngleDegrees)
+        {
+            int clampedFrontageCount = Mathf.Max(1, frontageUnitCount);
+            int clampedVisualIndex = Mathf.Clamp(
+                visualFrontageIndex,
+                0,
+                clampedFrontageCount - 1);
+            int depthOffset =
+                majorAxisAngleDegrees >= 0f
+                    ? clampedFrontageCount - 1 - clampedVisualIndex
+                    : clampedVisualIndex;
+
+            return shelfSortingOrder + depthOffset;
         }
 
         private void AddCaseMarkerRenderer(

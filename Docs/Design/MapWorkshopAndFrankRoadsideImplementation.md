@@ -449,10 +449,10 @@ Phase D rather than implying an incomplete scenario bootstrap is ready.
 
 ## Phase D — Scenario bootstrap
 
-- [ ] Add inventory, planogram, checkout, time, cash, delivery, spawn, and story
+- [x] Add inventory, planogram, checkout, time, cash, delivery, spawn, and story
   records.
-- [ ] Add transactional scenario validation and loading.
-- [ ] Add reset and deterministic startup tests.
+- [x] Add transactional scenario validation and loading.
+- [x] Add reset and deterministic startup tests.
 - [ ] Prove a seeded store can stock, sell, checkout, and earn revenue.
 
 ## Phase E — Frank Roadside production use
@@ -460,8 +460,8 @@ Phase D rather than implying an incomplete scenario bootstrap is ready.
 - [x] Duplicate `Gameplay` into the Frank scaffold.
 - [x] Replace `MapVIsuals` with the dirt-road environment.
 - [x] Configure fixed land policy, masks, camera bounds, and base markers.
-- [ ] Author and validate `FrankStoreLayout`.
-- [ ] Author and validate `FrankOpeningShiftScenario`.
+- [x] Author and validate `FrankStoreLayout`.
+- [x] Author and validate `FrankOpeningShiftScenario`.
 - [ ] Run the complete opening retail loop in the Frank scene.
 
 The finalized location baseline validates a complete 96 × 32 construction

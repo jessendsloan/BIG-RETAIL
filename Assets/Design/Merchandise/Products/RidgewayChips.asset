@@ -22,6 +22,17 @@ MonoBehaviour:
   catalogImage: {fileID: 0}
   caseRisingLeftImage: {fileID: 21300000, guid: 047a5d7a173e4798882c4a53d77eda16, type: 3}
   caseRisingRightImage: {fileID: 21300000, guid: 56ed05d15bde45888aff2e1cb26e7c77, type: 3}
+  onShelfRisingLeftImages:
+  - {fileID: 21300000, guid: 86eaf11a1979f8b42bbe980feeaa26f1, type: 3}
+  - {fileID: 21300000, guid: d1d2f6429a31d474b902d327a88d4bdd, type: 3}
+  - {fileID: 21300000, guid: 926a90cd832e0db4994817213b5b4d00, type: 3}
+  onShelfRisingRightImages:
+  - {fileID: 21300000, guid: bb68826e7039c264eb0aa397b80bce9f, type: 3}
+  - {fileID: 21300000, guid: 6c00fa52d567cbc498d61cd87702fc66, type: 3}
+  - {fileID: 21300000, guid: 5b6e4b9c7ee7ff5479b949c1814c1990, type: 3}
+  offShelfRisingLeftImage: {fileID: 21300000, guid: 5b4c472cae121e149b6b53878635f8f9, type: 3}
+  offShelfRisingRightImage: {fileID: 21300000, guid: 3e85e27f0d5dfe340886bb630635f2a0, type: 3}
   stockUnit: 0
+  displayUnitsPerFrontageUnit: 3
   wholesaleCaseCostCents: 0
   retailUnitPriceCents: 249

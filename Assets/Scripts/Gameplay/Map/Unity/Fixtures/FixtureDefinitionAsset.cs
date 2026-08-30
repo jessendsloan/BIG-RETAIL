@@ -116,6 +116,18 @@ namespace BigRetail.Map.Unity.Fixtures
         private FixtureMerchandisingMaskSet[] merchandisingMaskSets =
             Array.Empty<FixtureMerchandisingMaskSet>();
 
+        [Header("Directional Merchandise Slot Layouts")]
+
+        [Tooltip(
+            "Optional product-art anchors grouped by logical display face. "
+            + "Use Big Retail > Fixtures > Shelf Layout Editor to author "
+            + "these positions visually.")]
+        [HideInInspector]
+        [SerializeField]
+        private FixtureMerchandisingSlotLayoutSet[]
+            merchandisingSlotLayoutSets =
+                Array.Empty<FixtureMerchandisingSlotLayoutSet>();
+
         [Header("Directional Backstock Shelf Masks")]
 
         [Tooltip(
@@ -257,6 +269,30 @@ namespace BigRetail.Map.Unity.Fixtures
 
         public bool HasStorageShelfMasks =>
             storageShelfMasks?.HasAnyMasks == true;
+
+        public bool HasAnyMerchandisingSlotLayouts
+        {
+            get
+            {
+                if (merchandisingSlotLayoutSets == null)
+                {
+                    return false;
+                }
+
+                for (int index = 0;
+                     index < merchandisingSlotLayoutSets.Length;
+                     index++)
+                {
+                    if (merchandisingSlotLayoutSets[index]
+                            ?.HasAnyAnchors == true)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public int BackstockCaseSlotCapacity =>
             Math.Max(0, backstockCaseSlotCapacity);
@@ -439,6 +475,76 @@ namespace BigRetail.Map.Unity.Fixtures
         }
 
 
+        public IReadOnlyList<Vector2> GetMerchandisingProductAnchors(
+            FixtureSide localDisplaySide,
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation)
+        {
+            if (merchandisingSlotLayoutSets == null)
+            {
+                return Array.Empty<Vector2>();
+            }
+
+            for (int index = 0;
+                 index < merchandisingSlotLayoutSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingSlotLayoutSet layoutSet =
+                    merchandisingSlotLayoutSets[index];
+
+                if (layoutSet != null
+                    && layoutSet.LocalDisplaySide == localDisplaySide)
+                {
+                    return layoutSet.GetProductAnchors(
+                        worldOrientation,
+                        viewOrientation);
+                }
+            }
+
+            return Array.Empty<Vector2>();
+        }
+
+
+        public bool TryGetMerchandisingProductAnchor(
+            FixtureSide localDisplaySide,
+            FixtureOrientation worldOrientation,
+            IsometricViewOrientation viewOrientation,
+            int shelfIndex,
+            int visualFrontageIndex,
+            int frontageUnitsPerShelf,
+            out Vector2 anchor)
+        {
+            anchor = default;
+
+            if (merchandisingSlotLayoutSets == null)
+            {
+                return false;
+            }
+
+            for (int index = 0;
+                 index < merchandisingSlotLayoutSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingSlotLayoutSet layoutSet =
+                    merchandisingSlotLayoutSets[index];
+
+                if (layoutSet != null
+                    && layoutSet.LocalDisplaySide == localDisplaySide)
+                {
+                    return layoutSet.TryGetProductAnchor(
+                        worldOrientation,
+                        viewOrientation,
+                        shelfIndex,
+                        visualFrontageIndex,
+                        frontageUnitsPerShelf,
+                        out anchor);
+                }
+            }
+
+            return false;
+        }
+
+
         public IReadOnlyList<Sprite> GetStorageShelfMasks(
             FixtureOrientation worldOrientation,
             IsometricViewOrientation viewOrientation)
@@ -533,20 +639,14 @@ namespace BigRetail.Map.Unity.Fixtures
 
             ValidatePresentationLayers();
             ValidateMerchandisingMasks();
+            ValidateMerchandisingSlotLayouts();
             ValidateStorageShelfMasks();
         }
 
 
         private void ValidatePresentationLayers()
         {
-            int expectedLayerCount =
-                ResolveFirstLayerCount(
-                    northPresentationLayers,
-                    eastPresentationLayers,
-                    southPresentationLayers,
-                    westPresentationLayers);
-
-            if (expectedLayerCount == 0)
+            if (!HasLayeredPresentation)
             {
                 return;
             }
@@ -561,23 +661,19 @@ namespace BigRetail.Map.Unity.Fixtures
             ValidatePresentationDirection(
                 "north",
                 northSprite,
-                northPresentationLayers,
-                expectedLayerCount);
+                northPresentationLayers);
             ValidatePresentationDirection(
                 "east",
                 eastSprite,
-                eastPresentationLayers,
-                expectedLayerCount);
+                eastPresentationLayers);
             ValidatePresentationDirection(
                 "south",
                 southSprite,
-                southPresentationLayers,
-                expectedLayerCount);
+                southPresentationLayers);
             ValidatePresentationDirection(
                 "west",
                 westSprite,
-                westPresentationLayers,
-                expectedLayerCount);
+                westPresentationLayers);
 
             if (storageShelfMasks?.HasAnyMasks != true)
             {
@@ -614,17 +710,13 @@ namespace BigRetail.Map.Unity.Fixtures
         private void ValidatePresentationDirection(
             string directionName,
             Sprite fixtureSprite,
-            Sprite[] layers,
-            int expectedLayerCount)
+            Sprite[] layers)
         {
             int layerCount = GetLayerCount(layers);
 
-            if (layerCount != expectedLayerCount)
+            if (layerCount == 0)
             {
-                throw new InvalidOperationException(
-                    $"Fixture definition '{name}' requires "
-                    + $"{expectedLayerCount} {directionName} presentation "
-                    + $"layer(s), but contains {layerCount}.");
+                return;
             }
 
             for (int index = 0;
@@ -681,25 +773,6 @@ namespace BigRetail.Map.Unity.Fixtures
                     + $"shelf masks ({expectedLayerCount} layers for "
                     + $"{shelfMaskCount} shelves).");
             }
-        }
-
-
-        private static int ResolveFirstLayerCount(
-            params Sprite[][] directionalLayers)
-        {
-            for (int index = 0;
-                 index < directionalLayers.Length;
-                 index++)
-            {
-                int count = GetLayerCount(directionalLayers[index]);
-
-                if (count > 0)
-                {
-                    return count;
-                }
-            }
-
-            return 0;
         }
 
 
@@ -791,6 +864,54 @@ namespace BigRetail.Map.Unity.Fixtures
                     eastSprite,
                     southSprite,
                     westSprite);
+            }
+        }
+
+
+        private void ValidateMerchandisingSlotLayouts()
+        {
+            if (merchandisingSlotLayoutSets == null)
+            {
+                return;
+            }
+
+            FixtureMerchandisingProfile profile =
+                FixtureMerchandisingProfile
+                    .CreateForCustomerBrowseSides(
+                        new FixtureAccessProfile(
+                            northAccess,
+                            eastAccess,
+                            southAccess,
+                            westAccess));
+
+            for (int index = 0;
+                 index < merchandisingSlotLayoutSets.Length;
+                 index++)
+            {
+                FixtureMerchandisingSlotLayoutSet layoutSet =
+                    merchandisingSlotLayoutSets[index]
+                    ?? throw new InvalidOperationException(
+                        $"Fixture definition '{name}' contains an empty "
+                        + "merchandising-slot-layout set.");
+
+                for (int priorIndex = 0;
+                     priorIndex < index;
+                     priorIndex++)
+                {
+                    if (merchandisingSlotLayoutSets[priorIndex]
+                            ?.LocalDisplaySide
+                        == layoutSet.LocalDisplaySide)
+                    {
+                        throw new InvalidOperationException(
+                            $"Fixture definition '{name}' duplicates "
+                            + "merchandising-slot-layout side "
+                            + $"'{layoutSet.LocalDisplaySide}'.");
+                    }
+                }
+
+                layoutSet.ValidateConfiguration(
+                    name,
+                    profile);
             }
         }
 

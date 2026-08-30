@@ -10,6 +10,8 @@ namespace BigRetail.Merchandise.Domain
     /// </summary>
     public sealed class ProductDefinition
     {
+        public const int DefaultDisplayUnitsPerFrontageUnit = 6;
+
         public ProductId Id { get; }
         public string DisplayName { get; }
         public BrandId BrandId { get; }
@@ -18,6 +20,13 @@ namespace BigRetail.Merchandise.Domain
         public MarketPosition MarketPosition { get; }
         public string PackageForm { get; }
         public StockUnit StockUnit { get; }
+
+        /// <summary>
+        /// Physical sellable units represented by one planogram frontage.
+        /// Package-specific presentation can map each unit count to authored
+        /// shelf artwork without imposing a fixture-wide inventory limit.
+        /// </summary>
+        public int DisplayUnitsPerFrontageUnit { get; }
 
         /// <summary>
         /// Temporary graybox purchasing value retained for the existing
@@ -76,7 +85,9 @@ namespace BigRetail.Merchandise.Domain
             ProductCategoryId categoryId,
             StockUnit stockUnit,
             long wholesaleCaseCostCents,
-            long retailUnitPriceCents)
+            long retailUnitPriceCents,
+            int displayUnitsPerFrontageUnit =
+                DefaultDisplayUnitsPerFrontageUnit)
             : this(
                 id,
                 displayName,
@@ -87,7 +98,8 @@ namespace BigRetail.Merchandise.Domain
                 stockUnit.ToString(),
                 stockUnit,
                 wholesaleCaseCostCents,
-                retailUnitPriceCents)
+                retailUnitPriceCents,
+                displayUnitsPerFrontageUnit)
         {
         }
 
@@ -124,7 +136,9 @@ namespace BigRetail.Merchandise.Domain
             string packageForm,
             StockUnit stockUnit,
             long wholesaleCaseCostCents,
-            long retailUnitPriceCents)
+            long retailUnitPriceCents,
+            int displayUnitsPerFrontageUnit =
+                DefaultDisplayUnitsPerFrontageUnit)
         {
             if (!id.IsValid)
             {
@@ -204,6 +218,14 @@ namespace BigRetail.Merchandise.Domain
                     "A retail unit price cannot be negative.");
             }
 
+            if (displayUnitsPerFrontageUnit <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(displayUnitsPerFrontageUnit),
+                    displayUnitsPerFrontageUnit,
+                    "A display frontage must hold at least one sellable unit.");
+            }
+
             Id = id;
             DisplayName = displayName.Trim();
             BrandId = brandId;
@@ -212,6 +234,8 @@ namespace BigRetail.Merchandise.Domain
             MarketPosition = marketPosition;
             PackageForm = packageForm.Trim();
             StockUnit = stockUnit;
+            DisplayUnitsPerFrontageUnit =
+                displayUnitsPerFrontageUnit;
             WholesaleCaseCostCents = wholesaleCaseCostCents;
             RetailUnitPriceCents = retailUnitPriceCents;
         }

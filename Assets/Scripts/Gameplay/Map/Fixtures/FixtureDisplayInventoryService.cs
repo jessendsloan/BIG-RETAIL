@@ -13,8 +13,6 @@ namespace BigRetail.Map.Fixtures
     /// </summary>
     public sealed class FixtureDisplayInventoryService : IDisposable
     {
-        public const int UnitsPerFrontageUnit = 6;
-
         private readonly FixtureState fixtureState;
         private readonly FixturePlanogramState planogramState;
         private readonly ProductCatalog productCatalog;
@@ -109,6 +107,36 @@ namespace BigRetail.Map.Fixtures
         public event Action<FixtureInstanceId> FixtureStockChanged;
 
 
+        public int GetDisplayedQuantity(
+            ProductId productId)
+        {
+            long displayedUnitCount = 0;
+
+            foreach (FixtureInstance fixture in fixtureState.EnumerateFixtures())
+            {
+                StorageLocationId displayLocationId =
+                    GetDisplayLocationId(fixture.Id);
+
+                if (!inventory.ContainsLocation(displayLocationId))
+                {
+                    continue;
+                }
+
+                displayedUnitCount +=
+                    inventory.GetQuantity(
+                        displayLocationId,
+                        productId);
+
+                if (displayedUnitCount >= int.MaxValue)
+                {
+                    return int.MaxValue;
+                }
+            }
+
+            return (int)displayedUnitCount;
+        }
+
+
         public bool TryGetSnapshot(
             FixtureInstanceId fixtureId,
             out FixtureDisplayStockSnapshot snapshot)
@@ -188,6 +216,8 @@ namespace BigRetail.Map.Fixtures
                 inventory.GetQuantity(
                     displayLocationId,
                     productId);
+            int unitsPerFrontageUnit =
+                GetUnitsPerFrontageUnit(productId);
 
             int matchingUnitsBefore = 0;
             FixtureMerchandisingProfile profile =
@@ -230,13 +260,13 @@ namespace BigRetail.Map.Fixtures
                                 Math.Max(
                                     0,
                                     Math.Min(
-                                        UnitsPerFrontageUnit,
+                                        unitsPerFrontageUnit,
                                         stockedUnits
                                         - matchingUnitsBefore
-                                        * UnitsPerFrontageUnit));
+                                        * unitsPerFrontageUnit));
 
                             return stockedOnUnit
-                                / (float)UnitsPerFrontageUnit;
+                                / (float)unitsPerFrontageUnit;
                         }
 
                         matchingUnitsBefore++;
@@ -434,6 +464,22 @@ namespace BigRetail.Map.Fixtures
         public FixtureRestockResult TryRestockFixture(
             FixtureInstanceId fixtureId)
         {
+            return TryRestockFixture(
+                fixtureId,
+                int.MaxValue);
+        }
+
+
+        public FixtureRestockResult TryRestockFixture(
+            FixtureInstanceId fixtureId,
+            int maximumUnitCount)
+        {
+            if (maximumUnitCount <= 0)
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.InvalidQuantity);
+            }
+
             if (!fixtureState.TryGetFixture(
                     fixtureId,
                     out FixtureInstance fixture))
@@ -464,6 +510,7 @@ namespace BigRetail.Map.Fixtures
 
             int movedUnitCount = 0;
             int remainingShortfall = 0;
+            int remainingTransferUnitCount = maximumUnitCount;
 
             foreach (
                 KeyValuePair<ProductId, int> entry
@@ -486,7 +533,11 @@ namespace BigRetail.Map.Fixtures
                     GetAvailableBackstockQuantity(entry.Key);
 
                 int transferQuantity =
-                    Math.Min(shortfall, availableBackstock);
+                    Math.Min(
+                        shortfall,
+                        Math.Min(
+                            availableBackstock,
+                            remainingTransferUnitCount));
 
                 if (transferQuantity > 0)
                 {
@@ -508,6 +559,7 @@ namespace BigRetail.Map.Fixtures
                     }
 
                     movedUnitCount += transferredUnitCount;
+                    remainingTransferUnitCount -= transferredUnitCount;
                 }
 
                 remainingShortfall += shortfall - transferQuantity;
@@ -526,6 +578,99 @@ namespace BigRetail.Map.Fixtures
                 remainingShortfall > 0
                     ? FixtureRestockOutcome.BackstockUnavailable
                     : FixtureRestockOutcome.AlreadyFull);
+        }
+
+        /// <summary>
+        /// Moves physical display stock back into storage. This is distinct
+        /// from customer consumption: no inventory is destroyed, and a
+        /// one-unit request represents removing one handled package.
+        /// </summary>
+        public FixtureUnstockResult TryReturnFixtureStockToBackstock(
+            FixtureInstanceId fixtureId,
+            int maximumUnitCount)
+        {
+            if (maximumUnitCount <= 0)
+            {
+                return FixtureUnstockResult.Failed(
+                    FixtureUnstockOutcome.InvalidQuantity);
+            }
+
+            if (!fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture))
+            {
+                return FixtureUnstockResult.Failed(
+                    FixtureUnstockOutcome.UnknownFixture);
+            }
+
+            StorageLocationId displayLocationId =
+                GetDisplayLocationId(fixtureId);
+
+            if (!inventory.ContainsLocation(displayLocationId))
+            {
+                return FixtureUnstockResult.Failed(
+                    FixtureUnstockOutcome.UnknownFixture);
+            }
+
+            ReconcileDisplayCapacity(fixture);
+
+            Dictionary<ProductId, int> capacityByProduct =
+                GetCapacityByProduct(fixture);
+
+            if (capacityByProduct.Count == 0)
+            {
+                return FixtureUnstockResult.Failed(
+                    FixtureUnstockOutcome.NothingAssigned);
+            }
+
+            int remainingRequest = maximumUnitCount;
+            int returnedUnitCount = 0;
+
+            foreach (
+                ProductDefinition product
+                in productCatalog.EnumerateDefinitions())
+            {
+                if (remainingRequest == 0
+                    || !capacityByProduct.ContainsKey(product.Id))
+                {
+                    continue;
+                }
+
+                int stockedUnitCount =
+                    inventory.GetQuantity(
+                        displayLocationId,
+                        product.Id);
+                int returnQuantity =
+                    Math.Min(
+                        stockedUnitCount,
+                        remainingRequest);
+
+                if (returnQuantity == 0)
+                {
+                    continue;
+                }
+
+                int movedUnitCount =
+                    ReturnToBackstock(
+                        displayLocationId,
+                        product.Id,
+                        returnQuantity);
+
+                returnedUnitCount += movedUnitCount;
+                remainingRequest -= movedUnitCount;
+            }
+
+            if (returnedUnitCount == 0)
+            {
+                return FixtureUnstockResult.Failed(
+                    FixtureUnstockOutcome.DisplayEmpty);
+            }
+
+            FixtureStockChanged?.Invoke(fixtureId);
+
+            return FixtureUnstockResult.Returned(
+                returnedUnitCount,
+                remainingRequest);
         }
 
         /// <summary>
@@ -890,12 +1035,20 @@ namespace BigRetail.Map.Fixtures
                             out int productCapacity);
 
                         result[productId] =
-                            productCapacity + UnitsPerFrontageUnit;
+                            productCapacity
+                            + GetUnitsPerFrontageUnit(productId);
                     }
                 }
             }
 
             return result;
+        }
+
+        private int GetUnitsPerFrontageUnit(
+            ProductId productId)
+        {
+            return productCatalog.GetRequired(productId)
+                .DisplayUnitsPerFrontageUnit;
         }
 
         private static FixtureBasketPickupOutcome MapPickupOutcome(
@@ -972,7 +1125,8 @@ namespace BigRetail.Map.Fixtures
         NothingAssigned = 2,
         AlreadyFull = 3,
         BackstockUnavailable = 4,
-        UnknownFixture = 5
+        UnknownFixture = 5,
+        InvalidQuantity = 6
     }
 
 
@@ -1013,6 +1167,61 @@ namespace BigRetail.Map.Fixtures
             FixtureRestockOutcome outcome)
         {
             return new FixtureRestockResult(
+                outcome,
+                0,
+                0);
+        }
+    }
+
+
+    public enum FixtureUnstockOutcome
+    {
+        None = 0,
+        ReturnedToBackstock = 1,
+        NothingAssigned = 2,
+        DisplayEmpty = 3,
+        UnknownFixture = 4,
+        InvalidQuantity = 5
+    }
+
+
+    public readonly struct FixtureUnstockResult
+    {
+        public FixtureUnstockOutcome Outcome { get; }
+
+        public int ReturnedUnitCount { get; }
+
+        public int UnfulfilledUnitCount { get; }
+
+        public bool Succeeded =>
+            Outcome == FixtureUnstockOutcome.ReturnedToBackstock;
+
+
+        private FixtureUnstockResult(
+            FixtureUnstockOutcome outcome,
+            int returnedUnitCount,
+            int unfulfilledUnitCount)
+        {
+            Outcome = outcome;
+            ReturnedUnitCount = returnedUnitCount;
+            UnfulfilledUnitCount = unfulfilledUnitCount;
+        }
+
+
+        internal static FixtureUnstockResult Returned(
+            int returnedUnitCount,
+            int unfulfilledUnitCount)
+        {
+            return new FixtureUnstockResult(
+                FixtureUnstockOutcome.ReturnedToBackstock,
+                returnedUnitCount,
+                unfulfilledUnitCount);
+        }
+
+        internal static FixtureUnstockResult Failed(
+            FixtureUnstockOutcome outcome)
+        {
+            return new FixtureUnstockResult(
                 outcome,
                 0,
                 0);

@@ -4,14 +4,16 @@ using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
 using BigRetail.Merchandise.Domain;
+using BigRetail.Merchandise.Unity;
 using UnityEngine;
 
 namespace BigRetail.Map.Unity.Fixtures
 {
     /// <summary>
-    /// Pylon-based presentation for editable shelf runs and frontage units.
-    /// The markers are deliberately graybox art; logical shelf identities are
-    /// owned by FixturePlanogramState.
+    /// Interactive presentation for editable shelf runs and frontage units.
+    /// Authored product art previews assigned empty frontages while the
+    /// graybox pylon remains the fallback. Logical shelf identities are owned
+    /// by FixturePlanogramState.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(150)]
@@ -53,12 +55,17 @@ namespace BigRetail.Map.Unity.Fixtures
 
         private FixturePlanogramState subscribedPlanogramState;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
+        private FixtureMerchandisingHoverOutlineView objectiveOutlineView;
+        private bool objectiveHighlightEnabled;
         private bool hasHoveredMarker;
         private FixtureShelfRunKey hoveredShelfRun;
         private int hoveredFrontageUnitIndex;
 
 
         public int VisibleMarkerCount => markerViews.Count;
+
+        public bool ObjectiveHighlightEnabled =>
+            objectiveHighlightEnabled;
 
 
         private void OnEnable()
@@ -76,6 +83,8 @@ namespace BigRetail.Map.Unity.Fixtures
 
             AttachToPlanogramState();
             AttachToDisplayInventory();
+            ResolveObjectiveOutlineView();
+            RefreshObjectiveOutline();
             RefreshFixtureFocus();
         }
 
@@ -104,8 +113,17 @@ namespace BigRetail.Map.Unity.Fixtures
 
             DetachFromPlanogramState();
             DetachFromDisplayInventory();
+            objectiveOutlineView?.ClearPinnedFixture();
             ClearMarkers();
             fixtureViewSystem?.ClearMerchandisingFocus();
+        }
+
+
+        public void SetObjectiveHighlightEnabled(bool isEnabled)
+        {
+            objectiveHighlightEnabled = isEnabled;
+            ResolveObjectiveOutlineView();
+            RefreshObjectiveOutline();
         }
 
 
@@ -236,8 +254,7 @@ namespace BigRetail.Map.Unity.Fixtures
 
         private void RefreshFixtureFocus()
         {
-            if (selectionHost.IsEditing
-                && selectionHost.HasSelectedFixture)
+            if (selectionHost.HasSelectedFixture)
             {
                 fixtureViewSystem.SetMerchandisingFocus(
                     selectionHost.SelectedFixtureId);
@@ -252,12 +269,15 @@ namespace BigRetail.Map.Unity.Fixtures
         {
             AttachToPlanogramState();
             AttachToDisplayInventory();
+            RefreshObjectiveOutline();
             RebuildMarkers();
         }
 
         private void HandleShelfRunChanged(
             FixtureShelfRunKey shelfRun)
         {
+            RefreshObjectiveOutline();
+
             if (selectionHost.HasSelectedFixture
                 && shelfRun.FixtureId == selectionHost.SelectedFixtureId)
             {
@@ -339,12 +359,49 @@ namespace BigRetail.Map.Unity.Fixtures
             subscribedDisplayInventory = null;
         }
 
+        private void ResolveObjectiveOutlineView()
+        {
+            if (objectiveOutlineView != null)
+            {
+                return;
+            }
+
+            objectiveOutlineView =
+                fixtureViewSystem.GetComponent<
+                    FixtureMerchandisingHoverOutlineView>();
+
+            if (objectiveOutlineView == null)
+            {
+                objectiveOutlineView =
+                    fixtureViewSystem.gameObject.AddComponent<
+                        FixtureMerchandisingHoverOutlineView>();
+            }
+        }
+
+        private void RefreshObjectiveOutline()
+        {
+            if (objectiveOutlineView == null)
+            {
+                return;
+            }
+
+            if (objectiveHighlightEnabled
+                && subscribedPlanogramState != null
+                && subscribedPlanogramState.TryGetSingleAssignedFixture(
+                    out FixtureInstanceId fixtureId))
+            {
+                objectiveOutlineView.PinFixture(fixtureId);
+                return;
+            }
+
+            objectiveOutlineView.ClearPinnedFixture();
+        }
+
         private void RebuildMarkers()
         {
             ClearMarkers();
 
-            if (!selectionHost.IsEditing
-                || !selectionHost.HasSelectedFixture
+            if (!selectionHost.HasSelectedFixture
                 || frontageMarkerSprite == null
                 || fixtureRuntimeHost.FixtureState == null
                 || !fixtureRuntimeHost.FixtureState.TryGetFixture(
@@ -385,6 +442,7 @@ namespace BigRetail.Map.Unity.Fixtures
                         CreateAuthoredFaceMarkers(
                             fixture,
                             fixtureRenderer,
+                            definitionAsset,
                             displayFace,
                             shelfMasks);
                     }
@@ -404,6 +462,7 @@ namespace BigRetail.Map.Unity.Fixtures
         private void CreateAuthoredFaceMarkers(
             FixtureInstance fixture,
             SpriteRenderer fixtureRenderer,
+            FixtureDefinitionAsset definitionAsset,
             FixtureDisplayFaceDefinition displayFace,
             IReadOnlyList<Sprite> shelfMasks)
         {
@@ -494,6 +553,17 @@ namespace BigRetail.Map.Unity.Fixtures
                                 - unitIndex
                             : unitIndex;
 
+                    bool hasAuthoredSlotAnchor =
+                        definitionAsset
+                            .TryGetMerchandisingProductAnchor(
+                                displayFace.LocalSide,
+                                fixture.Orientation,
+                                viewHost.Orientation,
+                                shelfIndex,
+                                visualUnitIndex,
+                                displayFace.FrontageUnitsPerRun,
+                                out Vector2 authoredSlotAnchor);
+
                     CreateAuthoredMarker(
                         fixtureRenderer,
                         geometry,
@@ -501,6 +571,8 @@ namespace BigRetail.Map.Unity.Fixtures
                         unitIndex,
                         visualUnitIndex,
                         displayFace.FrontageUnitsPerRun,
+                        hasAuthoredSlotAnchor,
+                        authoredSlotAnchor,
                         isViewerNear);
                 }
             }
@@ -513,6 +585,8 @@ namespace BigRetail.Map.Unity.Fixtures
             int frontageUnitIndex,
             int visualFrontageIndex,
             int frontageUnitCount,
+            bool hasAuthoredSlotAnchor,
+            Vector2 authoredSlotAnchor,
             bool isViewerNear)
         {
             GameObject markerObject =
@@ -527,6 +601,14 @@ namespace BigRetail.Map.Unity.Fixtures
                 geometry.GetFrontageCenter(
                     visualFrontageIndex,
                     frontageUnitCount);
+            Vector2 authoredProductLocalCenter =
+                hasAuthoredSlotAnchor
+                    ? authoredSlotAnchor
+                    : FixtureViewSystem
+                        .ResolveAuthoredDisplayProductCenter(
+                            geometry,
+                            visualFrontageIndex,
+                            frontageUnitCount);
 
             markerObject.transform.localPosition =
                 new Vector3(localCenter.x, localCenter.y, 0f);
@@ -536,9 +618,16 @@ namespace BigRetail.Map.Unity.Fixtures
 
             renderer.sprite = frontageMarkerSprite;
             renderer.sortingLayerName = sortingLayerName;
-            renderer.sortingOrder =
+            int shelfSortingOrder =
                 fixtureRenderer.sortingOrder
                 + (isViewerNear ? 8 : 3);
+            renderer.sortingOrder =
+                FixtureViewSystem
+                    .ResolveStockedDisplayFrontageSortingOrder(
+                        shelfSortingOrder,
+                        visualFrontageIndex,
+                        frontageUnitCount,
+                        geometry.MajorAxisAngleDegrees);
 
             Bounds spriteBounds = frontageMarkerSprite.bounds;
             float desiredWidth =
@@ -550,6 +639,20 @@ namespace BigRetail.Map.Unity.Fixtures
             float desiredHeight =
                 Mathf.Max(
                     geometry.MinorLength * AuthoredMarkerHeightShare,
+                    0.02f);
+            float authoredProductWidth =
+                Mathf.Max(
+                    geometry.MajorLength
+                    / frontageUnitCount
+                    * FixtureViewSystem
+                        .AuthoredDisplayProductWidthShare,
+                    0.03f);
+            float authoredProductHeight =
+                Mathf.Max(
+                    geometry.MajorLength
+                    / frontageUnitCount
+                    * FixtureViewSystem
+                        .AuthoredDisplayProductHeightShare,
                     0.02f);
 
             markerObject.transform.localScale =
@@ -566,7 +669,21 @@ namespace BigRetail.Map.Unity.Fixtures
                     frontageUnitIndex,
                     markerObject,
                     renderer,
-                    allowsBoundsHitTest: false));
+                    allowsBoundsHitTest: false,
+                    canUseAuthoredProductArt: true,
+                    productRisingLeft:
+                        geometry.MajorAxisAngleDegrees < 0f,
+                    fallbackDesiredWidth: desiredWidth,
+                    fallbackDesiredHeight: desiredHeight,
+                    authoredProductDesiredWidth: authoredProductWidth,
+                    authoredProductDesiredHeight: authoredProductHeight,
+                    fallbackLocalPosition:
+                        new Vector3(localCenter.x, localCenter.y, 0f),
+                    authoredProductLocalPosition:
+                        new Vector3(
+                            authoredProductLocalCenter.x,
+                            authoredProductLocalCenter.y,
+                            0f)));
         }
 
         private void CreateFaceMarkers(
@@ -700,7 +817,17 @@ namespace BigRetail.Map.Unity.Fixtures
                     frontageUnitIndex,
                     markerObject,
                     renderer,
-                    allowsBoundsHitTest: true));
+                    allowsBoundsHitTest: true,
+                    canUseAuthoredProductArt: false,
+                    productRisingLeft: false,
+                    fallbackDesiredWidth: desiredWidth,
+                    fallbackDesiredHeight: desiredHeight,
+                    authoredProductDesiredWidth: desiredWidth,
+                    authoredProductDesiredHeight: desiredHeight,
+                    fallbackLocalPosition:
+                        markerObject.transform.localPosition,
+                    authoredProductLocalPosition:
+                        markerObject.transform.localPosition));
         }
 
         private void RefreshMarkerColors()
@@ -745,14 +872,19 @@ namespace BigRetail.Map.Unity.Fixtures
             {
                 FrontageMarkerView marker = markerViews[index];
                 Color color = FixtureMerchandisingGrayboxPalette.Neutral;
-
-                if (subscribedPlanogramState != null
+                float fillRatio = 0f;
+                ProductDefinitionAsset productAsset = null;
+                ProductId productId = default;
+                bool hasAssignedProduct =
+                    subscribedPlanogramState != null
                     && subscribedPlanogramState.TryGetProductAt(
                         marker.ShelfRun,
                         marker.FrontageUnitIndex,
-                        out ProductId productId))
+                        out productId);
+
+                if (hasAssignedProduct)
                 {
-                    float fillRatio =
+                    fillRatio =
                         subscribedDisplayInventory != null
                             ? subscribedDisplayInventory
                                 .GetFrontageFillRatio(
@@ -765,29 +897,110 @@ namespace BigRetail.Map.Unity.Fixtures
                             .ResolveStockColor(
                                 productId,
                                 fillRatio);
+
+                    planogramRuntimeHost.TryGetProductAsset(
+                        productId,
+                        out productAsset);
                 }
 
-                if (hasHoveredMarker
+                bool isHovered =
+                    hasHoveredMarker
                     && marker.ShelfRun == hoveredShelfRun
-                    && marker.FrontageUnitIndex == hoveredFrontageUnitIndex)
-                {
-                    color = FixtureMerchandisingGrayboxPalette.Hover;
-                }
+                    && marker.FrontageUnitIndex == hoveredFrontageUnitIndex;
 
-                if (hasSelectionPreview
+                bool isSelected =
+                    hasSelectionPreview
                     && marker.ShelfRun == selectedShelfRun
                     && marker.FrontageUnitIndex >= selectedStart
                     && marker.FrontageUnitIndex
-                        < selectedStart + selectedCount)
+                        < selectedStart + selectedCount;
+
+                Sprite markerSprite =
+                    ResolvePlanogramMarkerSprite(
+                        productAsset,
+                        marker.CanUseAuthoredProductArt,
+                        marker.ProductRisingLeft,
+                        fillRatio,
+                        isHovered || isSelected,
+                        frontageMarkerSprite);
+
+                bool usesAuthoredProductArt =
+                    markerSprite != null
+                    && markerSprite != frontageMarkerSprite;
+
+                marker.SetSprite(
+                    markerSprite,
+                    usesAuthoredProductArt);
+
+                if (usesAuthoredProductArt)
                 {
                     color =
-                        selectionIsInvalid
-                            ? FixtureMerchandisingGrayboxPalette.Invalid
-                            : FixtureMerchandisingGrayboxPalette.Selected;
+                        FixtureMerchandisingGrayboxPalette.ProductGhost;
+                }
+
+                if (isHovered)
+                {
+                    color = usesAuthoredProductArt
+                        ? FixtureMerchandisingGrayboxPalette.ProductGhostHover
+                        : FixtureMerchandisingGrayboxPalette.Hover;
+                }
+
+                if (isSelected)
+                {
+                    color =
+                        usesAuthoredProductArt
+                            ? selectionIsInvalid
+                                ? FixtureMerchandisingGrayboxPalette
+                                    .ProductGhostInvalid
+                                : FixtureMerchandisingGrayboxPalette
+                                    .ProductGhostSelected
+                            : selectionIsInvalid
+                                ? FixtureMerchandisingGrayboxPalette.Invalid
+                                : FixtureMerchandisingGrayboxPalette.Selected;
                 }
 
                 marker.Renderer.color = color;
             }
+        }
+
+
+        public static Sprite ResolvePlanogramMarkerSprite(
+            ProductDefinitionAsset productAsset,
+            bool canUseAuthoredProductArt,
+            bool risingLeft,
+            float fillRatio,
+            bool isEmphasized,
+            Sprite fallbackSprite)
+        {
+            if (!canUseAuthoredProductArt
+                || productAsset == null
+                || productAsset.OnShelfImageCount <= 0)
+            {
+                return fallbackSprite;
+            }
+
+            // Stocked product art is owned by FixtureViewSystem. Never draw
+            // the planogram preview over a physical package, including while
+            // its frontage is selected or hovered.
+            if (fillRatio > 0f)
+            {
+                return null;
+            }
+
+            float previewFillRatio =
+                1f / productAsset.OnShelfImageCount;
+
+            Sprite authoredSprite =
+                productAsset.GetOnShelfImage(
+                    risingLeft,
+                    previewFillRatio);
+
+            if (authoredSprite == null)
+            {
+                return fallbackSprite;
+            }
+
+            return authoredSprite;
         }
 
         private bool TryResolveSelectionPreview(
@@ -947,13 +1160,29 @@ namespace BigRetail.Map.Unity.Fixtures
                 int frontageUnitIndex,
                 GameObject root,
                 SpriteRenderer renderer,
-                bool allowsBoundsHitTest)
+                bool allowsBoundsHitTest,
+                bool canUseAuthoredProductArt,
+                bool productRisingLeft,
+                float fallbackDesiredWidth,
+                float fallbackDesiredHeight,
+                float authoredProductDesiredWidth,
+                float authoredProductDesiredHeight,
+                Vector3 fallbackLocalPosition,
+                Vector3 authoredProductLocalPosition)
             {
                 ShelfRun = shelfRun;
                 FrontageUnitIndex = frontageUnitIndex;
                 Root = root;
                 Renderer = renderer;
                 AllowsBoundsHitTest = allowsBoundsHitTest;
+                CanUseAuthoredProductArt = canUseAuthoredProductArt;
+                ProductRisingLeft = productRisingLeft;
+                FallbackDesiredWidth = fallbackDesiredWidth;
+                FallbackDesiredHeight = fallbackDesiredHeight;
+                AuthoredProductDesiredWidth = authoredProductDesiredWidth;
+                AuthoredProductDesiredHeight = authoredProductDesiredHeight;
+                FallbackLocalPosition = fallbackLocalPosition;
+                AuthoredProductLocalPosition = authoredProductLocalPosition;
             }
 
             public FixtureShelfRunKey ShelfRun { get; }
@@ -965,6 +1194,66 @@ namespace BigRetail.Map.Unity.Fixtures
             public SpriteRenderer Renderer { get; }
 
             public bool AllowsBoundsHitTest { get; }
+
+            public bool CanUseAuthoredProductArt { get; }
+
+            public bool ProductRisingLeft { get; }
+
+            public float FallbackDesiredWidth { get; }
+
+            public float FallbackDesiredHeight { get; }
+
+            public float AuthoredProductDesiredWidth { get; }
+
+            public float AuthoredProductDesiredHeight { get; }
+
+            public Vector3 FallbackLocalPosition { get; }
+
+            public Vector3 AuthoredProductLocalPosition { get; }
+
+
+            public void SetSprite(
+                Sprite sprite,
+                bool usesAuthoredProductArt)
+            {
+                Renderer.enabled = sprite != null;
+                Root.transform.localPosition =
+                    usesAuthoredProductArt
+                        ? AuthoredProductLocalPosition
+                        : FallbackLocalPosition;
+
+                if (sprite == null)
+                {
+                    return;
+                }
+
+                Renderer.sprite = sprite;
+
+                Bounds spriteBounds = sprite.bounds;
+                float width = usesAuthoredProductArt
+                    ? AuthoredProductDesiredWidth
+                    : FallbackDesiredWidth;
+                float widthScale = width
+                    / Mathf.Max(spriteBounds.size.x, 0.001f);
+                float authoredScale =
+                    FixtureViewSystem
+                        .ResolveAuthoredProductUniformScale(
+                            spriteBounds,
+                            AuthoredProductDesiredWidth,
+                            AuthoredProductDesiredHeight);
+
+                Root.transform.localScale =
+                    usesAuthoredProductArt
+                        ? new Vector3(
+                            authoredScale,
+                            authoredScale,
+                            1f)
+                        : new Vector3(
+                            widthScale,
+                            FallbackDesiredHeight
+                            / Mathf.Max(spriteBounds.size.y, 0.001f),
+                            1f);
+            }
         }
 
         private sealed class ShelfMaskHitView

@@ -38,6 +38,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private readonly VisualElement productContainer;
         private readonly Button editButton;
         private readonly Button restockButton;
+        private readonly Button unstockButton;
         private readonly Button autoRestockButton;
         private readonly Button doneButton;
         private readonly Button closeButton;
@@ -112,6 +113,9 @@ namespace BigRetail.Construction.Unity.UI.PC
             restockButton = Require<Button>(
                 root,
                 "fixture-merchandising-restock-button");
+            unstockButton = Require<Button>(
+                root,
+                "fixture-merchandising-unstock-button");
             autoRestockButton = Require<Button>(
                 root,
                 "fixture-merchandising-auto-restock-button");
@@ -160,6 +164,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked += HandleEditRequested;
             restockButton.clicked += HandleRestockRequested;
+            unstockButton.clicked += HandleUnstockRequested;
             doneButton.clicked += HandleDoneRequested;
             closeButton.clicked += HandleCloseRequested;
             widthDecreaseButton.clicked += HandleWidthDecreaseRequested;
@@ -174,6 +179,8 @@ namespace BigRetail.Construction.Unity.UI.PC
         public event Action EditRequested;
 
         public event Action RestockRequested;
+
+        public event Action UnstockRequested;
 
         public event Action DoneRequested;
 
@@ -415,7 +422,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             int stockedUnitCount,
             int capacityUnitCount,
             int backstockUnitCount,
-            bool canRestock)
+            bool canRestock,
+            bool canUnstock)
         {
             shelfStockValueLabel.text =
                 $"{stockedUnitCount} / {capacityUnitCount} units";
@@ -424,6 +432,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 $"{backstockUnitCount} units available";
 
             restockButton.SetEnabled(canRestock);
+            unstockButton.SetEnabled(canUnstock);
         }
 
         public void SetSalesToday(long amountCents)
@@ -533,6 +542,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             editButton.clicked -= HandleEditRequested;
             restockButton.clicked -= HandleRestockRequested;
+            unstockButton.clicked -= HandleUnstockRequested;
             doneButton.clicked -= HandleDoneRequested;
             closeButton.clicked -= HandleCloseRequested;
             widthDecreaseButton.clicked -= HandleWidthDecreaseRequested;
@@ -651,6 +661,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private void HandleRestockRequested()
         {
             RestockRequested?.Invoke();
+        }
+
+        private void HandleUnstockRequested()
+        {
+            UnstockRequested?.Invoke();
         }
 
         private void HandleDoneRequested()

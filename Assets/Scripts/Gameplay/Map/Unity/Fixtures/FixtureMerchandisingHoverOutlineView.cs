@@ -7,8 +7,9 @@ namespace BigRetail.Map.Unity.Fixtures
 {
     /// <summary>
     /// Draws a lightweight silhouette around the fixture currently targeted
-    /// by the merchandise tool. The target identity survives camera-driven
-    /// fixture-view reconstruction.
+    /// by the merchandise tool, or around a pinned objective fixture when
+    /// nothing is hovered. Target identities survive camera-driven fixture-
+    /// view reconstruction.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(155)]
@@ -42,11 +43,20 @@ namespace BigRetail.Map.Unity.Fixtures
             new List<SpriteRenderer>();
 
         private bool hasTarget;
+        private bool hasHoverTarget;
+        private FixtureInstanceId hoverTargetFixtureId;
+        private bool hasPinnedTarget;
+        private FixtureInstanceId pinnedTargetFixtureId;
 
 
         public bool IsVisible { get; private set; }
 
         public FixtureInstanceId TargetFixtureId { get; private set; }
+
+        public bool HasPinnedFixture => hasPinnedTarget;
+
+        public FixtureInstanceId PinnedFixtureId =>
+            pinnedTargetFixtureId;
 
 
         private void OnEnable()
@@ -77,26 +87,75 @@ namespace BigRetail.Map.Unity.Fixtures
                 fixtureViewSystem.FixtureViewHidden -= HandleFixtureViewHidden;
             }
 
-            Hide();
+            ClearAllTargets();
         }
 
 
         public void ShowFixture(FixtureInstanceId fixtureId)
         {
+            hasHoverTarget = true;
+            hoverTargetFixtureId = fixtureId;
+            RefreshActiveTarget();
+        }
+
+        public void Hide()
+        {
+            hasHoverTarget = false;
+            hoverTargetFixtureId = default;
+            RefreshActiveTarget();
+        }
+
+        public void PinFixture(FixtureInstanceId fixtureId)
+        {
+            hasPinnedTarget = true;
+            pinnedTargetFixtureId = fixtureId;
+            RefreshActiveTarget();
+        }
+
+        public void ClearPinnedFixture()
+        {
+            hasPinnedTarget = false;
+            pinnedTargetFixtureId = default;
+            RefreshActiveTarget();
+        }
+
+
+        private void RefreshActiveTarget()
+        {
+            bool hasNextTarget =
+                hasHoverTarget || hasPinnedTarget;
+            FixtureInstanceId nextTarget =
+                hasHoverTarget
+                    ? hoverTargetFixtureId
+                    : pinnedTargetFixtureId;
+
+            if (!hasNextTarget)
+            {
+                hasTarget = false;
+                TargetFixtureId = default;
+                HideUnused(0);
+                IsVisible = false;
+                return;
+            }
+
             if (hasTarget
-                && TargetFixtureId == fixtureId
+                && TargetFixtureId == nextTarget
                 && IsVisible)
             {
                 return;
             }
 
             hasTarget = true;
-            TargetFixtureId = fixtureId;
+            TargetFixtureId = nextTarget;
             RebuildOutline();
         }
 
-        public void Hide()
+        private void ClearAllTargets()
         {
+            hasHoverTarget = false;
+            hoverTargetFixtureId = default;
+            hasPinnedTarget = false;
+            pinnedTargetFixtureId = default;
             hasTarget = false;
             TargetFixtureId = default;
             HideUnused(0);

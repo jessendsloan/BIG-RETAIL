@@ -287,7 +287,7 @@ namespace BigRetail.Map.Fixtures.Tests
                 service.GetMaximumFrontageUnitCount(
                     shelfRun,
                     startFrontageUnit: 2),
-                Is.EqualTo(2));
+                Is.EqualTo(3));
 
             Assert.That(
                 service.TryAssignFrontage(
@@ -381,6 +381,39 @@ namespace BigRetail.Map.Fixtures.Tests
             service.Dispose();
         }
 
+        [Test]
+        public void SingleAssignedFixture_IsAvailableForObjectiveHighlighting()
+        {
+            FixturePlanogramService service =
+                CreatePlacedShelfService(
+                    out _,
+                    out _);
+
+            Assert.That(
+                service.State.TryGetSingleAssignedFixture(out _),
+                Is.False);
+
+            Assert.That(
+                service.TryAssignFrontage(
+                    CreateShelfRun(
+                        FixtureSide.South,
+                        shelfRunIndex: 0),
+                    0,
+                    4,
+                    CerealProductId,
+                    out FixturePlanogramFailure failure),
+                Is.True,
+                failure.ToString());
+
+            Assert.That(
+                service.State.TryGetSingleAssignedFixture(
+                    out FixtureInstanceId fixtureId),
+                Is.True);
+            Assert.That(fixtureId, Is.EqualTo(ShelfInstanceId));
+
+            service.Dispose();
+        }
+
 
         private static void AssertDisplayFace(
             FixtureDefinition definition,
@@ -398,7 +431,7 @@ namespace BigRetail.Map.Fixtures.Tests
 
             Assert.That(
                 displayFace.FrontageUnitsPerRun,
-                Is.EqualTo(4));
+                Is.EqualTo(5));
         }
 
         private static FixtureShelfRunKey CreateShelfRun(

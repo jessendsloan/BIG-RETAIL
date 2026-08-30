@@ -21,6 +21,16 @@ MonoBehaviour:
   eastSprite: {fileID: 21300000, guid: efb633aaed734a30bf47b5635bd3aff5, type: 3}
   southSprite: {fileID: 21300000, guid: 59969253a87645b7babc1cd0cf8b1cbe, type: 3}
   westSprite: {fileID: 21300000, guid: fe742f3115c84ca585173a575f2e0d6e, type: 3}
+  northPresentationLayers:
+  - {fileID: 21300000, guid: 392bb4cc509bd7a4dba8f297f09741b3, type: 3}
+  - {fileID: 21300000, guid: b78a6bb5451044b4d809941d1cfd487a, type: 3}
+  - {fileID: 21300000, guid: 8f5e785614ec56e4ba610d4eb3c440f8, type: 3}
+  eastPresentationLayers: []
+  southPresentationLayers: []
+  westPresentationLayers:
+  - {fileID: 21300000, guid: 7af158bc6ff025040a7a24b43a09c07f, type: 3}
+  - {fileID: 21300000, guid: 56004eb651cbe8642831b535a8e9f4f8, type: 3}
+  - {fileID: 21300000, guid: 705ec0427322e7c44883cc758bde0a5a, type: 3}
   northSpriteAnchorCorner: 1
   eastSpriteAnchorCorner: 0
   southSpriteAnchorCorner: 0
@@ -39,8 +49,55 @@ MonoBehaviour:
     - {fileID: 21300000, guid: ef0f4b79d7024f41bfcb1aee3a940dc3, type: 3}
     - {fileID: 21300000, guid: 9722afc3c2e64500948751fe05a17201, type: 3}
     - {fileID: 21300000, guid: 1b755ded701e40259b29ada24862d506, type: 3}
+  merchandisingSlotLayoutSets:
+  - localDisplaySide: 2
+    northProductAnchors:
+    - {x: 0.30506253, y: 0.75742465}
+    - {x: 0.48425204, y: 0.8421765}
+    - {x: 0.71187115, y: 0.95840746}
+    - {x: 0.9128539, y: 1.0601096}
+    - {x: 1.1089938, y: 1.1569688}
+    - {x: 0.33654177, y: 0.45958263}
+    - {x: 0.49878088, y: 0.5394915}
+    - {x: 0.70218515, y: 0.6411936}
+    - {x: 0.9055895, y: 0.7453173}
+    - {x: 1.1065723, y: 0.84701943}
+    - {x: 0.37044248, y: 0.09393919}
+    - {x: 0.5714253, y: 0.19079837}
+    - {x: 0.77482957, y: 0.2828146}
+    - {x: 0.9830768, y: 0.38935974}
+    - {x: 1.1622663, y: 0.4862189}
+    eastProductAnchors: []
+    southProductAnchors: []
+    westProductAnchors:
+    - {x: -1.0654073, y: 1.1739192}
+    - {x: -0.87653184, y: 1.0794815}
+    - {x: -0.6973424, y: 0.98988676}
+    - {x: -0.503624, y: 0.900292}
+    - {x: -0.3176491, y: 0.8}
+    - {x: -1.1138369, y: 0.8809201}
+    - {x: -0.90801114, y: 0.7864824}
+    - {x: -0.70944977, y: 0.6847803}
+    - {x: -0.5254173, y: 0.5879211}
+    - {x: -0.31717005, y: 0.4862189}
+    - {x: -1.1356301, y: 0.50801224}
+    - {x: -0.9515977, y: 0.41357455}
+    - {x: -0.7554579, y: 0.31913683}
+    - {x: -0.53510326, y: 0.20774874}
+    - {x: -0.33412042, y: 0.1157325}
+  storageShelfMasks:
+    northShelfMasks: []
+    eastShelfMasks: []
+    southShelfMasks: []
+    westShelfMasks: []
   northAccess: 0
   eastAccess: 0
   southAccess: 3
   westAccess: 0
   accessClearancePolicy: 0
+  backstockCaseSlotCapacity: 0
+  backstockCasesPerShelf: 3
+  backstockCaseWidthPerSlot: 0.72
+  backstockCaseSpacingShare: 1
+  backstockCaseRowOffsetShare: 0
+  backstockCaseFrontOffsetShare: 0.2

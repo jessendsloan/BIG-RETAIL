@@ -34,10 +34,11 @@ namespace BigRetail.Editor.StoreLayouts
 
         private const string MenuPath =
             "Big Retail/Campaign/Create or Validate Frank Opening Scenario";
+        private const string RefreshMerchandiseMenuPath =
+            "Big Retail/Campaign/Refresh Frank Opening Merchandise Capacity";
 
         private const int OpeningHour = 6;
         private const int OpeningMinute = 45;
-        private const int OpeningBackstockUnitsPerProduct = 24;
         private const int OpeningDeliveryCaseCount = 4;
         private const long OpeningCashCents = 250000;
         private const int DeterministicSeed = 104729;
@@ -46,6 +47,8 @@ namespace BigRetail.Editor.StoreLayouts
         private const string OpeningDeliverySupplierId = "BIG";
         private const string OpeningDeliveryProductId =
             "RIDGEWAY-ORIGINAL-CHIPS-SINGLE";
+        private const string OpeningMerchandiseFixtureId =
+            "D58D297252D749968D57BA9B107DBA1A";
 
 
         [MenuItem(MenuPath)]
@@ -87,6 +90,67 @@ namespace BigRetail.Editor.StoreLayouts
 
             Debug.Log(
                 "Frank Opening Shift Scenario v1 is authored and wired.");
+        }
+
+
+        [MenuItem(RefreshMerchandiseMenuPath)]
+        public static void RefreshMerchandiseCapacity()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode
+                || EditorApplication.isCompiling)
+            {
+                throw new InvalidOperationException(
+                    "Frank's merchandise-capacity refresh requires Edit Mode "
+                    + "after Unity finishes compiling.");
+            }
+
+            Scene scene =
+                EditorSceneManager.OpenScene(
+                    ScenePath,
+                    OpenSceneMode.Single);
+            StoreLayoutAsset layout =
+                AssetDatabase.LoadAssetAtPath<StoreLayoutAsset>(
+                    LayoutAssetPath);
+
+            if (layout == null)
+            {
+                throw new InvalidOperationException(
+                    $"Frank's saved layout is missing at "
+                    + $"'{LayoutAssetPath}'.");
+            }
+
+            ConfigureScene(scene, layout);
+
+            FixtureRuntimeHost fixtureHost =
+                FindRequired<FixtureRuntimeHost>(scene);
+            FixturePlanogramRuntimeHost merchandisingHost =
+                FindRequired<FixturePlanogramRuntimeHost>(scene);
+            PurchasingRuntimeHost purchasingHost =
+                FindRequired<PurchasingRuntimeHost>(scene);
+            StoreScenarioAsset scenario =
+                AssetDatabase.LoadAssetAtPath<StoreScenarioAsset>(
+                    ScenarioAssetPath);
+
+            if (scenario == null
+                || merchandisingHost.Products == null
+                || purchasingHost.Catalog == null)
+            {
+                throw new InvalidOperationException(
+                    "Frank's opening merchandise data could not be loaded.");
+            }
+
+            scenario.ReplaceData(
+                CreateOpeningScenario(
+                    layout.CreateRuntimeCopy(),
+                    fixtureHost,
+                    merchandisingHost.Products,
+                    purchasingHost.Catalog));
+            EditorUtility.SetDirty(scenario);
+            AssetDatabase.SaveAssets();
+            Debug.Log(
+                "Refreshed Frank's opening planograms and display stock for "
+                + "the current fixture frontage capacities.",
+                scenario);
         }
 
 
@@ -196,18 +260,20 @@ namespace BigRetail.Editor.StoreLayouts
                     DeterministicSeed = DeterministicSeed
                 };
 
-            List<ProductDefinition> productDefinitions =
-                new List<ProductDefinition>();
+            ProductId openingProductId =
+                new ProductId(OpeningDeliveryProductId);
 
-            foreach (
-                ProductDefinition product
-                in products.EnumerateDefinitions())
+            if (!products.TryGet(
+                    openingProductId,
+                    out ProductDefinition openingProduct))
             {
-                productDefinitions.Add(product);
+                throw new InvalidOperationException(
+                    $"Frank's opener requires product "
+                    + $"'{OpeningDeliveryProductId}'.");
             }
 
-            List<StoreFixtureData> merchandiseFixtures =
-                new List<StoreFixtureData>();
+            StoreFixtureData openingMerchandiseFixture = null;
+            FixtureDefinition openingMerchandiseDefinition = null;
             List<StoreFixtureData> checkoutFixtures =
                 new List<StoreFixtureData>();
 
@@ -228,9 +294,13 @@ namespace BigRetail.Editor.StoreLayouts
                         + $"definition '{fixtureData.DefinitionId}'.");
                 }
 
-                if (definition.MerchandisingProfile.HasDisplayFaces)
+                if (string.Equals(
+                        fixtureData.InstanceId,
+                        OpeningMerchandiseFixtureId,
+                        StringComparison.Ordinal))
                 {
-                    merchandiseFixtures.Add(fixtureData);
+                    openingMerchandiseFixture = fixtureData;
+                    openingMerchandiseDefinition = definition;
                 }
 
                 if (HasCheckoutAccess(definition.AccessProfile))
@@ -239,64 +309,32 @@ namespace BigRetail.Editor.StoreLayouts
                 }
             }
 
-            merchandiseFixtures.Sort(CompareFixtures);
             checkoutFixtures.Sort(CompareFixtures);
 
-            if (productDefinitions.Count == 0
-                || merchandiseFixtures.Count
-                    < productDefinitions.Count)
+            if (openingMerchandiseFixture == null
+                || openingMerchandiseDefinition == null
+                || !openingMerchandiseDefinition
+                    .MerchandisingProfile.HasDisplayFaces)
             {
                 throw new InvalidOperationException(
-                    "Frank's opening scenario requires at least one "
-                    + "merchandise fixture per opening product.");
+                    $"Frank's opening scenario requires merchandise "
+                    + $"fixture '{OpeningMerchandiseFixtureId}'.");
             }
 
-            for (int index = 0;
-                 index < productDefinitions.Count;
-                 index++)
-            {
-                ProductDefinition product =
-                    productDefinitions[index];
-                StoreFixtureData fixtureData =
-                    merchandiseFixtures[index];
-                if (!fixtureHost.Definitions.TryGetDefinition(
-                        new FixtureDefinitionId(
-                            fixtureData.DefinitionId),
-                        out FixtureDefinition definition))
-                {
-                    throw new InvalidOperationException(
-                        $"Frank's layout references missing fixture "
-                        + $"definition '{fixtureData.DefinitionId}'.");
-                }
-                int displayQuantity =
-                    AddFullFixturePlanogram(
-                        scenario,
-                        fixtureData.InstanceId,
-                        definition.MerchandisingProfile,
-                        product.Id);
+            AddFullSalesFacePlanogram(
+                scenario,
+                openingMerchandiseFixture.InstanceId,
+                openingMerchandiseDefinition.MerchandisingProfile,
+                openingProduct.Id);
 
-                scenario.DisplayInventory.Add(
-                    new StoreDisplayInventoryData
-                    {
-                        FixtureInstanceId =
-                            fixtureData.InstanceId,
-                        ProductId = product.Id.Value,
-                        Quantity = displayQuantity
-                    });
-                if (!string.Equals(
-                        product.Id.Value,
-                        OpeningDeliveryProductId,
-                        StringComparison.Ordinal))
+            scenario.DisplayInventory.Add(
+                new StoreDisplayInventoryData
                 {
-                    scenario.BackstockInventory.Add(
-                        new StoreInventoryLineData
-                        {
-                            ProductId = product.Id.Value,
-                            Quantity =
-                                OpeningBackstockUnitsPerProduct
-                        });
-                }
-            }
+                    FixtureInstanceId =
+                        openingMerchandiseFixture.InstanceId,
+                    ProductId = openingProduct.Id.Value,
+                    Quantity = 0
+                });
 
             AddOpeningDelivery(
                 scenario,
@@ -377,45 +415,55 @@ namespace BigRetail.Editor.StoreLayouts
                 });
         }
 
-        private static int AddFullFixturePlanogram(
+        private static void AddFullSalesFacePlanogram(
             StoreScenarioData scenario,
             string fixtureId,
             FixtureMerchandisingProfile profile,
             ProductId productId)
         {
-            int assignedFrontageUnits = 0;
+            int salesFaceIndex = -1;
 
             for (int faceIndex = 0;
                  faceIndex < profile.DisplayFaceCount;
                  faceIndex++)
             {
-                FixtureDisplayFaceDefinition face =
-                    profile.GetDisplayFace(faceIndex);
-
-                for (int shelfRunIndex = 0;
-                     shelfRunIndex < face.ShelfRunCount;
-                     shelfRunIndex++)
+                if (profile.GetDisplayFace(faceIndex).LocalSide
+                    == FixtureSide.South)
                 {
-                    for (int frontageIndex = 0;
-                         frontageIndex < face.FrontageUnitsPerRun;
-                         frontageIndex++)
-                    {
-                        scenario.PlanogramAssignments.Add(
-                            new StorePlanogramAssignmentData
-                            {
-                                FixtureInstanceId = fixtureId,
-                                DisplayFaceIndex = faceIndex,
-                                ShelfRunIndex = shelfRunIndex,
-                                FrontageUnitIndex = frontageIndex,
-                                ProductId = productId.Value
-                            });
-                        assignedFrontageUnits++;
-                    }
+                    salesFaceIndex = faceIndex;
+                    break;
                 }
             }
 
-            return assignedFrontageUnits
-                * FixtureDisplayInventoryService.UnitsPerFrontageUnit;
+            if (salesFaceIndex < 0)
+            {
+                throw new InvalidOperationException(
+                    "Frank's opening merchandise fixture requires a front "
+                    + "sales face.");
+            }
+
+            FixtureDisplayFaceDefinition face =
+                profile.GetDisplayFace(salesFaceIndex);
+
+            for (int shelfRunIndex = 0;
+                 shelfRunIndex < face.ShelfRunCount;
+                 shelfRunIndex++)
+            {
+                for (int frontageIndex = 0;
+                     frontageIndex < face.FrontageUnitsPerRun;
+                     frontageIndex++)
+                {
+                    scenario.PlanogramAssignments.Add(
+                        new StorePlanogramAssignmentData
+                        {
+                            FixtureInstanceId = fixtureId,
+                            DisplayFaceIndex = salesFaceIndex,
+                            ShelfRunIndex = shelfRunIndex,
+                            FrontageUnitIndex = frontageIndex,
+                            ProductId = productId.Value
+                        });
+                }
+            }
         }
 
         private static bool HasCheckoutAccess(

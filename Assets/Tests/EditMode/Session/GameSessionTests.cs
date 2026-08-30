@@ -158,6 +158,36 @@ namespace BigRetail.Session.Tests
                 Is.EqualTo(FrankRoadsideOpeningBeat.Complete));
         }
 
+        [TestCase(
+            36,
+            0,
+            FrankRoadsideOpeningObjective.MoveReceivingToStockroom)]
+        [TestCase(
+            48,
+            0,
+            FrankRoadsideOpeningObjective.StockSalesFloor)]
+        [TestCase(
+            47,
+            1,
+            FrankRoadsideOpeningObjective.StockSalesFloor)]
+        [TestCase(
+            3,
+            45,
+            FrankRoadsideOpeningObjective.Complete)]
+        public void FrankRoadsideStockingObjective_FollowsPhysicalInventory(
+            int backstockUnitCount,
+            int displayedUnitCount,
+            FrankRoadsideOpeningObjective expected)
+        {
+            Assert.That(
+                FrankRoadsideOpeningProgress.ResolveStockingObjective(
+                    backstockUnitCount,
+                    displayedUnitCount,
+                    requiredReceivedUnitCount: 48,
+                    requiredDisplayedUnitCount: 45),
+                Is.EqualTo(expected));
+        }
+
         [Test]
         public void DevelopmentQuickStartArmsRequestedMode()
         {

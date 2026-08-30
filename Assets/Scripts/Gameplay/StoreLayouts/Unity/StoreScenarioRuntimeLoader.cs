@@ -307,6 +307,17 @@ namespace BigRetail.StoreLayouts.Unity
 
                 ProductId productId =
                     new ProductId(assignment.ProductId);
+
+                if (!merchandisingHost.Products.TryGet(
+                        productId,
+                        out ProductDefinition product))
+                {
+                    error =
+                        $"Scenario planogram references unknown product "
+                        + $"'{productId}'.";
+                    return false;
+                }
+
                 string key = CreateFixtureProductKey(
                     fixtureId,
                     productId);
@@ -316,7 +327,7 @@ namespace BigRetail.StoreLayouts.Unity
                     out int existingCapacity);
                 capacityByFixtureProduct[key] =
                     existingCapacity
-                    + FixtureDisplayInventoryService.UnitsPerFrontageUnit;
+                    + product.DisplayUnitsPerFrontageUnit;
             }
 
             for (int index = 0;

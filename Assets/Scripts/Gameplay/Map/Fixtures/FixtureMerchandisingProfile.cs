@@ -13,7 +13,7 @@ namespace BigRetail.Map.Fixtures
     public sealed class FixtureMerchandisingProfile
     {
         public const int StandardShelfRunCount = 3;
-        public const int StandardFrontageUnitsPerRun = 4;
+        public const int StandardFrontageUnitsPerRun = 5;
 
         public static FixtureMerchandisingProfile None { get; } =
             new FixtureMerchandisingProfile(

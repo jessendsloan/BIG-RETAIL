@@ -134,12 +134,12 @@ Create a deliberately small functioning convenience-store environment.
 
 Required spaces:
 
-- [ ] Small sales floor.
-- [ ] One checkout.
-- [ ] Small stockroom / backroom.
-- [ ] Basic receiving point / rear entrance.
-- [ ] Small parking lot.
-- [ ] Exterior storefront.
+- [x] Small sales floor.
+- [x] One checkout.
+- [x] Small stockroom / backroom.
+- [x] Basic receiving point / rear entrance.
+- [x] Small parking lot.
+- [x] Exterior storefront.
 - [ ] Office / backroom surface for BIG Finance paperwork and environmental storytelling.
 - [ ] Exterior arrival / parking space for Mr. BIG's vehicle.
 - [ ] Interior staging space for the closing confrontation.
@@ -152,11 +152,11 @@ The prologue map does not need normal campaign expansion support.
 
 ## 7. Populate Frank's store with real systems
 
-- [ ] Use real Big Retail Products / SKUs.
-- [ ] Use real fixture assignments.
+- [x] Use real Big Retail Products / SKUs.
+- [x] Use real fixture assignments.
 - [ ] Seed real display inventory.
 - [ ] Seed real backstock.
-- [ ] Configure checkout through the permanent checkout system.
+- [x] Configure checkout through the permanent checkout system.
 - [ ] Make the store operational before the player touches it.
 
 Good opening products can come from the accepted starter universe, such as Bright Cola, ClearSpring Water, Ridgeway Chips, ChocoMax, Homestead staples, Crunch-O, and convenience essentials.
@@ -174,7 +174,7 @@ The prologue should teach by letting the player **do retail**, not by presenting
 Suggested playable beats:
 
 - [ ] Founder begins at Frank's store.
-- [ ] Frank points the Founder toward an ordinary opening task.
+- [x] Frank points the Founder toward an ordinary opening task.
 - [ ] Founder handles merchandise.
 - [ ] Founder stocks at least one fixture.
 - [ ] Customers enter.
@@ -194,12 +194,12 @@ The player should understand what a functioning tiny store feels like before bei
 
 If Receiving is stable enough when the opener is assembled:
 
-- [ ] A delivery arrives during the shift.
-- [ ] Prefer a BIG Wholesale delivery if it fits the story timing.
+- [x] A delivery arrives during the shift.
+- [x] Prefer a BIG Wholesale delivery if it fits the story timing.
 - [ ] Use supplier-branded truck / van art when available.
-- [ ] Use supplier-branded cartons / load art when available.
+- [x] Use supplier-branded cartons / load art when available.
 - [ ] Founder receives or moves the merchandise.
-- [ ] Delivered goods enter the same real inventory path used by the campaign.
+- [x] Delivered goods enter the same real inventory path used by the campaign.
 
 This lets the prologue preview a larger portion of the permanent chain:
 

@@ -105,6 +105,32 @@ namespace BigRetail.Editor.Fixtures
         private const string HalfShelfRisingRightMaskBottomPath =
             HalfShelfMasksFolder
             + "/Fixture_2x1_HalfShelf01_RisingRight_ShelfMask03_Bottom.png";
+        private const string HalfShelfLayersFolder =
+            HalfShelfArtFolder + "/Layers";
+        private const string HalfShelfRisingLeftLayer00Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingLeft_"
+            + "Layer00_LowerShelf.png";
+        private const string HalfShelfRisingLeftLayer20Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingLeft_"
+            + "Layer20_MiddleShelf.png";
+        private const string HalfShelfRisingLeftLayer40Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingLeft_"
+            + "Layer40_UpperShelf.png";
+        private const string HalfShelfRisingRightLayer00Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingRight_"
+            + "Layer00_LowerShelf.png";
+        private const string HalfShelfRisingRightLayer20Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingRight_"
+            + "Layer20_MiddleShelf.png";
+        private const string HalfShelfRisingRightLayer40Path =
+            HalfShelfLayersFolder
+            + "/Fixture_2x1_HalfShelf01_RisingRight_"
+            + "Layer40_UpperShelf.png";
         private const string BackstockShelfIconPath =
             BackstockShelfArtFolder
             + "/Fixture_2x1_BackstockShelf01_Icon.png";
@@ -456,6 +482,31 @@ namespace BigRetail.Editor.Fixtures
         }
 
 
+        [MenuItem("Big Retail/Fixtures/Refresh Half Shelf Artwork")]
+        public static void RefreshHalfShelfArtwork()
+        {
+            if (Application.isPlaying)
+            {
+                Debug.LogError(
+                    "Exit Play Mode before refreshing Half Shelf artwork.");
+                return;
+            }
+
+            Sprite placeholder = LoadPreparedSprite(PlaceholderSpritePath);
+
+            if (placeholder == null)
+            {
+                Debug.LogError(
+                    "Could not load the fixture placeholder sprite.");
+                return;
+            }
+
+            GetOrCreateHalfShelf(placeholder);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Refreshed Half Shelf artwork and presentation layers.");
+        }
+
+
         private static SceneDependencies FindDependencies()
         {
             return new SceneDependencies(
@@ -736,6 +787,30 @@ namespace BigRetail.Editor.Fixtures
                 LoadPreparedSprite(HalfShelfRisingRightMaskMiddlePath),
                 LoadPreparedSprite(HalfShelfRisingRightMaskBottomPath)
             };
+            Sprite[] risingLeftPresentationLayers =
+            {
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingLeftLayer00Path,
+                    HalfShelfRisingLeftPath),
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingLeftLayer20Path,
+                    HalfShelfRisingLeftPath),
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingLeftLayer40Path,
+                    HalfShelfRisingLeftPath)
+            };
+            Sprite[] risingRightPresentationLayers =
+            {
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingRightLayer00Path,
+                    HalfShelfRisingRightPath),
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingRightLayer20Path,
+                    HalfShelfRisingRightPath),
+                LoadPreparedAlignedMaskSprite(
+                    HalfShelfRisingRightLayer40Path,
+                    HalfShelfRisingRightPath)
+            };
 
             bool hasCompleteFrontArt =
                 realRisingLeft != null
@@ -828,6 +903,10 @@ namespace BigRetail.Editor.Fixtures
                 serialized,
                 risingRightShelfMasks,
                 risingLeftShelfMasks);
+            ConfigureHalfShelfPresentationLayers(
+                serialized,
+                risingRightPresentationLayers,
+                risingLeftPresentationLayers);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(definition);
             return definition;
@@ -1088,6 +1167,42 @@ namespace BigRetail.Editor.Fixtures
                 serializedDefinition.FindProperty(
                     "westPresentationLayers"),
                 eastAndWestLayers);
+        }
+
+
+        private static void ConfigureHalfShelfPresentationLayers(
+            SerializedObject serializedDefinition,
+            Sprite[] risingRightLayers,
+            Sprite[] risingLeftLayers)
+        {
+            bool hasCompleteLayers =
+                AreAllSpritesPrepared(risingRightLayers)
+                && AreAllSpritesPrepared(risingLeftLayers);
+            Sprite[] northLayers =
+                hasCompleteLayers
+                    ? risingRightLayers
+                    : System.Array.Empty<Sprite>();
+            Sprite[] westLayers =
+                hasCompleteLayers
+                    ? risingLeftLayers
+                    : System.Array.Empty<Sprite>();
+
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "northPresentationLayers"),
+                northLayers);
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "eastPresentationLayers"),
+                System.Array.Empty<Sprite>());
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "southPresentationLayers"),
+                System.Array.Empty<Sprite>());
+            SetSpriteArray(
+                serializedDefinition.FindProperty(
+                    "westPresentationLayers"),
+                westLayers);
         }
 
 

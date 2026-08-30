@@ -1,3 +1,5 @@
+using System.Reflection;
+using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
 using NUnit.Framework;
 using UnityEngine;
@@ -70,6 +72,63 @@ namespace BigRetail.Map.Unity.Tests
 
             Assert.That(restoredColor, Is.EqualTo(baseColor));
             Assert.That(restoredOrder, Is.EqualTo(184));
+        }
+
+        [Test]
+        public void HoverOutlineFallsBackToPinnedObjectiveFixture()
+        {
+            GameObject root =
+                new GameObject("Fixture Outline Target Test");
+            root.SetActive(false);
+
+            try
+            {
+                FixtureViewSystem fixtureViewSystem =
+                    root.AddComponent<FixtureViewSystem>();
+                FixtureMerchandisingHoverOutlineView outline =
+                    root.AddComponent<
+                        FixtureMerchandisingHoverOutlineView>();
+
+                FieldInfo viewSystemField =
+                    typeof(FixtureMerchandisingHoverOutlineView)
+                        .GetField(
+                            "fixtureViewSystem",
+                            BindingFlags.NonPublic
+                            | BindingFlags.Instance);
+
+                Assert.That(viewSystemField, Is.Not.Null);
+                viewSystemField.SetValue(outline, fixtureViewSystem);
+
+                FixtureInstanceId objectiveFixture =
+                    new FixtureInstanceId("CHIP-FIXTURE");
+                FixtureInstanceId hoveredFixture =
+                    new FixtureInstanceId("HOVERED-FIXTURE");
+
+                outline.PinFixture(objectiveFixture);
+
+                Assert.That(outline.HasPinnedFixture, Is.True);
+                Assert.That(
+                    outline.TargetFixtureId,
+                    Is.EqualTo(objectiveFixture));
+
+                outline.ShowFixture(hoveredFixture);
+                Assert.That(
+                    outline.TargetFixtureId,
+                    Is.EqualTo(hoveredFixture));
+
+                outline.Hide();
+                Assert.That(
+                    outline.TargetFixtureId,
+                    Is.EqualTo(objectiveFixture));
+
+                outline.ClearPinnedFixture();
+                Assert.That(outline.HasPinnedFixture, Is.False);
+                Assert.That(outline.TargetFixtureId.IsValid, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
     }
 }

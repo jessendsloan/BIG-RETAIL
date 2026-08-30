@@ -305,12 +305,33 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixtureRestockResult result =
                 planogramRuntimeHost.DisplayInventory
                     .TryRestockFixture(
-                        selectionHost.SelectedFixtureId);
+                        selectionHost.SelectedFixtureId,
+                        maximumUnitCount: 1);
 
             RefreshView();
 
             boundView?.SetRestockStatus(
                 DescribeRestockResult(result));
+        }
+
+        private void HandleUnstockRequested()
+        {
+            if (!selectionHost.HasSelectedFixture
+                || planogramRuntimeHost.DisplayInventory == null)
+            {
+                return;
+            }
+
+            FixtureUnstockResult result =
+                planogramRuntimeHost.DisplayInventory
+                    .TryReturnFixtureStockToBackstock(
+                        selectionHost.SelectedFixtureId,
+                        maximumUnitCount: 1);
+
+            RefreshView();
+
+            boundView?.SetRestockStatus(
+                DescribeUnstockResult(result));
         }
 
         private void HandleDoneRequested()
@@ -610,6 +631,7 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView.EditRequested += HandleEditRequested;
             boundView.RestockRequested += HandleRestockRequested;
+            boundView.UnstockRequested += HandleUnstockRequested;
             boundView.DoneRequested += HandleDoneRequested;
             boundView.CloseRequested += HandleCloseRequested;
             boundView.ProductRequested += HandleProductRequested;
@@ -639,6 +661,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 boundView.EditRequested -= HandleEditRequested;
                 boundView.RestockRequested -= HandleRestockRequested;
+                boundView.UnstockRequested -= HandleUnstockRequested;
                 boundView.DoneRequested -= HandleDoneRequested;
                 boundView.CloseRequested -= HandleCloseRequested;
                 boundView.ProductRequested -= HandleProductRequested;
@@ -848,7 +871,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                     0,
                     0,
                     0,
-                    canRestock: false);
+                    canRestock: false,
+                    canUnstock: false);
                 boundView.SetSalesToday(0);
                 boundView.SetRestockStatus("Inventory unavailable");
                 return;
@@ -858,7 +882,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 snapshot.StockedUnitCount,
                 snapshot.CapacityUnitCount,
                 snapshot.BackstockUnitCount,
-                snapshot.CanRestock);
+                snapshot.CanRestock,
+                canUnstock: snapshot.StockedUnitCount > 0);
 
             boundView.SetSalesToday(
                 planogramRuntimeHost.Sales
@@ -1524,7 +1549,26 @@ namespace BigRetail.Construction.Unity.UI.PC
                     "Display is already full",
                 FixtureRestockOutcome.BackstockUnavailable =>
                     "No matching backstock available",
+                FixtureRestockOutcome.InvalidQuantity =>
+                    "Stocking quantity is unavailable",
                 _ => "Restock unavailable"
+            };
+        }
+
+        private static string DescribeUnstockResult(
+            FixtureUnstockResult result)
+        {
+            return result.Outcome switch
+            {
+                FixtureUnstockOutcome.ReturnedToBackstock =>
+                    $"Returned {result.ReturnedUnitCount} item to storage",
+                FixtureUnstockOutcome.NothingAssigned =>
+                    "This fixture has no assigned products",
+                FixtureUnstockOutcome.DisplayEmpty =>
+                    "Display is already empty",
+                FixtureUnstockOutcome.InvalidQuantity =>
+                    "Return quantity is unavailable",
+                _ => "Return unavailable"
             };
         }
 

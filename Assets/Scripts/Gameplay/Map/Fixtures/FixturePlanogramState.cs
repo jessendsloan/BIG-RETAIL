@@ -45,6 +45,33 @@ namespace BigRetail.Map.Fixtures
             return productId.IsValid;
         }
 
+        public bool TryGetSingleAssignedFixture(
+            out FixtureInstanceId fixtureId)
+        {
+            fixtureId = default;
+            bool foundFixture = false;
+
+            foreach (
+                FixtureShelfRunKey shelfRun
+                in frontageByShelfRun.Keys)
+            {
+                if (!foundFixture)
+                {
+                    fixtureId = shelfRun.FixtureId;
+                    foundFixture = true;
+                    continue;
+                }
+
+                if (shelfRun.FixtureId != fixtureId)
+                {
+                    fixtureId = default;
+                    return false;
+                }
+            }
+
+            return foundFixture;
+        }
+
         public bool TryGetFacingAt(
             FixtureShelfRunKey shelfRun,
             int frontageUnitIndex,

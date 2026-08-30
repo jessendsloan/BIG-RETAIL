@@ -28,10 +28,18 @@ namespace BigRetail.Construction.Unity.UI.PC
             + "Ridgeway chip case, then click a storage rack. Repeat until "
             + "all four cases are stored.";
         private const string FrankCompletedObjectiveTitle =
-            "Back Room Stocked";
+            "Chips Stocked";
         private const string FrankCompletedObjectiveDescription =
-            "All four Ridgeway chip cases are safely stored on the racks.";
-        private const int FrankOpeningRidgewayUnitCount = 48;
+            "The chip fixture is full with 45 bags, and the final 3 bags "
+            + "remain in storage.";
+        private const string FrankSalesFloorObjectiveTitle =
+            "Stock the Chip Fixture";
+        private const string FrankSalesFloorObjectiveDescription =
+            "Choose Merchandise, click the glowing Ridgeway chip fixture, "
+            + "then choose Add One Item. Add each bag until all 15 slots "
+            + "show three bags.";
+        private const int FrankOpeningRidgewayReceivedUnitCount = 48;
+        private const int FrankOpeningRidgewayDisplayUnitCount = 45;
         private const int FrankDialoguePageCount = 3;
         private const float FrankRevealDurationSeconds = 1.2f;
 
@@ -54,7 +62,10 @@ namespace BigRetail.Construction.Unity.UI.PC
         private GridMapHost mapHost;
 
         private FixturePlanogramRuntimeHost planogramRuntimeHost;
+        private FixtureMerchandisingOverlayViewSystem
+            merchandisingOverlayViewSystem;
         private FixtureBackstockService subscribedBackstock;
+        private FixtureDisplayInventoryService subscribedDisplayInventory;
         private CampaignOpeningView boundView;
         private Coroutine frankRevealCoroutine;
         private SimulationSpeed speedBeforeDialogue =
@@ -96,6 +107,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             planogramRuntimeHost =
                 FindAnyObjectByType<FixturePlanogramRuntimeHost>(
                     FindObjectsInactive.Include);
+            merchandisingOverlayViewSystem =
+                FindAnyObjectByType<
+                    FixtureMerchandisingOverlayViewSystem>(
+                        FindObjectsInactive.Include);
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(false);
 
             referencesAreValid = ValidateReferences();
         }
@@ -117,6 +134,7 @@ namespace BigRetail.Construction.Unity.UI.PC
                 planogramRuntimeHost.Initialized +=
                     HandlePlanogramInitialized;
                 AttachBackstock();
+                AttachDisplayInventory();
             }
 
             if (documentHost.HasCampaignOpeningView)
@@ -148,6 +166,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             }
 
             DetachBackstock();
+            DetachDisplayInventory();
+
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(false);
 
             RestoreSimulationSpeed();
             UnbindView();
@@ -168,10 +190,17 @@ namespace BigRetail.Construction.Unity.UI.PC
             FixturePlanogramRuntimeHost initializedHost)
         {
             AttachBackstock();
+            AttachDisplayInventory();
             Refresh();
         }
 
         private void HandleBackstockContentsChanged()
+        {
+            Refresh();
+        }
+
+        private void HandleDisplayStockChanged(
+            FixtureInstanceId _)
         {
             Refresh();
         }
@@ -259,6 +288,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             GameSession session = TryGetCampaignSession();
             if (session == null)
             {
+                merchandisingOverlayViewSystem
+                    ?.SetObjectiveHighlightEnabled(false);
                 boundView.SetDialogueVisible(false);
                 boundView.SetObjectiveVisible(false);
                 RestoreSimulationSpeed();
@@ -270,6 +301,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 RefreshFrankOpening(session);
                 return;
             }
+
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(false);
 
             CampaignOpeningProgress progress =
                 session.CampaignOpening;
@@ -285,6 +319,8 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(false);
             boundView.SetObjectiveVisible(false);
             SetDialogueForBeat(progress.CurrentBeat);
             boundView.SetDialogueVisible(true);
@@ -362,25 +398,14 @@ namespace BigRetail.Construction.Unity.UI.PC
             if (progress.IsComplete)
             {
                 boundView.SetDialogueVisible(false);
-
-                if (IsFrankBackroomStocked())
-                {
-                    boundView.SetObjective(
-                        FrankCompletedObjectiveTitle,
-                        FrankCompletedObjectiveDescription);
-                }
-                else
-                {
-                    boundView.SetObjective(
-                        FrankObjectiveTitle,
-                        FrankObjectiveDescription);
-                }
-
+                SetFrankObjective();
                 boundView.SetObjectiveVisible(true);
                 RestoreSimulationSpeed();
                 return;
             }
 
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(false);
             boundView.SetObjectiveVisible(false);
             SetFrankDialogueForBeat(progress.CurrentBeat);
             boundView.SetDialogueVisible(true);
@@ -454,9 +479,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             boundView.SetDialogueVisible(false);
             boundView.SetOpeningOpacity(1f);
             boundView.SetDialogueControlsEnabled(true);
-            boundView.SetObjective(
-                FrankObjectiveTitle,
-                FrankObjectiveDescription);
+            SetFrankObjective();
             boundView.SetObjectiveVisible(true);
             RestoreSimulationSpeed();
         }
@@ -484,12 +507,51 @@ namespace BigRetail.Construction.Unity.UI.PC
                 && mapHost.MapDefinition.MapId == FrankRoadsideMapId;
         }
 
-        private bool IsFrankBackroomStocked()
+        private void SetFrankObjective()
         {
-            return subscribedBackstock != null
-                && subscribedBackstock.GetAvailableQuantity(
+            int backstockUnitCount =
+                subscribedBackstock?.GetAvailableQuantity(
                     FrankOpeningRidgewayProductId)
-                    >= FrankOpeningRidgewayUnitCount;
+                ?? 0;
+            int displayedUnitCount =
+                subscribedDisplayInventory?.GetDisplayedQuantity(
+                    FrankOpeningRidgewayProductId)
+                ?? 0;
+            FrankRoadsideOpeningObjective objective =
+                FrankRoadsideOpeningProgress.ResolveStockingObjective(
+                    backstockUnitCount,
+                    displayedUnitCount,
+                    FrankOpeningRidgewayReceivedUnitCount,
+                    FrankOpeningRidgewayDisplayUnitCount);
+
+            merchandisingOverlayViewSystem
+                ?.SetObjectiveHighlightEnabled(
+                    objective
+                    == FrankRoadsideOpeningObjective.StockSalesFloor);
+
+            switch (objective)
+            {
+                case FrankRoadsideOpeningObjective
+                    .MoveReceivingToStockroom:
+                    boundView.SetObjective(
+                        FrankObjectiveTitle,
+                        FrankObjectiveDescription);
+                    break;
+
+                case FrankRoadsideOpeningObjective.StockSalesFloor:
+                    boundView.SetObjective(
+                        FrankSalesFloorObjectiveTitle,
+                        FrankSalesFloorObjectiveDescription
+                        + $" ({displayedUnitCount}/"
+                        + $"{FrankOpeningRidgewayDisplayUnitCount} stocked)");
+                    break;
+
+                case FrankRoadsideOpeningObjective.Complete:
+                    boundView.SetObjective(
+                        FrankCompletedObjectiveTitle,
+                        FrankCompletedObjectiveDescription);
+                    break;
+            }
         }
 
         private void AttachBackstock()
@@ -525,6 +587,41 @@ namespace BigRetail.Construction.Unity.UI.PC
             subscribedBackstock.ContentsChanged -=
                 HandleBackstockContentsChanged;
             subscribedBackstock = null;
+        }
+
+        private void AttachDisplayInventory()
+        {
+            FixtureDisplayInventoryService nextDisplayInventory =
+                planogramRuntimeHost != null
+                && planogramRuntimeHost.IsInitialized
+                    ? planogramRuntimeHost.DisplayInventory
+                    : null;
+
+            if (subscribedDisplayInventory == nextDisplayInventory)
+            {
+                return;
+            }
+
+            DetachDisplayInventory();
+            subscribedDisplayInventory = nextDisplayInventory;
+
+            if (subscribedDisplayInventory != null)
+            {
+                subscribedDisplayInventory.FixtureStockChanged +=
+                    HandleDisplayStockChanged;
+            }
+        }
+
+        private void DetachDisplayInventory()
+        {
+            if (subscribedDisplayInventory == null)
+            {
+                return;
+            }
+
+            subscribedDisplayInventory.FixtureStockChanged -=
+                HandleDisplayStockChanged;
+            subscribedDisplayInventory = null;
         }
 
         private void PauseSimulation()

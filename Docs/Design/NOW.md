@@ -1,6 +1,6 @@
 # Big Retail — Now
 
-**Updated:** 2026-08-28
+**Updated:** 2026-08-30
 
 This is the short active-work board. It answers **“What are we finishing
 next?”** `CURRENT.md` records the broader accepted design and implementation
@@ -15,35 +15,50 @@ closure target.
 Turn the opening campaign from a collection of working tools into a convincing,
 economically grounded **small retailer that can visibly grow into a megastore**.
 
-## 1. Prove Frank's first complete retail transaction
+## 1. Finish Frank's first complete retail transaction
 
-The immediate vertical slice is one complete, human-scale retail loop at
+The immediate vertical slice remains one complete, human-scale retail loop at
 Frank's Roadside. Do not begin with a crowd simulation or broad catalog
 expansion. Prove one Founder, one stocking task, one customer, and one paid
 sale through the permanent systems first.
 
-Use this locked implementation order:
+The opening foundation now proves:
 
-1. **Frank Opening Scenario v1** — load the authored morning time, starting
-   cash, planograms, display and backstock inventory, checkout state,
-   Founder/Frank spawns, and opening objective. Only a new Campaign receives
-   the canonical approximately 6:30–7:00 AM start; saves, Sandbox, and Map
-   Workshop retain their own clock state.
-2. **Founder Stock Task v1** — let the player command the Founder through a
-   fixture interaction. The Founder walks to the employee access point and
+- a deterministic Monday 6:45 AM Campaign start with $2,500 store cash;
+- Frank's opening dialogue and the **Get to Work** handoff;
+- four Ridgeway chip cases staged in the authored Receiving Area;
+- direct, physical case-by-case movement from the supplier load to storage;
+- an empty 15-frontage Ridgeway planogram on the center back-wall Half Shelf;
+- direct one-item stocking and removal, with three bags per frontage;
+- an objective transition from Receiving → stockroom → sales floor;
+- layered Half Shelf art, fixture highlighting, planogram ghosts, and
+  inventory-driven 1/2/3-bag shelf presentation;
+- direction-specific fixture slot anchors authored through the visual Shelf
+  Layout Editor; and
+- completion at 45 displayed bags with the final three units retained in
+  backstock.
+
+This is the accepted **direct-control prototype** of the physical inventory
+loop. It deliberately does not count as the permanent Founder task: the player
+currently clicks the load, storage rack, and fixture controls directly.
+
+Continue in this locked order:
+
+1. **Founder Stock Task v1 — next.** Let the player command the Founder through
+   a fixture interaction. The Founder walks to the employee access point and
    performs the same stocking task a future employee can perform.
-3. **One Customer Journey** — spawn one customer, choose one available
-   product, navigate to its customer access point, take it into a basket,
-   travel to checkout, pay, and leave.
-4. **Staffed Checkout v1** — make the Founder operate checkout so customer
+2. **One Customer Journey.** Spawn one customer, choose one available product,
+   navigate to its customer access point, take it into a basket, travel to
+   checkout, pay, and leave.
+3. **Staffed Checkout v1.** Make the Founder operate checkout so customer
    service is embodied work that can later be delegated to an employee.
-5. **Focused Product Visual Pass** — add enough catalog, package, and stocked
-   shelf presentation for the accepted opening products to make the completed
-   transaction visually legible. Do not expand the product universe merely to
-   postpone proving the loop.
-6. **Story Wrapper** — stage Frank's dialogue and debt hints around the proven
-   opening shift, then add Mr. BIG's arrival, confrontation, title transition,
-   and permanent-property handoff.
+4. **Focused Product Visual Pass.** Ridgeway chips prove the permanent display
+   pipeline. Add only enough additional opening presentation to make the first
+   completed transaction legible; do not expand the product universe merely
+   to postpone proving the loop.
+5. **Story Wrapper.** Stage Frank's debt hints around the proven opening shift,
+   then add Mr. BIG's arrival, confrontation, title transition, and
+   permanent-property handoff.
 
 The dependency chain is:
 
@@ -58,84 +73,35 @@ deterministically.
 
 ## 2. Restore a zero-red EditMode test baseline
 
-The complete EditMode suite currently reports **799 passed and 31 failed**.
-The affected production behaviors remain valuable and the tests must not be
-deleted merely to make the report green. Repair the stale test scaffolding in
-a dedicated test-health patch after the Frank Opening Scenario checkpoint.
+The complete EditMode suite currently reports **861 passed and 25 failed**.
+All 89 focused tests covering the Half Shelf layout, Ridgeway artwork,
+authored slot anchors, inventory transfer, planogram behavior, scenario reset,
+and opening session flow pass. The remaining failures are stale test or Unity
+6.5 fixture issues, not failures in the opening stocking slice.
 
-The confirmed repair groups are:
+The current repair groups are:
 
-- replace 13 incompatible `Has.Count` assertions with direct collection-count
-  assertions that work with the current NUnit runner;
-- update 14 foundation test fixtures to provide the `ConstructionEligibility`
-  dependency introduced by the location land-policy system;
-- update two door-view tests to use the `WallSegmentView` already attached to
-  the authored wall prefab instead of trying to add a duplicate component;
-- correct two synthetic shelf-mask tests so their overridden sprite vertices
-  use Unity's required sprite-rectangle coordinate space.
+- 3 `CellAreaBoundaryResolverTests` collection-count assertions;
+- 4 `FoundationApronPreviewResolverTests` fixtures;
+- 6 `FoundationAreaPreviewViewTests` fixtures;
+- 4 `FoundationDemolitionAreaPreviewViewTests` fixtures;
+- 4 `FoundationRuntimeHostTests` fixtures;
+- 2 `DoorAssemblyViewTests` prefab-component fixtures; and
+- 2 `FixtureShelfMaskGeometryTests` synthetic sprite-geometry fixtures.
 
 Keep this work isolated from production feature changes. Do not disable tests,
-hide Console errors, or change production behavior solely to satisfy stale
-test setup.
+hide Console errors, or change production behavior solely to satisfy stale test
+setup.
 
-**Done when:** The complete Unity EditMode suite reports **830/830 passing** on
-the current project version, the Frank scenario's focused tests remain green,
-Unity compiles without new errors, and no test has been removed or ignored.
+**Done when:** The complete current Unity EditMode suite is zero-red, Frank's
+scenario and merchandising tests remain green, Unity compiles without new
+errors, and no test has been removed or ignored.
 
-## 3. Stop camera movement from navigating the UI
-
-WASD camera movement currently also moves through focused UI options. Camera
-control and UI navigation must not consume the same keyboard input during
-ordinary gameplay.
-
-The fix must preserve intentional keyboard and controller navigation:
-
-- WASD moves the camera without changing UI focus or selection;
-- Tab, arrow keys, and controller navigation continue to operate the UI where
-  supported;
-- an open modal, text field, or other input-capturing interface can deliberately
-  suppress camera movement;
-- closing the interface restores camera input without requiring an extra click;
-- pointer hover alone does not unexpectedly redirect keyboard focus.
-
-**Done when:** Holding or tapping every WASD direction while construction and
-management panels are open moves only the camera, and the same panels remain
-fully navigable through their intended keyboard and controller controls.
-
-## 4. Repair the PO and Receiving controls
-
-The **PO** and **RCV** controls currently appear without the visible button
-background used by the surrounding toolbar controls. They must read as
-interactive buttons in their normal, hovered/focused, selected, and disabled
-states.
-
-The Purchasing overlay also has a blocking lifecycle bug: it closes correctly
-the first time, but after reopening it, the close button no longer works and the
-player becomes trapped in the PO screen.
-
-The fix must ensure:
-
-- PO and RCV use the same clear button-container treatment as equivalent HUD
-  controls;
-- hover, keyboard/controller focus, selected, and disabled states remain
-  visually distinct;
-- Purchasing can be opened and closed repeatedly without losing its close
-  action, input routing, or underlying gameplay controls;
-- closing Purchasing clears any stale overlay, focus, tooltip, or input-blocking
-  state before it is opened again;
-- the repeat cycle works with pointer input and intended keyboard/controller
-  navigation.
-
-**Done when:** PO and RCV are visibly recognizable as buttons, and Purchasing
-passes at least five consecutive open → close cycles during one play session
-without trapping the player or requiring an extra click.
-
-## 5. Close the construction-economy gap
+## 3. Close the construction-economy gap
 
 Foundation, sidewalk, floor, wall, finish, door, window, and demolition actions
-need real construction prices. At present, campaign cash exists and is used by
-purchasing, but physical construction does not spend it. Fixtures are handled
-separately as ordered physical equipment in the next item.
+need real construction prices. Campaign cash exists and is used by purchasing
+and fixture equipment, but ordinary construction does not spend it.
 
 The first implementation should provide:
 
@@ -146,127 +112,81 @@ The first implementation should provide:
 - one atomic charge only after the complete construction edit validates;
 - no partial construction or partial charge when the edit fails;
 - an explicit demolition/refund rule shown to the player;
-- undo/redo behavior that cannot duplicate or erase money;
+- undo/redo behavior that cannot duplicate or erase money; and
 - temporary v0.1 balance values that are easy to tune without rewriting tools.
 
-Before implementation, lock these two economy decisions:
-
-1. whether ordinary undo is a full transaction reversal while deliberate later
-   demolition returns only a salvage percentage;
-2. whether changing only a finish charges the new finish in full or credits the
-   replaced material.
+Before implementation, lock whether ordinary undo fully reverses the original
+transaction while later demolition returns salvage, and whether replacing only
+a finish credits the removed material.
 
 **Done when:** A player with limited campaign cash can preview, afford, build,
 undo, demolish, and fail to afford every opening construction category with a
 clear and consistent result.
 
-## 6. Make fixtures ordered physical equipment
+## 4. Establish authentic store anatomy
 
-Fixtures must not appear from an unlimited construction palette. They are
-physical business equipment that the player orders, receives, owns, places,
-moves, stores, and may eventually resell or scrap.
-
-The fixture-equipment loop should provide:
-
-- a dedicated **Equipment Catalog**, separate from merchandise purchasing;
-- fixture price, order quantity, availability, and delivery timing;
-- free translucent planning before the equipment is owned;
-- an **Order Required Equipment** action for planned layouts;
-- equipment deliveries that reuse campaign cash, scheduling, delivery, and
-  Receiving infrastructure without becoming merchandise POs;
-- an Owned Equipment count for every fixture definition;
-- placement that consumes one owned unit;
-- movement that relocates the same physical unit without charging again;
-- removal that returns the unit to equipment storage instead of destroying it;
-- explicit resale and scrap behavior rather than accidental deletion;
-- starter equipment that prevents the opening tutorial from deadlocking while
-  the first delivery is pending;
-- bulk equipment pallets or a pallet-build workflow so large expansions do not
-  require opening and carrying dozens of identical boxes one at a time;
-- a future seam for employees to unload, assemble, and install planned
-  equipment.
-
-**Locked rule:** Fixtures are ordered, delivered physical equipment. Planning
-is free; installation consumes owned equipment.
-
-**Done when:** The player can plan a fixture layout, order its missing
-equipment, receive the shipment, place the owned units, move and store them,
-and redeploy them without creating, losing, or paying twice for equipment.
-
-## 7. Establish authentic store anatomy
-
-Use `MegastoreAnatomy.md` as the active reference. The target is not to force
-players to reproduce one Walmart floor plan. The simulation should create the
-same pressures that make real large stores converge on recognizable layouts.
-
-The next playable visual milestone is a convincing **small neighborhood
-market**, not a prematurely enormous supercenter. It needs:
+Use `MegastoreAnatomy.md` as the active reference. The next playable visual
+milestone is a convincing **small neighborhood market**, not a prematurely
+enormous supercenter. It needs:
 
 - a readable storefront and entrance;
 - a front-end band with checkout and customer service;
 - clear customer circulation rather than fixtures scattered in open space;
 - a sales floor separated from receiving/backstock;
 - a grocery identity built from produce, perimeter refrigeration, dry-grocery
-  runs, endcaps, and promotional space;
+  runs, endcaps, and promotional space; and
 - operational reasons for sensible adjacencies and aisle widths.
 
 **Done when:** A screenshot without UI reads immediately as a functioning small
 retail store, and its receiving, stocking, checkout, and customer circulation
 can all be explained from the layout.
 
-## 8. Expand maximum camera zoom with Lot ownership
+## 5. Expand maximum camera zoom with Lot ownership
 
-The campaign camera should frame the store the player can actually use, not
-the entire nine-Lot Property from the beginning. Maximum zoom-out must grow as
-the player purchases adjacent Lots.
+The campaign camera should frame the store the player can actually use, not the
+entire nine-Lot Property from the beginning. Maximum zoom-out must grow as the
+player purchases adjacent Lots. Frank's fixed-footprint location retains its
+own authored camera policy.
 
-The camera rule should provide:
+**Done when:** A new campaign cannot zoom far beyond its starting Lot, each Lot
+purchase expands the useful zoom range, the complete Property can be framed at
+full ownership, and fixed-footprint locations retain authored bounds.
 
-- an opening zoom limit that keeps the starting corner Lot readable and useful;
-- a larger maximum zoom-out after each Lot purchase, based on the current owned
-  footprint rather than a fixed campaign-wide value;
-- enough framing margin to understand newly purchased land without revealing
-  large amounts of irrelevant or inaccessible space;
-- smooth clamping when ownership changes, without needlessly snapping the
-  player's current camera distance;
-- full-Property framing once all nine Lots are owned;
-- a fixed authored camera policy for locations without purchasable Lots, such
-  as Frank's roadside store.
-
-**Done when:** A new campaign cannot zoom out far beyond its starting Lot, each
-Lot purchase visibly expands the useful zoom range, the complete Property can
-be framed at full ownership, and fixed-footprint locations retain their own
-authored camera bounds.
-
-## 9. Preserve the embodied-player direction
+## 6. Preserve the embodied-player direction
 
 The preferred direction is **Employee Zero**: the player is a persistent Person
 and owner-operator, not a separate superhuman species. Physical work should use
 the same task actions as employees; direct intent and business authority are
 what distinguish the player.
 
-This is a design constraint for later employee work, not the next large feature
-to implement. New task systems should avoid making separate “player-only”
-versions of stocking, receiving, checkout, cleaning, or customer assistance.
+This is a design constraint for the next Founder task and later employee work.
+Do not make separate player-only versions of stocking, receiving, checkout,
+cleaning, or customer assistance.
 
 ## Integration status
 
-GitHub `main` contains the opening commercial catalog, supplier delivery and
-receiving work, windows/sidewalk panel work, and the UI clarity patch through
-pull request 23. No known feature bridge remains between those completed
-branches.
+GitHub `main` contains the permanent Products → Suppliers → Purchasing →
+Delivery → Receiving foundation, the PO/RCV lifecycle and UI-input fixes, and
+the ordered physical fixture-equipment loop documented in
+`FixtureEquipment.md`.
 
-There is separate local wall-finish work in progress. Preserve it and resolve
-it before changing branches or starting the construction-economy implementation.
+The current merchandise-shelves milestone adds Frank's direct Receiving →
+storage → display opener, Ridgeway case and bag artwork, layered Half Shelf
+presentation, per-frontage physical inventory, and visual fixture-slot
+authoring. Once published, no feature bridge remains between this stocking
+prototype and the next Founder task.
+
+There is separate local wall-finish work in progress. Preserve it before
+changing branches or starting the construction-economy implementation.
 
 ## Not now
 
 - supplier relationship/account depth;
 - a universal permit ladder;
-- the complete employee simulation;
+- the complete employee simulation beyond the single Founder task;
 - late-game specialist departments;
-- final Xbox accessibility conformance;
+- final Xbox accessibility conformance; and
 - final balance numbers for construction or land.
 
-These remain valid future work. They should not displace the active closure
-targets above.
+These remain valid future work. They should not displace the active Frank
+transaction closure target.

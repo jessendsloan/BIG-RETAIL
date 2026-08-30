@@ -1,9 +1,11 @@
 using System.Linq;
+using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 namespace BigRetail.Purchasing.Unity.Tests
 {
@@ -121,6 +123,120 @@ namespace BigRetail.Purchasing.Unity.Tests
             Assert.That(
                 product.CaseRisingLeftImage,
                 Is.Not.SameAs(product.CaseRisingRightImage));
+        }
+
+
+        [Test]
+        public void RidgewayChips_HasDirectionalShelfAndHandlingPresentation()
+        {
+            CommercialCatalogAsset catalog =
+                AssetDatabase.LoadAssetAtPath<CommercialCatalogAsset>(
+                    CatalogPath);
+
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.ProductCatalog, Is.Not.Null);
+            Assert.That(
+                catalog.ProductCatalog.TryGetAsset(
+                    new ProductId(
+                        "RIDGEWAY-ORIGINAL-CHIPS-SINGLE"),
+                    out ProductDefinitionAsset product),
+                Is.True);
+            Assert.That(product.OnShelfImageCount, Is.EqualTo(3));
+            Assert.That(product.DisplayUnitsPerFrontageUnit, Is.EqualTo(3));
+
+            Assert.That(
+                product.GetOnShelfImage(
+                    risingLeft: true,
+                    fillRatio: 1f / 3f).name,
+                Does.Contain("OnShelf_x1_RisingLeft"));
+            Assert.That(
+                product.GetOnShelfImage(
+                    risingLeft: true,
+                    fillRatio: 2f / 3f).name,
+                Does.Contain("OnShelf_x2_RisingLeft"));
+            Assert.That(
+                product.GetOnShelfImage(
+                    risingLeft: false,
+                    fillRatio: 1f).name,
+                Does.Contain("OnShelf_x3_RisingRight"));
+            Assert.That(
+                product.GetOnShelfImage(
+                    risingLeft: false,
+                    fillRatio: 0f),
+                Is.Null);
+
+            Assert.That(product.OffShelfRisingLeftImage, Is.Not.Null);
+            Assert.That(product.OffShelfRisingRightImage, Is.Not.Null);
+            Assert.That(
+                product.OffShelfRisingLeftImage,
+                Is.Not.SameAs(product.OffShelfRisingRightImage));
+        }
+
+
+        [Test]
+        public void RidgewayChips_PlanogramGhostUsesArtUntilStockArrives()
+        {
+            CommercialCatalogAsset catalog =
+                AssetDatabase.LoadAssetAtPath<CommercialCatalogAsset>(
+                    CatalogPath);
+
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(
+                catalog.ProductCatalog.TryGetAsset(
+                    new ProductId(
+                        "RIDGEWAY-ORIGINAL-CHIPS-SINGLE"),
+                    out ProductDefinitionAsset product),
+                Is.True);
+
+            UnityEngine.Sprite fallback =
+                product.GetOnShelfImage(
+                    risingLeft: false,
+                    fillRatio: 1f);
+
+            UnityEngine.Sprite emptyGhost =
+                FixtureMerchandisingOverlayViewSystem
+                    .ResolvePlanogramMarkerSprite(
+                        product,
+                        canUseAuthoredProductArt: true,
+                        risingLeft: true,
+                        fillRatio: 0f,
+                        isEmphasized: false,
+                        fallbackSprite: fallback);
+
+            Assert.That(emptyGhost, Is.Not.Null);
+            Assert.That(
+                emptyGhost.name,
+                Does.Contain("OnShelf_x1_RisingLeft"));
+            Assert.That(
+                FixtureMerchandisingOverlayViewSystem
+                    .ResolvePlanogramMarkerSprite(
+                        product,
+                        canUseAuthoredProductArt: true,
+                        risingLeft: true,
+                        fillRatio: 1f / 3f,
+                        isEmphasized: false,
+                        fallbackSprite: fallback),
+                Is.Null);
+            Assert.That(
+                FixtureMerchandisingOverlayViewSystem
+                    .ResolvePlanogramMarkerSprite(
+                        product,
+                        canUseAuthoredProductArt: true,
+                        risingLeft: true,
+                        fillRatio: 1f / 3f,
+                        isEmphasized: true,
+                        fallbackSprite: fallback),
+                Is.Null);
+            Assert.That(
+                FixtureMerchandisingOverlayViewSystem
+                    .ResolvePlanogramMarkerSprite(
+                        product,
+                        canUseAuthoredProductArt: false,
+                        risingLeft: true,
+                        fillRatio: 0f,
+                        isEmphasized: false,
+                        fallbackSprite: fallback),
+                Is.SameAs(fallback));
         }
 
 

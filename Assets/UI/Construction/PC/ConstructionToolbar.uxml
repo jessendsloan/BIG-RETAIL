@@ -210,9 +210,15 @@
 
                     <ui:Button
                         name="fixture-merchandising-restock-button"
-                        text="Restock Now"
+                        text="Add One Item"
                         class="fixture-merchandising-inspector__secondary-button fixture-merchandising-inspector__action-button"
-                        tooltip="Move matching backstock directly onto this fixture." />
+                        tooltip="Move one matching item from storage onto this fixture." />
+
+                    <ui:Button
+                        name="fixture-merchandising-unstock-button"
+                        text="Return One Item"
+                        class="fixture-merchandising-inspector__secondary-button fixture-merchandising-inspector__action-button"
+                        tooltip="Move one displayed item back into storage." />
                 </ui:VisualElement>
 
                 <ui:VisualElement

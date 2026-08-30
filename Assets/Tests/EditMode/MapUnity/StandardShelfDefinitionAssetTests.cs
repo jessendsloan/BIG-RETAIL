@@ -31,7 +31,7 @@ namespace BigRetail.Map.Unity.Tests
                 * FixtureMerchandisingProfile.StandardShelfRunCount
                 * FixtureMerchandisingProfile.StandardFrontageUnitsPerRun;
 
-            Assert.That(totalSlots, Is.EqualTo(24));
+            Assert.That(totalSlots, Is.EqualTo(30));
         }
 
         [TestCase(
@@ -68,7 +68,7 @@ namespace BigRetail.Map.Unity.Tests
                     FixtureOrientation.North,
                     viewOrientation);
 
-            Assert.That(visibleMasks, Has.Count.EqualTo(3));
+            Assert.That(visibleMasks.Count, Is.EqualTo(3));
             Assert.That(
                 visibleMasks[0].name,
                 Does.StartWith(expectedDirectionName)
@@ -113,7 +113,7 @@ namespace BigRetail.Map.Unity.Tests
                 Is.EqualTo(3));
             Assert.That(
                 face.FrontageUnitsPerRun,
-                Is.EqualTo(4));
+                Is.EqualTo(5));
         }
 
         private static FixtureDefinitionAsset LoadAsset()
