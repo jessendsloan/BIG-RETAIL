@@ -103,7 +103,7 @@ namespace BigRetail.Map.Unity.Tests
                 AssertMarker(
                     markerHost,
                     "bigretail.marker.frank.roadside_arrival",
-                    new Vector3Int(-20, 22, 0));
+                    new Vector3Int(12, 52, 0));
                 AssertMarker(
                     markerHost,
                     "bigretail.marker.frank.rear_service");

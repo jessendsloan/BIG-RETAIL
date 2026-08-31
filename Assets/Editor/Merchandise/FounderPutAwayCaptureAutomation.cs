@@ -246,12 +246,12 @@ namespace BigRetail.Editor.Merchandise
 
             GridPosition founderCell = controller.FounderCell;
 
-            if (founderCell != new GridPosition(-20, 22, 0)
+            if (founderCell != new GridPosition(12, 52, 0)
                 || !navigationHost.CanStandAt(founderCell)
                 || !navigationHost.CanStandAt(
-                    new GridPosition(-20, 28, 0))
+                    new GridPosition(-8, 47, 0))
                 || navigationHost.CanStandAt(
-                    new GridPosition(-21, 22, 0)))
+                    new GridPosition(20, 54, 0)))
             {
                 Fail(
                     "Founder or the opening navigation surface did not "

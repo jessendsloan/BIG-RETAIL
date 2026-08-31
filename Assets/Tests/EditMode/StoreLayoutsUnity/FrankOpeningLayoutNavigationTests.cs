@@ -22,16 +22,16 @@ namespace BigRetail.StoreLayouts.Unity.Tests
 
             StoreLayoutData layout = asset.CreateRuntimeCopy();
 
-            Assert.That(layout.Sidewalks.Count, Is.EqualTo(125));
+            Assert.That(layout.Sidewalks.Count, Is.EqualTo(140));
             CollectionAssert.Contains(
+                layout.Sidewalks,
+                new StoreCellData(12, 52, 0));
+            CollectionAssert.Contains(
+                layout.Sidewalks,
+                new StoreCellData(-8, 47, 0));
+            CollectionAssert.DoesNotContain(
                 layout.Sidewalks,
                 new StoreCellData(-20, 22, 0));
-            CollectionAssert.Contains(
-                layout.Sidewalks,
-                new StoreCellData(-17, 27, 0));
-            CollectionAssert.Contains(
-                layout.Sidewalks,
-                new StoreCellData(-20, 28, 0));
         }
     }
 }

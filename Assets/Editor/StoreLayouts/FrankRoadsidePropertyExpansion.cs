@@ -35,6 +35,19 @@ namespace BigRetail.Editor.StoreLayouts
         private const int PropertyMinimumY = 13;
         private const int PropertyMaximumY = 59;
 
+        private const string RoadsideArrivalMarkerId =
+            "bigretail.marker.frank.roadside_arrival";
+
+        private const int FirstDraftTrailerPathStartX = -8;
+        private const int TrailerPathStartX = -7;
+        private const int TrailerPathStartY = 47;
+        private const int PreviousTrailerPathEndX = 19;
+        private const int PreviousTrailerPathEndY = 54;
+        private const int PreviousRenderedPathEndX = 8;
+        private const int PreviousRenderedPathEndY = 51;
+        private const int TrailerPathEndX = 12;
+        private const int TrailerPathEndY = 52;
+
 
         public static void ApplyForAutomation()
         {
@@ -101,6 +114,7 @@ namespace BigRetail.Editor.StoreLayouts
             }
 
             ConfigureFounderWork(scene, navigationHost);
+            ConfigureRoadsideMarker(scene);
             ExpandOpeningLayoutSidewalks(mapHost.MapFingerprint);
 
             EditorSceneManager.MarkSceneDirty(scene);
@@ -178,6 +192,54 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
+        private static void ConfigureRoadsideMarker(Scene scene)
+        {
+            LocationMarkerHost markerHost =
+                FindRequiredComponent<LocationMarkerHost>(scene);
+            LocationMarkerAuthoring[] markers =
+                FindComponents<LocationMarkerAuthoring>(scene);
+            LocationMarkerAuthoring roadsideMarker = null;
+
+            for (int index = 0; index < markers.Length; index++)
+            {
+                if (string.Equals(
+                        markers[index].MarkerId,
+                        RoadsideArrivalMarkerId,
+                        StringComparison.Ordinal))
+                {
+                    roadsideMarker = markers[index];
+                    break;
+                }
+            }
+
+            if (roadsideMarker == null)
+            {
+                throw new InvalidOperationException(
+                    "Frank Roadside is missing its stable arrival marker.");
+            }
+
+            SerializedObject serialized =
+                new SerializedObject(roadsideMarker);
+            serialized.FindProperty("logicalCell").vector3IntValue =
+                new Vector3Int(
+                    TrailerPathEndX,
+                    TrailerPathEndY,
+                    0);
+            serialized.FindProperty("worldOffset").vector3Value =
+                Vector3.zero;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(roadsideMarker);
+
+            if (!markerHost.TryRebuildMarkerIndex(
+                    out string validationFailure))
+            {
+                throw new InvalidOperationException(validationFailure);
+            }
+
+            markerHost.RefreshWorldPositions();
+        }
+
+
         private static void ExpandOpeningLayoutSidewalks(
             string mapFingerprint)
         {
@@ -196,12 +258,63 @@ namespace BigRetail.Editor.StoreLayouts
             HashSet<StoreCellData> sidewalks =
                 new HashSet<StoreCellData>(layout.Sidewalks);
 
+            // Remove the short storefront spur created by the first draft.
             for (int y = 22; y <= 27; y++)
             {
                 for (int x = -20; x <= -17; x++)
                 {
-                    sidewalks.Add(new StoreCellData(x, y, 0));
+                    sidewalks.Remove(new StoreCellData(x, y, 0));
                 }
+            }
+
+            // Remove both earlier diagonal drafts before authoring the
+            // shorter route that ends at the trailer's rendered steps.
+            RemoveRoundedPath(
+                sidewalks,
+                FirstDraftTrailerPathStartX,
+                TrailerPathStartY,
+                PreviousTrailerPathEndX,
+                PreviousTrailerPathEndY,
+                1);
+            RemoveRoundedPath(
+                sidewalks,
+                TrailerPathStartX,
+                TrailerPathStartY,
+                PreviousTrailerPathEndX,
+                PreviousTrailerPathEndY,
+                -1);
+            RemoveRoundedPath(
+                sidewalks,
+                TrailerPathStartX,
+                TrailerPathStartY,
+                PreviousRenderedPathEndX,
+                PreviousRenderedPathEndY,
+                -1);
+
+            // This cell predates both drafts and is the store-side handoff.
+            sidewalks.Add(
+                new StoreCellData(
+                    FirstDraftTrailerPathStartX,
+                    TrailerPathStartY,
+                    0));
+
+            int horizontalDistance =
+                TrailerPathEndX - TrailerPathStartX;
+            int verticalDistance =
+                TrailerPathEndY - TrailerPathStartY;
+
+            for (int x = TrailerPathStartX;
+                 x <= TrailerPathEndX;
+                 x++)
+            {
+                int progress = x - TrailerPathStartX;
+                int y = TrailerPathStartY
+                    + ((progress * verticalDistance
+                        + horizontalDistance / 2)
+                       / horizontalDistance);
+
+                sidewalks.Add(new StoreCellData(x, y, 0));
+                sidewalks.Add(new StoreCellData(x, y - 1, 0));
             }
 
             layout.Sidewalks.Clear();
@@ -209,6 +322,35 @@ namespace BigRetail.Editor.StoreLayouts
             layoutAsset.ReplaceData(layout);
             EditorUtility.SetDirty(layoutAsset);
             AssetDatabase.SaveAssetIfDirty(layoutAsset);
+        }
+
+
+        private static void RemoveRoundedPath(
+            HashSet<StoreCellData> sidewalks,
+            int startX,
+            int startY,
+            int endX,
+            int endY,
+            int secondLaneOffsetY)
+        {
+            int horizontalDistance = endX - startX;
+            int verticalDistance = endY - startY;
+
+            for (int x = startX; x <= endX; x++)
+            {
+                int progress = x - startX;
+                int y = startY
+                    + ((progress * verticalDistance
+                        + horizontalDistance / 2)
+                       / horizontalDistance);
+
+                sidewalks.Remove(new StoreCellData(x, y, 0));
+                sidewalks.Remove(
+                    new StoreCellData(
+                        x,
+                        y + secondLaneOffsetY,
+                        0));
+            }
         }
 
 

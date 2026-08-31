@@ -794,7 +794,7 @@ namespace BigRetail.Editor.StoreLayouts
             Vector3Int roadsideArrival =
                 FindNearestCell(
                     authoredMap.ConstructionCells,
-                    new Vector3Int(-20, 22, 0));
+                    new Vector3Int(12, 52, 0));
 
             Vector3Int rearService =
                 FindNearestCell(

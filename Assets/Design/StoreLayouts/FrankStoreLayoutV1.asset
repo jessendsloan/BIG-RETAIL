@@ -965,78 +965,6 @@ MonoBehaviour:
       Level: 0
     Sidewalks:
     - X: -20
-      Y: 22
-      Level: 0
-    - X: -19
-      Y: 22
-      Level: 0
-    - X: -18
-      Y: 22
-      Level: 0
-    - X: -17
-      Y: 22
-      Level: 0
-    - X: -20
-      Y: 23
-      Level: 0
-    - X: -19
-      Y: 23
-      Level: 0
-    - X: -18
-      Y: 23
-      Level: 0
-    - X: -17
-      Y: 23
-      Level: 0
-    - X: -20
-      Y: 24
-      Level: 0
-    - X: -19
-      Y: 24
-      Level: 0
-    - X: -18
-      Y: 24
-      Level: 0
-    - X: -17
-      Y: 24
-      Level: 0
-    - X: -20
-      Y: 25
-      Level: 0
-    - X: -19
-      Y: 25
-      Level: 0
-    - X: -18
-      Y: 25
-      Level: 0
-    - X: -17
-      Y: 25
-      Level: 0
-    - X: -20
-      Y: 26
-      Level: 0
-    - X: -19
-      Y: 26
-      Level: 0
-    - X: -18
-      Y: 26
-      Level: 0
-    - X: -17
-      Y: 26
-      Level: 0
-    - X: -20
-      Y: 27
-      Level: 0
-    - X: -19
-      Y: 27
-      Level: 0
-    - X: -18
-      Y: 27
-      Level: 0
-    - X: -17
-      Y: 27
-      Level: 0
-    - X: -20
       Y: 28
       Level: 0
     - X: -19
@@ -1333,11 +1261,128 @@ MonoBehaviour:
     - X: -7
       Y: 46
       Level: 0
+    - X: -6
+      Y: 46
+      Level: 0
     - X: -9
       Y: 47
       Level: 0
     - X: -8
       Y: 47
+      Level: 0
+    - X: -7
+      Y: 47
+      Level: 0
+    - X: -6
+      Y: 47
+      Level: 0
+    - X: -5
+      Y: 47
+      Level: 0
+    - X: -4
+      Y: 47
+      Level: 0
+    - X: -3
+      Y: 47
+      Level: 0
+    - X: -2
+      Y: 47
+      Level: 0
+    - X: -5
+      Y: 48
+      Level: 0
+    - X: -4
+      Y: 48
+      Level: 0
+    - X: -3
+      Y: 48
+      Level: 0
+    - X: -2
+      Y: 48
+      Level: 0
+    - X: -1
+      Y: 48
+      Level: 0
+    - X: 0
+      Y: 48
+      Level: 0
+    - X: 1
+      Y: 48
+      Level: 0
+    - X: 2
+      Y: 48
+      Level: 0
+    - X: -1
+      Y: 49
+      Level: 0
+    - X: 0
+      Y: 49
+      Level: 0
+    - X: 1
+      Y: 49
+      Level: 0
+    - X: 2
+      Y: 49
+      Level: 0
+    - X: 3
+      Y: 49
+      Level: 0
+    - X: 4
+      Y: 49
+      Level: 0
+    - X: 5
+      Y: 49
+      Level: 0
+    - X: 6
+      Y: 49
+      Level: 0
+    - X: 3
+      Y: 50
+      Level: 0
+    - X: 4
+      Y: 50
+      Level: 0
+    - X: 5
+      Y: 50
+      Level: 0
+    - X: 6
+      Y: 50
+      Level: 0
+    - X: 7
+      Y: 50
+      Level: 0
+    - X: 8
+      Y: 50
+      Level: 0
+    - X: 9
+      Y: 50
+      Level: 0
+    - X: 10
+      Y: 50
+      Level: 0
+    - X: 7
+      Y: 51
+      Level: 0
+    - X: 8
+      Y: 51
+      Level: 0
+    - X: 9
+      Y: 51
+      Level: 0
+    - X: 10
+      Y: 51
+      Level: 0
+    - X: 11
+      Y: 51
+      Level: 0
+    - X: 12
+      Y: 51
+      Level: 0
+    - X: 11
+      Y: 52
+      Level: 0
+    - X: 12
+      Y: 52
       Level: 0
     Floors:
     - Cell:
