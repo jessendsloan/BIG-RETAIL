@@ -19,8 +19,8 @@ namespace BigRetail.Editor.StoreLayouts
 {
     /// <summary>
     /// One-time authored migration that brings Frank's upper property into
-    /// the normal Map Workshop construction model and connects the trailer
-    /// report marker to the existing sidewalk network.
+    /// the normal Map Workshop construction model and leaves the trailer
+    /// report marker ready for a player-authored sidewalk connection.
     /// </summary>
     public static class FrankRoadsidePropertyExpansion
     {
@@ -115,7 +115,7 @@ namespace BigRetail.Editor.StoreLayouts
 
             ConfigureFounderWork(scene, navigationHost);
             ConfigureRoadsideMarker(scene);
-            ExpandOpeningLayoutSidewalks(mapHost.MapFingerprint);
+            RestorePlayerAuthoredSidewalks(mapHost.MapFingerprint);
 
             EditorSceneManager.MarkSceneDirty(scene);
 
@@ -130,8 +130,8 @@ namespace BigRetail.Editor.StoreLayouts
 
             Debug.Log(
                 "Frank Roadside now exposes the full 96 x 47 owned "
-                + "property to Map Workshop construction and connects "
-                + "the trailer marker to the normal sidewalk network.");
+                + "property to Map Workshop construction and leaves "
+                + "the trailer landing ready for an authored walkway.");
         }
 
 
@@ -240,7 +240,7 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
-        private static void ExpandOpeningLayoutSidewalks(
+        private static void RestorePlayerAuthoredSidewalks(
             string mapFingerprint)
         {
             StoreLayoutAsset layoutAsset =
@@ -290,32 +290,30 @@ namespace BigRetail.Editor.StoreLayouts
                 PreviousRenderedPathEndX,
                 PreviousRenderedPathEndY,
                 -1);
+            RemoveRoundedPath(
+                sidewalks,
+                TrailerPathStartX,
+                TrailerPathStartY,
+                TrailerPathEndX,
+                TrailerPathEndY,
+                -1);
 
-            // This cell predates both drafts and is the store-side handoff.
+            // Restore the untouched end of the original street-sidewalk
+            // network where the experimental routes overlapped it.
+            for (int x = -10; x <= -7; x++)
+            {
+                sidewalks.Add(new StoreCellData(x, 46, 0));
+            }
+            sidewalks.Add(new StoreCellData(-9, 47, 0));
+            sidewalks.Add(new StoreCellData(-8, 47, 0));
+
+            // The landing is intentionally isolated. The player owns the
+            // walking path from these steps to the street sidewalk.
             sidewalks.Add(
                 new StoreCellData(
-                    FirstDraftTrailerPathStartX,
-                    TrailerPathStartY,
+                    TrailerPathEndX,
+                    TrailerPathEndY,
                     0));
-
-            int horizontalDistance =
-                TrailerPathEndX - TrailerPathStartX;
-            int verticalDistance =
-                TrailerPathEndY - TrailerPathStartY;
-
-            for (int x = TrailerPathStartX;
-                 x <= TrailerPathEndX;
-                 x++)
-            {
-                int progress = x - TrailerPathStartX;
-                int y = TrailerPathStartY
-                    + ((progress * verticalDistance
-                        + horizontalDistance / 2)
-                       / horizontalDistance);
-
-                sidewalks.Add(new StoreCellData(x, y, 0));
-                sidewalks.Add(new StoreCellData(x, y - 1, 0));
-            }
 
             layout.Sidewalks.Clear();
             layout.Sidewalks.AddRange(sidewalks);
