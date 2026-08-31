@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.View;
-using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using BigRetail.Receiving.Domain;
 using BigRetail.Receiving.Unity;
@@ -184,7 +183,7 @@ namespace BigRetail.Purchasing.Unity
             SortingGroup sortingGroup = root.AddComponent<SortingGroup>();
             sortingGroup.sortingLayerName = sortingLayerName;
             sortingGroup.sortingOrder =
-                WallRenderOrderResolver.ResolveCell(displayCell);
+                IsometricRenderOrderResolver.ResolveCell(displayCell);
 
             if (authoredLoad != null)
             {

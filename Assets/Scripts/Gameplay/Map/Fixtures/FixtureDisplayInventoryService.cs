@@ -581,6 +581,175 @@ namespace BigRetail.Map.Fixtures
         }
 
         /// <summary>
+        /// Finds the next assigned product that is both short on the target
+        /// fixture and available in physical backstock. Worker schedulers use
+        /// this before choosing a concrete case and pickup rack.
+        /// </summary>
+        public bool TryGetNextRestockProduct(
+            FixtureInstanceId fixtureId,
+            out ProductId productId,
+            out int missingUnitCount)
+        {
+            productId = default;
+            missingUnitCount = 0;
+
+            if (!fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture))
+            {
+                return false;
+            }
+
+            ReconcileDisplayCapacity(fixture);
+
+            StorageLocationId displayLocationId =
+                GetDisplayLocationId(fixtureId);
+            Dictionary<ProductId, int> capacityByProduct =
+                GetCapacityByProduct(fixture);
+
+            foreach (
+                KeyValuePair<ProductId, int> entry
+                in capacityByProduct)
+            {
+                int currentQuantity = inventory.GetQuantity(
+                    displayLocationId,
+                    entry.Key);
+                int shortfall = Math.Max(
+                    0,
+                    entry.Value - currentQuantity);
+
+                if (shortfall <= 0
+                    || GetAvailableBackstockQuantity(entry.Key) <= 0)
+                {
+                    continue;
+                }
+
+                productId = entry.Key;
+                missingUnitCount = shortfall;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Stocks from a specific inventory location, such as a case carried
+        /// by a worker. Unlike the ordinary backstock operation, this never
+        /// reaches into a rack on the caller's behalf.
+        /// </summary>
+        public FixtureRestockResult TryRestockFixtureFromLocation(
+            FixtureInstanceId fixtureId,
+            StorageLocationId sourceLocationId,
+            int maximumUnitCount)
+        {
+            if (maximumUnitCount <= 0)
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.InvalidQuantity);
+            }
+
+            if (!inventory.ContainsLocation(sourceLocationId))
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.SourceUnavailable);
+            }
+
+            if (!fixtureState.TryGetFixture(
+                    fixtureId,
+                    out FixtureInstance fixture))
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.UnknownFixture);
+            }
+
+            StorageLocationId displayLocationId =
+                GetDisplayLocationId(fixtureId);
+
+            if (!inventory.ContainsLocation(displayLocationId))
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.UnknownFixture);
+            }
+
+            ReconcileDisplayCapacity(fixture);
+
+            Dictionary<ProductId, int> capacityByProduct =
+                GetCapacityByProduct(fixture);
+
+            if (capacityByProduct.Count == 0)
+            {
+                return FixtureRestockResult.Failed(
+                    FixtureRestockOutcome.NothingAssigned);
+            }
+
+            int movedUnitCount = 0;
+            int remainingShortfall = 0;
+            int remainingTransferUnitCount = maximumUnitCount;
+
+            foreach (
+                KeyValuePair<ProductId, int> entry
+                in capacityByProduct)
+            {
+                int currentQuantity = inventory.GetQuantity(
+                    displayLocationId,
+                    entry.Key);
+                int shortfall = Math.Max(
+                    0,
+                    entry.Value - currentQuantity);
+
+                if (shortfall == 0)
+                {
+                    continue;
+                }
+
+                int availableSourceQuantity = inventory.GetQuantity(
+                    sourceLocationId,
+                    entry.Key);
+                int transferQuantity = Math.Min(
+                    shortfall,
+                    Math.Min(
+                        availableSourceQuantity,
+                        remainingTransferUnitCount));
+
+                if (transferQuantity > 0)
+                {
+                    StockTransferResult transfer = transfers.TryTransfer(
+                        sourceLocationId,
+                        displayLocationId,
+                        entry.Key,
+                        transferQuantity);
+
+                    if (!transfer.Succeeded)
+                    {
+                        throw new InvalidOperationException(
+                            "Calculated carried-stock transfer failed: "
+                            + transfer.Failure
+                            + ".");
+                    }
+
+                    movedUnitCount += transferQuantity;
+                    remainingTransferUnitCount -= transferQuantity;
+                }
+
+                remainingShortfall += shortfall - transferQuantity;
+            }
+
+            if (movedUnitCount > 0)
+            {
+                FixtureStockChanged?.Invoke(fixtureId);
+
+                return FixtureRestockResult.Restocked(
+                    movedUnitCount,
+                    remainingShortfall);
+            }
+
+            return FixtureRestockResult.Failed(
+                remainingShortfall > 0
+                    ? FixtureRestockOutcome.SourceUnavailable
+                    : FixtureRestockOutcome.AlreadyFull);
+        }
+
+        /// <summary>
         /// Moves physical display stock back into storage. This is distinct
         /// from customer consumption: no inventory is destroyed, and a
         /// one-unit request represents removing one handled package.
@@ -1126,7 +1295,8 @@ namespace BigRetail.Map.Fixtures
         AlreadyFull = 3,
         BackstockUnavailable = 4,
         UnknownFixture = 5,
-        InvalidQuantity = 6
+        InvalidQuantity = 6,
+        SourceUnavailable = 7
     }
 
 

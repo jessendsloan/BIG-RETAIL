@@ -449,6 +449,18 @@ namespace BigRetail.Construction.Unity.UI.PC
                     : status;
         }
 
+
+        public void SetRestockAction(
+            string label,
+            bool isEnabled)
+        {
+            restockButton.text =
+                string.IsNullOrWhiteSpace(label)
+                    ? "Add One Item"
+                    : label.Trim();
+            restockButton.SetEnabled(isEnabled);
+        }
+
         public void SetEditing(bool isEditing)
         {
             overviewControls.style.display =

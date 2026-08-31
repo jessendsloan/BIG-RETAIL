@@ -36,8 +36,8 @@ namespace BigRetail.Construction.Unity.UI.PC
             "Stock the Chip Fixture";
         private const string FrankSalesFloorObjectiveDescription =
             "Choose Merchandise, click the glowing Ridgeway chip fixture, "
-            + "then choose Add One Item. Add each bag until all 15 slots "
-            + "show three bags.";
+            + "then choose Have Founder Stock. Frank will carry cases from "
+            + "storage and fill all 15 slots.";
         private const int FrankOpeningRidgewayReceivedUnitCount = 48;
         private const int FrankOpeningRidgewayDisplayUnitCount = 45;
         private const int FrankDialoguePageCount = 3;

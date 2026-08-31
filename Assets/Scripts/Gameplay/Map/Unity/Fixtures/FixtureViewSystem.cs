@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.View;
-using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
@@ -529,7 +528,7 @@ namespace BigRetail.Map.Unity.Fixtures
                     sortingGroup = root.AddComponent<SortingGroup>();
                     sortingGroup.sortingLayerName = sortingLayerName;
                     sortingGroup.sortingOrder =
-                        WallRenderOrderResolver.ResolveCell(
+                        IsometricRenderOrderResolver.ResolveCell(
                             viewHost.Projection.ToDisplayCell(sortingCell));
                     presentationLayerCount = presentationLayers.Count;
 
@@ -638,7 +637,7 @@ namespace BigRetail.Map.Unity.Fixtures
             renderer.sortingOrder =
                 useRelativeSortingOrder
                     ? sortingOrderOffset
-                    : WallRenderOrderResolver.ResolveCell(displayCell)
+                    : IsometricRenderOrderResolver.ResolveCell(displayCell)
                         + sortingOrderOffset;
 
             Vector3 anchorWorldPosition =

@@ -366,6 +366,11 @@ namespace BigRetail.Map.Unity.Fixtures
                 return;
             }
 
+            if (fixtureViewSystem == null)
+            {
+                return;
+            }
+
             objectiveOutlineView =
                 fixtureViewSystem.GetComponent<
                     FixtureMerchandisingHoverOutlineView>();

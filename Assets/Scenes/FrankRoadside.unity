@@ -1730,7 +1730,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca2c31e74a574091a13e3f2f70fa5f1e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: BigRetail.Characters.Rigging::BigRetail.Characters.Rigging.NpcPersonIdentity
   rig: {fileID: 49287094}
   populationDefinition: {fileID: 0}
@@ -193920,6 +193920,7 @@ GameObject:
   - component: {fileID: 2111000013}
   - component: {fileID: 2111000012}
   - component: {fileID: 2111000015}
+  - component: {fileID: 2111000016}
   m_Layer: 0
   m_Name: GridMapHost
   m_TagString: Untagged
@@ -193947,6 +193948,27 @@ MonoBehaviour:
   firstExpansionPriceCents: 0
   firstExpansionQualificationId: prototype.first_land_region
   logInitializationSummary: 1
+--- !u!114 &2111000016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863031833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ca23a0f2961471fba78917c19856cc8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BigRetail.Work.Unity.FounderStockTaskController
+  mapHost: {fileID: 1863031834}
+  viewHost: {fileID: 2111000001}
+  coordinateTilemap: {fileID: 463974780}
+  fixtureRuntimeHost: {fileID: 2111000006}
+  planogramRuntimeHost: {fileID: 2111000008}
+  founderPathFollower: {fileID: 0}
+  pickupDurationSeconds: 0.65
+  stockUnitIntervalSeconds: 0.16
+  returnDurationSeconds: 0.55
 --- !u!114 &1863031835
 MonoBehaviour:
   m_ObjectHideFlags: 0

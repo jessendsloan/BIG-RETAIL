@@ -322,6 +322,210 @@ namespace BigRetail.Map.Fixtures
         }
 
         /// <summary>
+        /// Finds the first physical rack, in stable rack order, containing a
+        /// case of the requested product. Worker schedulers can use this to
+        /// choose a concrete pickup source before route planning.
+        /// </summary>
+        public bool TryFindRackCase(
+            ProductId productId,
+            out FixtureInstanceId fixtureId,
+            out FixtureBackstockCaseSnapshot storedCase)
+        {
+            for (int rackIndex = 0;
+                 rackIndex < rackOrder.Count;
+                 rackIndex++)
+            {
+                FixtureInstanceId candidateId = rackOrder[rackIndex];
+                RackRecord rack = racks[candidateId];
+
+                for (int caseIndex = 0;
+                     caseIndex < rack.Cases.Count;
+                     caseIndex++)
+                {
+                    RackCaseRecord candidate = rack.Cases[caseIndex];
+
+                    if (candidate.ProductId != productId
+                        || candidate.RemainingUnitCount <= 0)
+                    {
+                        continue;
+                    }
+
+                    fixtureId = candidateId;
+                    storedCase = new FixtureBackstockCaseSnapshot(
+                        candidate.ProductId,
+                        candidate.RemainingUnitCount,
+                        candidate.CapacityUnitCount);
+                    return true;
+                }
+            }
+
+            fixtureId = default;
+            storedCase = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Removes one complete handling case from a concrete rack and moves
+        /// its remaining units into a worker-owned inventory location.
+        /// </summary>
+        public FixtureBackstockCasePickupResult TryTakeCase(
+            FixtureInstanceId fixtureId,
+            ProductId productId,
+            StorageLocationId destinationLocationId)
+        {
+            if (!racks.TryGetValue(fixtureId, out RackRecord rack))
+            {
+                return FixtureBackstockCasePickupResult.Failed(
+                    FixtureBackstockCasePickupFailure.UnknownRack);
+            }
+
+            if (!inventory.ContainsLocation(destinationLocationId))
+            {
+                return FixtureBackstockCasePickupResult.Failed(
+                    FixtureBackstockCasePickupFailure.UnknownDestination);
+            }
+
+            if (GetLocationStoredUnitCount(destinationLocationId) > 0)
+            {
+                return FixtureBackstockCasePickupResult.Failed(
+                    FixtureBackstockCasePickupFailure.DestinationOccupied);
+            }
+
+            for (int caseIndex = 0;
+                 caseIndex < rack.Cases.Count;
+                 caseIndex++)
+            {
+                RackCaseRecord storedCase = rack.Cases[caseIndex];
+
+                if (storedCase.ProductId != productId
+                    || storedCase.RemainingUnitCount <= 0)
+                {
+                    continue;
+                }
+
+                FixtureBackstockCaseSnapshot snapshot =
+                    new FixtureBackstockCaseSnapshot(
+                        storedCase.ProductId,
+                        storedCase.RemainingUnitCount,
+                        storedCase.CapacityUnitCount);
+
+                TransferRequired(
+                    rack.LocationId,
+                    destinationLocationId,
+                    productId,
+                    storedCase.RemainingUnitCount);
+                rack.Cases.RemoveAt(caseIndex);
+                ContentsChanged?.Invoke();
+
+                return FixtureBackstockCasePickupResult.PickedUp(
+                    fixtureId,
+                    snapshot);
+            }
+
+            return FixtureBackstockCasePickupResult.Failed(
+                FixtureBackstockCasePickupFailure.NoMatchingCase);
+        }
+
+        /// <summary>
+        /// Returns a partially used handling case to its preferred rack. If
+        /// that rack filled while the worker was away, another rack or inbound
+        /// safely receives the same case without merging its boundary away.
+        /// </summary>
+        public FixtureBackstockCaseReturnResult TryReturnCase(
+            FixtureInstanceId preferredFixtureId,
+            StorageLocationId sourceLocationId,
+            FixtureBackstockCaseSnapshot returnedCase)
+        {
+            if (!inventory.ContainsLocation(sourceLocationId))
+            {
+                return FixtureBackstockCaseReturnResult.Failed(
+                    FixtureBackstockCaseReturnFailure.UnknownSource);
+            }
+
+            if (!returnedCase.ProductId.IsValid
+                || returnedCase.RemainingUnitCount <= 0
+                || returnedCase.CapacityUnitCount
+                    < returnedCase.RemainingUnitCount)
+            {
+                return FixtureBackstockCaseReturnResult.Failed(
+                    FixtureBackstockCaseReturnFailure.InvalidCase);
+            }
+
+            if (inventory.GetQuantity(
+                    sourceLocationId,
+                    returnedCase.ProductId)
+                < returnedCase.RemainingUnitCount)
+            {
+                return FixtureBackstockCaseReturnResult.Failed(
+                    FixtureBackstockCaseReturnFailure.InsufficientSourceStock);
+            }
+
+            FixtureInstanceId destinationFixtureId = default;
+            RackRecord destinationRack = null;
+
+            if (racks.TryGetValue(
+                    preferredFixtureId,
+                    out RackRecord preferredRack)
+                && preferredRack.Cases.Count
+                    < preferredRack.CaseSlotCapacity)
+            {
+                destinationFixtureId = preferredFixtureId;
+                destinationRack = preferredRack;
+            }
+            else
+            {
+                for (int index = 0;
+                     index < rackOrder.Count;
+                     index++)
+                {
+                    FixtureInstanceId candidateId = rackOrder[index];
+                    RackRecord candidate = racks[candidateId];
+
+                    if (candidate.Cases.Count
+                        >= candidate.CaseSlotCapacity)
+                    {
+                        continue;
+                    }
+
+                    destinationFixtureId = candidateId;
+                    destinationRack = candidate;
+                    break;
+                }
+            }
+
+            RackCaseRecord caseRecord = new RackCaseRecord(
+                returnedCase.ProductId,
+                returnedCase.CapacityUnitCount,
+                returnedCase.RemainingUnitCount);
+
+            if (destinationRack != null)
+            {
+                TransferRequired(
+                    sourceLocationId,
+                    destinationRack.LocationId,
+                    returnedCase.ProductId,
+                    returnedCase.RemainingUnitCount);
+                destinationRack.Cases.Add(caseRecord);
+                ContentsChanged?.Invoke();
+
+                return FixtureBackstockCaseReturnResult.ReturnedToRack(
+                    destinationFixtureId,
+                    returnedCase.RemainingUnitCount);
+            }
+
+            TransferRequired(
+                sourceLocationId,
+                LocationId,
+                returnedCase.ProductId,
+                returnedCase.RemainingUnitCount);
+            inboundCases.Add(caseRecord);
+            ContentsChanged?.Invoke();
+
+            return FixtureBackstockCaseReturnResult.ReturnedToInbound(
+                returnedCase.RemainingUnitCount);
+        }
+
+        /// <summary>
         /// Pulls product from one or more physical racks into a known
         /// destination such as a sales-floor display.
         /// </summary>
@@ -919,6 +1123,134 @@ namespace BigRetail.Map.Fixtures
 
         public int AvailableUnitCount =>
             Math.Max(0, CapacityUnitCount - RemainingUnitCount);
+    }
+
+
+    public enum FixtureBackstockCasePickupFailure
+    {
+        None = 0,
+        UnknownRack = 1,
+        UnknownDestination = 2,
+        DestinationOccupied = 3,
+        NoMatchingCase = 4
+    }
+
+
+    public readonly struct FixtureBackstockCasePickupResult
+    {
+        public FixtureInstanceId RackFixtureId { get; }
+
+        public FixtureBackstockCaseSnapshot Case { get; }
+
+        public FixtureBackstockCasePickupFailure Failure { get; }
+
+        public bool Succeeded =>
+            Failure == FixtureBackstockCasePickupFailure.None
+            && Case.RemainingUnitCount > 0;
+
+
+        private FixtureBackstockCasePickupResult(
+            FixtureInstanceId rackFixtureId,
+            FixtureBackstockCaseSnapshot storedCase,
+            FixtureBackstockCasePickupFailure failure)
+        {
+            RackFixtureId = rackFixtureId;
+            Case = storedCase;
+            Failure = failure;
+        }
+
+
+        internal static FixtureBackstockCasePickupResult PickedUp(
+            FixtureInstanceId rackFixtureId,
+            FixtureBackstockCaseSnapshot storedCase)
+        {
+            return new FixtureBackstockCasePickupResult(
+                rackFixtureId,
+                storedCase,
+                FixtureBackstockCasePickupFailure.None);
+        }
+
+
+        internal static FixtureBackstockCasePickupResult Failed(
+            FixtureBackstockCasePickupFailure failure)
+        {
+            return new FixtureBackstockCasePickupResult(
+                default,
+                default,
+                failure);
+        }
+    }
+
+
+    public enum FixtureBackstockCaseReturnFailure
+    {
+        None = 0,
+        UnknownSource = 1,
+        InvalidCase = 2,
+        InsufficientSourceStock = 3
+    }
+
+
+    public readonly struct FixtureBackstockCaseReturnResult
+    {
+        public FixtureInstanceId RackFixtureId { get; }
+
+        public int ReturnedUnitCount { get; }
+
+        public bool WasStoredOnRack { get; }
+
+        public FixtureBackstockCaseReturnFailure Failure { get; }
+
+        public bool Succeeded =>
+            Failure == FixtureBackstockCaseReturnFailure.None
+            && ReturnedUnitCount > 0;
+
+
+        private FixtureBackstockCaseReturnResult(
+            FixtureInstanceId rackFixtureId,
+            int returnedUnitCount,
+            bool returnedToRack,
+            FixtureBackstockCaseReturnFailure failure)
+        {
+            RackFixtureId = rackFixtureId;
+            ReturnedUnitCount = returnedUnitCount;
+            WasStoredOnRack = returnedToRack;
+            Failure = failure;
+        }
+
+
+        internal static FixtureBackstockCaseReturnResult ReturnedToRack(
+            FixtureInstanceId rackFixtureId,
+            int returnedUnitCount)
+        {
+            return new FixtureBackstockCaseReturnResult(
+                rackFixtureId,
+                returnedUnitCount,
+                returnedToRack: true,
+                FixtureBackstockCaseReturnFailure.None);
+        }
+
+
+        internal static FixtureBackstockCaseReturnResult ReturnedToInbound(
+            int returnedUnitCount)
+        {
+            return new FixtureBackstockCaseReturnResult(
+                default,
+                returnedUnitCount,
+                returnedToRack: false,
+                FixtureBackstockCaseReturnFailure.None);
+        }
+
+
+        internal static FixtureBackstockCaseReturnResult Failed(
+            FixtureBackstockCaseReturnFailure failure)
+        {
+            return new FixtureBackstockCaseReturnResult(
+                default,
+                0,
+                returnedToRack: false,
+                failure);
+        }
     }
 
 

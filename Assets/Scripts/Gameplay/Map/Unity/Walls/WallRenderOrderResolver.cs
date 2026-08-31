@@ -1,5 +1,6 @@
 using System;
 using BigRetail.Map.Domain;
+using BigRetail.Map.Unity.View;
 using BigRetail.Map.View;
 using UnityEngine;
 
@@ -16,10 +17,12 @@ namespace BigRetail.Map.Unity.Walls
     /// </summary>
     public static class WallRenderOrderResolver
     {
-        public const int WallBaseOrder = 200;
+        public const int WallBaseOrder =
+            IsometricRenderOrderResolver.WorldCellBaseOrder;
         public const int PylonBaseOrder = 300;
 
-        public const int DisplayDepthOrderStep = 2;
+        public const int DisplayDepthOrderStep =
+            IsometricRenderOrderResolver.DisplayDepthOrderStep;
 
         public const int RisingRightPriority = 0;
         public const int RisingLeftPriority = 1;
@@ -70,9 +73,8 @@ namespace BigRetail.Map.Unity.Walls
         public static int ResolveWallDepth(
             int displayDepth)
         {
-            return WallBaseOrder
-                - displayDepth * DisplayDepthOrderStep
-                - 1;
+            return IsometricRenderOrderResolver
+                .ResolveFarBoundaryDepth(displayDepth);
         }
 
 
@@ -84,11 +86,8 @@ namespace BigRetail.Map.Unity.Walls
         public static int ResolveCell(
             GridPosition displayCell)
         {
-            int displayDepth =
-                displayCell.X + displayCell.Y;
-
-            return WallBaseOrder
-                - displayDepth * DisplayDepthOrderStep;
+            return IsometricRenderOrderResolver.ResolveCell(
+                displayCell);
         }
 
 

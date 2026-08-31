@@ -1103,6 +1103,116 @@ namespace BigRetail.Map.Fixtures.Tests
         }
 
         [Test]
+        public void WorkerCaseTrip_PreservesCaseBoundaryAndInventoryAtEachBeat()
+        {
+            TestContext context =
+                CreateContext(
+                    0,
+                    0,
+                    usePhysicalBackstock: true,
+                    cerealDisplayUnitsPerFrontageUnit: 3);
+            StorageLocationId workerCarryLocationId =
+                new StorageLocationId("WORKER-CARRY-TEST");
+
+            try
+            {
+                Assert.That(
+                    context.Inventory.TryRegisterLocation(
+                        new StorageLocationDefinition(
+                            workerCarryLocationId,
+                            "Worker carried case",
+                            StorageRole.Backroom)),
+                    Is.True);
+                Assert.That(
+                    context.Placement.TryPlaceFixture(
+                        BackstockInstanceId,
+                        BackstockDefinitionId,
+                        new GridPosition(1, 3),
+                        FixtureOrientation.North).Succeeded,
+                    Is.True);
+                AssignCereal(context, frontageUnitCount: 1);
+                Assert.That(
+                    context.Backstock.TryReceiveInboundAtRack(
+                        BackstockInstanceId,
+                        CerealProductId,
+                        unitCount: 12).Succeeded,
+                    Is.True);
+
+                Assert.That(
+                    context.Backstock.TryFindRackCase(
+                        CerealProductId,
+                        out FixtureInstanceId sourceRackId,
+                        out FixtureBackstockCaseSnapshot foundCase),
+                    Is.True);
+                Assert.That(sourceRackId, Is.EqualTo(BackstockInstanceId));
+                Assert.That(foundCase.RemainingUnitCount, Is.EqualTo(12));
+
+                FixtureBackstockCasePickupResult pickup =
+                    context.Backstock.TryTakeCase(
+                        sourceRackId,
+                        CerealProductId,
+                        workerCarryLocationId);
+
+                Assert.That(pickup.Succeeded, Is.True);
+                Assert.That(
+                    context.Backstock.GetRackOccupiedCaseSlotCount(
+                        BackstockInstanceId),
+                    Is.Zero);
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        workerCarryLocationId,
+                        CerealProductId),
+                    Is.EqualTo(12));
+
+                FixtureRestockResult stocked =
+                    context.DisplayInventory.TryRestockFixtureFromLocation(
+                        ShelfInstanceId,
+                        workerCarryLocationId,
+                        maximumUnitCount: 3);
+
+                Assert.That(stocked.Succeeded, Is.True);
+                Assert.That(stocked.MovedUnitCount, Is.EqualTo(3));
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        workerCarryLocationId,
+                        CerealProductId),
+                    Is.EqualTo(9));
+                Assert.That(
+                    context.DisplayInventory.GetDisplayedQuantity(
+                        CerealProductId),
+                    Is.EqualTo(3));
+
+                FixtureBackstockCaseReturnResult returned =
+                    context.Backstock.TryReturnCase(
+                        sourceRackId,
+                        workerCarryLocationId,
+                        new FixtureBackstockCaseSnapshot(
+                            CerealProductId,
+                            remainingUnitCount: 9,
+                            capacityUnitCount: 12));
+                List<FixtureBackstockCaseSnapshot> storedCases =
+                    new List<FixtureBackstockCaseSnapshot>(
+                        context.Backstock.EnumerateRackCases(
+                            BackstockInstanceId));
+
+                Assert.That(returned.Succeeded, Is.True);
+                Assert.That(returned.WasStoredOnRack, Is.True);
+                Assert.That(storedCases, Has.Count.EqualTo(1));
+                Assert.That(storedCases[0].RemainingUnitCount, Is.EqualTo(9));
+                Assert.That(storedCases[0].CapacityUnitCount, Is.EqualTo(12));
+                Assert.That(
+                    context.Inventory.GetQuantity(
+                        workerCarryLocationId,
+                        CerealProductId),
+                    Is.Zero);
+            }
+            finally
+            {
+                context.Dispose();
+            }
+        }
+
+        [Test]
         public void TargetedReceiving_LargeCaseUsesOneSlotWithoutUnitCeiling()
         {
             TestContext context =

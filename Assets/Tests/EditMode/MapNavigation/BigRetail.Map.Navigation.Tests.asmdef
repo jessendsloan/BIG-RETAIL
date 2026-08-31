@@ -1,0 +1,19 @@
+{
+    "name": "BigRetail.Map.Navigation.Tests",
+    "rootNamespace": "BigRetail.Map.Navigation.Tests",
+    "references": [
+        "BigRetail.Map.Domain",
+        "BigRetail.Map.Navigation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

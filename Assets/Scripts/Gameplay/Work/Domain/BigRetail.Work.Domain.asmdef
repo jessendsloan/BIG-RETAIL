@@ -1,0 +1,17 @@
+{
+    "name": "BigRetail.Work.Domain",
+    "rootNamespace": "BigRetail.Work.Domain",
+    "references": [
+        "BigRetail.Map.Fixtures",
+        "BigRetail.Merchandise.Domain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

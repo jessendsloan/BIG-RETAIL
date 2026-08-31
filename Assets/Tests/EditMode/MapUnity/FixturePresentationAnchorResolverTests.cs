@@ -2,6 +2,7 @@ using System;
 using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.View;
 using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using NUnit.Framework;
@@ -187,7 +188,7 @@ namespace BigRetail.Map.Unity.Tests
                         projection);
 
             int fixtureOrder =
-                WallRenderOrderResolver.ResolveCell(
+                IsometricRenderOrderResolver.ResolveCell(
                     projection.ToDisplayCell(sortingCell));
 
             for (int x = 3; x <= 4; x++)
@@ -243,7 +244,7 @@ namespace BigRetail.Map.Unity.Tests
                         projection);
 
             int fixtureOrder =
-                WallRenderOrderResolver.ResolveCell(
+                IsometricRenderOrderResolver.ResolveCell(
                     projection.ToDisplayCell(sortingCell));
 
             for (int x = 3; x <= 4; x++)

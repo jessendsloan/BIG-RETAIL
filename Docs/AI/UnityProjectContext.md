@@ -129,3 +129,27 @@
 - Representative EditMode tests and assembly definitions under `Assets/Tests/EditMode` and `Assets/Scripts/Gameplay`
 
 <!-- unity-onboarding:generated:end -->
+
+## Required Isometric Layering Contract
+
+All isometric world presentation must use the shared depth contract documented
+in `Docs/Art/IsometricLayering.md`.
+
+- `IsometricRenderOrderResolver` is the single numeric authority for displayed
+  cell depth. Fixtures, deliveries, construction previews, walls, characters,
+  customers, and workers must not invent independent world sorting formulas.
+- Moving actors and other mobile world objects use
+  `IsometricDepthSortingGroup`, configured with the active
+  `IsometricViewHost`, coordinate Tilemap, and a ground-contact anchor at the
+  object's feet.
+- A root `SortingGroup` determines the object's place in the world. Child
+  renderer orders determine only internal layering such as body parts, carried
+  cases, fixture layers, and products.
+- Walls consume the central cell-depth contract through
+  `WallRenderOrderResolver`, which owns only wall-boundary and wall-seam rules.
+- UI emphasis, selection glows, and construction previews use explicit overlay
+  bands; they must not be used to repair incorrect world-depth anchors.
+
+When adding a customer, worker, bot, movable pallet, or carried prop, verify its
+world sorting against a nearer wall and a farther wall before considering its
+presentation complete.

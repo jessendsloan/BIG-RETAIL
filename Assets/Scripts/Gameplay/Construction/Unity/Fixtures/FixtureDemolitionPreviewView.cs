@@ -4,7 +4,6 @@ using BigRetail.Map.Domain;
 using BigRetail.Map.Fixtures;
 using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Map.Unity.View;
-using BigRetail.Map.Unity.Walls;
 using BigRetail.Map.View;
 using UnityEngine;
 
@@ -224,7 +223,7 @@ namespace BigRetail.Construction.Unity.Fixtures
             renderer.sortingOrder =
                 PreviewBaseSortingOrder
                 - (displayCell.X + displayCell.Y)
-                * WallRenderOrderResolver.DisplayDepthOrderStep;
+                * IsometricRenderOrderResolver.DisplayDepthOrderStep;
 
             Vector3 anchorWorldPosition =
                 wholeFootprint != null

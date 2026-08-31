@@ -8,6 +8,7 @@ using BigRetail.Purchasing.Domain;
 using BigRetail.Purchasing.Unity;
 using BigRetail.Receiving.Domain;
 using BigRetail.Receiving.Unity;
+using BigRetail.Work.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -40,6 +41,9 @@ namespace BigRetail.Construction.Unity.UI.PC
         [SerializeField]
         private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
 
+        [SerializeField]
+        private FounderStockTaskController founderStockTaskController;
+
 
         private FixtureMerchandisingInspectorView boundView;
         private ConstructionToolbarView boundToolbarView;
@@ -66,6 +70,10 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 documentHost = GetComponent<ConstructionToolbarDocumentHost>();
             }
+
+            founderStockTaskController ??=
+                FindAnyObjectByType<FounderStockTaskController>(
+                    FindObjectsInactive.Include);
         }
 
         private void OnEnable()
@@ -104,6 +112,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             AttachToSales();
             AttachToCheckout();
             AttachToReceivingState();
+
+            if (founderStockTaskController != null)
+            {
+                founderStockTaskController.StatusChanged +=
+                    HandleFounderStockStatusChanged;
+            }
 
             if (documentHost.HasView)
             {
@@ -162,6 +176,12 @@ namespace BigRetail.Construction.Unity.UI.PC
             DetachFromSales();
             DetachFromCheckout();
             DetachFromReceivingState();
+
+            if (founderStockTaskController != null)
+            {
+                founderStockTaskController.StatusChanged -=
+                    HandleFounderStockStatusChanged;
+            }
             UnbindToolbarView();
             UnbindView();
         }
@@ -302,6 +322,17 @@ namespace BigRetail.Construction.Unity.UI.PC
                 return;
             }
 
+            if (founderStockTaskController != null)
+            {
+                founderStockTaskController.TryAssignStockFixture(
+                    selectionHost.SelectedFixtureId,
+                    out string founderStatus);
+
+                RefreshView();
+                boundView?.SetRestockStatus(founderStatus);
+                return;
+            }
+
             FixtureRestockResult result =
                 planogramRuntimeHost.DisplayInventory
                     .TryRestockFixture(
@@ -312,6 +343,19 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             boundView?.SetRestockStatus(
                 DescribeRestockResult(result));
+        }
+
+
+        private void HandleFounderStockStatusChanged()
+        {
+            RefreshView();
+
+            if (founderStockTaskController != null
+                && founderStockTaskController.IsBusy)
+            {
+                boundView?.SetRestockStatus(
+                    founderStockTaskController.StatusMessage);
+            }
         }
 
         private void HandleUnstockRequested()
@@ -884,6 +928,14 @@ namespace BigRetail.Construction.Unity.UI.PC
                 snapshot.BackstockUnitCount,
                 snapshot.CanRestock,
                 canUnstock: snapshot.StockedUnitCount > 0);
+
+            if (founderStockTaskController != null)
+            {
+                boundView.SetRestockAction(
+                    "Have Founder Stock",
+                    snapshot.CanRestock
+                    && !founderStockTaskController.IsBusy);
+            }
 
             boundView.SetSalesToday(
                 planogramRuntimeHost.Sales

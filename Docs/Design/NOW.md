@@ -36,27 +36,33 @@ The opening foundation now proves:
 - direction-specific fixture slot anchors authored through the visual Shelf
   Layout Editor; and
 - completion at 45 displayed bags with the final three units retained in
-  backstock.
+  backstock;
+- a reusable, employee-compatible Founder stock work order with strict grid
+  routing around fixtures, walls, and doors;
+- visible Founder travel to storage, case pickup, carried-case presentation,
+  one-item-at-a-time shelf stocking, repeated case trips, and return of the
+  opened final case; and
+- a **Have Founder Stock** fixture command that replaces the instant stocking
+  shortcut in Frank's campaign while retaining that shortcut as a sandbox
+  fallback.
 
-This is the accepted **direct-control prototype** of the physical inventory
-loop. It deliberately does not count as the permanent Founder task: the player
-currently clicks the load, storage rack, and fixture controls directly.
+The direct-control Receiving → storage prototype remains the temporary first
+half of the opener. Storage → display now runs through the permanent work seam:
+the Founder performs the same physical inventory actions that a future employee
+can perform.
 
 Continue in this locked order:
 
-1. **Founder Stock Task v1 — next.** Let the player command the Founder through
-   a fixture interaction. The Founder walks to the employee access point and
-   performs the same stocking task a future employee can perform.
-2. **One Customer Journey.** Spawn one customer, choose one available product,
+1. **One Customer Journey — next.** Spawn one customer, choose one available product,
    navigate to its customer access point, take it into a basket, travel to
    checkout, pay, and leave.
-3. **Staffed Checkout v1.** Make the Founder operate checkout so customer
+2. **Staffed Checkout v1.** Make the Founder operate checkout so customer
    service is embodied work that can later be delegated to an employee.
-4. **Focused Product Visual Pass.** Ridgeway chips prove the permanent display
+3. **Focused Product Visual Pass.** Ridgeway chips prove the permanent display
    pipeline. Add only enough additional opening presentation to make the first
    completed transaction legible; do not expand the product universe merely
    to postpone proving the loop.
-5. **Story Wrapper.** Stage Frank's debt hints around the proven opening shift,
+4. **Story Wrapper.** Stage Frank's debt hints around the proven opening shift,
    then add Mr. BIG's arrival, confrontation, title transition, and
    permanent-property handoff.
 
@@ -73,11 +79,12 @@ deterministically.
 
 ## 2. Restore a zero-red EditMode test baseline
 
-The complete EditMode suite currently reports **861 passed and 25 failed**.
-All 89 focused tests covering the Half Shelf layout, Ridgeway artwork,
-authored slot anchors, inventory transfer, planogram behavior, scenario reset,
-and opening session flow pass. The remaining failures are stale test or Unity
-6.5 fixture issues, not failures in the opening stocking slice.
+The complete EditMode suite currently reports **869 passed and 25 failed**.
+All 122 focused tests covering Founder work state, route planning, physical
+case transfer, the Half Shelf layout, Ridgeway artwork, authored slot anchors,
+inventory transfer, planogram behavior, scenario reset, and opening session
+flow pass. The remaining failures are stale test or Unity 6.5 fixture issues,
+not failures in the opening stocking slice.
 
 The current repair groups are:
 
@@ -170,11 +177,12 @@ Delivery → Receiving foundation, the PO/RCV lifecycle and UI-input fixes, and
 the ordered physical fixture-equipment loop documented in
 `FixtureEquipment.md`.
 
-The current merchandise-shelves milestone adds Frank's direct Receiving →
-storage → display opener, Ridgeway case and bag artwork, layered Half Shelf
-presentation, per-frontage physical inventory, and visual fixture-slot
-authoring. Once published, no feature bridge remains between this stocking
-prototype and the next Founder task.
+The current branch `codex/founder-stock-task-v1` adds Frank's reusable Founder
+stock work order, grid routing, visible case handling, real carried inventory,
+one-item stocking beats, and the campaign fixture command. Its automated
+Frank Roadside smoke run fills 45 display units from four 12-unit cases and
+returns the final three units to physical backstock. It has not yet been
+published to GitHub `main`.
 
 There is separate local wall-finish work in progress. Preserve it before
 changing branches or starting the construction-economy implementation.

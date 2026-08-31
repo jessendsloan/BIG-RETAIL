@@ -15,11 +15,14 @@ Purchasing uses the campaign clock and store cash. Placed Supplier POs become sc
 
 Frank's deterministic opening scenario starts Monday at 6:45 AM with $2,500,
 four Ridgeway chip cases staged in Receiving, one empty 15-frontage chip
-planogram, and an operational checkout configuration. The current direct-control
-prototype makes the player move each case to physical storage, then move 45
-individual bags onto the assigned Half Shelf while the final three units remain
-in backstock. The next permanent step is to route those same inventory actions
-through a Founder task that can later be delegated to an employee.
+planogram, and an operational checkout configuration. The direct-control
+prototype still makes the player move each case from Receiving into physical
+storage. The sales-floor half now uses **Founder Stock Task v1**: the player
+commands the assigned Half Shelf, Frank walks to storage, visibly picks up and
+carries each physical case, stocks one bag at a time, repeats until all 45
+display units are placed, and returns the final three units to backstock. The
+work-order and route seams are intentionally reusable by future employees. The
+next permanent gameplay step is one complete customer shopping journey.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
 
@@ -221,6 +224,13 @@ The integrated campaign-side foundation provides:
 - a deterministic Monday-starting simulation clock installed in `Gameplay`
 - opening store cash and checkout revenue
 - fixture planograms, display inventory, physical backstock, stocking, and receiving
+- an employee-compatible stock work order with explicit travel, pickup,
+  stocking, remainder-return, completion, blocked, and cancelled states
+- shortest-path logical grid routing that respects foundations, fixture
+  occupancy, walls, and passage doors
+- the **Have Founder Stock** fixture command, visible carried supplier case,
+  shelf-grab animation beats, and inventory mutations synchronized to the
+  represented physical actions
 - a temporary fixed-case service retained only as a compatibility fallback; the live Gameplay UI no longer presents its product-order buttons
 - the opening campaign presentation and the first land-region ownership/progression foundation
 
