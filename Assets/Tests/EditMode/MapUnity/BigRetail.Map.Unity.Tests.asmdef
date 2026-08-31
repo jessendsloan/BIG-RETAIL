@@ -11,6 +11,7 @@
         "BigRetail.Map.View",
         "BigRetail.Map.Walls",
         "BigRetail.Map.Unity",
+        "BigRetail.Map.Navigation",
         "BigRetail.Map.Fixtures"
     ],
     "includePlatforms": [

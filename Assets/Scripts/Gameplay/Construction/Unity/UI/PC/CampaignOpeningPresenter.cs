@@ -6,6 +6,7 @@ using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Simulation.Time.Domain;
 using BigRetail.Simulation.Time.Unity;
+using BigRetail.Work.Unity;
 using UnityEngine;
 
 namespace BigRetail.Construction.Unity.UI.PC
@@ -22,11 +23,11 @@ namespace BigRetail.Construction.Unity.UI.PC
         private const string FrankRoadsideMapId =
             "bigretail.map.frank_roadside";
         private const string FrankSpeakerName = "FRANK";
-        private const string FrankObjectiveTitle = "Stock the Back Room";
+        private const string FrankObjectiveTitle = "Put Away the Delivery";
         private const string FrankObjectiveDescription =
-            "Choose Merchandise, click the supplier pallet to take one "
-            + "Ridgeway chip case, then click a storage rack. Repeat until "
-            + "all four cases are stored.";
+            "Choose Merchandise, then click the supplier pallet. The Founder "
+            + "will carry all four Ridgeway chip cases from Receiving into "
+            + "the stockroom racks.";
         private const string FrankCompletedObjectiveTitle =
             "Chips Stocked";
         private const string FrankCompletedObjectiveDescription =
@@ -40,6 +41,7 @@ namespace BigRetail.Construction.Unity.UI.PC
             + "storage and fill all 15 slots.";
         private const int FrankOpeningRidgewayReceivedUnitCount = 48;
         private const int FrankOpeningRidgewayDisplayUnitCount = 45;
+        private const int FrankOpeningRidgewayCaseCount = 4;
         private const int FrankDialoguePageCount = 3;
         private const float FrankRevealDurationSeconds = 1.2f;
 
@@ -64,6 +66,7 @@ namespace BigRetail.Construction.Unity.UI.PC
         private FixturePlanogramRuntimeHost planogramRuntimeHost;
         private FixtureMerchandisingOverlayViewSystem
             merchandisingOverlayViewSystem;
+        private FounderStockTaskController founderStockTaskController;
         private FixtureBackstockService subscribedBackstock;
         private FixtureDisplayInventoryService subscribedDisplayInventory;
         private CampaignOpeningView boundView;
@@ -111,6 +114,9 @@ namespace BigRetail.Construction.Unity.UI.PC
                 FindAnyObjectByType<
                     FixtureMerchandisingOverlayViewSystem>(
                         FindObjectsInactive.Include);
+            founderStockTaskController =
+                FindAnyObjectByType<FounderStockTaskController>(
+                    FindObjectsInactive.Include);
             merchandisingOverlayViewSystem
                 ?.SetObjectiveHighlightEnabled(false);
 
@@ -135,6 +141,12 @@ namespace BigRetail.Construction.Unity.UI.PC
                     HandlePlanogramInitialized;
                 AttachBackstock();
                 AttachDisplayInventory();
+            }
+
+            if (founderStockTaskController != null)
+            {
+                founderStockTaskController.StatusChanged +=
+                    HandleFounderStatusChanged;
             }
 
             if (documentHost.HasCampaignOpeningView)
@@ -167,6 +179,12 @@ namespace BigRetail.Construction.Unity.UI.PC
 
             DetachBackstock();
             DetachDisplayInventory();
+
+            if (founderStockTaskController != null)
+            {
+                founderStockTaskController.StatusChanged -=
+                    HandleFounderStatusChanged;
+            }
 
             merchandisingOverlayViewSystem
                 ?.SetObjectiveHighlightEnabled(false);
@@ -201,6 +219,11 @@ namespace BigRetail.Construction.Unity.UI.PC
 
         private void HandleDisplayStockChanged(
             FixtureInstanceId _)
+        {
+            Refresh();
+        }
+
+        private void HandleFounderStatusChanged()
         {
             Refresh();
         }
@@ -533,10 +556,29 @@ namespace BigRetail.Construction.Unity.UI.PC
             {
                 case FrankRoadsideOpeningObjective
                     .MoveReceivingToStockroom:
+                {
+                    string receivingDescription =
+                        FrankObjectiveDescription;
+
+                    if (founderStockTaskController?.ActivePutAwayWork
+                        != null)
+                    {
+                        int placedCaseCount = Mathf.Clamp(
+                            founderStockTaskController
+                                .ActivePutAwayWork.PlacedCaseCount,
+                            0,
+                            FrankOpeningRidgewayCaseCount);
+                        receivingDescription =
+                            founderStockTaskController.StatusMessage
+                            + $" ({placedCaseCount}/"
+                            + $"{FrankOpeningRidgewayCaseCount} cases stored)";
+                    }
+
                     boundView.SetObjective(
                         FrankObjectiveTitle,
-                        FrankObjectiveDescription);
+                        receivingDescription);
                     break;
+                }
 
                 case FrankRoadsideOpeningObjective.StockSalesFloor:
                     boundView.SetObjective(

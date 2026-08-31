@@ -52,7 +52,7 @@ namespace BigRetail.Editor.StoreLayouts
             "bigretail.map.frank_roadside";
 
         private const int ExpectedConstructionWidth = 96;
-        private const int ExpectedConstructionHeight = 32;
+        private const int ExpectedConstructionHeight = 47;
         private const float CameraBoundsPadding = 4f;
 
         private const string StoreFootprintCenterMarkerId =
@@ -789,28 +789,17 @@ namespace BigRetail.Editor.StoreLayouts
             Vector3Int footprintCenter =
                 FindNearestCell(
                     authoredMap.ConstructionCells,
-                    new Vector3Int(
-                        authoredMap.ConstructionBounds.xMin
-                            + ((ExpectedConstructionWidth - 1) / 2),
-                        authoredMap.ConstructionBounds.yMin
-                            + ((ExpectedConstructionHeight - 1) / 2),
-                        0));
+                    new Vector3Int(-20, 43, 0));
 
             Vector3Int roadsideArrival =
                 FindNearestCell(
-                    authoredMap.MapCells,
-                    new Vector3Int(
-                        footprintCenter.x,
-                        authoredMap.ConstructionBounds.yMin - 6,
-                        0));
+                    authoredMap.ConstructionCells,
+                    new Vector3Int(-20, 22, 0));
 
             Vector3Int rearService =
                 FindNearestCell(
                     authoredMap.ConstructionCells,
-                    new Vector3Int(
-                        authoredMap.ConstructionBounds.xMax - 4,
-                        authoredMap.ConstructionBounds.yMax - 4,
-                        0));
+                    new Vector3Int(25, 56, 0));
 
             ConfigureMarker(
                 storeMarkers,
@@ -863,7 +852,7 @@ namespace BigRetail.Editor.StoreLayouts
             ValidateMarker(
                 markerHost,
                 RoadsideArrivalMarkerId,
-                authoredMap.MapCells);
+                authoredMap.ConstructionCells);
             ValidateMarker(
                 markerHost,
                 RearServiceMarkerId,

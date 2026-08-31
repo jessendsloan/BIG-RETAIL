@@ -44,9 +44,9 @@ Do not build prologue-only versions of inventory, products, customers, employees
 ## 1. Founder entity
 
 - [ ] Add a special Founder character identity.
-- [ ] Founder exists as a normal world character.
-- [ ] Founder uses the same pathfinding / navigation framework as employees.
-- [ ] Founder can receive normal retail work tasks.
+- [x] Founder exists as a normal world character.
+- [x] Founder uses the same pathfinding / navigation framework as employees.
+- [x] Founder can receive normal retail work tasks.
 - [ ] Founder remains uniquely identifiable to campaign and save systems.
 - [ ] Founder cannot quit.
 - [ ] Founder cannot be fired.
@@ -173,10 +173,10 @@ The prologue should teach by letting the player **do retail**, not by presenting
 
 Suggested playable beats:
 
-- [ ] Founder begins at Frank's store.
+- [x] Founder begins beside Frank's trailer on the authored property.
 - [x] Frank points the Founder toward an ordinary opening task.
-- [ ] Founder handles merchandise.
-- [ ] Founder stocks at least one fixture.
+- [x] Founder handles merchandise.
+- [x] Founder stocks at least one fixture.
 - [ ] Customers enter.
 - [ ] Founder operates checkout.
 - [ ] Player completes several sales.
@@ -198,7 +198,7 @@ If Receiving is stable enough when the opener is assembled:
 - [x] Prefer a BIG Wholesale delivery if it fits the story timing.
 - [ ] Use supplier-branded truck / van art when available.
 - [x] Use supplier-branded cartons / load art when available.
-- [ ] Founder receives or moves the merchandise.
+- [x] Founder receives or moves the merchandise.
 - [x] Delivered goods enter the same real inventory path used by the campaign.
 
 This lets the prologue preview a larger portion of the permanent chain:
@@ -349,8 +349,8 @@ Opening objective:
 
 Founder should use employee-compatible implementations for the basic jobs required by the opening slice, including as available:
 
-- [ ] Stocking.
-- [ ] Receiving / inventory movement.
+- [x] Stocking.
+- [x] Receiving / inventory movement.
 - [ ] Checkout.
 - [ ] Cleaning.
 - [ ] Other basic opening labor tasks.
@@ -460,8 +460,8 @@ A clean campaign start should eventually support:
 ## P0 — Foundation before the opener can work
 
 - [ ] Founder entity / identity.
-- [ ] Founder integration with employee-compatible jobs.
-- [ ] Basic stocking.
+- [x] Founder integration with employee-compatible jobs.
+- [x] Basic stocking.
 - [ ] Basic checkout.
 - [ ] Customers.
 - [ ] Dialogue / event sequencing framework.

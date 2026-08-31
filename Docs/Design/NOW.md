@@ -27,7 +27,8 @@ The opening foundation now proves:
 - a deterministic Monday 6:45 AM Campaign start with $2,500 store cash;
 - Frank's opening dialogue and the **Get to Work** handoff;
 - four Ridgeway chip cases staged in the authored Receiving Area;
-- direct, physical case-by-case movement from the supplier load to storage;
+- a Founder-assigned Receiving task that physically moves all four supplier
+  cases from the staged load into rack storage;
 - an empty 15-frontage Ridgeway planogram on the center back-wall Half Shelf;
 - direct one-item stocking and removal, with three bags per frontage;
 - an objective transition from Receiving → stockroom → sales floor;
@@ -46,10 +47,11 @@ The opening foundation now proves:
   shortcut in Frank's campaign while retaining that shortcut as a sandbox
   fallback.
 
-The direct-control Receiving → storage prototype remains the temporary first
-half of the opener. Storage → display now runs through the permanent work seam:
-the Founder performs the same physical inventory actions that a future employee
-can perform.
+Both halves of the opener now run through the permanent work seam. The Founder
+starts beside the trailer, follows authored sidewalks and foundations to
+Receiving, carries each case into rack storage, and can then be assigned to
+stock the sales-floor fixture. These are the same physical jobs a future
+employee can perform.
 
 Continue in this locked order:
 
@@ -173,16 +175,17 @@ cleaning, or customer assistance.
 ## Integration status
 
 GitHub `main` contains the permanent Products → Suppliers → Purchasing →
-Delivery → Receiving foundation, the PO/RCV lifecycle and UI-input fixes, and
-the ordered physical fixture-equipment loop documented in
-`FixtureEquipment.md`.
+Delivery → Receiving foundation, the PO/RCV lifecycle and UI-input fixes, the
+ordered physical fixture-equipment loop, and Founder Stock Task v1. Its
+automated Frank Roadside smoke run fills 45 display units from four 12-unit
+cases and returns the final three units to physical backstock.
 
-The current branch `codex/founder-stock-task-v1` adds Frank's reusable Founder
-stock work order, grid routing, visible case handling, real carried inventory,
-one-item stocking beats, and the campaign fixture command. Its automated
-Frank Roadside smoke run fills 45 display units from four 12-unit cases and
-returns the final three units to physical backstock. It has not yet been
-published to GitHub `main`.
+The current branch `codex/founder-receiving-task-v1` moves the first half of the
+opening loop onto the same permanent work seam. It expands Frank's full 96 × 47
+owned property into the normal construction footprint, centralizes actor
+navigation around constructed foundations and sidewalks, connects the trailer
+to the store with an authored sidewalk, starts the Founder beside the trailer,
+and makes one pallet command run four visible Receiving → rack case trips.
 
 There is separate local wall-finish work in progress. Preserve it before
 changing branches or starting the construction-economy implementation.

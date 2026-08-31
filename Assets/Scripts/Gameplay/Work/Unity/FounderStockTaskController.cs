@@ -7,9 +7,13 @@ using BigRetail.Map.Fixtures;
 using BigRetail.Map.Navigation;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.Navigation;
 using BigRetail.Map.Unity.View;
 using BigRetail.Merchandise.Domain;
 using BigRetail.Merchandise.Unity;
+using BigRetail.Purchasing.Domain;
+using BigRetail.Purchasing.Unity;
+using BigRetail.Receiving.Unity;
 using BigRetail.Work.Domain;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -17,20 +21,20 @@ using UnityEngine.Tilemaps;
 namespace BigRetail.Work.Unity
 {
     /// <summary>
-    /// Executes one employee-compatible fixture stocking job through the
-    /// Founder. Inventory transactions happen only at visible pickup and
-    /// placement beats; the character rig remains presentation-only.
+    /// Executes employee-compatible Receiving and fixture-stocking jobs
+    /// through the Founder. Inventory transactions happen only at visible
+    /// work beats; the character rig remains presentation-only.
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(120)]
     public sealed class FounderStockTaskController :
-        MonoBehaviour,
-        IGridRouteSurfaceQuery
+        MonoBehaviour
     {
         private const string FounderObjectName = "Person";
-        private const string FounderDisplayName = "Founder Frank";
-        private const string FounderWorkStartMarkerId =
-            "bigretail.marker.frank.store_footprint_center";
+        private const string FounderDisplayName = "Founder";
+        private const string LegacyFounderDisplayName = "Founder Frank";
+        private const string FounderReportMarkerId =
+            "bigretail.marker.frank.roadside_arrival";
         private const string SouthShelfGrabState =
             "Person_ShelfGrab_SouthFacing";
         private const string NorthShelfGrabState =
@@ -41,6 +45,14 @@ namespace BigRetail.Work.Unity
 
         private static readonly StorageLocationId FounderCarryLocationId =
             new StorageLocationId("WORKER-CARRY-FOUNDER-FRANK");
+
+        private static readonly (int X, int Y)[] AdjacentCellOffsets =
+        {
+            (1, 0),
+            (0, 1),
+            (-1, 0),
+            (0, -1)
+        };
 
         [Header("Runtime Map")]
 
@@ -62,6 +74,15 @@ namespace BigRetail.Work.Unity
         [SerializeField]
         private LocationMarkerHost locationMarkerHost;
 
+        [SerializeField]
+        private GridNavigationSurfaceHost navigationSurfaceHost;
+
+        [SerializeField]
+        private PurchasingRuntimeHost purchasingRuntimeHost;
+
+        [SerializeField]
+        private ReceivingAreaRuntimeHost receivingAreaRuntimeHost;
+
         [Header("Founder")]
 
         [SerializeField]
@@ -81,11 +102,18 @@ namespace BigRetail.Work.Unity
         [Min(0.05f)]
         private float returnDurationSeconds = 0.55f;
 
+        [SerializeField]
+        [Min(0.05f)]
+        private float putAwayPlacementDurationSeconds = 0.65f;
+
 
         private GridRoutePlanner routePlanner;
         private StockFixtureWorkOrder activeWork;
+        private PutAwayDeliveryWorkOrder activePutAwayWork;
         private FixtureBackstockCaseSnapshot carriedCase;
+        private InboundPurchasePack carriedSupplierCase;
         private FixtureInstanceId destinationFixtureId;
+        private GridPosition putAwayReceivingCell;
         private Animator founderAnimator;
         private NpcCutoutRig founderRig;
         private IsometricDepthSortingGroup founderDepthSorting;
@@ -95,17 +123,34 @@ namespace BigRetail.Work.Unity
         private bool returnActionStarted;
         private bool isInitialized;
         private bool inventoryLocationRegistered;
+        private bool founderPlacedAtReportMarker;
 
 
         public bool IsInitialized => isInitialized;
 
         public bool IsBusy =>
-            activeWork != null && !activeWork.IsTerminal;
+            (activeWork != null && !activeWork.IsTerminal)
+            || (activePutAwayWork != null
+                && !activePutAwayWork.IsTerminal);
 
         public StockFixtureWorkOrder ActiveWork => activeWork;
 
+        public PutAwayDeliveryWorkOrder ActivePutAwayWork =>
+            activePutAwayWork;
+
+        public Transform FounderTransform =>
+            founderPathFollower != null
+                ? founderPathFollower.transform
+                : null;
+
+        public GridPosition FounderCell =>
+            isInitialized
+                ? GetFounderCell()
+                : default;
+
         public string StatusMessage =>
-            activeWork?.StatusMessage
+            activePutAwayWork?.StatusMessage
+            ?? activeWork?.StatusMessage
             ?? "Founder is ready for work";
 
 
@@ -147,6 +192,13 @@ namespace BigRetail.Work.Unity
         {
             if (!IsBusy || !TryInitialize())
             {
+                return;
+            }
+
+            if (activePutAwayWork != null
+                && !activePutAwayWork.IsTerminal)
+            {
+                UpdatePutAwayWork();
                 return;
             }
 
@@ -234,7 +286,7 @@ namespace BigRetail.Work.Unity
 
             if (IsBusy)
             {
-                status = activeWork.StatusMessage;
+                status = StatusMessage;
                 return false;
             }
 
@@ -253,6 +305,7 @@ namespace BigRetail.Work.Unity
                 return false;
             }
 
+            activePutAwayWork = null;
             activeWork = new StockFixtureWorkOrder(
                 fixtureId,
                 productId);
@@ -270,32 +323,66 @@ namespace BigRetail.Work.Unity
         }
 
 
+        public bool TryAssignReceivingLoad(
+            long orderNumber,
+            out string status)
+        {
+            if (!TryInitialize())
+            {
+                status = "Founder is not ready yet";
+                return false;
+            }
+
+            if (IsBusy)
+            {
+                status = StatusMessage;
+                return false;
+            }
+
+            if (orderNumber <= 0
+                || !receivingAreaRuntimeHost.State.TryGetReservation(
+                    orderNumber,
+                    out _)
+                || !purchasingRuntimeHost.CaseStocking.TryGetNextCase(
+                    orderNumber,
+                    out _))
+            {
+                status = "That delivery is no longer waiting in Receiving";
+                return false;
+            }
+
+            if (!EnsureFounderOnNavigableCell(out status))
+            {
+                return false;
+            }
+
+            activeWork = null;
+            activePutAwayWork =
+                new PutAwayDeliveryWorkOrder(orderNumber);
+
+            if (!TryBeginNextPutAwayTrip(out status))
+            {
+                BlockPutAwayWork(status);
+                return false;
+            }
+
+            PublishStatus();
+            status = activePutAwayWork.StatusMessage;
+            return true;
+        }
+
+
         public bool CanStandAt(GridPosition cell)
         {
-            return mapHost != null
-                && mapHost.MapDefinition != null
-                && mapHost.MapDefinition.ContainsCell(cell)
-                && mapHost.FoundationState != null
-                && mapHost.FoundationState.HasFoundation(cell)
-                && fixtureRuntimeHost != null
-                && fixtureRuntimeHost.FixtureState != null
-                && !fixtureRuntimeHost.FixtureState.IsOccupied(cell);
+            return navigationSurfaceHost != null
+                && navigationSurfaceHost.CanStandAt(cell);
         }
 
 
         public bool CanTraverse(CellEdge edge)
         {
-            if (mapHost?.WallState == null
-                || !mapHost.WallState.HasWall(edge))
-            {
-                return true;
-            }
-
-            return mapHost.DoorAssemblies != null
-                && mapHost.DoorAssemblies.TryGetAssemblyAtEdge(
-                    edge,
-                    out BigRetail.Map.Walls.DoorAssembly door)
-                && door.IsPassageEdge(edge);
+            return navigationSurfaceHost != null
+                && navigationSurfaceHost.CanTraverse(edge);
         }
 
 
@@ -303,6 +390,45 @@ namespace BigRetail.Work.Unity
             FixturePlanogramRuntimeHost _)
         {
             TryInitialize();
+        }
+
+
+        private void UpdatePutAwayWork()
+        {
+            switch (activePutAwayWork.Phase)
+            {
+                case PutAwayDeliveryWorkPhase.TravelingToReceiving:
+                    if (!founderPathFollower.IsMoving)
+                    {
+                        BeginPutAwayPickup();
+                    }
+                    break;
+
+                case PutAwayDeliveryWorkPhase.PickingUpCase:
+                    actionTimeRemaining -= Time.deltaTime;
+
+                    if (actionTimeRemaining <= 0f)
+                    {
+                        CompletePutAwayPickup();
+                    }
+                    break;
+
+                case PutAwayDeliveryWorkPhase.TravelingToRack:
+                    if (!founderPathFollower.IsMoving)
+                    {
+                        BeginPutAwayPlacement();
+                    }
+                    break;
+
+                case PutAwayDeliveryWorkPhase.PlacingCase:
+                    actionTimeRemaining -= Time.deltaTime;
+
+                    if (actionTimeRemaining <= 0f)
+                    {
+                        CompletePutAwayPlacement();
+                    }
+                    break;
+            }
         }
 
 
@@ -323,11 +449,19 @@ namespace BigRetail.Work.Unity
                 || fixtureRuntimeHost == null
                 || !fixtureRuntimeHost.TryInitialize()
                 || fixtureRuntimeHost.FixtureAccess == null
+                || navigationSurfaceHost == null
+                || !navigationSurfaceHost.TryInitialize()
                 || planogramRuntimeHost == null
                 || !planogramRuntimeHost.TryInitialize()
                 || planogramRuntimeHost.Inventory == null
                 || planogramRuntimeHost.Backstock == null
                 || planogramRuntimeHost.DisplayInventory == null
+                || purchasingRuntimeHost == null
+                || !purchasingRuntimeHost.TryInitialize()
+                || purchasingRuntimeHost.CaseStocking == null
+                || receivingAreaRuntimeHost == null
+                || !receivingAreaRuntimeHost.TryInitialize()
+                || receivingAreaRuntimeHost.State == null
                 || founderPathFollower == null)
             {
                 return false;
@@ -353,7 +487,8 @@ namespace BigRetail.Work.Unity
                 return false;
             }
 
-            routePlanner = new GridRoutePlanner(this);
+            routePlanner = new GridRoutePlanner(
+                navigationSurfaceHost);
             founderAnimator =
                 founderPathFollower.GetComponent<Animator>();
             founderRig =
@@ -374,6 +509,15 @@ namespace BigRetail.Work.Unity
                 coordinateTilemap,
                 founderPathFollower.transform);
             founderPathFollower.gameObject.name = FounderDisplayName;
+
+            if (!founderPlacedAtReportMarker
+                && !TryPlaceFounderAtReportMarker(
+                    out string reportFailure))
+            {
+                Debug.LogWarning(reportFailure, this);
+                return false;
+            }
+
             isInitialized = true;
             return true;
         }
@@ -393,6 +537,15 @@ namespace BigRetail.Work.Unity
                     FindObjectsInactive.Include);
             locationMarkerHost ??=
                 FindAnyObjectByType<LocationMarkerHost>(
+                    FindObjectsInactive.Include);
+            navigationSurfaceHost ??=
+                FindAnyObjectByType<GridNavigationSurfaceHost>(
+                    FindObjectsInactive.Include);
+            purchasingRuntimeHost ??=
+                FindAnyObjectByType<PurchasingRuntimeHost>(
+                    FindObjectsInactive.Include);
+            receivingAreaRuntimeHost ??=
+                FindAnyObjectByType<ReceivingAreaRuntimeHost>(
                     FindObjectsInactive.Include);
 
             if (coordinateTilemap == null)
@@ -426,7 +579,11 @@ namespace BigRetail.Work.Unity
                  index < people.Length;
                  index++)
             {
-                if (people[index].gameObject.name == FounderObjectName
+                if ((people[index].gameObject.name == FounderObjectName
+                     || people[index].gameObject.name
+                        == FounderDisplayName
+                     || people[index].gameObject.name
+                        == LegacyFounderDisplayName)
                     && people[index].transform.parent == null)
                 {
                     founderPathFollower = people[index];
@@ -449,7 +606,7 @@ namespace BigRetail.Work.Unity
 
             if (locationMarkerHost == null
                 || !locationMarkerHost.TryGetMarker(
-                    FounderWorkStartMarkerId,
+                    FounderReportMarkerId,
                     out LocationMarkerAuthoring marker))
             {
                 failureReason =
@@ -479,10 +636,230 @@ namespace BigRetail.Work.Unity
             Debug.Log(
                 $"Founder reported for work at {workStartCell} because "
                 + $"the authored character position {currentCell} was "
-                + "outside the navigable store.",
+                + "outside the actor-navigation surface.",
                 this);
             failureReason = string.Empty;
             return true;
+        }
+
+
+        private bool TryPlaceFounderAtReportMarker(
+            out string failureReason)
+        {
+            if (locationMarkerHost == null
+                || !locationMarkerHost.TryGetMarker(
+                    FounderReportMarkerId,
+                    out LocationMarkerAuthoring marker))
+            {
+                failureReason =
+                    "Founder has no authored roadside report marker";
+                return false;
+            }
+
+            Vector3Int markerCell = marker.LogicalCell;
+            GridPosition reportCell = new GridPosition(
+                markerCell.x,
+                markerCell.y,
+                markerCell.z);
+
+            if (!CanStandAt(reportCell))
+            {
+                failureReason =
+                    "Founder's roadside report marker is not walkable";
+                return false;
+            }
+
+            founderPathFollower.transform.position =
+                viewHost.GetLogicalCellCenterWorld(
+                    reportCell,
+                    coordinateTilemap)
+                + marker.WorldOffset;
+            founderPathFollower.Stop();
+            founderPlacedAtReportMarker = true;
+
+            Debug.Log(
+                $"Founder reported for work at the roadside yard marker "
+                + $"{reportCell}.",
+                this);
+            failureReason = string.Empty;
+            return true;
+        }
+
+
+        private bool TryBeginNextPutAwayTrip(
+            out string failureReason)
+        {
+            if (!receivingAreaRuntimeHost.State.TryGetReservation(
+                    activePutAwayWork.OrderNumber,
+                    out GridPosition receivingCell)
+                || !purchasingRuntimeHost.CaseStocking.TryGetNextCase(
+                    activePutAwayWork.OrderNumber,
+                    out InboundPurchasePack supplierCase))
+            {
+                failureReason =
+                    "That delivery is no longer waiting in Receiving";
+                return false;
+            }
+
+            GridPosition origin = GetFounderCell();
+
+            if (!TryPlanRouteAdjacentToCell(
+                    receivingCell,
+                    origin,
+                    out GridPosition receivingAccessCell,
+                    out IReadOnlyList<GridPosition> receivingRoute))
+            {
+                failureReason = "Founder cannot reach the Receiving load";
+                return false;
+            }
+
+            if (!TryFindReachableRackWithSpace(
+                    receivingAccessCell,
+                    out FixtureInstanceId rackFixtureId))
+            {
+                failureReason =
+                    "Founder cannot find a reachable storage-rack slot";
+                return false;
+            }
+
+            putAwayReceivingCell = receivingCell;
+            activePutAwayWork.BeginCaseTrip(
+                supplierCase.ProductId,
+                supplierCase.UnitCount,
+                rackFixtureId);
+            BeginTravel(receivingRoute);
+            failureReason = string.Empty;
+            return true;
+        }
+
+
+        private void BeginPutAwayPickup()
+        {
+            activePutAwayWork.BeginPickup();
+            FaceCell(putAwayReceivingCell);
+            PlayShelfGrab();
+            actionTimeRemaining = pickupDurationSeconds;
+            PublishStatus();
+        }
+
+
+        private void CompletePutAwayPickup()
+        {
+            if (!purchasingRuntimeHost.CaseStocking.TryGetNextCase(
+                    activePutAwayWork.OrderNumber,
+                    out InboundPurchasePack supplierCase)
+                || supplierCase.ProductId
+                    != activePutAwayWork.ProductId
+                || supplierCase.UnitCount
+                    != activePutAwayWork.PendingUnitCount)
+            {
+                BlockPutAwayWork(
+                    "The supplier case changed before Frank picked it up");
+                return;
+            }
+
+            carriedSupplierCase = supplierCase;
+            activePutAwayWork.RecordCasePickedUp();
+            ShowCarriedCase(supplierCase.ProductId);
+            PlayIdle();
+
+            GridPosition origin = GetFounderCell();
+
+            if (!TryPlanRouteToFixture(
+                    activePutAwayWork.TargetRackId,
+                    origin,
+                    out _,
+                    out IReadOnlyList<GridPosition> route))
+            {
+                BlockPutAwayWork(
+                    "Founder cannot reach the selected storage rack");
+                return;
+            }
+
+            BeginTravel(
+                activePutAwayWork.TargetRackId,
+                route);
+            PublishStatus();
+        }
+
+
+        private void BeginPutAwayPlacement()
+        {
+            activePutAwayWork.BeginPlacement();
+            FaceFixture(activePutAwayWork.TargetRackId);
+            PlayShelfGrab();
+            actionTimeRemaining = putAwayPlacementDurationSeconds;
+            PublishStatus();
+        }
+
+
+        private void CompletePutAwayPlacement()
+        {
+            SupplierCaseStockingResult result =
+                purchasingRuntimeHost.CaseStocking.TryStockCase(
+                    carriedSupplierCase,
+                    activePutAwayWork.TargetRackId);
+
+            if (!result.Succeeded)
+            {
+                BlockPutAwayWork(
+                    DescribePutAwayFailure(result.Failure));
+                return;
+            }
+
+            activePutAwayWork.RecordCasePlaced(
+                result.ReceivedUnitCount);
+            carriedSupplierCase = default;
+            HideCarriedCase();
+            PlayIdle();
+
+            if (purchasingRuntimeHost.CaseStocking.TryGetNextCase(
+                    activePutAwayWork.OrderNumber,
+                    out _))
+            {
+                if (!TryBeginNextPutAwayTrip(
+                        out string failureReason))
+                {
+                    BlockPutAwayWork(failureReason);
+                    return;
+                }
+
+                PublishStatus();
+                return;
+            }
+
+            activePutAwayWork.Complete();
+            PublishStatus();
+        }
+
+
+        private void BlockPutAwayWork(string reason)
+        {
+            founderPathFollower?.Stop();
+            carriedSupplierCase = default;
+            HideCarriedCase();
+            PlayIdle();
+            activePutAwayWork?.Block(reason);
+            PublishStatus();
+        }
+
+
+        private static string DescribePutAwayFailure(
+            SupplierCaseStockingFailure failure)
+        {
+            return failure switch
+            {
+                SupplierCaseStockingFailure.NoAvailableRackCaseSlot =>
+                    "The selected storage rack filled before Frank arrived",
+
+                SupplierCaseStockingFailure.UnknownRack =>
+                    "The selected storage rack is no longer available",
+
+                SupplierCaseStockingFailure.DeliveryChanged =>
+                    "The supplier case is no longer in Receiving",
+
+                _ => "Founder could not place the supplier case"
+            };
         }
 
 
@@ -505,7 +882,7 @@ namespace BigRetail.Work.Unity
             if (!TryPlanRouteToFixture(
                     rackFixtureId,
                     origin,
-                    out FixtureAccessPoint accessPoint,
+                    out _,
                     out IReadOnlyList<GridPosition> route))
             {
                 failureReason = "Founder cannot reach the storage rack";
@@ -513,7 +890,7 @@ namespace BigRetail.Work.Unity
             }
 
             activeWork.BeginBackstockTrip(rackFixtureId);
-            BeginTravel(rackFixtureId, accessPoint, route);
+            BeginTravel(rackFixtureId, route);
             failureReason = string.Empty;
             return true;
         }
@@ -555,7 +932,7 @@ namespace BigRetail.Work.Unity
             if (!TryPlanRouteToFixture(
                     activeWork.TargetFixtureId,
                     origin,
-                    out FixtureAccessPoint accessPoint,
+                    out _,
                     out IReadOnlyList<GridPosition> route))
             {
                 BeginEmergencyReturn(
@@ -565,7 +942,6 @@ namespace BigRetail.Work.Unity
 
             BeginTravel(
                 activeWork.TargetFixtureId,
-                accessPoint,
                 route);
             PublishStatus();
         }
@@ -664,7 +1040,7 @@ namespace BigRetail.Work.Unity
             if (!TryPlanRouteToFixture(
                     activeWork.SourceRackId,
                     origin,
-                    out FixtureAccessPoint accessPoint,
+                    out _,
                     out IReadOnlyList<GridPosition> route))
             {
                 BeginEmergencyReturn(
@@ -676,7 +1052,6 @@ namespace BigRetail.Work.Unity
             returnActionStarted = false;
             BeginTravel(
                 activeWork.SourceRackId,
-                accessPoint,
                 route);
             PublishStatus();
         }
@@ -844,12 +1219,93 @@ namespace BigRetail.Work.Unity
         }
 
 
+        private bool TryPlanRouteAdjacentToCell(
+            GridPosition targetCell,
+            GridPosition origin,
+            out GridPosition selectedAccessCell,
+            out IReadOnlyList<GridPosition> selectedRoute)
+        {
+            selectedAccessCell = default;
+            selectedRoute = Array.Empty<GridPosition>();
+            int shortestCellCount = int.MaxValue;
+
+            for (int index = 0;
+                 index < AdjacentCellOffsets.Length;
+                 index++)
+            {
+                (int xOffset, int yOffset) =
+                    AdjacentCellOffsets[index];
+                GridPosition candidate =
+                    targetCell.Offset(xOffset, yOffset);
+
+                if (!routePlanner.TryFindRoute(
+                        origin,
+                        candidate,
+                        out IReadOnlyList<GridPosition> route)
+                    || route.Count >= shortestCellCount)
+                {
+                    continue;
+                }
+
+                selectedAccessCell = candidate;
+                selectedRoute = route;
+                shortestCellCount = route.Count;
+            }
+
+            return shortestCellCount < int.MaxValue;
+        }
+
+
+        private bool TryFindReachableRackWithSpace(
+            GridPosition origin,
+            out FixtureInstanceId rackFixtureId)
+        {
+            rackFixtureId = default;
+            int shortestCellCount = int.MaxValue;
+
+            foreach (
+                FixtureInstance fixture
+                in fixtureRuntimeHost.FixtureState.EnumerateFixtures())
+            {
+                if (planogramRuntimeHost.Backstock
+                        .GetRackAvailableCaseSlotCount(fixture.Id)
+                    <= 0
+                    || !TryPlanRouteToFixture(
+                        fixture.Id,
+                        origin,
+                        out _,
+                        out IReadOnlyList<GridPosition> route)
+                    || route.Count >= shortestCellCount)
+                {
+                    continue;
+                }
+
+                rackFixtureId = fixture.Id;
+                shortestCellCount = route.Count;
+            }
+
+            return rackFixtureId.IsValid;
+        }
+
+
         private void BeginTravel(
             FixtureInstanceId fixtureId,
-            FixtureAccessPoint accessPoint,
             IReadOnlyList<GridPosition> route)
         {
             destinationFixtureId = fixtureId;
+
+            BeginTravel(route);
+        }
+
+
+        private void BeginTravel(
+            IReadOnlyList<GridPosition> route)
+        {
+            if (route == null || route.Count == 0)
+            {
+                founderPathFollower.Stop();
+                return;
+            }
 
             int firstWaypointIndex = route.Count > 1 ? 1 : 0;
             Vector3[] worldWaypoints =
@@ -871,7 +1327,7 @@ namespace BigRetail.Work.Unity
                     new[]
                     {
                         viewHost.GetLogicalCellCenterWorld(
-                            accessPoint.Cell,
+                            route[route.Count - 1],
                             coordinateTilemap)
                     });
                 return;
@@ -899,12 +1355,23 @@ namespace BigRetail.Work.Unity
                 return;
             }
 
-            Vector3 fixtureWorld =
+            FaceCell(fixture.AnchorCell);
+        }
+
+
+        private void FaceCell(GridPosition targetCell)
+        {
+            if (founderRig == null)
+            {
+                return;
+            }
+
+            Vector3 targetWorld =
                 viewHost.GetLogicalCellCenterWorld(
-                    fixture.AnchorCell,
+                    targetCell,
                     coordinateTilemap);
             Vector3 direction =
-                fixtureWorld - founderPathFollower.transform.position;
+                targetWorld - founderPathFollower.transform.position;
 
             bool east = direction.x >= 0f;
             bool south = direction.y <= 0f;
@@ -1045,6 +1512,10 @@ namespace BigRetail.Work.Unity
                 Mathf.Max(0.05f, stockUnitIntervalSeconds);
             returnDurationSeconds =
                 Mathf.Max(0.05f, returnDurationSeconds);
+            putAwayPlacementDurationSeconds =
+                Mathf.Max(
+                    0.05f,
+                    putAwayPlacementDurationSeconds);
         }
     }
 }

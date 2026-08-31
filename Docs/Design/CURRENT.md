@@ -15,14 +15,21 @@ Purchasing uses the campaign clock and store cash. Placed Supplier POs become sc
 
 Frank's deterministic opening scenario starts Monday at 6:45 AM with $2,500,
 four Ridgeway chip cases staged in Receiving, one empty 15-frontage chip
-planogram, and an operational checkout configuration. The direct-control
-prototype still makes the player move each case from Receiving into physical
-storage. The sales-floor half now uses **Founder Stock Task v1**: the player
-commands the assigned Half Shelf, Frank walks to storage, visibly picks up and
-carries each physical case, stocks one bag at a time, repeats until all 45
-display units are placed, and returns the final three units to backstock. The
-work-order and route seams are intentionally reusable by future employees. The
-next permanent gameplay step is one complete customer shopping journey.
+planogram, and an operational checkout configuration. The Founder starts by
+the trailer and uses one shared constructed-surface navigation authority:
+foundations and sidewalks are walkable, fixture cells and closed walls are not.
+The authored trailer sidewalk joins the existing store route, and extending
+the store or sidewalk network automatically extends actor navigation.
+
+One supplier-pallet command now creates a real Receiving put-away job. The
+Founder walks to Receiving, visibly takes and carries one case, chooses a
+reachable rack with a physical case slot, places the case, and repeats all four
+trips. **Founder Stock Task v1** then handles the sales-floor half: the player
+commands the assigned Half Shelf, the Founder walks to storage, carries each
+physical case, stocks one bag at a time until all 45 display units are placed,
+and returns the final three units to backstock. Both work-order seams are
+intentionally reusable by future employees. The next permanent gameplay step
+is one complete customer shopping journey.
 
 A parallel narrative-design thread is now established around Milton Big and the opening campaign flow. The canonical Milton character/campaign authority is `MiltonBig.md`.
 

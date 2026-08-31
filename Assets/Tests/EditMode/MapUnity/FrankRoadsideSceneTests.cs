@@ -1,5 +1,6 @@
 using BigRetail.Map.Construction;
 using BigRetail.Map.Unity;
+using BigRetail.Map.Unity.Navigation;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -34,11 +35,14 @@ namespace BigRetail.Map.Unity.Tests
                     FindSceneComponent<GridMapHost>(scene);
                 LocationMarkerHost markerHost =
                     FindSceneComponent<LocationMarkerHost>(scene);
+                GridNavigationSurfaceHost navigationHost =
+                    FindSceneComponent<GridNavigationSurfaceHost>(scene);
                 Tilemap foundationViews =
                     FindSceneComponent<Tilemap>(scene, "FoundationViews");
 
                 Assert.That(mapHost, Is.Not.Null);
                 Assert.That(markerHost, Is.Not.Null);
+                Assert.That(navigationHost, Is.Not.Null);
                 Assert.That(foundationViews, Is.Not.Null);
                 Assert.That(foundationViews.GetUsedTilesCount(), Is.Zero);
                 AssertNoComponentTypeOnObject(
@@ -57,7 +61,28 @@ namespace BigRetail.Map.Unity.Tests
                     Is.EqualTo(5502));
                 Assert.That(
                     mapHost.ConstructionArea.EligibleCellCount,
-                    Is.EqualTo(96 * 32));
+                    Is.EqualTo(96 * 47));
+                Assert.That(
+                    mapHost.ConstructionArea.IsEligible(
+                        new BigRetail.Map.Domain.GridPosition(
+                            -67,
+                            13,
+                            0)),
+                    Is.True);
+                Assert.That(
+                    mapHost.ConstructionArea.IsEligible(
+                        new BigRetail.Map.Domain.GridPosition(
+                            28,
+                            59,
+                            0)),
+                    Is.True);
+                Assert.That(
+                    mapHost.ConstructionArea.IsEligible(
+                        new BigRetail.Map.Domain.GridPosition(
+                            -68,
+                            13,
+                            0)),
+                    Is.False);
                 Assert.That(
                     mapHost.LandPolicy.Kind,
                     Is.EqualTo(LocationLandPolicyKind.FixedFootprint));
@@ -77,7 +102,8 @@ namespace BigRetail.Map.Unity.Tests
                     "bigretail.marker.frank.store_footprint_center");
                 AssertMarker(
                     markerHost,
-                    "bigretail.marker.frank.roadside_arrival");
+                    "bigretail.marker.frank.roadside_arrival",
+                    new Vector3Int(-20, 22, 0));
                 AssertMarker(
                     markerHost,
                     "bigretail.marker.frank.rear_service");
@@ -120,7 +146,8 @@ namespace BigRetail.Map.Unity.Tests
 
         private static void AssertMarker(
             LocationMarkerHost markerHost,
-            string markerId)
+            string markerId,
+            Vector3Int? expectedCell = null)
         {
             Assert.That(
                 markerHost.TryGetMarker(
@@ -129,6 +156,13 @@ namespace BigRetail.Map.Unity.Tests
                 Is.True,
                 $"Missing location marker '{markerId}'.");
             Assert.That(marker, Is.Not.Null);
+
+            if (expectedCell.HasValue)
+            {
+                Assert.That(
+                    marker.LogicalCell,
+                    Is.EqualTo(expectedCell.Value));
+            }
         }
 
 

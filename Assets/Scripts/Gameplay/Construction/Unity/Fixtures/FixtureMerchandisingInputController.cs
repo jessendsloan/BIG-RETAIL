@@ -7,6 +7,7 @@ using BigRetail.Map.Unity.Fixtures;
 using BigRetail.Merchandise.Unity;
 using BigRetail.Purchasing.Domain;
 using BigRetail.Purchasing.Unity;
+using BigRetail.Work.Unity;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -57,6 +58,9 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         [SerializeField]
         private InboundDeliveryViewSystem inboundDeliveryViewSystem;
+
+        [SerializeField]
+        private FounderStockTaskController founderStockTaskController;
 
         [Header("Action Names")]
 
@@ -111,6 +115,13 @@ namespace BigRetail.Construction.Unity.Fixtures
             {
                 fixtureViewSystem =
                     FindAnyObjectByType<FixtureViewSystem>(
+                    FindObjectsInactive.Include);
+            }
+
+            if (founderStockTaskController == null)
+            {
+                founderStockTaskController =
+                    FindAnyObjectByType<FounderStockTaskController>(
                         FindObjectsInactive.Include);
             }
 
@@ -345,8 +356,33 @@ namespace BigRetail.Construction.Unity.Fixtures
 
         private bool TryTakeCase(InboundDeliveryLoadView inboundLoad)
         {
-            if (inboundLoad == null
-                || purchasingRuntimeHost.CaseStocking == null
+            if (inboundLoad == null)
+            {
+                return false;
+            }
+
+            if (founderStockTaskController != null)
+            {
+                bool assigned =
+                    founderStockTaskController.TryAssignReceivingLoad(
+                        inboundLoad.OrderNumber,
+                        out string founderStatus);
+
+                if (assigned)
+                {
+                    selectionHost.ClearSelection();
+                    inboundDeliveryViewSystem.SetHighlightedOrder(null);
+                    Debug.Log(founderStatus, this);
+                }
+                else
+                {
+                    Debug.LogWarning(founderStatus, this);
+                }
+
+                return assigned;
+            }
+
+            if (purchasingRuntimeHost.CaseStocking == null
                 || !purchasingRuntimeHost.CaseStocking.TryGetNextCase(
                     inboundLoad.OrderNumber,
                     out InboundPurchasePack nextCase))

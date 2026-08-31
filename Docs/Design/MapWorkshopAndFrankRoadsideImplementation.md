@@ -336,8 +336,8 @@ another game's map.
 
 Target traits:
 
-- a 96 × 32 construction footprint, arranged as three 32 × 32 authoring
-  sections but granted as one fixed-footprint location at runtime;
+- a 96 × 47 owned construction footprint spanning the prebuilt store and
+  upper trailer property as one fixed-footprint location at runtime;
 - dirt/gravel road and worn parking apron;
 - weeds, scrub, trees, drainage, utility poles, and uneven roadside edges;
 - a modest older storefront and small parking area;
@@ -464,11 +464,19 @@ Phase D rather than implying an incomplete scenario bootstrap is ready.
 - [x] Author and validate `FrankOpeningShiftScenario`.
 - [ ] Run the complete opening retail loop in the Frank scene.
 
-The finalized location baseline validates a complete 96 × 32 construction
+The finalized location baseline validates a complete 96 × 47 construction
 mask, frames the camera from the authored map footprint, and supplies
 rotation-aware stable markers for the store center, roadside arrival, and rear
 service approach. Exact character and cinematic staging remains scenario work
 and should be positioned after the prebuilt store footprint is authored.
+
+Actor navigation uses one shared constructed-surface contract. A cell becomes
+walkable when it has a foundation or sidewalk and is not occupied by a fixture;
+walls block edges except at an authored door passage. Frank's opening layout
+provides a four-cell-wide sidewalk from the trailer report marker into the
+existing rear store path. Expanding foundations or sidewalks through the normal
+builder therefore expands employee and customer navigation without special
+yard exceptions.
 
 ## Phase F — Shared-shell extraction
 
