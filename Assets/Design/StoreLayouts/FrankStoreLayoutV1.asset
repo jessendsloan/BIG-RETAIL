@@ -964,6 +964,870 @@ MonoBehaviour:
       Y: 52
       Level: 0
     Sidewalks:
+    - X: -67
+      Y: 25
+      Level: 0
+    - X: -66
+      Y: 25
+      Level: 0
+    - X: -65
+      Y: 25
+      Level: 0
+    - X: -64
+      Y: 25
+      Level: 0
+    - X: -63
+      Y: 25
+      Level: 0
+    - X: -62
+      Y: 25
+      Level: 0
+    - X: -61
+      Y: 25
+      Level: 0
+    - X: -60
+      Y: 25
+      Level: 0
+    - X: -59
+      Y: 25
+      Level: 0
+    - X: -58
+      Y: 25
+      Level: 0
+    - X: -57
+      Y: 25
+      Level: 0
+    - X: -56
+      Y: 25
+      Level: 0
+    - X: -55
+      Y: 25
+      Level: 0
+    - X: -54
+      Y: 25
+      Level: 0
+    - X: -53
+      Y: 25
+      Level: 0
+    - X: -52
+      Y: 25
+      Level: 0
+    - X: -51
+      Y: 25
+      Level: 0
+    - X: -50
+      Y: 25
+      Level: 0
+    - X: -49
+      Y: 25
+      Level: 0
+    - X: -48
+      Y: 25
+      Level: 0
+    - X: -47
+      Y: 25
+      Level: 0
+    - X: -46
+      Y: 25
+      Level: 0
+    - X: -45
+      Y: 25
+      Level: 0
+    - X: -44
+      Y: 25
+      Level: 0
+    - X: -43
+      Y: 25
+      Level: 0
+    - X: -42
+      Y: 25
+      Level: 0
+    - X: -41
+      Y: 25
+      Level: 0
+    - X: -40
+      Y: 25
+      Level: 0
+    - X: -39
+      Y: 25
+      Level: 0
+    - X: -38
+      Y: 25
+      Level: 0
+    - X: -37
+      Y: 25
+      Level: 0
+    - X: -36
+      Y: 25
+      Level: 0
+    - X: -35
+      Y: 25
+      Level: 0
+    - X: -34
+      Y: 25
+      Level: 0
+    - X: -33
+      Y: 25
+      Level: 0
+    - X: -32
+      Y: 25
+      Level: 0
+    - X: -31
+      Y: 25
+      Level: 0
+    - X: -30
+      Y: 25
+      Level: 0
+    - X: -29
+      Y: 25
+      Level: 0
+    - X: -28
+      Y: 25
+      Level: 0
+    - X: -27
+      Y: 25
+      Level: 0
+    - X: -26
+      Y: 25
+      Level: 0
+    - X: -25
+      Y: 25
+      Level: 0
+    - X: -24
+      Y: 25
+      Level: 0
+    - X: -23
+      Y: 25
+      Level: 0
+    - X: -22
+      Y: 25
+      Level: 0
+    - X: -21
+      Y: 25
+      Level: 0
+    - X: -20
+      Y: 25
+      Level: 0
+    - X: -19
+      Y: 25
+      Level: 0
+    - X: -18
+      Y: 25
+      Level: 0
+    - X: -17
+      Y: 25
+      Level: 0
+    - X: -16
+      Y: 25
+      Level: 0
+    - X: -15
+      Y: 25
+      Level: 0
+    - X: -14
+      Y: 25
+      Level: 0
+    - X: -13
+      Y: 25
+      Level: 0
+    - X: -12
+      Y: 25
+      Level: 0
+    - X: -11
+      Y: 25
+      Level: 0
+    - X: -10
+      Y: 25
+      Level: 0
+    - X: -9
+      Y: 25
+      Level: 0
+    - X: -8
+      Y: 25
+      Level: 0
+    - X: -7
+      Y: 25
+      Level: 0
+    - X: -6
+      Y: 25
+      Level: 0
+    - X: -5
+      Y: 25
+      Level: 0
+    - X: -4
+      Y: 25
+      Level: 0
+    - X: -3
+      Y: 25
+      Level: 0
+    - X: -2
+      Y: 25
+      Level: 0
+    - X: -1
+      Y: 25
+      Level: 0
+    - X: 0
+      Y: 25
+      Level: 0
+    - X: 1
+      Y: 25
+      Level: 0
+    - X: 2
+      Y: 25
+      Level: 0
+    - X: 3
+      Y: 25
+      Level: 0
+    - X: 4
+      Y: 25
+      Level: 0
+    - X: 5
+      Y: 25
+      Level: 0
+    - X: 6
+      Y: 25
+      Level: 0
+    - X: 7
+      Y: 25
+      Level: 0
+    - X: 8
+      Y: 25
+      Level: 0
+    - X: 9
+      Y: 25
+      Level: 0
+    - X: 10
+      Y: 25
+      Level: 0
+    - X: 11
+      Y: 25
+      Level: 0
+    - X: 12
+      Y: 25
+      Level: 0
+    - X: 13
+      Y: 25
+      Level: 0
+    - X: 14
+      Y: 25
+      Level: 0
+    - X: 15
+      Y: 25
+      Level: 0
+    - X: 16
+      Y: 25
+      Level: 0
+    - X: 17
+      Y: 25
+      Level: 0
+    - X: 18
+      Y: 25
+      Level: 0
+    - X: 19
+      Y: 25
+      Level: 0
+    - X: 20
+      Y: 25
+      Level: 0
+    - X: 21
+      Y: 25
+      Level: 0
+    - X: 22
+      Y: 25
+      Level: 0
+    - X: 23
+      Y: 25
+      Level: 0
+    - X: 24
+      Y: 25
+      Level: 0
+    - X: 25
+      Y: 25
+      Level: 0
+    - X: 26
+      Y: 25
+      Level: 0
+    - X: 27
+      Y: 25
+      Level: 0
+    - X: 28
+      Y: 25
+      Level: 0
+    - X: -67
+      Y: 26
+      Level: 0
+    - X: -66
+      Y: 26
+      Level: 0
+    - X: -65
+      Y: 26
+      Level: 0
+    - X: -64
+      Y: 26
+      Level: 0
+    - X: -63
+      Y: 26
+      Level: 0
+    - X: -62
+      Y: 26
+      Level: 0
+    - X: -61
+      Y: 26
+      Level: 0
+    - X: -60
+      Y: 26
+      Level: 0
+    - X: -59
+      Y: 26
+      Level: 0
+    - X: -58
+      Y: 26
+      Level: 0
+    - X: -57
+      Y: 26
+      Level: 0
+    - X: -56
+      Y: 26
+      Level: 0
+    - X: -55
+      Y: 26
+      Level: 0
+    - X: -54
+      Y: 26
+      Level: 0
+    - X: -53
+      Y: 26
+      Level: 0
+    - X: -52
+      Y: 26
+      Level: 0
+    - X: -51
+      Y: 26
+      Level: 0
+    - X: -50
+      Y: 26
+      Level: 0
+    - X: -49
+      Y: 26
+      Level: 0
+    - X: -48
+      Y: 26
+      Level: 0
+    - X: -47
+      Y: 26
+      Level: 0
+    - X: -46
+      Y: 26
+      Level: 0
+    - X: -45
+      Y: 26
+      Level: 0
+    - X: -44
+      Y: 26
+      Level: 0
+    - X: -43
+      Y: 26
+      Level: 0
+    - X: -42
+      Y: 26
+      Level: 0
+    - X: -41
+      Y: 26
+      Level: 0
+    - X: -40
+      Y: 26
+      Level: 0
+    - X: -39
+      Y: 26
+      Level: 0
+    - X: -38
+      Y: 26
+      Level: 0
+    - X: -37
+      Y: 26
+      Level: 0
+    - X: -36
+      Y: 26
+      Level: 0
+    - X: -35
+      Y: 26
+      Level: 0
+    - X: -34
+      Y: 26
+      Level: 0
+    - X: -33
+      Y: 26
+      Level: 0
+    - X: -32
+      Y: 26
+      Level: 0
+    - X: -31
+      Y: 26
+      Level: 0
+    - X: -30
+      Y: 26
+      Level: 0
+    - X: -29
+      Y: 26
+      Level: 0
+    - X: -28
+      Y: 26
+      Level: 0
+    - X: -27
+      Y: 26
+      Level: 0
+    - X: -26
+      Y: 26
+      Level: 0
+    - X: -25
+      Y: 26
+      Level: 0
+    - X: -24
+      Y: 26
+      Level: 0
+    - X: -23
+      Y: 26
+      Level: 0
+    - X: -22
+      Y: 26
+      Level: 0
+    - X: -21
+      Y: 26
+      Level: 0
+    - X: -20
+      Y: 26
+      Level: 0
+    - X: -19
+      Y: 26
+      Level: 0
+    - X: -18
+      Y: 26
+      Level: 0
+    - X: -17
+      Y: 26
+      Level: 0
+    - X: -16
+      Y: 26
+      Level: 0
+    - X: -15
+      Y: 26
+      Level: 0
+    - X: -14
+      Y: 26
+      Level: 0
+    - X: -13
+      Y: 26
+      Level: 0
+    - X: -12
+      Y: 26
+      Level: 0
+    - X: -11
+      Y: 26
+      Level: 0
+    - X: -10
+      Y: 26
+      Level: 0
+    - X: -9
+      Y: 26
+      Level: 0
+    - X: -8
+      Y: 26
+      Level: 0
+    - X: -7
+      Y: 26
+      Level: 0
+    - X: -6
+      Y: 26
+      Level: 0
+    - X: -5
+      Y: 26
+      Level: 0
+    - X: -4
+      Y: 26
+      Level: 0
+    - X: -3
+      Y: 26
+      Level: 0
+    - X: -2
+      Y: 26
+      Level: 0
+    - X: -1
+      Y: 26
+      Level: 0
+    - X: 0
+      Y: 26
+      Level: 0
+    - X: 1
+      Y: 26
+      Level: 0
+    - X: 2
+      Y: 26
+      Level: 0
+    - X: 3
+      Y: 26
+      Level: 0
+    - X: 4
+      Y: 26
+      Level: 0
+    - X: 5
+      Y: 26
+      Level: 0
+    - X: 6
+      Y: 26
+      Level: 0
+    - X: 7
+      Y: 26
+      Level: 0
+    - X: 8
+      Y: 26
+      Level: 0
+    - X: 9
+      Y: 26
+      Level: 0
+    - X: 10
+      Y: 26
+      Level: 0
+    - X: 11
+      Y: 26
+      Level: 0
+    - X: 12
+      Y: 26
+      Level: 0
+    - X: 13
+      Y: 26
+      Level: 0
+    - X: 14
+      Y: 26
+      Level: 0
+    - X: 15
+      Y: 26
+      Level: 0
+    - X: 16
+      Y: 26
+      Level: 0
+    - X: 17
+      Y: 26
+      Level: 0
+    - X: 18
+      Y: 26
+      Level: 0
+    - X: 19
+      Y: 26
+      Level: 0
+    - X: 20
+      Y: 26
+      Level: 0
+    - X: 21
+      Y: 26
+      Level: 0
+    - X: 22
+      Y: 26
+      Level: 0
+    - X: 23
+      Y: 26
+      Level: 0
+    - X: 24
+      Y: 26
+      Level: 0
+    - X: 25
+      Y: 26
+      Level: 0
+    - X: 26
+      Y: 26
+      Level: 0
+    - X: 27
+      Y: 26
+      Level: 0
+    - X: 28
+      Y: 26
+      Level: 0
+    - X: -67
+      Y: 27
+      Level: 0
+    - X: -66
+      Y: 27
+      Level: 0
+    - X: -65
+      Y: 27
+      Level: 0
+    - X: -64
+      Y: 27
+      Level: 0
+    - X: -63
+      Y: 27
+      Level: 0
+    - X: -62
+      Y: 27
+      Level: 0
+    - X: -61
+      Y: 27
+      Level: 0
+    - X: -60
+      Y: 27
+      Level: 0
+    - X: -59
+      Y: 27
+      Level: 0
+    - X: -58
+      Y: 27
+      Level: 0
+    - X: -57
+      Y: 27
+      Level: 0
+    - X: -56
+      Y: 27
+      Level: 0
+    - X: -55
+      Y: 27
+      Level: 0
+    - X: -54
+      Y: 27
+      Level: 0
+    - X: -53
+      Y: 27
+      Level: 0
+    - X: -52
+      Y: 27
+      Level: 0
+    - X: -51
+      Y: 27
+      Level: 0
+    - X: -50
+      Y: 27
+      Level: 0
+    - X: -49
+      Y: 27
+      Level: 0
+    - X: -48
+      Y: 27
+      Level: 0
+    - X: -47
+      Y: 27
+      Level: 0
+    - X: -46
+      Y: 27
+      Level: 0
+    - X: -45
+      Y: 27
+      Level: 0
+    - X: -44
+      Y: 27
+      Level: 0
+    - X: -43
+      Y: 27
+      Level: 0
+    - X: -42
+      Y: 27
+      Level: 0
+    - X: -41
+      Y: 27
+      Level: 0
+    - X: -40
+      Y: 27
+      Level: 0
+    - X: -39
+      Y: 27
+      Level: 0
+    - X: -38
+      Y: 27
+      Level: 0
+    - X: -37
+      Y: 27
+      Level: 0
+    - X: -36
+      Y: 27
+      Level: 0
+    - X: -35
+      Y: 27
+      Level: 0
+    - X: -34
+      Y: 27
+      Level: 0
+    - X: -33
+      Y: 27
+      Level: 0
+    - X: -32
+      Y: 27
+      Level: 0
+    - X: -31
+      Y: 27
+      Level: 0
+    - X: -30
+      Y: 27
+      Level: 0
+    - X: -29
+      Y: 27
+      Level: 0
+    - X: -28
+      Y: 27
+      Level: 0
+    - X: -27
+      Y: 27
+      Level: 0
+    - X: -26
+      Y: 27
+      Level: 0
+    - X: -25
+      Y: 27
+      Level: 0
+    - X: -24
+      Y: 27
+      Level: 0
+    - X: -23
+      Y: 27
+      Level: 0
+    - X: -22
+      Y: 27
+      Level: 0
+    - X: -21
+      Y: 27
+      Level: 0
+    - X: -20
+      Y: 27
+      Level: 0
+    - X: -19
+      Y: 27
+      Level: 0
+    - X: -18
+      Y: 27
+      Level: 0
+    - X: -17
+      Y: 27
+      Level: 0
+    - X: -16
+      Y: 27
+      Level: 0
+    - X: -15
+      Y: 27
+      Level: 0
+    - X: -14
+      Y: 27
+      Level: 0
+    - X: -13
+      Y: 27
+      Level: 0
+    - X: -12
+      Y: 27
+      Level: 0
+    - X: -11
+      Y: 27
+      Level: 0
+    - X: -10
+      Y: 27
+      Level: 0
+    - X: -9
+      Y: 27
+      Level: 0
+    - X: -8
+      Y: 27
+      Level: 0
+    - X: -7
+      Y: 27
+      Level: 0
+    - X: -6
+      Y: 27
+      Level: 0
+    - X: -5
+      Y: 27
+      Level: 0
+    - X: -4
+      Y: 27
+      Level: 0
+    - X: -3
+      Y: 27
+      Level: 0
+    - X: -2
+      Y: 27
+      Level: 0
+    - X: -1
+      Y: 27
+      Level: 0
+    - X: 0
+      Y: 27
+      Level: 0
+    - X: 1
+      Y: 27
+      Level: 0
+    - X: 2
+      Y: 27
+      Level: 0
+    - X: 3
+      Y: 27
+      Level: 0
+    - X: 4
+      Y: 27
+      Level: 0
+    - X: 5
+      Y: 27
+      Level: 0
+    - X: 6
+      Y: 27
+      Level: 0
+    - X: 7
+      Y: 27
+      Level: 0
+    - X: 8
+      Y: 27
+      Level: 0
+    - X: 9
+      Y: 27
+      Level: 0
+    - X: 10
+      Y: 27
+      Level: 0
+    - X: 11
+      Y: 27
+      Level: 0
+    - X: 12
+      Y: 27
+      Level: 0
+    - X: 13
+      Y: 27
+      Level: 0
+    - X: 14
+      Y: 27
+      Level: 0
+    - X: 15
+      Y: 27
+      Level: 0
+    - X: 16
+      Y: 27
+      Level: 0
+    - X: 17
+      Y: 27
+      Level: 0
+    - X: 18
+      Y: 27
+      Level: 0
+    - X: 19
+      Y: 27
+      Level: 0
+    - X: 20
+      Y: 27
+      Level: 0
+    - X: 21
+      Y: 27
+      Level: 0
+    - X: 22
+      Y: 27
+      Level: 0
+    - X: 23
+      Y: 27
+      Level: 0
+    - X: 24
+      Y: 27
+      Level: 0
+    - X: 25
+      Y: 27
+      Level: 0
+    - X: 26
+      Y: 27
+      Level: 0
+    - X: 27
+      Y: 27
+      Level: 0
+    - X: 28
+      Y: 27
+      Level: 0
     - X: -20
       Y: 28
       Level: 0
@@ -985,6 +1849,18 @@ MonoBehaviour:
     - X: -7
       Y: 28
       Level: 0
+    - X: 11
+      Y: 28
+      Level: 0
+    - X: 12
+      Y: 28
+      Level: 0
+    - X: 13
+      Y: 28
+      Level: 0
+    - X: 14
+      Y: 28
+      Level: 0
     - X: -20
       Y: 29
       Level: 0
@@ -1006,6 +1882,18 @@ MonoBehaviour:
     - X: -7
       Y: 29
       Level: 0
+    - X: 11
+      Y: 29
+      Level: 0
+    - X: 12
+      Y: 29
+      Level: 0
+    - X: 13
+      Y: 29
+      Level: 0
+    - X: 14
+      Y: 29
+      Level: 0
     - X: -20
       Y: 30
       Level: 0
@@ -1027,6 +1915,18 @@ MonoBehaviour:
     - X: -7
       Y: 30
       Level: 0
+    - X: 11
+      Y: 30
+      Level: 0
+    - X: 12
+      Y: 30
+      Level: 0
+    - X: 13
+      Y: 30
+      Level: 0
+    - X: 14
+      Y: 30
+      Level: 0
     - X: -20
       Y: 31
       Level: 0
@@ -1048,6 +1948,18 @@ MonoBehaviour:
     - X: -7
       Y: 31
       Level: 0
+    - X: 11
+      Y: 31
+      Level: 0
+    - X: 12
+      Y: 31
+      Level: 0
+    - X: 13
+      Y: 31
+      Level: 0
+    - X: 14
+      Y: 31
+      Level: 0
     - X: -20
       Y: 32
       Level: 0
@@ -1067,6 +1979,18 @@ MonoBehaviour:
       Y: 32
       Level: 0
     - X: -7
+      Y: 32
+      Level: 0
+    - X: 11
+      Y: 32
+      Level: 0
+    - X: 12
+      Y: 32
+      Level: 0
+    - X: 13
+      Y: 32
+      Level: 0
+    - X: 14
       Y: 32
       Level: 0
     - X: -27
@@ -1132,6 +2056,18 @@ MonoBehaviour:
     - X: -7
       Y: 33
       Level: 0
+    - X: 11
+      Y: 33
+      Level: 0
+    - X: 12
+      Y: 33
+      Level: 0
+    - X: 13
+      Y: 33
+      Level: 0
+    - X: 14
+      Y: 33
+      Level: 0
     - X: -19
       Y: 34
       Level: 0
@@ -1150,6 +2086,18 @@ MonoBehaviour:
     - X: -7
       Y: 34
       Level: 0
+    - X: 11
+      Y: 34
+      Level: 0
+    - X: 12
+      Y: 34
+      Level: 0
+    - X: 13
+      Y: 34
+      Level: 0
+    - X: 14
+      Y: 34
+      Level: 0
     - X: -9
       Y: 35
       Level: 0
@@ -1159,6 +2107,18 @@ MonoBehaviour:
     - X: -7
       Y: 35
       Level: 0
+    - X: 11
+      Y: 35
+      Level: 0
+    - X: 12
+      Y: 35
+      Level: 0
+    - X: 13
+      Y: 35
+      Level: 0
+    - X: 14
+      Y: 35
+      Level: 0
     - X: -9
       Y: 36
       Level: 0
@@ -1166,6 +2126,18 @@ MonoBehaviour:
       Y: 36
       Level: 0
     - X: -7
+      Y: 36
+      Level: 0
+    - X: 11
+      Y: 36
+      Level: 0
+    - X: 12
+      Y: 36
+      Level: 0
+    - X: 13
+      Y: 36
+      Level: 0
+    - X: 14
       Y: 36
       Level: 0
     - X: -9
@@ -1175,6 +2147,18 @@ MonoBehaviour:
       Y: 37
       Level: 0
     - X: -7
+      Y: 37
+      Level: 0
+    - X: 11
+      Y: 37
+      Level: 0
+    - X: 12
+      Y: 37
+      Level: 0
+    - X: 13
+      Y: 37
+      Level: 0
+    - X: 14
       Y: 37
       Level: 0
     - X: -9
@@ -1184,6 +2168,18 @@ MonoBehaviour:
       Y: 38
       Level: 0
     - X: -7
+      Y: 38
+      Level: 0
+    - X: 11
+      Y: 38
+      Level: 0
+    - X: 12
+      Y: 38
+      Level: 0
+    - X: 13
+      Y: 38
+      Level: 0
+    - X: 14
       Y: 38
       Level: 0
     - X: -9
@@ -1193,6 +2189,18 @@ MonoBehaviour:
       Y: 39
       Level: 0
     - X: -7
+      Y: 39
+      Level: 0
+    - X: 11
+      Y: 39
+      Level: 0
+    - X: 12
+      Y: 39
+      Level: 0
+    - X: 13
+      Y: 39
+      Level: 0
+    - X: 14
       Y: 39
       Level: 0
     - X: -9
@@ -1202,6 +2210,18 @@ MonoBehaviour:
       Y: 40
       Level: 0
     - X: -7
+      Y: 40
+      Level: 0
+    - X: 11
+      Y: 40
+      Level: 0
+    - X: 12
+      Y: 40
+      Level: 0
+    - X: 13
+      Y: 40
+      Level: 0
+    - X: 14
       Y: 40
       Level: 0
     - X: -9
@@ -1211,6 +2231,18 @@ MonoBehaviour:
       Y: 41
       Level: 0
     - X: -7
+      Y: 41
+      Level: 0
+    - X: 11
+      Y: 41
+      Level: 0
+    - X: 12
+      Y: 41
+      Level: 0
+    - X: 13
+      Y: 41
+      Level: 0
+    - X: 14
       Y: 41
       Level: 0
     - X: -9
@@ -1220,6 +2252,18 @@ MonoBehaviour:
       Y: 42
       Level: 0
     - X: -7
+      Y: 42
+      Level: 0
+    - X: 11
+      Y: 42
+      Level: 0
+    - X: 12
+      Y: 42
+      Level: 0
+    - X: 13
+      Y: 42
+      Level: 0
+    - X: 14
       Y: 42
       Level: 0
     - X: -9
@@ -1229,6 +2273,18 @@ MonoBehaviour:
       Y: 43
       Level: 0
     - X: -7
+      Y: 43
+      Level: 0
+    - X: 11
+      Y: 43
+      Level: 0
+    - X: 12
+      Y: 43
+      Level: 0
+    - X: 13
+      Y: 43
+      Level: 0
+    - X: 14
       Y: 43
       Level: 0
     - X: -9
@@ -1238,6 +2294,18 @@ MonoBehaviour:
       Y: 44
       Level: 0
     - X: -7
+      Y: 44
+      Level: 0
+    - X: 11
+      Y: 44
+      Level: 0
+    - X: 12
+      Y: 44
+      Level: 0
+    - X: 13
+      Y: 44
+      Level: 0
+    - X: 14
       Y: 44
       Level: 0
     - X: -9
@@ -1247,6 +2315,18 @@ MonoBehaviour:
       Y: 45
       Level: 0
     - X: -7
+      Y: 45
+      Level: 0
+    - X: 11
+      Y: 45
+      Level: 0
+    - X: 12
+      Y: 45
+      Level: 0
+    - X: 13
+      Y: 45
+      Level: 0
+    - X: 14
       Y: 45
       Level: 0
     - X: -10
@@ -1261,11 +2341,83 @@ MonoBehaviour:
     - X: -7
       Y: 46
       Level: 0
+    - X: 11
+      Y: 46
+      Level: 0
+    - X: 12
+      Y: 46
+      Level: 0
+    - X: 13
+      Y: 46
+      Level: 0
+    - X: 14
+      Y: 46
+      Level: 0
     - X: -9
       Y: 47
       Level: 0
     - X: -8
       Y: 47
+      Level: 0
+    - X: 11
+      Y: 47
+      Level: 0
+    - X: 12
+      Y: 47
+      Level: 0
+    - X: 13
+      Y: 47
+      Level: 0
+    - X: 14
+      Y: 47
+      Level: 0
+    - X: 11
+      Y: 48
+      Level: 0
+    - X: 12
+      Y: 48
+      Level: 0
+    - X: 13
+      Y: 48
+      Level: 0
+    - X: 14
+      Y: 48
+      Level: 0
+    - X: 11
+      Y: 49
+      Level: 0
+    - X: 12
+      Y: 49
+      Level: 0
+    - X: 13
+      Y: 49
+      Level: 0
+    - X: 14
+      Y: 49
+      Level: 0
+    - X: 11
+      Y: 50
+      Level: 0
+    - X: 12
+      Y: 50
+      Level: 0
+    - X: 13
+      Y: 50
+      Level: 0
+    - X: 14
+      Y: 50
+      Level: 0
+    - X: 11
+      Y: 51
+      Level: 0
+    - X: 12
+      Y: 51
+      Level: 0
+    - X: 13
+      Y: 51
+      Level: 0
+    - X: 14
+      Y: 51
       Level: 0
     - X: 12
       Y: 52

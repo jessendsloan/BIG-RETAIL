@@ -1,6 +1,8 @@
 using BigRetail.Map.Construction;
 using BigRetail.Map.Unity;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.Navigation;
+using BigRetail.Map.Unity.Sidewalks;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -17,6 +19,10 @@ namespace BigRetail.Map.Unity.Tests
 
         private const string MapId =
             "bigretail.map.frank_roadside";
+
+        private const string RoadsideSurfaceTilePath =
+            "Assets/Art/GroundTileArt/Brick/"
+            + "groundtile_brick_2_0.asset";
 
 
         [Test]
@@ -108,6 +114,8 @@ namespace BigRetail.Map.Unity.Tests
                     markerHost,
                     "bigretail.marker.frank.rear_service");
 
+                AssertRoadsideSurfaceTiles(scene);
+
                 AssertHasComponentType(
                     scene,
                     "BigRetail.Purchasing.Unity."
@@ -141,6 +149,96 @@ namespace BigRetail.Map.Unity.Tests
                         NewSceneMode.Single);
                 }
             }
+        }
+
+
+        private static void AssertRoadsideSurfaceTiles(Scene scene)
+        {
+            TileBase expectedTile =
+                AssetDatabase.LoadAssetAtPath<TileBase>(
+                    RoadsideSurfaceTilePath);
+
+            Assert.That(expectedTile, Is.Not.Null);
+            AssertSerializedTile(
+                FindSceneComponent<
+                    FoundationApronTilemapViewSystem>(scene),
+                "apronTile",
+                expectedTile);
+            AssertSerializedTile(
+                FindSceneComponent<SidewalkTilemapViewSystem>(scene),
+                "sidewalkTile",
+                expectedTile);
+            AssertSerializedTile(
+                FindSceneMonoBehaviour(
+                    scene,
+                    "BigRetail.Construction.Unity.Foundations."
+                    + "FoundationAreaPreviewView"),
+                "previewApronTile",
+                expectedTile);
+            AssertSerializedTile(
+                FindSceneMonoBehaviour(
+                    scene,
+                    "BigRetail.Construction.Unity.Sidewalks."
+                    + "SidewalkAreaPreviewView"),
+                "previewTile",
+                expectedTile);
+            AssertSerializedTile(
+                FindSceneMonoBehaviour(
+                    scene,
+                    "BigRetail.Construction.Unity.Sidewalks."
+                    + "SidewalkDemolitionAreaPreviewView"),
+                "previewTile",
+                expectedTile);
+        }
+
+
+        private static void AssertSerializedTile(
+            Component component,
+            string propertyName,
+            TileBase expectedTile)
+        {
+            Assert.That(component, Is.Not.Null);
+            SerializedObject serialized = new SerializedObject(component);
+            SerializedProperty property =
+                serialized.FindProperty(propertyName);
+
+            Assert.That(property, Is.Not.Null);
+            Assert.That(
+                property.objectReferenceValue,
+                Is.SameAs(expectedTile));
+        }
+
+
+        private static MonoBehaviour FindSceneMonoBehaviour(
+            Scene scene,
+            string componentTypeName)
+        {
+            GameObject[] roots = scene.GetRootGameObjects();
+
+            for (int rootIndex = 0;
+                 rootIndex < roots.Length;
+                 rootIndex++)
+            {
+                MonoBehaviour[] components =
+                    roots[rootIndex]
+                        .GetComponentsInChildren<MonoBehaviour>(true);
+
+                for (int index = 0;
+                     index < components.Length;
+                     index++)
+                {
+                    MonoBehaviour component = components[index];
+
+                    if (component != null
+                        && component.GetType().FullName
+                            == componentTypeName)
+                    {
+                        return component;
+                    }
+                }
+            }
+
+            return null;
         }
 
 

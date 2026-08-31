@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using BigRetail.Construction.Unity.Foundations;
+using BigRetail.Construction.Unity.Sidewalks;
 using BigRetail.Map.Unity;
 using BigRetail.Map.Unity.Fixtures;
+using BigRetail.Map.Unity.Foundations;
 using BigRetail.Map.Unity.Navigation;
 using BigRetail.Map.Unity.Sidewalks;
 using BigRetail.Purchasing.Unity;
@@ -19,8 +22,8 @@ namespace BigRetail.Editor.StoreLayouts
 {
     /// <summary>
     /// One-time authored migration that brings Frank's upper property into
-    /// the normal Map Workshop construction model and leaves the trailer
-    /// report marker ready for a player-authored sidewalk connection.
+    /// the normal Map Workshop construction model and synchronizes the
+    /// painted roadside walk into the logical navigation surface.
     /// </summary>
     public static class FrankRoadsidePropertyExpansion
     {
@@ -29,6 +32,14 @@ namespace BigRetail.Editor.StoreLayouts
 
         private const string LayoutPath =
             "Assets/Design/StoreLayouts/FrankStoreLayoutV1.asset";
+
+        private const string RoadsideSurfaceTilePath =
+            "Assets/Art/GroundTileArt/Brick/"
+            + "groundtile_brick_2_0.asset";
+
+        private const string TrailerAccessSurfaceTilePath =
+            "Assets/Art/GroundTileArt/Minerals/"
+            + "groundtile_gravel_1_0.asset";
 
         private const int PropertyMinimumX = -67;
         private const int PropertyMaximumX = 28;
@@ -47,6 +58,46 @@ namespace BigRetail.Editor.StoreLayouts
         private const int PreviousRenderedPathEndY = 51;
         private const int TrailerPathEndX = 12;
         private const int TrailerPathEndY = 52;
+
+        private static readonly Vector3Int RoadsideSidewalkSeed =
+            new Vector3Int(12, 27, 0);
+
+        private static readonly Vector3Int TrailerAccessPathSeed =
+            new Vector3Int(12, 51, 0);
+
+
+        public static void SynchronizeRoadsideWalkabilityForAutomation()
+        {
+            if (Application.isPlaying)
+            {
+                throw new InvalidOperationException(
+                    "Frank's roadside walkability sync requires Edit Mode.");
+            }
+
+            Scene scene = EditorSceneManager.OpenScene(
+                ScenePath,
+                OpenSceneMode.Single);
+            GridMapHost mapHost =
+                FindRequiredComponent<GridMapHost>(scene);
+            mapHost.Initialize();
+
+            if (!mapHost.IsInitialized
+                || string.IsNullOrWhiteSpace(mapHost.MapFingerprint))
+            {
+                throw new InvalidOperationException(
+                    "Frank's map could not produce its geometry "
+                    + "fingerprint for the walkability sync.");
+            }
+
+            RestorePlayerAuthoredSidewalks(
+                scene,
+                mapHost.MapFingerprint);
+            AssetDatabase.SaveAssets();
+
+            Debug.Log(
+                "Frank Roadside's painted upper sidewalk and gravel "
+                + "trailer path are now part of the navigation surface.");
+        }
 
 
         public static void ApplyForAutomation()
@@ -115,7 +166,10 @@ namespace BigRetail.Editor.StoreLayouts
 
             ConfigureFounderWork(scene, navigationHost);
             ConfigureRoadsideMarker(scene);
-            RestorePlayerAuthoredSidewalks(mapHost.MapFingerprint);
+            ConfigureRoadsideSurfaceTile(scene);
+            RestorePlayerAuthoredSidewalks(
+                scene,
+                mapHost.MapFingerprint);
 
             EditorSceneManager.MarkSceneDirty(scene);
 
@@ -240,7 +294,69 @@ namespace BigRetail.Editor.StoreLayouts
         }
 
 
+        private static void ConfigureRoadsideSurfaceTile(Scene scene)
+        {
+            TileBase surfaceTile =
+                AssetDatabase.LoadAssetAtPath<TileBase>(
+                    RoadsideSurfaceTilePath);
+
+            if (surfaceTile == null)
+            {
+                throw new InvalidOperationException(
+                    $"Frank's roadside surface tile is missing at "
+                    + $"'{RoadsideSurfaceTilePath}'.");
+            }
+
+            SetTileReference(
+                FindRequiredComponent<
+                    FoundationApronTilemapViewSystem>(scene),
+                "apronTile",
+                surfaceTile);
+            SetTileReference(
+                FindRequiredComponent<FoundationAreaPreviewView>(scene),
+                "previewApronTile",
+                surfaceTile);
+            SetTileReference(
+                FindRequiredComponent<SidewalkTilemapViewSystem>(scene),
+                "sidewalkTile",
+                surfaceTile);
+            SetTileReference(
+                FindRequiredComponent<SidewalkAreaPreviewView>(scene),
+                "previewTile",
+                surfaceTile);
+            SetTileReference(
+                FindRequiredComponent<
+                    SidewalkDemolitionAreaPreviewView>(scene),
+                "previewTile",
+                surfaceTile);
+        }
+
+
+        private static void SetTileReference(
+            Component component,
+            string propertyName,
+            TileBase tile)
+        {
+            SerializedObject serialized =
+                new SerializedObject(component);
+            SerializedProperty property =
+                serialized.FindProperty(propertyName);
+
+            if (property == null)
+            {
+                throw new InvalidOperationException(
+                    $"{component.GetType().Name} is missing serialized "
+                    + $"tile property '{propertyName}'.");
+            }
+
+            property.objectReferenceValue = tile;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(component);
+        }
+
+
         private static void RestorePlayerAuthoredSidewalks(
+            Scene scene,
             string mapFingerprint)
         {
             StoreLayoutAsset layoutAsset =
@@ -307,19 +423,111 @@ namespace BigRetail.Editor.StoreLayouts
             sidewalks.Add(new StoreCellData(-9, 47, 0));
             sidewalks.Add(new StoreCellData(-8, 47, 0));
 
-            // The landing is intentionally isolated. The player owns the
-            // walking path from these steps to the street sidewalk.
+            // Keep the trailer landing itself available even though the
+            // authored gravel stops immediately below the rendered steps.
             sidewalks.Add(
                 new StoreCellData(
                     TrailerPathEndX,
                     TrailerPathEndY,
                     0));
 
+            Tilemap mapVisuals =
+                FindRequiredTilemap(scene, "MapVIsuals");
+            Tilemap constructionAreaMask =
+                FindRequiredTilemap(scene, "ConstructionAreaMask");
+            TileBase roadsideSurface =
+                LoadRequiredTile(RoadsideSurfaceTilePath);
+            TileBase trailerAccessSurface =
+                LoadRequiredTile(TrailerAccessSurfaceTilePath);
+
+            // MapVIsuals extends beyond Frank's owned lot so the roadside
+            // art can continue offscreen. Logical sidewalks must stop at the
+            // authored construction boundary or layout restoration will
+            // correctly reject those cells.
+            sidewalks.RemoveWhere(
+                cell =>
+                    !constructionAreaMask.HasTile(
+                        new Vector3Int(
+                            cell.X,
+                            cell.Y,
+                            cell.Level)));
+
+            AddConnectedAuthoredSurface(
+                mapVisuals,
+                constructionAreaMask,
+                roadsideSurface,
+                RoadsideSidewalkSeed,
+                sidewalks);
+            AddConnectedAuthoredSurface(
+                mapVisuals,
+                constructionAreaMask,
+                trailerAccessSurface,
+                TrailerAccessPathSeed,
+                sidewalks);
+
             layout.Sidewalks.Clear();
             layout.Sidewalks.AddRange(sidewalks);
             layoutAsset.ReplaceData(layout);
             EditorUtility.SetDirty(layoutAsset);
             AssetDatabase.SaveAssetIfDirty(layoutAsset);
+        }
+
+
+        private static TileBase LoadRequiredTile(string assetPath)
+        {
+            TileBase tile =
+                AssetDatabase.LoadAssetAtPath<TileBase>(assetPath);
+
+            if (tile == null)
+            {
+                throw new InvalidOperationException(
+                    $"Frank's authored surface tile is missing at "
+                    + $"'{assetPath}'.");
+            }
+
+            return tile;
+        }
+
+
+        private static void AddConnectedAuthoredSurface(
+            Tilemap source,
+            Tilemap constructionAreaMask,
+            TileBase surfaceTile,
+            Vector3Int seed,
+            ISet<StoreCellData> sidewalks)
+        {
+            if (source.GetTile(seed) != surfaceTile)
+            {
+                throw new InvalidOperationException(
+                    $"Frank's authored walking surface at {seed} no "
+                    + "longer uses the expected tile. Move the seed or "
+                    + "restore the painted route before synchronizing.");
+            }
+
+            Queue<Vector3Int> frontier =
+                new Queue<Vector3Int>();
+            HashSet<Vector3Int> visited =
+                new HashSet<Vector3Int>();
+            frontier.Enqueue(seed);
+
+            while (frontier.Count > 0)
+            {
+                Vector3Int cell = frontier.Dequeue();
+
+                if (!visited.Add(cell)
+                    || !constructionAreaMask.HasTile(cell)
+                    || source.GetTile(cell) != surfaceTile)
+                {
+                    continue;
+                }
+
+                sidewalks.Add(
+                    new StoreCellData(cell.x, cell.y, 0));
+                frontier.Enqueue(cell + Vector3Int.right);
+                frontier.Enqueue(cell + Vector3Int.left);
+                frontier.Enqueue(cell + Vector3Int.up);
+                frontier.Enqueue(cell + Vector3Int.down);
+            }
         }
 
 
